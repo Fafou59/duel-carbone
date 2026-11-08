@@ -80,13 +80,27 @@
 }
 
 .duel__resultat {
-  display: grid;
-  gap: 12px;
   margin-top: 18px;
+  scroll-margin-top: 12px;
 }
 
-.duel__resultat:empty {
-  display: none;
+.duel__resultat:focus {
+  outline: none;
+}
+
+.duel__explication {
+  display: grid;
+  gap: 16px;
+  margin-top: 12px;
+  padding: 18px;
+  border-radius: 20px;
+  background: var(--carte);
+}
+
+@media (max-width: 360px) {
+  .duel__explication {
+    padding: 14px 10px;
+  }
 }
 
 .duel__verdict {

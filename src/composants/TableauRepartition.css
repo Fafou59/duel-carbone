@@ -1,0 +1,123 @@
+.repartition {
+  display: grid;
+  gap: 8px;
+}
+
+/* table-layout: fixed : les colonnes gardent leur largeur, le tableau ne déborde jamais de l'écran. */
+.repartition__tableau {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 14px;
+}
+
+.repartition__tableau caption {
+  margin-bottom: 8px;
+  font-size: 17px;
+  font-weight: 800;
+  text-align: left;
+}
+
+.repartition__unite {
+  color: var(--discret);
+  font-weight: 400;
+}
+
+.repartition__tableau th,
+.repartition__tableau td {
+  padding: 7px 6px;
+  border-bottom: 1px solid var(--ligne);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.repartition__tableau thead th {
+  vertical-align: bottom;
+}
+
+/* Avec table-layout: fixed, seule la première ligne (l'en-tête) fixe la largeur des colonnes. */
+.repartition__tableau thead th:first-child {
+  width: 38%;
+}
+
+/* Les libellés longs se coupent avec un trait d'union quand le navigateur sait le faire en français. */
+.repartition__tableau th[scope='row'] {
+  font-weight: 600;
+  hyphens: auto;
+  overflow-wrap: break-word;
+}
+
+/* Sur les plus petits écrans, les chiffres sont courts : on donne la place aux libellés. */
+@media (max-width: 360px) {
+  .repartition__tableau {
+    font-size: 13px;
+  }
+
+  .repartition__tableau thead th:first-child {
+    width: 46%;
+  }
+}
+
+.repartition__tableau tfoot th,
+.repartition__tableau tfoot td {
+  border-top: 2px solid var(--encre);
+  border-bottom: 0;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.repartition__nombre {
+  position: relative;
+  text-align: right !important;
+}
+
+.repartition__icone {
+  display: block;
+  font-size: 26px;
+  line-height: 1;
+}
+
+.repartition__geste {
+  display: block;
+  margin-top: 2px;
+  color: var(--discret);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.repartition__precision {
+  display: block;
+  color: var(--discret);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+/* La jauge est un fond pâle glissé derrière le chiffre, dont la largeur suit l'échelle commune. */
+.repartition__jauge {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  left: 4px;
+  border-radius: 4px;
+  background: var(--marque);
+  opacity: 0.3;
+}
+
+.repartition__jauge--recyclage {
+  background: repeating-linear-gradient(45deg, var(--bon), var(--bon) 3px, transparent 3px, transparent 6px);
+  opacity: 0.6;
+}
+
+.repartition__valeur {
+  position: relative;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.repartition__note,
+.repartition__sources {
+  margin: 0;
+  color: var(--discret);
+  font-size: 13px;
+}
