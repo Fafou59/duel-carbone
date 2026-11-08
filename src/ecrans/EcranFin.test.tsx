@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { GESTES_CALCULES } from '../donnees/index.ts'
 import { plusEmetteur, moinsEmetteur } from '../domaine/duel.ts'
@@ -6,7 +6,9 @@ import { formaterMultiple, queDevant } from '../domaine/format.ts'
 import { genererPartie } from '../domaine/generateur.ts'
 import { hasardReproductible } from '../domaine/hasard.ts'
 import { avancer, demarrerPartie, score } from '../domaine/partie.ts'
+import { texteDePartage } from '../domaine/partage.ts'
 import { recapitulatif } from '../domaine/recapitulatif.ts'
+import type { ResultatPartage } from '../navigateur/partager.ts'
 import { EcranFin } from './EcranFin.tsx'
 
 // Une Partie reproductible, jouée d'avance : bonne réponse aux Duels 1 à 7, mauvaise aux Duels 8 à 10.
@@ -18,8 +20,11 @@ DUELS.forEach((duel, i) => {
 })
 const LIGNES = recapitulatif(etat)
 
-const afficher = (onRejouer = () => {}) =>
-  render(<EcranFin lignes={LIGNES} score={score(etat)} total={10} onRejouer={onRejouer} />)
+const afficher = (
+  onRejouer = () => {},
+  onPartager: (texte: string) => Promise<ResultatPartage> = async () => 'copie',
+) =>
+  render(<EcranFin lignes={LIGNES} score={score(etat)} total={10} onRejouer={onRejouer} onPartager={onPartager} />)
 
 const caseDuel = (numero: number) => screen.getByRole('button', { name: new RegExp(`^Duel ${numero},`) })
 
@@ -35,6 +40,36 @@ describe('Écran de fin de Partie', () => {
     afficher(onRejouer)
     fireEvent.click(screen.getByRole('button', { name: 'Rejouer' }))
     expect(onRejouer).toHaveBeenCalledOnce()
+  })
+})
+
+describe('Partage du score', () => {
+  const partagerAvec = (resultat: ResultatPartage) => {
+    const onPartager = vi.fn(async () => resultat)
+    afficher(undefined, onPartager)
+    fireEvent.click(screen.getByRole('button', { name: 'Partager mon score' }))
+    return onPartager
+  }
+
+  it('partage le texte du score', async () => {
+    const onPartager = partagerAvec('partage')
+    expect(onPartager).toHaveBeenCalledWith(texteDePartage(7, 10))
+  })
+
+  it('confirme la copie', async () => {
+    partagerAvec('copie')
+    expect(await screen.findByRole('status')).toHaveTextContent('Score copié')
+  })
+
+  it('n’affiche rien si le joueur annule', async () => {
+    partagerAvec('annule')
+    await act(async () => {})
+    expect(screen.getByRole('status')).toBeEmptyDOMElement()
+  })
+
+  it('montre le texte à copier à la main si la copie échoue', async () => {
+    partagerAvec('echec')
+    expect(await screen.findByText(texteDePartage(7, 10))).toBeInTheDocument()
   })
 })
 

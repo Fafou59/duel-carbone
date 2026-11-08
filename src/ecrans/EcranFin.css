@@ -27,6 +27,26 @@
   font-size: 18px;
 }
 
+.fin__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.fin__partage p {
+  margin: 4px 0 0;
+}
+
+/* En cas d'échec de la copie : le texte, facile à sélectionner d'un toucher. */
+.fin__texte-partage {
+  padding: 10px 12px;
+  border: 2px dashed var(--ligne);
+  border-radius: 12px;
+  background: var(--carte);
+  user-select: all;
+  overflow-wrap: anywhere;
+}
+
 .fin__recap-titre {
   margin: 24px 0 0;
   font-size: 18px;
