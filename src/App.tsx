@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { GESTES_CALCULES } from './donnees/index.ts'
 import type { Duel } from './domaine/duel.ts'
-import { tirerPartieProvisoire } from './domaine/tirage.ts'
+import { genererPartie } from './domaine/generateur.ts'
 import { EcranPartie } from './ecrans/EcranPartie.tsx'
 
 const DEPOT = 'https://github.com/Fafou59/duel-carbone'
@@ -13,7 +13,8 @@ export default function App() {
   const [numero, setNumero] = useState(0)
 
   const lancerPartie = () => {
-    setDuels(tirerPartieProvisoire(GESTES_CALCULES))
+    // Duels thématiques : ticket #13. Paires récentes : ticket #11.
+    setDuels(genererPartie({ gestes: GESTES_CALCULES }))
     setNumero((n) => n + 1)
   }
 

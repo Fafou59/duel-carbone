@@ -8,8 +8,9 @@
  * Fonction pure : avancer(état, action) renvoie le nouvel état, sans rien modifier d'autre.
  */
 import { estBonChoix, type Duel } from './duel.ts'
+import { REGLES } from './regles.ts'
 
-export const NOMBRE_DE_DUELS = 10
+export const NOMBRE_DE_DUELS = REGLES.nombreDeDuels
 
 export type Reponse = { idChoisi: string; bonne: boolean }
 
