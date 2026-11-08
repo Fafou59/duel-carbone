@@ -24,6 +24,15 @@ describe("Mise en forme d'une empreinte carbone", () => {
     expect(formaterEmpreinte(2060)).toBe('2,1 t CO2e')
   })
 
+  it('affiche « < 1 g » plutôt que « 0 g » pour une valeur minuscule mais réelle', () => {
+    expect(formaterEmpreinte(0.00002)).toBe('< 1 g CO2e')
+    expect(formaterEmpreinte(0.00002, { co2e: false })).toBe('< 1 g')
+  })
+
+  it('affiche « 0 g » pour une valeur réellement nulle', () => {
+    expect(formaterEmpreinte(0)).toBe('0 g CO2e')
+  })
+
   it('évite « 1 000 g » en passant au kilo', () => {
     expect(formaterEmpreinte(0.9996)).toBe('1 kg CO2e')
   })
