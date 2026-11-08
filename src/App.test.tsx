@@ -5,7 +5,7 @@ import App from './App'
 describe("Page d'accueil provisoire", () => {
   it('affiche le nom du jeu comme titre principal', () => {
     render(<App />)
-    expect(screen.getByRole('heading', { level: 1, name: 'Duel Charbon' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Duel Carbone' })).toBeInTheDocument()
   })
 
   it("cite l'ADEME comme source des données", () => {
