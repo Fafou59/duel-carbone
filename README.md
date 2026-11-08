@@ -44,7 +44,10 @@ npm install      # installe les dépendances
 npm run dev      # lance le site en local, avec rechargement automatique
 npm test         # lance les tests
 npm run build    # construit la version de production dans dist/
+npm run import   # met à jour l'Instantané des données ADEME (src/donnees/instantane.json)
 ```
+
+La clé d'API Impact CO2 est facultative : pour l'utiliser, copier `.env.example` en `.env` et la renseigner.
 
 ## Licence
 
