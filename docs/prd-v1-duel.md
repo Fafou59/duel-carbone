@@ -75,6 +75,7 @@ Grand public francophone, à partir d'environ 15 ans, majoritairement sur smartp
 | Plancher | aucun Duel sous ×1,25, aucune égalité |
 | Duel thématique | Difficulté éventuellement imposée ; tiré en priorité pour le Duel ultime |
 | Unicité | jamais la même paire dans une Partie ; on évite les paires des Parties récentes |
+| Assouplissement | si une tranche manque de paires : 1) réutiliser une paire récente de la tranche ; 2) si la tranche est vide, prendre la paire au Rapport le plus proche. Jamais sous le plancher |
 | Score | 1 point par bonne réponse, score sur 10, pas de chrono |
 | Ton | tutoiement, ludique mais rigoureux, jamais moralisateur |
 
@@ -111,7 +112,7 @@ La référence visuelle est la variante **A2** du prototype ; le détail et les 
 2. **Catalogue des Gestes** : un fichier éditorial avec, pour chaque Geste, son identifiant, son libellé, l'identifiant (*slug*) de son Équivalent, sa Quantité et la justification de cette Quantité. Environ 80 entrées, de préférence avec une Répartition.
 3. **Catalogue des Duels thématiques** : un fichier éditorial avec, pour chaque Duel, ses deux Gestes, son texte explicatif et, éventuellement, une Difficulté imposée. Une quinzaine d'entrées en v1.
 4. **Calcul d'un Geste** (fonction pure) : Empreinte carbone = valeur de l'Équivalent × Quantité ; la Répartition est mise à la même échelle.
-5. **Générateur de Partie** (fonction pure, cœur testable du produit). Il reçoit les Gestes, les Duels thématiques, les paires vues récemment et une source de hasard ; il renvoie 10 Duels qui respectent les règles de la section 5. Si une tranche de Difficulté manque de paires disponibles, il assouplit d'abord la contrainte des paires récentes, jamais le plancher de ×1,25.
+5. **Générateur de Partie** (fonction pure, cœur testable du produit). Il reçoit les Gestes, les Duels thématiques, les paires vues récemment et une source de hasard ; il renvoie 10 Duels qui respectent les règles de la section 5. Si une tranche de Difficulté manque de paires disponibles, il réutilise d'abord une paire récente de cette tranche ; si la tranche est vide, il prend la paire dont le Rapport est le plus proche de la tranche. Jamais sous le plancher de ×1,25. Les seuils sont réunis dans `src/domaine/regles.ts` : les modifier après des retours de joueurs se fait en une ligne, en mettant ce PRD à jour en même temps.
 6. **Moteur de Partie** : les états successifs d'une Partie (accueil → Duel → révélation → … → fin), le score et le Récapitulatif.
 7. **Stockage local** (dans le navigateur) : le meilleur score et les paires vues récemment. Aucune donnée personnelle.
 8. **Partage** : le menu de partage natif du téléphone, ou une copie dans le presse-papiers sur ordinateur.
