@@ -3,11 +3,11 @@ import { describe, expect, it, vi } from 'vitest'
 import { GESTES_CALCULES } from '../donnees/index.ts'
 import { plusEmetteur, moinsEmetteur } from '../domaine/duel.ts'
 import { hasardReproductible } from '../domaine/hasard.ts'
-import { tirerPartieProvisoire } from '../domaine/tirage.ts'
+import { genererPartie } from '../domaine/generateur.ts'
 import { EcranPartie } from './EcranPartie.tsx'
 
 // Une Partie reproductible : toujours les mêmes 10 Duels, tirés avec la graine 3.
-const DUELS = tirerPartieProvisoire(GESTES_CALCULES, hasardReproductible(3))
+const DUELS = genererPartie({ gestes: GESTES_CALCULES, hasard: hasardReproductible(3) })
 
 /** Joue un Duel comme un joueur : clique sur une carte, puis sur le bouton de suite. */
 const jouerDuel = (index: number, bien: boolean) => {
