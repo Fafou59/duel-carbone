@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { CarteGeste, type EtatCarte } from '../composants/CarteGeste.tsx'
 import { TableauRepartition } from '../composants/TableauRepartition.tsx'
 import { iconeDe } from '../donnees/icones.ts'
@@ -7,14 +7,23 @@ import { formaterMultiple, formaterRapport, queDevant } from '../domaine/format.
 import type { GesteCalcule } from '../domaine/geste.ts'
 import './EcranDuel.css'
 
-type Props = { duel: Duel }
+/**
+ * L'écran Duel est « contrôlé » : il ne décide de rien, il affiche ce qu'on lui donne.
+ * C'est la Partie qui garde le choix du joueur et qui décide de la suite.
+ */
+type Props = {
+  duel: Duel
+  /** Identifiant du Geste choisi, ou null tant que le joueur n'a pas choisi. */
+  choix: string | null
+  onChoisir: (idGeste: string) => void
+  /** Ce qui s'affiche à la fin de l'explication (ex. le bouton « Duel suivant »). */
+  suite?: ReactNode
+}
 
 /** Délai pendant lequel le joueur voit les chiffres sur les cartes avant de descendre vers l'explication. */
 export const DELAI_DEFILEMENT_MS = 1500
 
-export function EcranDuel({ duel }: Props) {
-  // L'état du composant : l'identifiant du Geste choisi, ou null tant que le joueur n'a pas choisi.
-  const [choix, setChoix] = useState<string | null>(null)
+export function EcranDuel({ duel, choix, onChoisir, suite }: Props) {
   const revele = choix !== null
   // Une « référence » vers l'élément HTML de l'explication, pour pouvoir y faire défiler la page.
   const explication = useRef<HTMLDivElement>(null)
@@ -30,21 +39,21 @@ export function EcranDuel({ duel }: Props) {
       explication.current?.focus({ preventScroll: true })
       explication.current?.scrollIntoView({ behavior: calme ? 'auto' : 'smooth', block: 'start' })
     }, DELAI_DEFILEMENT_MS)
-    // Si le joueur rejoue avant la fin du délai, on annule le défilement prévu.
+    // Si le joueur passe au Duel suivant avant la fin du délai, on annule le défilement prévu.
     return () => window.clearTimeout(minuteur)
-  }, [revele])
+  }, [revele, duel])
 
   // Raccourcis clavier : 1 choisit la première carte, 2 la seconde (tant que rien n'est choisi).
   useEffect(() => {
     if (revele) return
     const surTouche = (evenement: KeyboardEvent) => {
       if (evenement.altKey || evenement.ctrlKey || evenement.metaKey) return
-      if (evenement.key === '1') setChoix(duel.a.id)
-      if (evenement.key === '2') setChoix(duel.b.id)
+      if (evenement.key === '1') onChoisir(duel.a.id)
+      if (evenement.key === '2') onChoisir(duel.b.id)
     }
     window.addEventListener('keydown', surTouche)
     return () => window.removeEventListener('keydown', surTouche)
-  }, [revele, duel])
+  }, [revele, duel, onChoisir])
 
   const etatDe = (geste: GesteCalcule): EtatCarte => {
     if (!revele) return 'question'
@@ -58,7 +67,7 @@ export function EcranDuel({ duel }: Props) {
       etat={etatDe(geste)}
       choisie={geste.id === choix}
       raccourci={raccourci}
-      onChoisir={() => setChoix(geste.id)}
+      onChoisir={() => onChoisir(geste.id)}
     />
   )
 
@@ -111,9 +120,7 @@ export function EcranDuel({ duel }: Props) {
               </small>
             </p>
             <TableauRepartition duel={duel} />
-            <button type="button" className="bouton bouton--secondaire" onClick={() => setChoix(null)}>
-              Rejouer ce Duel
-            </button>
+            {suite}
           </section>
         )}
       </div>
