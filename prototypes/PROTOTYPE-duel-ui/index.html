@@ -1,0 +1,521 @@
+<!doctype html>
+<!--
+  PROTOTYPE JETABLE — ne pas réutiliser tel quel en production.
+  Question : « À quoi doit ressembler une Partie de Duel (Manche, révélation, fin) ? »
+  Plan : 3 variantes radicalement différentes des écrans du Duel, sur une seule page,
+  qu'on bascule avec ?variant=A|B|C ou la barre flottante en bas (flèches ← →).
+  Itération 2 (2026-11-08) : A retenue ; A2 = A révisée avec les retours (couleurs du verdict,
+  défilement auto, équivalence en tête, jauges de Répartition, durée d'utilisation explicite,
+  Rapport mis en avant, icône micro-ondes, Récapitulatif cliquable).
+  Itération 3 : tableau comparatif unique avec jauges à échelle commune et total ; « Manche » devient « Duel » ;
+  Récapitulatif sur deux lignes (« Duel n » puis l'équivalence).
+  Données : 10 Duels écrits en dur, valeurs réelles de l'API Impact CO2 (ADEME) au 2026-11-08.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PROTOTYPE · Duel Carbone</title>
+<style>
+  :root {
+    --bg: #f6f4ee; --ink: #1d2320; --muted: #5d665f; --card: #ffffff; --line: #d9d6cc;
+    --brand: #1f6f50; --brand-ink: #ffffff; --good: #1b7a45; --bad: #b3261e;
+    --easy: #3a8f5c; --medium: #c48a12; --hard: #c25a1c; --ultimate: #6b2fa3;
+    --s1: #2f6f4f; --s2: #6aa57f; --s3: #c9a227; --s4: #8c6bb1; --s5: #4f86b5; --s6: #b07a5a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141816; --ink: #ecefe9; --muted: #a7b0a8; --card: #1e2421; --line: #333b36;
+      --brand: #4fbf8c; --brand-ink: #0d1411; --good: #5fd08f; --bad: #ff8a80;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; padding-bottom: 96px; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  a { color: var(--brand); }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 16px; }
+  .muted { color: var(--muted); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .btn { background: var(--brand); color: var(--brand-ink); border: 0; border-radius: 999px;
+    padding: 12px 22px; font-weight: 700; }
+  .btn.ghost { background: transparent; color: var(--ink); border: 2px solid var(--line); }
+  .btn:focus-visible, .pick:focus-visible, .plate:focus-visible, .opt:focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; }
+  .diff { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: .04em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 999px; color: #fff; }
+  .diff.facile { background: var(--easy); } .diff.moyen { background: var(--medium); }
+  .diff.difficile { background: var(--hard); } .diff.ultime { background: var(--ultimate); }
+  .verdict { font-weight: 800; font-size: 20px; }
+  .verdict.ok { color: var(--good); } .verdict.ko { color: var(--bad); }
+  .src { font-size: 13px; }
+  .note { font-size: 13px; color: var(--muted); }
+
+  /* Répartition (commune : c'est la donnée, pas la mise en page) */
+  .bar { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: var(--line); }
+  .bar span { display: block; height: 100%; }
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 13px; margin-top: 6px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+
+  /* ---------- Variante A : cartes face-à-face ---------- */
+  .A-progress { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin: 8px 0 16px; }
+  .A-progress span { height: 8px; border-radius: 4px; background: var(--line); }
+  .A-progress span.done { opacity: 1; } .A-progress span.todo { opacity: .35; }
+  .A-duel { display: grid; gap: 12px; grid-template-columns: 1fr; align-items: stretch; position: relative; }
+  @media (min-width: 700px) { .A-duel { grid-template-columns: 1fr auto 1fr; } }
+  .pick { background: var(--card); border: 3px solid var(--line); border-radius: 20px; padding: 22px 18px;
+    text-align: center; min-height: 170px; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+  .pick .emo { font-size: 52px; line-height: 1; }
+  .pick .lbl { font-weight: 700; font-size: 18px; }
+  .pick .val { font-size: 28px; font-weight: 800; }
+  .pick.win { border-color: var(--good); } .pick.chosen { box-shadow: 0 0 0 4px var(--brand) inset; }
+  .A-vs { align-self: center; justify-self: center; font-weight: 900; font-size: 22px; background: var(--ink); color: var(--bg);
+    border-radius: 999px; min-width: 56px; height: 56px; display: grid; place-items: center; padding: 0 10px; }
+  .A-reveal { background: var(--card); border-radius: 20px; padding: 18px; margin-top: 16px; display: grid; gap: 14px; }
+
+  /* ---------- Variante B : la balance ---------- */
+  .B-head { display: flex; justify-content: space-between; align-items: baseline; }
+  .B-dots { display: flex; gap: 6px; } .B-dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+  .B-dots i.on { background: var(--brand); } .B-dots i.cur { outline: 2px solid var(--brand); outline-offset: 2px; background: transparent; }
+  .B-stage { background: var(--card); border-radius: 24px; padding: 12px 8px 4px; margin: 12px 0; }
+  .B-stage svg { width: 100%; height: auto; display: block; }
+  .B-beam { transition: transform 900ms cubic-bezier(.3,1.6,.5,1); transform-origin: 200px 120px; }
+  .B-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .plate { background: var(--card); border: 2px solid var(--line); border-radius: 14px; padding: 14px 10px; text-align: center; }
+  .plate b { display: block; } .plate.win { border-color: var(--good); }
+  .B-rep { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .B-rep ul { list-style: none; padding: 0; margin: 6px 0 0; font-size: 14px; }
+  .B-rep li { display: flex; justify-content: space-between; border-bottom: 1px dashed var(--line); padding: 3px 0; }
+  .B-gauge { font-size: 72px; font-weight: 900; text-align: center; line-height: 1; }
+
+  /* ---------- Variante C : l'équivalence ---------- */
+  .C-layout { display: grid; gap: 20px; grid-template-columns: 1fr; }
+  @media (min-width: 760px) { .C-layout { grid-template-columns: 170px 1fr; } }
+  .C-ladder { list-style: none; padding: 0; margin: 0; display: flex; gap: 4px; overflow-x: auto; }
+  @media (min-width: 760px) { .C-ladder { flex-direction: column-reverse; } }
+  .C-ladder li { font-size: 13px; padding: 6px 8px; border-left: 4px solid var(--line); white-space: nowrap; color: var(--muted); }
+  .C-ladder li.cur { color: var(--ink); font-weight: 700; background: var(--card); }
+  .C-q { font-size: 26px; font-weight: 800; margin: 0 0 14px; }
+  .opt { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; background: var(--card);
+    border: 2px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; }
+  .opt kbd { font: 700 14px ui-monospace, monospace; border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; }
+  .opt .emo { font-size: 30px; } .opt.win { border-color: var(--good); }
+  .C-eq { font-size: 24px; font-weight: 800; margin: 8px 0; }
+  .C-grid { font-size: 26px; line-height: 1.2; letter-spacing: 2px; word-break: break-all; }
+  .C-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .C-table th, .C-table td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--line); }
+  .C-table td.n { text-align: right; font-variant-numeric: tabular-nums; }
+  .C-timeline { list-style: none; padding: 0; border-left: 3px solid var(--line); margin-left: 8px; }
+  .C-timeline li { padding: 6px 0 10px 16px; position: relative; }
+  .C-timeline li::before { content: ""; position: absolute; left: -9px; top: 12px; width: 14px; height: 14px; border-radius: 50%; background: var(--line); }
+  .C-timeline li.ok::before { background: var(--good); } .C-timeline li.ko::before { background: var(--bad); }
+
+  /* ---------- Variante A2 : cartes face-à-face, révisée après retours ---------- */
+  .ico svg { width: 1em; height: 1em; vertical-align: -0.12em; }
+  .A2-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .A2-duel { display: grid; gap: 10px; grid-template-columns: 1fr; position: relative; }
+  @media (min-width: 700px) { .A2-duel { grid-template-columns: 1fr auto 1fr; align-items: center; } }
+  .A2-card { position: relative; background: var(--card); border: 3px solid var(--line); border-radius: 20px;
+    padding: 16px 14px; text-align: center; min-height: min(28vh, 190px); display: flex; flex-direction: column;
+    justify-content: center; align-items: center; gap: 4px; transition: border-color .2s, transform .2s; }
+  .A2-card:not([disabled]):hover { transform: translateY(-2px); border-color: var(--brand); }
+  .A2-card .emo { font-size: 46px; line-height: 1; }
+  .A2-card .t { font-weight: 800; font-size: 18px; line-height: 1.25; }
+  .A2-card .sub { color: var(--muted); font-size: 14px; }
+  .A2-card .val { font-size: 26px; font-weight: 900; margin-top: 4px; }
+  .A2-card.good { border-color: var(--good); }
+  .A2-card.bad { border-color: var(--bad); }
+  .A2-tag { white-space: nowrap; margin-bottom: 4px;
+    font-size: 13px; font-weight: 800; padding: 2px 10px; border-radius: 999px; color: #fff; }
+  .A2-tag.good { background: var(--good); color: var(--bg); } .A2-tag.bad { background: var(--bad); color: #fff; }
+  .A2-vs { justify-self: center; align-self: center; z-index: 2; margin: -22px 0; font-weight: 900; font-size: 18px;
+    background: var(--ink); color: var(--bg); border-radius: 999px; min-width: 52px; height: 52px; display: grid; place-items: center; }
+  @media (min-width: 700px) { .A2-vs { margin: 0; } }
+  .A2-ratio { justify-self: center; align-self: center; z-index: 2; margin: -18px 0; background: var(--brand); color: var(--brand-ink);
+    border-radius: 18px; padding: 8px 18px; text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,.25);
+    animation: pop .5s cubic-bezier(.3,1.8,.5,1) both; }
+  @media (min-width: 700px) { .A2-ratio { margin: 0; } }
+  .A2-ratio b { display: block; font-size: 34px; line-height: 1; font-weight: 900; }
+  .A2-ratio small { font-size: 12px; font-weight: 700; }
+  @keyframes pop { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .A2-ratio { animation: none; } .A2-card { transition: none; } }
+  .A2-detail { background: var(--card); border-radius: 20px; padding: 18px; margin-top: 18px; display: grid; gap: 16px; scroll-margin-top: 12px; }
+  .A2-detail:focus { outline: none; }
+  .A2-eq { font-size: 30px; font-weight: 900; text-align: center; margin: 0; }
+  .A2-eq small { display: block; font-size: 14px; font-weight: 600; color: var(--muted); }
+  .A2-table { width: 100%; border-collapse: collapse; font-size: 14px; table-layout: fixed; }
+  .A2-table caption { text-align: left; font-weight: 800; font-size: 17px; margin-bottom: 8px; }
+  .A2-table th, .A2-table td { padding: 7px 6px; border-bottom: 1px solid var(--line); vertical-align: middle; text-align: left; }
+  .A2-table thead th { vertical-align: bottom; font-weight: 700; }
+  .A2-table th[scope=row] { font-weight: 600; width: 34%; }
+  .A2-table .n { text-align: right; position: relative; }
+  .A2-table .h-ico { display: block; font-size: 26px; line-height: 1; }
+  .A2-table .h-t { display: block; font-size: 12px; color: var(--muted); font-weight: 600; line-height: 1.2; margin-top: 2px; }
+  .A2-table tfoot th, .A2-table tfoot td { font-weight: 900; font-size: 15px; border-bottom: 0; border-top: 2px solid var(--ink); }
+  .A2-g { position: absolute; left: 4px; top: 5px; bottom: 5px; max-width: calc(100% - 8px); border-radius: 4px; background: var(--brand); opacity: .3; }
+  .A2-g.neg { opacity: .55; background: repeating-linear-gradient(45deg, var(--good), var(--good) 3px, transparent 3px, transparent 6px); }
+  .A2-table .v { position: relative; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .A2-geste h3 { margin: 0 0 6px; font-size: 16px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 8px; }
+  .A2-geste h3 > span:last-child { white-space: nowrap; }
+  .A2-rows { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+  .A2-rows li { display: grid; grid-template-columns: minmax(90px, 34%) 1fr auto; gap: 8px; align-items: center; font-size: 14px; }
+  .A2-gauge { height: 10px; border-radius: 5px; background: var(--line); overflow: hidden; }
+  .A2-gauge span { display: block; height: 100%; border-radius: 5px; background: var(--brand); min-width: 2px; }
+  .A2-gauge.neg span { background: repeating-linear-gradient(45deg, var(--good), var(--good) 3px, transparent 3px, transparent 6px); }
+  .A2-rows .n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .A2-end-score { font-size: 64px; font-weight: 900; line-height: 1; margin: 8px 0 0; }
+  /* minmax(0, 1fr) : les colonnes ne s'élargissent jamais au-delà de l'écran, même si leur contenu refuse de passer à la ligne. */
+  .A2-recap { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+  @media (max-width: 290px) { .A2-recap { grid-template-columns: 1fr; } }
+  .A2-tile { min-width: 0; background: var(--card); border: 3px solid var(--line); border-radius: 14px; padding: 10px 8px; text-align: left; font-weight: 800; font-size: 17px; }
+  .A2-tile.good { border-color: var(--good); } .A2-tile.bad { border-color: var(--bad); }
+  .A2-tile .k { display: block; color: var(--muted); font-weight: 700; font-size: 14px; }
+  /* La taille du texte suit la largeur de l'écran (entre 14 et 18 px) pour que l'équivalence tienne sur une ligne. */
+  .A2-tile .eq { display: block; white-space: nowrap; font-size: clamp(14px, 4.6vw, 18px); margin-top: 2px; }
+  .A2-modal { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.55); display: grid; place-items: end center; }
+  @media (min-width: 700px) { .A2-modal { place-items: center; } }
+  .A2-panel { background: var(--bg); width: min(640px, 100%); max-height: 88vh; overflow: auto; border-radius: 20px 20px 0 0; padding: 14px 14px 90px; }
+  @media (min-width: 700px) { .A2-panel { border-radius: 20px; padding-bottom: 20px; } }
+  .A2-close { float: right; width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--line); background: var(--card); font-size: 20px; line-height: 1; }
+
+  /* ---------- Barre de bascule du prototype (ne fait PAS partie du design) ---------- */
+  #proto-bar { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 99;
+    background: #111; color: #fff; border-radius: 999px; padding: 6px 8px; display: flex; align-items: center; gap: 6px;
+    box-shadow: 0 6px 24px rgba(0,0,0,.35); font: 13px/1.2 ui-monospace, Consolas, monospace; max-width: calc(100vw - 16px); }
+  #proto-bar button { background: #333; color: #fff; border: 0; border-radius: 999px; width: 34px; height: 34px; font-size: 16px; }
+  #proto-bar .lab { padding: 0 6px; text-align: center; }
+  #proto-bar .lab small { display: block; color: #aaa; }
+</style>
+</head>
+<body>
+<div id="app" class="wrap"></div>
+<div id="live" class="sr" aria-live="polite"></div>
+<div id="proto-bar" role="toolbar" aria-label="Barre du prototype">
+  <button type="button" id="prev" aria-label="Variante précédente">←</button>
+  <div class="lab"><span id="vlabel"></span><small id="vstate"></small></div>
+  <button type="button" id="next" aria-label="Variante suivante">→</button>
+</div>
+
+<script>
+// ===== Données en dur (valeurs Impact CO2 / ADEME, API au 2026-11-08) =====
+// Répartition déjà multipliée par la Quantité. fdv négative = crédit de recyclage.
+const ADEME = "https://impactco2.fr/outils/";
+const G = {
+  steak:   { emo: "🥩", lbl: "Manger un steak de bœuf (120 g)", q: "0,12 kg × 28,0 kg CO2e/kg", url: "alimentation/boeuf",
+             rep: { "Agriculture": 3.278, "Transformation": 0.011, "Emballage": 0.026, "Transport": 0.037, "Distribution": 0.005, "Consommation": 0.004 } },
+  avocat:  { emo: "🥑", lbl: "Manger un avocat (200 g)", q: "0,2 kg × 1,55 kg CO2e/kg", url: "fruitsetlegumes/avocat",
+             rep: { "Agriculture": 0.176, "Transport": 0.102, "Distribution": 0.006, "Consommation": 0.028 } },
+  pny:     { emo: "✈️", lbl: "Un aller-retour Paris–New York en avion", q: "1 trajet, 1 passager", url: "caspratiques/avion-pny", total: 2060, rep: null },
+  phone:   { emo: "📱", lbl: "Acheter et utiliser un smartphone (2,5 ans)", q: "1 unité", url: "numerique/smartphone",
+             rep: { "Fabrication": 79.27, "Usage": 0.64, "Fin de vie": 0.25 } },
+  tv:      { emo: "📺", lbl: "Acheter et utiliser une télévision (8 ans)", q: "1 unité", url: "numerique/television",
+             rep: { "Fabrication": 328.26, "Usage": 29.55, "Fin de vie": 11.9 } },
+  speaker: { emo: "🔊", lbl: "Acheter et utiliser une enceinte connectée (5 ans)", q: "1 unité", url: "numerique/enceintebluetooth",
+             rep: { "Fabrication": 19.8, "Usage": 5.68, "Fin de vie": 0.7 } },
+  pull:    { emo: "🧶", lbl: "Acheter un pull en laine", q: "1 unité", url: "habillement/pullenlaine",
+             rep: { "Fabrication": 52.9, "Usage": 2.52, "Fin de vie": 1.28 } },
+  tpoly:   { emo: "👕", lbl: "Acheter un t-shirt en polyester", q: "1 unité", url: "habillement/tshirtenpolyester",
+             rep: { "Fabrication": 5.5, "Usage": 0.54, "Fin de vie": 0.17 } },
+  poulet:  { emo: "🍗", lbl: "Manger du poulet (150 g)", q: "0,15 kg × 4,56 kg CO2e/kg", url: "alimentation/poulet",
+             rep: { "Agriculture": 0.45, "Transformation": 0.125, "Emballage": 0.057, "Transport": 0.046, "Distribution": 0.006, "Consommation": 0.001 } },
+  lentil:  { emo: "🫘", lbl: "Manger des lentilles (150 g)", q: "0,15 kg × 0,58 kg CO2e/kg", url: "alimentation/lentilles",
+             rep: { "Agriculture": 0.021, "Emballage": 0.019, "Transport": 0.037, "Distribution": 0.01 } },
+  jean:    { emo: "👖", lbl: "Acheter un jean", q: "1 unité", url: "habillement/jeans",
+             rep: { "Fabrication": 23.2, "Usage": 1.26, "Fin de vie": 0.64 } },
+  tcot:    { emo: "👚", lbl: "Acheter un t-shirt en coton", q: "1 unité", url: "habillement/tshirtencoton",
+             rep: { "Fabrication": 5.2, "Usage": 0.99, "Fin de vie": 0.25 } },
+  laptop:  { emo: "💻", lbl: "Acheter et utiliser un ordinateur portable (5 ans)", q: "1 unité", url: "numerique/ordinateurportable",
+             rep: { "Fabrication": 182.3, "Usage": 7.53, "Fin de vie": 2.79 } },
+  micro:   { emo: "📦", lbl: "Acheter et utiliser un micro-ondes (12 ans)", q: "1 unité", url: "electromenager/microondes",
+             rep: { "Fabrication": 98.34, "Usage": 29.4, "Fin de vie": -6.39 } },
+  washer:  { emo: "🧺", lbl: "Acheter et utiliser un lave-linge (12 ans)", q: "1 unité", url: "electromenager/lavelinge",
+             rep: { "Fabrication": 341.1, "Usage": 216.96, "Fin de vie": -44.64 } },
+  fridge:  { emo: "🧊", lbl: "Acheter et utiliser un réfrigérateur (10 ans)", q: "1 unité", url: "electromenager/refrigirateur",
+             rep: { "Fabrication": 257.3, "Usage": 88.32, "Fin de vie": -6.91 } },
+  deliv:   { emo: "🚚", lbl: "Se faire livrer un colis de 1 kg à domicile", q: "1 colis", url: "livraison/livraisondomicile",
+             rep: { "Transport": 0.353, "Commande et préparation": 0.353, "Stockage et transit": 0.016 } },
+  shop:    { emo: "🚗", lbl: "Aller l'acheter en magasin en voiture (15 km)", q: "1 colis, 30 km A/R", url: "livraison/magasin",
+             rep: { "Transport": 0.286, "Stockage et transit": 0.259, "Mon trajet en voiture": 4.268 } },
+};
+for (const g of Object.values(G)) if (g.total == null) g.total = Object.values(g.rep).reduce((a, b) => a + b, 0);
+
+const PARTIE = [
+  { a: "steak", b: "avocat", d: "facile" },
+  { a: "phone", b: "pny", d: "facile" },
+  { a: "tv", b: "speaker", d: "facile" },
+  { a: "tpoly", b: "pull", d: "moyen" },
+  { a: "poulet", b: "lentil", d: "moyen" },
+  { a: "tcot", b: "jean", d: "moyen" },
+  { a: "laptop", b: "micro", d: "difficile" },
+  { a: "fridge", b: "washer", d: "difficile" },
+  { a: "pull", b: "jean", d: "difficile" },
+  { a: "deliv", b: "shop", d: "ultime", texte: "Piège ! Se faire livrer émet environ 7 fois moins que prendre sa voiture pour 30 km aller-retour : c'est ton trajet qui pèse, pas la livraison, mutualisée avec d'autres colis. Si tu vas au magasin à pied, en revanche, c'est la solution la plus sobre (0,54 kg)." },
+];
+
+// ===== État partagé entre les variantes (en mémoire, rien n'est sauvegardé) =====
+const S = { i: 0, phase: "question", picks: [] };
+const duel = () => PARTIE[S.i];
+const big = (d) => (G[d.a].total >= G[d.b].total ? d.a : d.b);
+const small = (d) => (big(d) === d.a ? d.b : d.a);
+const ratio = (d) => G[big(d)].total / G[small(d)].total;
+const score = () => S.picks.filter((p, k) => p === big(PARTIE[k])).length;
+
+function choose(key) {
+  if (S.phase !== "question") return;
+  S.picks[S.i] = key; S.phase = "reveal";
+  const ok = key === big(duel());
+  say((ok ? "Bonne réponse. " : "Raté. ") + G[big(duel())].lbl + " émet " + fmt(G[big(duel())].total) + ", soit " + fmtR(ratio(duel())) + " de plus.");
+  render();
+  // A2 : on laisse 1,5 s pour voir les chiffres sur les cartes, puis on descend vers l'explication.
+  if (V === "A2") {
+    const at = S.i;
+    setTimeout(() => {
+      const el = document.getElementById("A2-detail");
+      if (!el || S.i !== at || S.phase !== "reveal") return;
+      const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      el.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "start" });
+      el.focus({ preventScroll: true });
+    }, 1500);
+  }
+}
+function next() {
+  if (S.i < PARTIE.length - 1) { S.i++; S.phase = "question"; } else { S.phase = "end"; }
+  render(); document.querySelector("#app").focus?.();
+}
+function replay() { S.i = 0; S.phase = "question"; S.picks = []; render(); }
+async function share() {
+  const txt = `J'ai fait ${score()}/10 à Duel Carbone 🌍 Sauras-tu faire mieux ? https://duelcarbone.fr`;
+  try { if (navigator.share) { await navigator.share({ text: txt }); return; } await navigator.clipboard.writeText(txt); say("Score copié dans le presse-papiers."); alert("Copié : " + txt); }
+  catch { alert(txt); }
+}
+function say(t) { document.getElementById("live").textContent = t; }
+
+// ===== Mise en forme =====
+const nf = (n, d) => n.toLocaleString("fr-FR", { maximumFractionDigits: d, minimumFractionDigits: 0 });
+function fmt(kg) {
+  if (kg >= 1000) return nf(kg / 1000, 1) + " t CO2e";
+  if (kg >= 1) return nf(kg, kg >= 100 ? 0 : 1) + " kg CO2e";
+  return nf(kg * 1000, 0) + " g CO2e";
+}
+const fmtR = (r) => "×" + nf(r, r >= 10 ? 0 : 1);
+const COLORS = ["var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)", "var(--s5)", "var(--s6)"];
+function repBar(g) {
+  if (!g.rep) return `<p class="note">Pas de répartition publiée par l'ADEME pour ce geste.</p>`;
+  const pos = Object.entries(g.rep).filter(([, v]) => v > 0), neg = Object.entries(g.rep).filter(([, v]) => v < 0);
+  const sum = pos.reduce((a, [, v]) => a + v, 0);
+  return `<div class="bar" role="img" aria-label="Répartition : ${pos.map(([k, v]) => k + " " + Math.round((v / sum) * 100) + " %").join(", ")}">
+    ${pos.map(([, v], k) => `<span style="width:${(v / sum) * 100}%;background:${COLORS[k % 6]}"></span>`).join("")}</div>
+    <div class="legend">${pos.map(([k, v], j) => `<span><i style="background:${COLORS[j % 6]}"></i>${k} ${Math.round((v / sum) * 100)} %</span>`).join("")}</div>
+    ${neg.map(([k, v]) => `<p class="note">${k} : ${fmt(Math.abs(v)).replace(" CO2e", "")} évités grâce au recyclage (déjà déduits du total)</p>`).join("")}`;
+}
+const src = (g) => `<a class="src" href="${ADEME + g.url}" target="_blank" rel="noopener">Détail ADEME ↗</a>`;
+const message = (s) => s >= 9 ? "Expert·e carbone ! 🏆" : s >= 7 ? "Très bien joué !" : s >= 5 ? "Pas mal, les pièges t'ont eu·e quelques fois." : "Les chiffres surprennent souvent : rejoue pour les apprivoiser !";
+
+// ===== Variante A : cartes face-à-face =====
+function VariantA() {
+  if (S.phase === "end") return endA();
+  const d = duel(), rev = S.phase === "reveal", pick = S.picks[S.i], ok = pick === big(d);
+  const card = (k) => `<button class="pick ${rev && k === big(d) ? "win" : ""} ${rev && k === pick ? "chosen" : ""}" ${rev ? "disabled" : ""} data-pick="${k}">
+      <span class="emo" aria-hidden="true">${G[k].emo}</span><span class="lbl">${G[k].lbl}</span>
+      ${rev ? `<span class="val">${fmt(G[k].total)}</span><span class="note">${G[k].q}</span>` : ""}</button>`;
+  return `<div class="muted">Manche ${S.i + 1}/10 · <span class="diff ${d.d}">${d.d}</span></div>
+    <div class="A-progress" aria-hidden="true">${PARTIE.map((p, k) => `<span class="${k <= S.i ? "done" : "todo"}" style="background:var(--${{ facile: "easy", moyen: "medium", difficile: "hard", ultime: "ultimate" }[p.d]})"></span>`).join("")}</div>
+    <h1 style="margin:0 0 12px;font-size:22px">Lequel émet le plus ?</h1>
+    <div class="A-duel">${card(d.a)}<div class="A-vs">${rev ? fmtR(ratio(d)) : "VS"}</div>${card(d.b)}</div>
+    ${rev ? `<div class="A-reveal">
+      <div class="verdict ${ok ? "ok" : "ko"}">${ok ? "✓ Bonne réponse" : "✗ Raté"}</div>
+      ${d.texte ? `<p style="margin:0">${d.texte}</p>` : ""}
+      ${[d.a, d.b].map((k) => `<div><b>${G[k].emo} ${G[k].lbl}</b> ${src(G[k])}${repBar(G[k])}</div>`).join("")}
+      <div><button class="btn" data-act="next">${S.i < 9 ? "Manche suivante →" : "Voir mon score"}</button></div></div>` : ""}`;
+}
+function endA() {
+  return `<h1>${score()}/10</h1><p>${message(score())}</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 20px"><button class="btn" data-act="share">Partager mon score</button><button class="btn ghost" data-act="replay">Rejouer</button></div>
+    <h2 style="font-size:18px">Récapitulatif</h2>
+    ${PARTIE.map((p, k) => { const ok = S.picks[k] === big(p); return `<div class="pick" style="min-height:0;text-align:left;margin-bottom:8px;border-color:${ok ? "var(--good)" : "var(--bad)"}">
+      <span>${ok ? "✓" : "✗"} ${G[big(p)].emo} ${G[big(p)].lbl} <b>${fmtR(ratio(p))}</b> ${G[small(p)].emo} ${G[small(p)].lbl}</span></div>`; }).join("")}`;
+}
+
+// ===== Variante B : la balance =====
+function VariantB() {
+  if (S.phase === "end") return endB();
+  const d = duel(), rev = S.phase === "reveal", pick = S.picks[S.i], ok = pick === big(d);
+  // Inclinaison : échelle logarithmique, plafonnée à 18°. Le côté le plus lourd descend.
+  const ang = rev ? Math.min(18, Math.log10(ratio(d)) * 12) * (big(d) === d.a ? -1 : 1) : 0;
+  return `<div class="B-head"><b>Manche ${S.i + 1} <span class="diff ${d.d}">${d.d}</span></b>
+      <div class="B-dots" aria-hidden="true">${PARTIE.map((_, k) => `<i class="${k < S.i ? "on" : k === S.i ? "cur" : ""}"></i>`).join("")}</div></div>
+    <p class="muted" style="margin:6px 0 0">De quel côté penche la balance ?</p>
+    <div class="B-stage"><svg viewBox="-30 0 460 240" aria-hidden="true">
+      <polygon points="200,120 180,215 220,215" fill="var(--muted)"/>
+      <g class="B-beam" style="transform:rotate(${ang}deg)">
+        <rect x="40" y="114" width="320" height="10" rx="5" fill="var(--ink)"/>
+        <line x1="60" y1="120" x2="60" y2="160" stroke="var(--ink)" stroke-width="2"/><line x1="340" y1="120" x2="340" y2="160" stroke="var(--ink)" stroke-width="2"/>
+        <path d="M10 160 h100 a50 22 0 0 1 -100 0z" fill="var(--s2)"/><path d="M290 160 h100 a50 22 0 0 1 -100 0z" fill="var(--s5)"/>
+        <text x="60" y="150" font-size="34" text-anchor="middle">${G[d.a].emo}</text><text x="340" y="150" font-size="34" text-anchor="middle">${G[d.b].emo}</text>
+        ${rev ? `<text x="60" y="205" font-size="15" font-weight="700" text-anchor="middle" fill="var(--ink)">${fmt(G[d.a].total)}</text><text x="340" y="205" font-size="15" font-weight="700" text-anchor="middle" fill="var(--ink)">${fmt(G[d.b].total)}</text>` : ""}
+      </g></svg></div>
+    <div class="B-choices">${[d.a, d.b].map((k, j) => `<button class="plate ${rev && k === big(d) ? "win" : ""}" ${rev ? "disabled" : ""} data-pick="${k}">
+      <b>${j ? "Plateau droit →" : "← Plateau gauche"}</b>${G[k].lbl}${rev && k === pick ? "<br><i>(ton choix)</i>" : ""}</button>`).join("")}</div>
+    ${rev ? `<p class="verdict ${ok ? "ok" : "ko"}">${ok ? "✓ Bien vu" : "✗ Raté"}, ça penche de ${fmtR(ratio(d))}</p>
+      ${d.texte ? `<p>${d.texte}</p>` : ""}
+      <div class="B-rep">${[d.a, d.b].map((k) => `<div><b>${G[k].emo} D'où ça vient ?</b> ${src(G[k])}${G[k].rep ? `<ul>${Object.entries(G[k].rep).map(([n, v]) => `<li><span>${n}</span><span>${v < 0 ? "−" : ""}${fmt(Math.abs(v))}</span></li>`).join("")}</ul>` : `<p class="note">Pas de répartition ADEME.</p>`}</div>`).join("")}</div>
+      <p><button class="btn" data-act="next">${S.i < 9 ? "Pesée suivante →" : "Résultat"}</button></p>` : ""}`;
+}
+function endB() {
+  return `<div class="B-stage" style="padding:24px"><div class="B-gauge">${score()}<span style="font-size:32px">/10</span></div>
+    <p style="text-align:center">${message(score())}</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn" data-act="share">Partager</button><button class="btn ghost" data-act="replay">Rejouer</button></div></div>
+    <div class="B-choices">${PARTIE.map((p, k) => `<div class="plate" style="text-align:left"><b>${S.picks[k] === big(p) ? "✓" : "✗"} Manche ${k + 1}</b>${G[p.a].emo} vs ${G[p.b].emo} : ${G[big(p)].emo} pèse ${fmtR(ratio(p))}</div>`).join("")}</div>`;
+}
+
+// ===== Variante C : l'équivalence =====
+function ladder() {
+  return `<ol class="C-ladder" aria-label="Progression">${PARTIE.map((p, k) => `<li class="${k === S.i && S.phase !== "end" ? "cur" : ""}" style="border-left-color:var(--${{ facile: "easy", moyen: "medium", difficile: "hard", ultime: "ultimate" }[p.d]})">${k + 1}. ${p.d}${S.picks[k] ? (S.picks[k] === big(p) ? " ✓" : " ✗") : ""}</li>`).join("")}</ol>`;
+}
+function VariantC() {
+  if (S.phase === "end") return endC();
+  const d = duel(), rev = S.phase === "reveal", pick = S.picks[S.i], ok = pick === big(d);
+  const n = Math.round(ratio(d)), cap = 60;
+  return `<div class="C-layout">${ladder()}<div>
+    <p class="C-q">Qu'est-ce qui pèse le plus lourd en CO2e ?</p>
+    ${[d.a, d.b].map((k, j) => `<button class="opt ${rev && k === big(d) ? "win" : ""}" ${rev ? "disabled" : ""} data-pick="${k}">
+      <kbd>${j + 1}</kbd><span class="emo" aria-hidden="true">${G[k].emo}</span><span>${G[k].lbl}${rev ? `<br><b>${fmt(G[k].total)}</b>${k === pick ? " · ton choix" : ""}` : ""}</span></button>`).join("")}
+    ${rev ? `<p class="verdict ${ok ? "ok" : "ko"}">${ok ? "✓ Exact" : "✗ Eh non"}</p>
+      <p class="C-eq">1 ${G[big(d)].emo} = ${nf(ratio(d), 1)} ${G[small(d)].emo}</p>
+      <div class="C-grid" aria-hidden="true">${G[small(d)].emo.repeat(Math.min(n, cap))}${n > cap ? ` <span style="font-size:16px">+${n - cap}</span>` : ""}</div>
+      ${d.texte ? `<p>${d.texte}</p>` : ""}
+      <table class="C-table"><thead><tr><th>Étape</th><th class="n">${G[d.a].emo}</th><th class="n">${G[d.b].emo}</th></tr></thead><tbody>
+        ${[...new Set([...Object.keys(G[d.a].rep || {}), ...Object.keys(G[d.b].rep || {})])].map((s) => `<tr><td>${s}</td><td class="n">${G[d.a].rep && G[d.a].rep[s] != null ? fmt(G[d.a].rep[s]) : "–"}</td><td class="n">${G[d.b].rep && G[d.b].rep[s] != null ? fmt(G[d.b].rep[s]) : "–"}</td></tr>`).join("") || `<tr><td colspan="3" class="note">Pas de répartition ADEME.</td></tr>`}
+      </tbody></table>
+      <p>${src(G[d.a])} · ${src(G[d.b])}</p>
+      <p><button class="btn" data-act="next">${S.i < 9 ? "Suivant (Entrée)" : "Mon score"}</button></p>` : `<p class="note">Astuce : touches 1 et 2 au clavier.</p>`}
+  </div></div>`;
+}
+function endC() {
+  return `<div class="C-layout">${ladder()}<div>
+    <p class="C-q">${score()} bonnes réponses sur 10. ${message(score())}</p>
+    <p><button class="btn" data-act="share">Partager mon score</button> <button class="btn ghost" data-act="replay">Rejouer</button></p>
+    <ol class="C-timeline">${PARTIE.map((p, k) => { const ok = S.picks[k] === big(p); return `<li class="${ok ? "ok" : "ko"}"><b>${ok ? "✓" : "✗"}</b> 1 ${G[big(p)].emo} = ${nf(ratio(p), 1)} ${G[small(p)].emo} <span class="muted">(${G[big(p)].lbl} contre ${G[small(p)].lbl})</span></li>`; }).join("")}</ol>
+  </div></div>`;
+}
+
+// ===== Variante A2 : cartes face-à-face révisées (retours du 2026-11-08) =====
+// Libellé en deux lignes : le geste, puis la quantité ou la durée d'utilisation.
+const TXT = {
+  steak: ["Manger un steak de bœuf", "120 g"], avocat: ["Manger un avocat", "200 g"],
+  pny: ["Faire un aller-retour Paris–New York en avion", "1 passager"],
+  phone: ["Acheter un smartphone", "et l'utiliser 2,5 ans"], tv: ["Acheter une télévision", "et l'utiliser 8 ans"],
+  speaker: ["Acheter une enceinte connectée", "et l'utiliser 5 ans"], pull: ["Acheter un pull en laine", "et le porter 5 ans"],
+  tpoly: ["Acheter un t-shirt en polyester", "et le porter 5 ans"], poulet: ["Manger du poulet", "150 g"],
+  lentil: ["Manger des lentilles", "150 g"], jean: ["Acheter un jean", "et le porter 5 ans"],
+  tcot: ["Acheter un t-shirt en coton", "et le porter 5 ans"], laptop: ["Acheter un ordinateur portable", "et l'utiliser 5 ans"],
+  micro: ["Acheter un micro-ondes", "et l'utiliser 12 ans"], washer: ["Acheter un lave-linge", "et l'utiliser 12 ans"],
+  fridge: ["Acheter un réfrigérateur", "et l'utiliser 10 ans"], deliv: ["Se faire livrer un colis de 1 kg", "à domicile"],
+  shop: ["Aller chercher ce colis en magasin", "en voiture, 15 km aller"],
+};
+// Icônes : emoji quand il existe partout, sinon un pictogramme dessiné (il n'existe pas d'emoji micro-ondes).
+const SVG = {
+  micro: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><rect x="5" y="8" width="10" height="8" rx="1" fill="currentColor" fill-opacity=".25"/><circle cx="18.5" cy="9.5" r="1"/><circle cx="18.5" cy="13" r="1"/><path d="M17.5 16h2"/></svg>',
+};
+const EMO2 = { lentil: "🥣" };
+const ic = (k) => SVG[k] ? `<span class="ico">${SVG[k]}</span>` : (EMO2[k] || G[k].emo);
+const tt = (k) => TXT[k][0], sb = (k) => TXT[k][1];
+
+function detailA2(d, pick) {
+  const ok = pick === big(d), B = big(d), s = small(d), ks = [d.a, d.b];
+  // Une seule échelle pour toutes les jauges du tableau : 100 % = le plus gros total des deux Gestes.
+  // Ainsi, une jauge deux fois plus longue = deux fois plus d'émissions, quelle que soit la colonne.
+  const max = Math.max(G[d.a].total, G[d.b].total);
+  const steps = [...new Set(ks.flatMap((k) => Object.keys(G[k].rep || {})))];
+  const cell = (v) => v == null ? `<td class="n">–</td>` :
+    `<td class="n"><span class="A2-g ${v < 0 ? "neg" : ""}" aria-hidden="true" style="width:${Math.max(1.5, Math.abs(v) / max * 100)}%"></span><span class="v">${v < 0 ? "−" : ""}${fmt(Math.abs(v)).replace(" CO2e", "")}</span></td>`;
+  const label = (n) => ks.some((k) => G[k].rep && G[k].rep[n] < 0) ? `${n}<br><small class="muted">dont recyclage</small>` : n;
+  const missing = ks.filter((k) => !G[k].rep);
+  return `<div class="verdict ${ok ? "ok" : "ko"}">${ok ? "✓ Bonne réponse !" : "✗ Raté !"}</div>
+    <p class="A2-eq">1 ${ic(B)} = ${nf(ratio(d), 1)} ${ic(s)}<small>${tt(B)} émet ${nf(ratio(d), 1)} fois plus que ${tt(s).charAt(0).toLowerCase() + tt(s).slice(1)}</small></p>
+    ${d.texte ? `<p style="margin:0">${d.texte}</p>` : ""}
+    <table class="A2-table">
+      <caption>D'où viennent ces émissions ? <span class="muted">(en CO2e)</span></caption>
+      <thead><tr><th scope="col">Étape</th>${ks.map((k) => `<th scope="col" class="n"><span class="h-ico" aria-hidden="true">${ic(k)}</span><span class="h-t">${tt(k)}</span></th>`).join("")}</tr></thead>
+      <tbody>${steps.map((n) => `<tr><th scope="row">${label(n)}</th>${ks.map((k) => cell(G[k].rep ? G[k].rep[n] : null)).join("")}</tr>`).join("")}</tbody>
+      <tfoot><tr><th scope="row">Total</th>${ks.map((k) => cell(G[k].total)).join("")}</tr></tfoot>
+    </table>
+    ${missing.length ? `<p class="note" style="margin:0">L'ADEME ne publie pas le détail pour : ${missing.map(tt).join(", ")}.</p>` : ""}
+    ${steps.length && ks.some((k) => G[k].rep && Object.values(G[k].rep).some((v) => v < 0)) ? `<p class="note" style="margin:0">Les émissions évitées par le recyclage sont déjà déduites du total.</p>` : ""}
+    <p class="src" style="margin:0">Sources : ${ks.map((k) => `<a href="${ADEME + G[k].url}" target="_blank" rel="noopener">${tt(k)} ↗</a>`).join(" · ")}</p>`;
+}
+
+let A2modal = null; // index de la Manche ouverte depuis le Récapitulatif
+function VariantA2() {
+  if (S.phase === "end") return endA2();
+  const d = duel(), rev = S.phase === "reveal", pick = S.picks[S.i];
+  const card = (k) => {
+    let cls = "", tag = "";
+    if (rev) {
+      if (k === big(d)) { cls = "good"; tag = `<span class="A2-tag good">✓ ${k === pick ? "Ton choix · " : ""}émet le plus</span>`; }
+      else if (k === pick) { cls = "bad"; tag = `<span class="A2-tag bad">✗ Ton choix</span>`; }
+    }
+    return `<button class="A2-card ${cls}" ${rev ? "disabled" : ""} data-pick="${k}">${tag}
+      <span class="emo" aria-hidden="true">${ic(k)}</span><span class="t">${tt(k)}</span><span class="sub">${sb(k)}</span>
+      ${rev ? `<span class="val">${fmt(G[k].total)}</span>` : ""}</button>`;
+  };
+  return `<div class="A2-top"><span class="muted">Duel ${S.i + 1}/10</span><span class="diff ${d.d}">${d.d}</span></div>
+    <div class="A-progress" aria-hidden="true">${PARTIE.map((p, k) => `<span class="${k <= S.i ? "done" : "todo"}" style="background:var(--${{ facile: "easy", moyen: "medium", difficile: "hard", ultime: "ultimate" }[p.d]})"></span>`).join("")}</div>
+    <h1 style="margin:0 0 14px;font-size:21px">Lequel émet le plus ?</h1>
+    <div class="A2-duel">${card(d.a)}${rev ? `<div class="A2-ratio" aria-label="${nf(ratio(d), 1)} fois plus"><b>${fmtR(ratio(d))}</b><small>fois plus</small></div>` : `<div class="A2-vs" aria-hidden="true">VS</div>`}${card(d.b)}</div>
+    ${rev ? `<section id="A2-detail" class="A2-detail" tabindex="-1" aria-label="Explication">${detailA2(d, pick)}
+      <div><button class="btn" data-act="next">${S.i < 9 ? "Duel suivant →" : "Voir mon score"}</button></div></section>` : ""}`;
+}
+function endA2() {
+  const modal = A2modal == null ? "" : `<div class="A2-modal" data-act="closeA2"><div class="A2-panel" role="dialog" aria-modal="true" aria-label="Détail du duel ${A2modal + 1}">
+      <button class="A2-close" data-act="closeA2" aria-label="Fermer le détail">×</button>
+      <p class="muted" style="margin:8px 0">Duel ${A2modal + 1} · <span class="diff ${PARTIE[A2modal].d}">${PARTIE[A2modal].d}</span></p>
+      <div style="display:grid;gap:14px">${detailA2(PARTIE[A2modal], S.picks[A2modal])}</div></div></div>`;
+  return `<p class="A2-end-score">${score()}<span style="font-size:28px">/10</span></p><p style="font-size:18px;margin:6px 0 14px">${message(score())}</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" data-act="share">Partager mon score</button><button class="btn ghost" data-act="replay">Rejouer</button></div>
+    <h2 style="font-size:18px;margin:22px 0 0">Récapitulatif</h2><p class="note" style="margin:2px 0 0">Touche un duel pour revoir l'explication.</p>
+    <div class="A2-recap">${PARTIE.map((p, k) => { const ok = S.picks[k] === big(p); return `<button class="A2-tile ${ok ? "good" : "bad"}" data-act="openA2" data-k="${k}" aria-label="Duel ${k + 1}, ${ok ? "réussi" : "raté"}"><span class="k">${ok ? "✓" : "✗"} Duel ${k + 1}</span><span class="eq">1 ${ic(big(p))} = ${nf(ratio(p), 1)} ${ic(small(p))}</span></button>`; }).join("")}</div>${modal}`;
+}
+
+// ===== Bascule entre variantes =====
+const VARIANTS = { A2: ["Cartes révisées", VariantA2], A: ["Cartes face-à-face", VariantA], B: ["La balance", VariantB], C: ["L'équivalence", VariantC] };
+const KEYS = Object.keys(VARIANTS);
+let V = new URLSearchParams(location.search).get("variant");
+if (!KEYS.includes(V)) V = "A2";
+function setVariant(k) {
+  V = k;
+  try { const u = new URL(location.href); u.searchParams.set("variant", k); history.replaceState(null, "", u); } catch {}
+  render();
+}
+function render() {
+  const app = document.getElementById("app");
+  app.innerHTML = VARIANTS[V][1]();
+  document.getElementById("vlabel").textContent = `${V} · ${VARIANTS[V][0]}`;
+  document.getElementById("vstate").textContent = S.phase === "end" ? `fin · score ${score()}/10` : `duel ${S.i + 1}/10 · ${S.phase === "question" ? "question" : "révélation"} · score ${score()}`;
+}
+document.addEventListener("click", (e) => {
+  const p = e.target.closest("[data-pick]"); if (p) return choose(p.dataset.pick);
+  const a = e.target.closest("[data-act]"); if (!a) return;
+  const act = a.dataset.act;
+  if (act === "openA2") { A2modal = Number(a.dataset.k); render(); document.querySelector(".A2-close")?.focus(); return; }
+  if (act === "closeA2") {
+    // Le fond sombre ferme l'aperçu, mais pas un clic à l'intérieur du panneau.
+    if (a.classList.contains("A2-modal") && e.target !== a) return;
+    const k = A2modal; A2modal = null; render(); document.querySelector(`[data-k="${k}"]`)?.focus(); return;
+  }
+  if (act === "replay") A2modal = null;
+  ({ next, replay, share })[act]();
+});
+document.getElementById("prev").onclick = () => setVariant(KEYS[(KEYS.indexOf(V) + KEYS.length - 1) % KEYS.length]);
+document.getElementById("next").onclick = () => setVariant(KEYS[(KEYS.indexOf(V) + 1) % KEYS.length]);
+document.addEventListener("keydown", (e) => {
+  if (e.target.closest("input, textarea, [contenteditable]")) return;
+  if (e.key === "Escape" && A2modal != null) { const k = A2modal; A2modal = null; render(); document.querySelector(`[data-k="${k}"]`)?.focus(); return; }
+  if (e.key === "ArrowLeft") document.getElementById("prev").click();
+  else if (e.key === "ArrowRight") document.getElementById("next").click();
+  else if (S.phase === "question" && (e.key === "1" || e.key === "2")) choose(e.key === "1" ? duel().a : duel().b);
+  else if (S.phase === "reveal" && e.key === "Enter" && !e.target.closest("button")) next();
+});
+render();
+</script>
+</body>
+</html>
