@@ -32,6 +32,21 @@ export function EcranPartie({ duels, onRejouer }: Props) {
     position.current?.focus()
   }, [etape])
 
+  // Raccourci clavier : une fois le choix fait, Entrée passe au Duel suivant (ou au score).
+  useEffect(() => {
+    if (etat.phase !== 'revelation') return
+    const surTouche = (evenement: KeyboardEvent) => {
+      if (evenement.key !== 'Enter' || evenement.repeat || evenement.defaultPrevented) return
+      if (evenement.altKey || evenement.ctrlKey || evenement.metaKey || evenement.shiftKey) return
+      // Sur un lien ou un bouton, Entrée garde son rôle habituel (ouvrir le lien, cliquer le bouton).
+      const cible = evenement.target
+      if (cible instanceof Element && cible.closest('a, button, input, select, textarea, [contenteditable]')) return
+      envoyer({ type: 'suivant' })
+    }
+    window.addEventListener('keydown', surTouche)
+    return () => window.removeEventListener('keydown', surTouche)
+  }, [etat.phase])
+
   // « Référence de rappel » : React nous donne l'élément HTML dès qu'il est affiché.
   const retenir = (element: HTMLElement | null) => {
     position.current = element
@@ -80,7 +95,12 @@ export function EcranPartie({ duels, onRejouer }: Props) {
         choix={etat.phase === 'revelation' ? etat.reponses[etat.index].idChoisi : null}
         onChoisir={choisir}
         suite={
-          <button type="button" className="bouton" onClick={() => envoyer({ type: 'suivant' })}>
+          <button
+            type="button"
+            className="bouton"
+            aria-keyshortcuts="Enter"
+            onClick={() => envoyer({ type: 'suivant' })}
+          >
             {dernier ? 'Voir mon score' : 'Duel suivant →'}
           </button>
         }

@@ -56,7 +56,7 @@ Grand public francophone, à partir d'environ 15 ans, majoritairement sur smartp
 28. En tant que visiteur, je veux savoir que le jeu ne pose aucun cookie et ne collecte aucune donnée personnelle, afin de jouer sereinement.
 
 ### Accessibilité
-29. En tant que joueur au clavier, je veux jouer une Partie entière sans souris.
+29. En tant que joueur au clavier, je veux jouer une Partie entière sans souris (raccourcis : 1 et 2 pour choisir, Entrée pour passer au Duel suivant).
 30. En tant que joueur utilisant un lecteur d'écran, je veux que les Gestes, le résultat et la Répartition soient annoncés correctement.
 31. En tant que joueur malvoyant, je veux des contrastes suffisants et des textes qui supportent le zoom.
 

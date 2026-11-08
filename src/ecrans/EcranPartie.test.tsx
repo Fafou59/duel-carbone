@@ -65,6 +65,31 @@ describe('Une Partie de 10 Duels', () => {
     expect(onRejouer).toHaveBeenCalledOnce()
   })
 
+  it('passe au Duel suivant avec la touche Entrée, une fois le choix fait', () => {
+    render(<EcranPartie duels={DUELS} onRejouer={() => {}} />)
+    fireEvent.keyDown(document.body, { key: 'Enter' })
+    expect(screen.getByText('Duel 1/10')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(DUELS[0].a.titre) }))
+    fireEvent.keyDown(document.body, { key: 'Enter' })
+    expect(screen.getByText('Duel 2/10')).toBeInTheDocument()
+  })
+
+  it('mène au score avec Entrée après le dernier Duel', () => {
+    render(<EcranPartie duels={DUELS} onRejouer={() => {}} />)
+    for (let i = 0; i < 9; i++) jouerDuel(i, true)
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(DUELS[9].a.titre) }))
+    fireEvent.keyDown(document.body, { key: 'Enter' })
+    expect(screen.getByRole('heading', { name: 'Partie terminée !' })).toBeInTheDocument()
+  })
+
+  it('laisse Entrée à son rôle habituel sur un lien, et ignore une touche maintenue', () => {
+    render(<EcranPartie duels={DUELS} onRejouer={() => {}} />)
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(DUELS[0].a.titre) }))
+    fireEvent.keyDown(screen.getAllByRole('link')[0], { key: 'Enter' })
+    fireEvent.keyDown(document.body, { key: 'Enter', repeat: true })
+    expect(screen.getByText('Duel 1/10')).toBeInTheDocument()
+  })
+
   it('remonte en haut de page et place le focus sur la position à chaque nouveau Duel', () => {
     render(<EcranPartie duels={DUELS} onRejouer={() => {}} />)
     jouerDuel(0, true)
