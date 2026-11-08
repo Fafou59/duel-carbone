@@ -11,6 +11,19 @@ if (typeof window !== 'undefined') {
   window.scrollTo = vi.fn() as unknown as typeof window.scrollTo
 }
 
+// jsdom connaît la balise <dialog> mais ne sait ni l'ouvrir ni la fermer : on imite le minimum.
+// (Un vrai navigateur ajoute le fond sombre, bloque le reste de la page et gère la touche Échap.)
+if (typeof HTMLDialogElement !== 'undefined' && !HTMLDialogElement.prototype.showModal) {
+  HTMLDialogElement.prototype.showModal = function (this: HTMLDialogElement) {
+    this.open = true
+  }
+  HTMLDialogElement.prototype.close = function (this: HTMLDialogElement) {
+    if (!this.open) return
+    this.open = false
+    this.dispatchEvent(new Event('close'))
+  }
+}
+
 // Après chaque test, on retire la page affichée, pour que chaque test parte d'un écran vide.
 afterEach(() => {
   cleanup()

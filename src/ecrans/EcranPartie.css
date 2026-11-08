@@ -20,33 +20,6 @@
   font-size: 14px;
 }
 
-/* Étiquette et couleurs de Difficulté (partagées avec la barre de progression). */
-.difficulte {
-  padding: 2px 8px;
-  border-radius: 999px;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.difficulte--facile {
-  background: var(--facile);
-}
-
-.difficulte--moyen {
-  background: var(--moyen);
-}
-
-.difficulte--difficile {
-  background: var(--difficile);
-}
-
-.difficulte--ultime {
-  background: var(--ultime);
-}
-
 .progression {
   display: grid;
   grid-template-columns: repeat(10, 1fr);
@@ -64,29 +37,4 @@
 
 .progression__segment--a-venir {
   opacity: 0.3;
-}
-
-.fin {
-  display: grid;
-  justify-items: start;
-  gap: 8px;
-}
-
-.fin h2 {
-  margin: 0;
-}
-
-.fin h2:focus {
-  outline: none;
-}
-
-.fin__score {
-  margin: 0;
-  font-size: 64px;
-  font-weight: 900;
-  line-height: 1;
-}
-
-.fin__score span {
-  font-size: 28px;
 }

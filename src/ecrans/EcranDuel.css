@@ -117,21 +117,6 @@
   color: var(--mauvais);
 }
 
-.duel__equivalence {
-  margin: 0;
-  font-size: 30px;
-  font-weight: 900;
-  text-align: center;
-}
-
-.duel__equivalence small {
-  display: block;
-  margin-top: 4px;
-  color: var(--discret);
-  font-size: 14px;
-  font-weight: 600;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .duel__rapport {
     animation: none;
