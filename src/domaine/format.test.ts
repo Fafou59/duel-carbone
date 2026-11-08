@@ -1,0 +1,72 @@
+import { describe, expect, it } from 'vitest'
+import { formaterEmpreinte, formaterMultiple, formaterRapport, queDevant } from './format.ts'
+
+describe("Mise en forme d'une empreinte carbone", () => {
+  it('affiche en grammes sous 1 kg, sans décimale', () => {
+    expect(formaterEmpreinte(0.3105)).toBe('311 g CO2e')
+    expect(formaterEmpreinte(0.0025)).toBe('3 g CO2e')
+  })
+
+  it('affiche en kg avec une décimale entre 1 et 100 kg, virgule à la française', () => {
+    expect(formaterEmpreinte(3.361)).toBe('3,4 kg CO2e')
+    expect(formaterEmpreinte(26.18)).toBe('26,2 kg CO2e')
+  })
+
+  it("n'affiche pas de décimale inutile", () => {
+    expect(formaterEmpreinte(5)).toBe('5 kg CO2e')
+  })
+
+  it('affiche en kg sans décimale entre 100 kg et 1 t', () => {
+    expect(formaterEmpreinte(369.7)).toBe('370 kg CO2e')
+  })
+
+  it('affiche en tonnes au-delà de 1 000 kg', () => {
+    expect(formaterEmpreinte(2060)).toBe('2,1 t CO2e')
+  })
+
+  it('évite « 1 000 g » en passant au kilo', () => {
+    expect(formaterEmpreinte(0.9996)).toBe('1 kg CO2e')
+  })
+
+  it('garde le signe moins pour une fin de vie négative', () => {
+    expect(formaterEmpreinte(-44.64)).toBe('−44,6 kg CO2e')
+  })
+
+  it("peut omettre l'unité CO2e (dans un tableau déjà titré)", () => {
+    expect(formaterEmpreinte(3.361, { co2e: false })).toBe('3,4 kg')
+  })
+})
+
+describe("Mise en forme d'un Rapport", () => {
+  it('arrondit à l’unité à partir de ×10', () => {
+    expect(formaterRapport(10.8)).toBe('×11')
+  })
+
+  it('garde une décimale sous ×10', () => {
+    expect(formaterRapport(1.587)).toBe('×1,6')
+    expect(formaterRapport(3)).toBe('×3')
+  })
+})
+
+describe('Élision de « que »', () => {
+  it('élide devant une voyelle ou un h, et met une minuscule', () => {
+    expect(queDevant('Acheter un micro-ondes')).toBe("qu'acheter un micro-ondes")
+    expect(queDevant('Habiller un enfant')).toBe("qu'habiller un enfant")
+  })
+
+  it("n'élide pas devant une consonne", () => {
+    expect(queDevant('Manger un avocat')).toBe('que manger un avocat')
+  })
+})
+
+describe("Mise en forme d'un multiple (équivalence « 1 A = x B »)", () => {
+  it('garde toujours une décimale significative', () => {
+    expect(formaterMultiple(10.83)).toBe('10,8')
+    expect(formaterMultiple(25.7)).toBe('25,7')
+    expect(formaterMultiple(2)).toBe('2')
+  })
+
+  it('sépare les milliers à la française', () => {
+    expect(formaterMultiple(1234.5)).toBe('1 234,5')
+  })
+})

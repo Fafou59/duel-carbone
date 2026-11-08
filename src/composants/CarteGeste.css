@@ -1,0 +1,90 @@
+.carte {
+  width: 100%;
+  min-height: min(28vh, 190px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 16px 14px;
+  border: 3px solid var(--ligne);
+  border-radius: 20px;
+  background: var(--carte);
+  color: var(--encre);
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    transform 0.2s;
+}
+
+.carte:not(:disabled):hover {
+  border-color: var(--marque);
+  transform: translateY(-2px);
+}
+
+.carte:focus-visible {
+  outline: 3px solid var(--marque);
+  outline-offset: 3px;
+}
+
+/* Une carte révélée reste parfaitement lisible : elle n'est simplement plus cliquable. */
+.carte:disabled {
+  cursor: default;
+}
+
+.carte--plus-emetteur {
+  border-color: var(--bon);
+}
+
+.carte--mauvais-choix {
+  border-color: var(--mauvais);
+}
+
+.carte__etiquette {
+  margin-bottom: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.carte__etiquette--bon {
+  background: var(--bon);
+  color: var(--fond);
+}
+
+.carte__etiquette--mauvais {
+  background: var(--mauvais);
+  color: #fff;
+}
+
+.carte__icone {
+  font-size: 46px;
+  line-height: 1;
+}
+
+.carte__titre {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.carte__sous-titre {
+  font-size: 14px;
+  color: var(--discret);
+}
+
+.carte__valeur {
+  margin-top: 4px;
+  font-size: 26px;
+  font-weight: 900;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carte {
+    transition: none;
+  }
+}

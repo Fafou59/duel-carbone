@@ -1,19 +1,30 @@
+/* Jetons de couleur : toutes les couleurs du jeu viennent d'ici, en mode clair comme en mode sombre. */
 :root {
   --fond: #f6f4ee;
+  --carte: #ffffff;
   --encre: #1d2320;
   --discret: #5d665f;
+  --ligne: #d9d6cc;
   --marque: #1f6f50;
+  --sur-marque: #ffffff;
+  --bon: #1b7a45;
+  --mauvais: #b3261e;
   color-scheme: light dark;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  line-height: 1.5;
+  line-height: 1.45;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --fond: #141816;
+    --carte: #1e2421;
     --encre: #ecefe9;
     --discret: #a7b0a8;
+    --ligne: #333b36;
     --marque: #4fbf8c;
+    --sur-marque: #0d1411;
+    --bon: #5fd08f;
+    --mauvais: #ff8a80;
   }
 }
 
@@ -31,35 +42,48 @@ a {
   color: var(--marque);
 }
 
-.accueil {
-  max-width: 640px;
-  min-height: 100dvh;
+.page {
+  max-width: 920px;
   margin: 0 auto;
-  padding: 48px 16px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 8px;
+  padding: 16px;
 }
 
-.accueil h1 {
+.entete {
+  margin-bottom: 12px;
+}
+
+.entete h1 {
   margin: 0;
-  font-size: clamp(36px, 10vw, 56px);
+  font-size: 22px;
   font-weight: 900;
   color: var(--marque);
 }
 
-.accroche {
-  font-size: 20px;
-  margin: 0;
-}
-
-.statut {
-  font-weight: 700;
-}
-
-footer {
+.pied {
   margin-top: 32px;
   font-size: 14px;
   color: var(--discret);
+}
+
+.bouton {
+  justify-self: start;
+  padding: 12px 22px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--marque);
+  color: var(--sur-marque);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bouton--secondaire {
+  border: 2px solid var(--ligne);
+  background: transparent;
+  color: var(--encre);
+}
+
+.bouton:focus-visible {
+  outline: 3px solid var(--marque);
+  outline-offset: 3px;
 }
