@@ -13,13 +13,23 @@ type Props = {
   lignes: LigneRecapitulatif[]
   score: number
   total: number
+  /** Le record d'avant cette Partie (null : première Partie, ou pas de mémoire locale). */
+  ancienRecord?: number | null
   onRejouer: () => void
   /** Comment partager (remplaçable dans les tests) : par défaut, avec les outils du navigateur. */
   onPartager?: (texte: string) => Promise<ResultatPartage>
 }
 
 /** Fin de Partie : le score, un message, le partage, « Rejouer », puis le Récapitulatif des 10 Duels. */
-export function EcranFin({ refTitre, lignes, score, total, onRejouer, onPartager = partager }: Props) {
+export function EcranFin({
+  refTitre,
+  lignes,
+  score,
+  total,
+  ancienRecord = null,
+  onRejouer,
+  onPartager = partager,
+}: Props) {
   // Résultat du dernier partage, pour afficher une confirmation (ou le texte, si la copie a échoué).
   const [partage, setPartage] = useState<ResultatPartage | null>(null)
   const partagerLeScore = async () => {
@@ -48,6 +58,16 @@ export function EcranFin({ refTitre, lignes, score, total, onRejouer, onPartager
         <span>/{total}</span>
       </p>
       <p className="fin__message">{messageDeScore(score, total)}</p>
+      {ancienRecord !== null &&
+        (score > ancienRecord ? (
+          <p className="fin__record fin__record--nouveau">
+            🏆 Nouveau record ! (ancien : {ancienRecord}/{total})
+          </p>
+        ) : (
+          <p className="fin__record">
+            Ton record : {ancienRecord}/{total}
+          </p>
+        ))}
       <div className="fin__actions">
         <button type="button" className="bouton" onClick={partagerLeScore}>
           Partager mon score

@@ -27,4 +27,6 @@ if (typeof HTMLDialogElement !== 'undefined' && !HTMLDialogElement.prototype.sho
 // Après chaque test, on retire la page affichée, pour que chaque test parte d'un écran vide.
 afterEach(() => {
   cleanup()
+  // Et on vide la mémoire locale, pour qu'un record d'un test ne s'invite pas dans le suivant.
+  if (typeof localStorage !== 'undefined') localStorage.clear()
 })
