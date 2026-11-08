@@ -1,0 +1,17 @@
+# Dépendances téléchargées par npm (se réinstallent avec `npm install`)
+node_modules/
+
+# Fichiers générés par la construction du site et les tests
+dist/
+coverage/
+.netlify/
+
+# Secrets et réglages locaux (ex. la future clé d'API ADEME) — ne jamais les publier
+.env
+.env.*
+!.env.example
+
+# Journaux et fichiers système
+*.log
+.DS_Store
+Thumbs.db
