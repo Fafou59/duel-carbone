@@ -57,6 +57,13 @@ describe('Une Partie de 10 Duels', () => {
     expect(screen.queryByText(/Duel \d+\/10/)).not.toBeInTheDocument()
   })
 
+  it('signale la fin de la Partie avec le score, une seule fois', () => {
+    const onTerminee = vi.fn()
+    render(<EcranPartie duels={DUELS} onRejouer={() => {}} onTerminee={onTerminee} />)
+    for (let i = 0; i < 10; i++) jouerDuel(i, i < 6)
+    expect(onTerminee).toHaveBeenCalledExactlyOnceWith(6)
+  })
+
   it('propose de rejouer à la fin', () => {
     const onRejouer = vi.fn()
     render(<EcranPartie duels={DUELS} onRejouer={onRejouer} />)

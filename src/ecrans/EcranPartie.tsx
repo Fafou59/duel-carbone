@@ -10,13 +10,26 @@ import './EcranPartie.css'
 type Props = {
   duels: Duel[]
   onRejouer: () => void
+  /** Le record d'avant cette Partie, affiché à la fin. */
+  ancienRecord?: number | null
+  /** Appelé une fois, à la fin de la Partie, avec le score (pour l'enregistrer). */
+  onTerminee?: (score: number) => void
 }
 
-export function EcranPartie({ duels, onRejouer }: Props) {
+export function EcranPartie({ duels, onRejouer, ancienRecord = null, onTerminee }: Props) {
   // useReducer branche la machine à états (domaine/partie.ts) sur React :
   // « envoyer » une action calcule le nouvel état, et React redessine l'écran.
   const [etat, envoyer] = useReducer(avancer, duels, demarrerPartie)
   const choisir = useCallback((idGeste: string) => envoyer({ type: 'choisir', idGeste }), [])
+
+  // Fin de Partie : on prévient l'application (qui enregistre le score), une seule fois.
+  // La référence évite de prévenir à nouveau si l'application nous redonne une autre fonction.
+  const prevenue = useRef(false)
+  useEffect(() => {
+    if (etat.phase !== 'fin' || prevenue.current) return
+    prevenue.current = true
+    onTerminee?.(score(etat))
+  }, [etat, onTerminee])
 
   // À chaque nouveau Duel (et à la fin), on remonte en haut de page et on place le focus
   // sur la position (« Duel 3/10 »), pour que clavier et lecteur d'écran repartent du bon endroit.
@@ -59,6 +72,7 @@ export function EcranPartie({ duels, onRejouer }: Props) {
         lignes={recapitulatif(etat)}
         score={score(etat)}
         total={NOMBRE_DE_DUELS}
+        ancienRecord={ancienRecord}
         onRejouer={onRejouer}
       />
     )

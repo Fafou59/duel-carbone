@@ -27,6 +27,16 @@
   font-size: 18px;
 }
 
+.fin__record {
+  margin: -4px 0 8px;
+  color: var(--discret);
+  font-weight: 700;
+}
+
+.fin__record--nouveau {
+  color: var(--bon);
+}
+
 .fin__actions {
   display: flex;
   flex-wrap: wrap;

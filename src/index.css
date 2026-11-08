@@ -75,6 +75,12 @@ a {
   font-size: 20px;
 }
 
+.accueil__record {
+  margin: 0;
+  color: var(--discret);
+  font-weight: 700;
+}
+
 .pied {
   margin-top: 32px;
   font-size: 14px;

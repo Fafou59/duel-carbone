@@ -43,6 +43,27 @@ describe('Écran de fin de Partie', () => {
   })
 })
 
+describe('Record', () => {
+  const avecRecord = (ancienRecord: number | null) =>
+    render(<EcranFin lignes={LIGNES} score={7} total={10} ancienRecord={ancienRecord} onRejouer={() => {}} />)
+
+  it('fête un nouveau record', () => {
+    avecRecord(5)
+    expect(screen.getByText(/Nouveau record/)).toHaveTextContent('ancien : 5/10')
+  })
+
+  it('rappelle le record à battre s’il n’est pas battu', () => {
+    avecRecord(9)
+    expect(screen.getByText('Ton record : 9/10')).toBeInTheDocument()
+    expect(screen.queryByText(/Nouveau record/)).not.toBeInTheDocument()
+  })
+
+  it('ne dit rien du record à la toute première Partie', () => {
+    avecRecord(null)
+    expect(screen.queryByText(/record/i)).not.toBeInTheDocument()
+  })
+})
+
 describe('Partage du score', () => {
   const partagerAvec = (resultat: ResultatPartage) => {
     const onPartager = vi.fn(async () => resultat)
