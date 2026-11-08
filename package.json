@@ -10,7 +10,8 @@
     "typecheck": "tsc -b",
     "lint": "oxlint",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "import": "node --env-file-if-exists=.env scripts/import/index.ts"
   },
   "dependencies": {
     "react": "^19.3.1",
