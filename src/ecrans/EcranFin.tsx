@@ -2,7 +2,9 @@ import { useRef, useState } from 'react'
 import { PanneauDuel } from '../composants/PanneauDuel.tsx'
 import { iconeDe } from '../donnees/icones.ts'
 import { formaterMultiple, queDevant } from '../domaine/format.ts'
+import { texteDePartage } from '../domaine/partage.ts'
 import { messageDeScore, type LigneRecapitulatif } from '../domaine/recapitulatif.ts'
+import { partager, type ResultatPartage } from '../navigateur/partager.ts'
 import './EcranFin.css'
 
 type Props = {
@@ -12,10 +14,19 @@ type Props = {
   score: number
   total: number
   onRejouer: () => void
+  /** Comment partager (remplaçable dans les tests) : par défaut, avec les outils du navigateur. */
+  onPartager?: (texte: string) => Promise<ResultatPartage>
 }
 
-/** Fin de Partie : le score, un message, « Rejouer », puis le Récapitulatif des 10 Duels. */
-export function EcranFin({ refTitre, lignes, score, total, onRejouer }: Props) {
+/** Fin de Partie : le score, un message, le partage, « Rejouer », puis le Récapitulatif des 10 Duels. */
+export function EcranFin({ refTitre, lignes, score, total, onRejouer, onPartager = partager }: Props) {
+  // Résultat du dernier partage, pour afficher une confirmation (ou le texte, si la copie a échoué).
+  const [partage, setPartage] = useState<ResultatPartage | null>(null)
+  const partagerLeScore = async () => {
+    setPartage(null)
+    setPartage(await onPartager(texteDePartage(score, total)))
+  }
+
   // Position (0 à 9) du Duel dont le détail est ouvert, ou null si le panneau est fermé.
   const [ouvert, setOuvert] = useState<number | null>(null)
   // Les 10 cases, pour rendre le focus à celle qu'on vient de consulter.
@@ -37,9 +48,24 @@ export function EcranFin({ refTitre, lignes, score, total, onRejouer }: Props) {
         <span>/{total}</span>
       </p>
       <p className="fin__message">{messageDeScore(score, total)}</p>
-      <button type="button" className="bouton" onClick={onRejouer}>
-        Rejouer
-      </button>
+      <div className="fin__actions">
+        <button type="button" className="bouton" onClick={partagerLeScore}>
+          Partager mon score
+        </button>
+        <button type="button" className="bouton bouton--secondaire" onClick={onRejouer}>
+          Rejouer
+        </button>
+      </div>
+      {/* role="status" : un lecteur d'écran annonce la confirmation de copie dès qu'elle apparaît. */}
+      <div role="status" className="fin__partage">
+        {partage === 'copie' && <p>✓ Score copié ! Colle-le dans un message pour défier tes proches.</p>}
+        {partage === 'echec' && (
+          <>
+            <p>La copie automatique n'a pas fonctionné. Voici le texte à copier :</p>
+            <p className="fin__texte-partage">{texteDePartage(score, total)}</p>
+          </>
+        )}
+      </div>
 
       <h3 id="recap-titre" className="fin__recap-titre">
         Récapitulatif
