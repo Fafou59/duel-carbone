@@ -7,6 +7,9 @@ import { afterEach, vi } from 'vitest'
 if (typeof Element !== 'undefined' && !Element.prototype.scrollIntoView) {
   Element.prototype.scrollIntoView = vi.fn()
 }
+if (typeof window !== 'undefined') {
+  window.scrollTo = vi.fn() as unknown as typeof window.scrollTo
+}
 
 // Après chaque test, on retire la page affichée, pour que chaque test parte d'un écran vide.
 afterEach(() => {
