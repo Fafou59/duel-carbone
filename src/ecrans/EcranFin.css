@@ -77,9 +77,11 @@
   border-color: var(--mauvais);
 }
 
+/* Indicateur de focus (navigation au clavier) : couleur de l'encre et non verte,
+   pour ne pas se confondre avec l'encadré vert d'un Duel réussi. */
 .recap__case:focus-visible {
-  outline: 3px solid var(--marque);
-  outline-offset: 2px;
+  outline: 3px solid var(--encre);
+  outline-offset: 3px;
 }
 
 .recap__numero {
