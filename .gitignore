@@ -11,7 +11,12 @@ coverage/
 .env.*
 !.env.example
 
-# Journaux et fichiers système
+*.local
+
+# Journaux, éditeurs et fichiers système
 *.log
+.vscode/*
+!.vscode/extensions.json
+.idea
 .DS_Store
 Thumbs.db

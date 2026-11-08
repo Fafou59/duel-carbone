@@ -5,6 +5,8 @@
 Steak ou avocat ? Livraison à domicile ou voiture jusqu'au magasin ? À chaque Duel, tu choisis le geste qui émet le plus de CO2e. La réponse révèle les chiffres, le Rapport entre les deux gestes et d'où viennent les émissions sur le cycle de vie. Une Partie compte 10 Duels de difficulté croissante, avec un score à partager à la fin.
 
 > 🚧 **En cours de construction.** Le cadrage, le cahier des charges et le prototype des écrans sont terminés ; le développement de la v1 commence.
+>
+> 🌐 Suivre l'avancement en ligne : **https://duel-carbone.netlify.app**
 
 ## Pourquoi ce projet
 
@@ -30,6 +32,17 @@ Les données restent la propriété de l'ADEME et sont réutilisées dans le cad
 ## Pile technique prévue
 
 React · TypeScript · Vite · application web installable (PWA) · hébergement Netlify · mesure d'audience sans cookie (GoatCounter).
+
+## Lancer le projet en local
+
+Prérequis : [Node.js](https://nodejs.org) 26 (voir `.nvmrc`).
+
+```bash
+npm install      # installe les dépendances
+npm run dev      # lance le site en local, avec rechargement automatique
+npm test         # lance les tests
+npm run build    # construit la version de production dans dist/
+```
 
 ## Licence
 
