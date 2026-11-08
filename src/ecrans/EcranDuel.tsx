@@ -1,9 +1,8 @@
 import { useEffect, useRef, type ReactNode } from 'react'
 import { CarteGeste, type EtatCarte } from '../composants/CarteGeste.tsx'
-import { TableauRepartition } from '../composants/TableauRepartition.tsx'
-import { iconeDe } from '../donnees/icones.ts'
-import { estBonChoix, moinsEmetteur, plusEmetteur, rapport, type Duel } from '../domaine/duel.ts'
-import { formaterMultiple, formaterRapport, queDevant } from '../domaine/format.ts'
+import { ExplicationDuel } from '../composants/ExplicationDuel.tsx'
+import { estBonChoix, plusEmetteur, rapport, type Duel } from '../domaine/duel.ts'
+import { formaterRapport } from '../domaine/format.ts'
 import type { GesteCalcule } from '../domaine/geste.ts'
 import './EcranDuel.css'
 
@@ -71,8 +70,6 @@ export function EcranDuel({ duel, choix, onChoisir, suite }: Props) {
     />
   )
 
-  const plus = plusEmetteur(duel)
-  const moins = moinsEmetteur(duel)
   const r = rapport(duel)
   const bonChoix = choix !== null && estBonChoix(duel, choix)
 
@@ -110,16 +107,7 @@ export function EcranDuel({ duel, choix, onChoisir, suite }: Props) {
 
         {revele && (
           <section className="duel__explication" aria-label="Explication">
-            <p className="duel__equivalence">
-              <span aria-hidden="true">
-                1 {iconeDe(plus.id)} = {formaterMultiple(r)} {iconeDe(moins.id)}
-              </span>
-              <small>
-                {plus.titre} ({plus.sousTitre}) émet {formaterMultiple(r)} fois plus {queDevant(moins.titre)} (
-                {moins.sousTitre}).
-              </small>
-            </p>
-            <TableauRepartition duel={duel} />
+            <ExplicationDuel duel={duel} />
             {suite}
           </section>
         )}

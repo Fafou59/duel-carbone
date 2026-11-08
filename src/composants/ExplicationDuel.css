@@ -1,0 +1,14 @@
+.equivalence {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.equivalence small {
+  display: block;
+  margin-top: 4px;
+  color: var(--discret);
+  font-size: 14px;
+  font-weight: 600;
+}

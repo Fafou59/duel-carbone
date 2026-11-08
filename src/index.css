@@ -99,6 +99,33 @@ a {
   color: var(--encre);
 }
 
+/* Étiquette et couleurs de Difficulté (Partie, barre de progression, détail du Récapitulatif). */
+.difficulte {
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.difficulte--facile {
+  background: var(--facile);
+}
+
+.difficulte--moyen {
+  background: var(--moyen);
+}
+
+.difficulte--difficile {
+  background: var(--difficile);
+}
+
+.difficulte--ultime {
+  background: var(--ultime);
+}
+
 /* Texte lu par les lecteurs d'écran mais invisible à l'écran. */
 .visuellement-cache {
   position: absolute;
