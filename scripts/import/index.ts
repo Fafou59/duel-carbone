@@ -3,10 +3,13 @@
  * (src/donnees/instantane.json), seule source de données lue par le jeu.
  * Voir docs/adr/0002-instantane-par-script-d-import.md.
  *
- * Si une seule requête échoue, rien n'est écrit : l'Instantané précédent reste intact.
+ * Si une seule requête échoue, ou si le catalogue des Gestes ne serait plus valide,
+ * rien n'est écrit : l'Instantané précédent reste intact.
  */
 import { writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
+import { validerCatalogue } from '../../src/domaine/geste.ts'
+import { GESTES } from '../../src/donnees/gestes.ts'
 import { THEMATIQUES } from '../../src/donnees/referentiel.ts'
 import { chargerThematique } from './api.ts'
 import { construireInstantane, type ReponseThematique } from './transformer.ts'
@@ -26,6 +29,9 @@ async function main() {
 
   const dateImport = new Date().toISOString().slice(0, 10)
   const { instantane, avertissements } = construireInstantane(reponses, dateImport)
+  // Le nouvel Instantané doit encore servir tous les Gestes du catalogue ; sinon on n'écrit rien.
+  validerCatalogue(GESTES, instantane)
+  console.log(`  ✓ Les ${GESTES.length} Gestes du catalogue sont valides avec ce nouvel Instantané`)
   writeFileSync(FICHIER, JSON.stringify(instantane, null, 2) + '\n', 'utf8')
 
   console.log(`\nInstantané du ${dateImport} écrit : ${instantane.equivalents.length} Équivalents.`)
