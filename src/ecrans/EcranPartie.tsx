@@ -2,6 +2,7 @@ import { useCallback, useEffect, useReducer, useRef } from 'react'
 import { difficulteAttendue } from '../domaine/difficulte.ts'
 import type { Duel } from '../domaine/duel.ts'
 import { avancer, demarrerPartie, NOMBRE_DE_DUELS, score } from '../domaine/partie.ts'
+import { recapitulatif } from '../domaine/recapitulatif.ts'
 import { EcranDuel } from './EcranDuel.tsx'
 import { EcranFin } from './EcranFin.tsx'
 import './EcranPartie.css'
@@ -37,7 +38,15 @@ export function EcranPartie({ duels, onRejouer }: Props) {
   }
 
   if (etat.phase === 'fin') {
-    return <EcranFin refTitre={retenir} score={score(etat)} total={NOMBRE_DE_DUELS} onRejouer={onRejouer} />
+    return (
+      <EcranFin
+        refTitre={retenir}
+        lignes={recapitulatif(etat)}
+        score={score(etat)}
+        total={NOMBRE_DE_DUELS}
+        onRejouer={onRejouer}
+      />
+    )
   }
 
   const duel = etat.duels[etat.index]

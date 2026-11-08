@@ -1,0 +1,92 @@
+/* Sur mobile, le panneau monte du bas de l'écran (« bottom sheet ») ; sur grand écran, il est centré. */
+.panneau {
+  width: min(640px, 100%);
+  max-width: 100%;
+  max-height: 88vh;
+  margin: auto auto 0;
+  padding: 0;
+  border: 0;
+  border-radius: 20px 20px 0 0;
+  background: var(--fond);
+  color: var(--encre);
+}
+
+.panneau::backdrop {
+  background: rgb(0 0 0 / 55%);
+}
+
+@media (min-width: 700px) {
+  .panneau {
+    margin: auto;
+    border-radius: 20px;
+  }
+}
+
+/* Le contenu remplit toute la boîte : seul le fond sombre, autour, ferme le panneau au clic. */
+.panneau__contenu {
+  display: grid;
+  gap: 14px;
+  padding: 14px 14px 32px;
+}
+
+@media (max-width: 360px) {
+  .panneau__contenu {
+    padding: 12px 10px 28px;
+  }
+}
+
+.panneau__entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.panneau__titre {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--discret);
+  font-weight: 700;
+}
+
+.panneau__fermer {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--ligne);
+  border-radius: 50%;
+  background: var(--carte);
+  color: var(--encre);
+  font: inherit;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.panneau__fermer:focus-visible {
+  outline: 3px solid var(--marque);
+  outline-offset: 2px;
+}
+
+.panneau__verdict {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.panneau__verdict--bon {
+  color: var(--bon);
+}
+
+.panneau__verdict--mauvais {
+  color: var(--mauvais);
+}
+
+/* Tant que le panneau est ouvert, la page derrière ne défile pas. */
+body:has(.panneau[open]) {
+  overflow: hidden;
+}

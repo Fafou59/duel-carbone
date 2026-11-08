@@ -1,0 +1,101 @@
+.fin {
+  display: grid;
+  gap: 8px;
+}
+
+.fin h2 {
+  margin: 0;
+}
+
+.fin h2:focus {
+  outline: none;
+}
+
+.fin__score {
+  margin: 0;
+  font-size: 64px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.fin__score span {
+  font-size: 28px;
+}
+
+.fin__message {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.fin__recap-titre {
+  margin: 24px 0 0;
+  font-size: 18px;
+}
+
+.fin__aide {
+  margin: 0;
+  color: var(--discret);
+  font-size: 14px;
+}
+
+/* minmax(0, 1fr) : les colonnes ne dépassent jamais la largeur de l'écran,
+   même si leur contenu refuse de passer à la ligne. */
+.recap {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (max-width: 290px) {
+  .recap {
+    grid-template-columns: 1fr;
+  }
+}
+
+.recap__case {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 8px;
+  border: 3px solid var(--ligne);
+  border-radius: 14px;
+  background: var(--carte);
+  color: var(--encre);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* La couleur est toujours doublée par le texte (✓ / ✗). */
+.recap__case--bon {
+  border-color: var(--bon);
+}
+
+.recap__case--mauvais {
+  border-color: var(--mauvais);
+}
+
+.recap__case:focus-visible {
+  outline: 3px solid var(--marque);
+  outline-offset: 2px;
+}
+
+.recap__numero {
+  display: block;
+  color: var(--discret);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* La taille suit la largeur de l'écran (14 à 18 px) pour que l'équivalence tienne sur une ligne. */
+.recap__equivalence {
+  display: block;
+  margin-top: 2px;
+  overflow: hidden;
+  font-size: clamp(14px, 4.6vw, 18px);
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
