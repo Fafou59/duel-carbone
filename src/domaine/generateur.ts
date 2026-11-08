@@ -63,13 +63,23 @@ export function genererPartie({
     const thematiquesLibres = difficulte === 'ultime' ? duelsThematiques.filter(libre) : []
 
     // Les trois niveaux, du plus strict au plus souple. Le premier qui propose un candidat l'emporte.
-    const niveaux: [NiveauDeTirage, Candidat[]][] = [
-      ['regle', premierNonVide(thematiquesLibres.filter(jamaisVue), dansLaTranche.filter(jamaisVue))],
-      ['paire-recente', premierNonVide(thematiquesLibres, dansLaTranche)],
-      ['tranche-voisine', lesPlusProches(paires.filter(libre), tranche)],
+    // Chaque niveau est une fonction : on ne calcule un niveau que si les précédents sont vides
+    // (le troisième parcourt toutes les paires, inutile de le faire à chaque Duel).
+    const niveaux: [NiveauDeTirage, () => Candidat[]][] = [
+      ['regle', () => premierNonVide(thematiquesLibres.filter(jamaisVue), dansLaTranche.filter(jamaisVue))],
+      ['paire-recente', () => premierNonVide(thematiquesLibres, dansLaTranche)],
+      ['tranche-voisine', () => lesPlusProches(paires.filter(libre), tranche)],
     ]
-    const [niveau, candidats] = niveaux.find(([, c]) => c.length > 0) ?? []
-    if (!niveau || !candidats) throw new Error(`Aucune paire disponible pour le Duel ${position + 1}.`)
+    let niveau: NiveauDeTirage | undefined
+    let candidats: Candidat[] = []
+    for (const [nom, calculer] of niveaux) {
+      candidats = calculer()
+      if (candidats.length > 0) {
+        niveau = nom
+        break
+      }
+    }
+    if (!niveau) throw new Error(`Aucune paire disponible pour le Duel ${position + 1}.`)
 
     const choisi = auHasard(candidats)
     dejaTirees.add(choisi.cle)
