@@ -3,6 +3,7 @@
 import { describe, expect, it } from 'vitest'
 import { calculerGeste, validerCatalogue } from '../domaine/geste.ts'
 import { GESTES } from './gestes.ts'
+import { ICONES } from './icones.ts'
 import instantaneJson from './instantane.json'
 import type { Instantane } from './referentiel.ts'
 
@@ -19,6 +20,11 @@ describe('Catalogue des Gestes face à l’Instantané actuel', () => {
       expect(g.sousTitre.trim(), g.id).not.toBe('')
       expect(g.justification.trim(), g.id).not.toBe('')
     }
+  })
+
+  it('a une icône pour chaque Geste', () => {
+    const sansIcone = GESTES.filter((g) => !(g.id in ICONES)).map((g) => g.id)
+    expect(sansIcone).toEqual([])
   })
 
   it('donne une empreinte strictement positive à chaque Geste', () => {
