@@ -1,0 +1,45 @@
+# Intégration continue : à chaque modification, un robot GitHub relance toutes les vérifications.
+# Si l'une d'elles échoue, la Pull Request affiche une croix rouge.
+name: CI
+
+on:
+  # Sur toute Pull Request…
+  pull_request:
+  # …et sur chaque modification arrivée sur main.
+  push:
+    branches: [main]
+
+# Si on pousse deux fois de suite sur la même branche, on annule la vérification devenue obsolète.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verifications:
+    name: Vérifications
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v7
+
+      - name: Installer Node.js (version de .nvmrc)
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Installer les dépendances (exactement celles de package-lock.json)
+        run: npm ci
+
+      - name: Vérifier les types (TypeScript)
+        run: npm run typecheck
+
+      - name: Analyser le code (oxlint)
+        run: npm run lint
+
+      - name: Lancer les tests (Vitest)
+        run: npm test
+
+      - name: Construire le site (Vite)
+        run: npm run build
