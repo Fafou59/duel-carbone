@@ -1,5 +1,7 @@
 # Duel Carbone
 
+[![CI](https://github.com/Fafou59/duel-carbone/actions/workflows/ci.yml/badge.svg)](https://github.com/Fafou59/duel-carbone/actions/workflows/ci.yml)
+
 **Un jeu web gratuit pour comprendre l'empreinte carbone de nos gestes du quotidien, en les opposant en duel.**
 
 Steak ou avocat ? Livraison à domicile ou voiture jusqu'au magasin ? À chaque Duel, tu choisis le geste qui émet le plus de CO2e. La réponse révèle les chiffres, le Rapport entre les deux gestes et d'où viennent les émissions sur le cycle de vie. Une Partie compte 10 Duels de difficulté croissante, avec un score à partager à la fin.
