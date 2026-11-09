@@ -37,7 +37,8 @@ export const ICONES: Record<string, string> = {
   lait: '🐄',
   biere: '🍺',
   vin: '🍷',
-  'eau-bouteille': '💧',
+  'eau-bouteille': '🧴',
+  'eau-robinet': '🚰',
   // Numérique
   smartphone: '📱',
   tablette: '📲',

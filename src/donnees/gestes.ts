@@ -27,6 +27,7 @@ export const GESTES: Geste[] = [
     equivalent: 'boeuf',
     quantite: 0.12,
     justification: 'Portion individuelle courante de viande de bœuf.',
+    nature: 'aliment',
   },
   {
     id: 'poulet',
@@ -35,6 +36,7 @@ export const GESTES: Geste[] = [
     equivalent: 'poulet',
     quantite: 0.15,
     justification: 'Portion individuelle courante de viande de volaille.',
+    nature: 'aliment',
   },
   {
     id: 'porc',
@@ -43,6 +45,7 @@ export const GESTES: Geste[] = [
     equivalent: 'porc',
     quantite: 0.15,
     justification: 'Portion individuelle courante de viande de porc.',
+    nature: 'aliment',
   },
   {
     id: 'canard',
@@ -51,6 +54,7 @@ export const GESTES: Geste[] = [
     equivalent: 'canard',
     quantite: 0.15,
     justification: 'Demi-magret, portion individuelle courante.',
+    nature: 'aliment',
   },
   {
     id: 'saumon',
@@ -59,6 +63,7 @@ export const GESTES: Geste[] = [
     equivalent: 'saumon',
     quantite: 0.125,
     justification: 'Pavé de poisson vendu en portion individuelle.',
+    nature: 'aliment',
   },
   {
     id: 'cabillaud',
@@ -67,6 +72,7 @@ export const GESTES: Geste[] = [
     equivalent: 'cabillaud',
     quantite: 0.125,
     justification: 'Filet de poisson vendu en portion individuelle.',
+    nature: 'aliment',
   },
   {
     id: 'crevettes',
@@ -75,6 +81,7 @@ export const GESTES: Geste[] = [
     equivalent: 'crevettes',
     quantite: 0.1,
     justification: 'Portion individuelle en plat principal.',
+    nature: 'aliment',
   },
   {
     id: 'oeufs',
@@ -83,6 +90,7 @@ export const GESTES: Geste[] = [
     equivalent: 'oeuf',
     quantite: 0.12,
     justification: "Un œuf moyen pèse environ 60 g (calibre M).",
+    nature: 'aliment',
   },
   {
     id: 'tofu',
@@ -91,6 +99,7 @@ export const GESTES: Geste[] = [
     equivalent: 'tofu',
     quantite: 0.125,
     justification: 'Portion individuelle en plat principal (un demi-bloc de 250 g).',
+    nature: 'aliment',
   },
   {
     id: 'lentilles',
@@ -100,6 +109,7 @@ export const GESTES: Geste[] = [
     quantite: 0.15,
     justification:
       "Portion individuelle en plat principal (validée à la relecture du ticket #12). L'ADEME ne précise pas si le poids s'entend sec ou cuit.",
+    nature: 'aliment',
   },
   {
     id: 'pates',
@@ -108,6 +118,7 @@ export const GESTES: Geste[] = [
     equivalent: 'pates',
     quantite: 0.08,
     justification: "Portion individuelle conseillée de pâtes sèches ; l'Équivalent ADEME est « Pâtes (sèches) ».",
+    nature: 'aliment',
   },
   {
     id: 'fromage',
@@ -116,6 +127,7 @@ export const GESTES: Geste[] = [
     equivalent: 'fromagedure',
     quantite: 0.03,
     justification: 'Portion individuelle courante de fromage (un morceau sur un plateau).',
+    nature: 'aliment',
   },
   {
     id: 'yaourt',
@@ -124,6 +136,7 @@ export const GESTES: Geste[] = [
     equivalent: 'yaourt',
     quantite: 0.125,
     justification: 'Un pot de yaourt standard.',
+    nature: 'aliment',
   },
   {
     id: 'croissant',
@@ -132,7 +145,11 @@ export const GESTES: Geste[] = [
     equivalent: 'croissant',
     quantite: 0.06,
     justification: "Poids moyen d'un croissant de boulangerie.",
+    nature: 'aliment',
   },
+
+  // ─── Repas : plats complets (par kg) et repas types de l'ADEME (sans Répartition) ───
+  // Nature « repas » : jamais opposés à un aliment (REGLES.combinaisonsInterdites).
   {
     id: 'cheeseburger',
     titre: 'Manger un cheeseburger',
@@ -140,6 +157,7 @@ export const GESTES: Geste[] = [
     equivalent: 'cheeseburger',
     quantite: 0.12,
     justification: "Poids moyen d'un cheeseburger de restauration rapide.",
+    nature: 'repas',
   },
   {
     id: 'kebab',
@@ -148,6 +166,7 @@ export const GESTES: Geste[] = [
     equivalent: 'kebab',
     quantite: 0.35,
     justification: "Poids moyen d'un sandwich kebab complet.",
+    nature: 'repas',
   },
   {
     id: 'pizza',
@@ -156,6 +175,7 @@ export const GESTES: Geste[] = [
     equivalent: 'pizza',
     quantite: 0.4,
     justification: "Poids moyen d'une pizza individuelle.",
+    nature: 'repas',
   },
   {
     id: 'sushis',
@@ -164,9 +184,8 @@ export const GESTES: Geste[] = [
     equivalent: 'sushis',
     quantite: 0.2,
     justification: "Plateau individuel d'environ 8 pièces.",
+    nature: 'repas',
   },
-
-  // ─── Repas : Équivalents ADEME exprimés « par repas » (sans Répartition) ────────────
   {
     id: 'repas-vegetarien',
     titre: 'Manger un repas végétarien',
@@ -174,6 +193,7 @@ export const GESTES: Geste[] = [
     equivalent: 'repasvegetarien',
     quantite: 1,
     justification: "Repas type défini par l'ADEME.",
+    nature: 'repas',
   },
   {
     id: 'repas-boeuf',
@@ -182,6 +202,7 @@ export const GESTES: Geste[] = [
     equivalent: 'repasavecduboeuf',
     quantite: 1,
     justification: "Repas type défini par l'ADEME.",
+    nature: 'repas',
   },
 
   // ─── Fruits et légumes : Équivalents ADEME exprimés par kg ──────────────────────────
@@ -192,6 +213,7 @@ export const GESTES: Geste[] = [
     equivalent: 'avocat',
     quantite: 0.2,
     justification: "Poids moyen d'un avocat entier.",
+    nature: 'aliment',
   },
   {
     id: 'mangue-avion',
@@ -200,6 +222,7 @@ export const GESTES: Geste[] = [
     equivalent: 'mangue',
     quantite: 0.4,
     justification: "Poids moyen d'une mangue entière.",
+    nature: 'aliment',
   },
   {
     id: 'mangue-bateau',
@@ -208,6 +231,7 @@ export const GESTES: Geste[] = [
     equivalent: 'manguebateau',
     quantite: 0.4,
     justification: "Poids moyen d'une mangue entière.",
+    nature: 'aliment',
   },
   {
     id: 'banane',
@@ -216,6 +240,7 @@ export const GESTES: Geste[] = [
     equivalent: 'banane',
     quantite: 0.12,
     justification: "Poids moyen d'une banane épluchée.",
+    nature: 'aliment',
   },
   {
     id: 'fraises',
@@ -224,6 +249,7 @@ export const GESTES: Geste[] = [
     equivalent: 'fraise',
     quantite: 0.25,
     justification: 'Barquette standard du commerce.',
+    nature: 'aliment',
   },
 
   // ─── Boissons : Équivalents ADEME exprimés par litre ────────────────────────────────
@@ -234,6 +260,7 @@ export const GESTES: Geste[] = [
     equivalent: 'cafe',
     quantite: 0.25,
     justification: 'Contenance courante d’un mug.',
+    nature: 'boisson',
   },
   {
     id: 'the',
@@ -242,6 +269,7 @@ export const GESTES: Geste[] = [
     equivalent: 'the',
     quantite: 0.25,
     justification: 'Contenance courante d’un mug.',
+    nature: 'boisson',
   },
   {
     id: 'lait',
@@ -250,6 +278,7 @@ export const GESTES: Geste[] = [
     equivalent: 'laitdevache',
     quantite: 0.25,
     justification: 'Contenance courante d’un grand verre.',
+    nature: 'boisson',
   },
   {
     id: 'biere',
@@ -258,6 +287,7 @@ export const GESTES: Geste[] = [
     equivalent: 'biere',
     quantite: 0.5,
     justification: 'Une pinte servie en France contient 50 cl.',
+    nature: 'boisson',
   },
   {
     id: 'vin',
@@ -266,6 +296,7 @@ export const GESTES: Geste[] = [
     equivalent: 'vin',
     quantite: 0.125,
     justification: 'Verre de vin standard (une bouteille de 75 cl = 6 verres).',
+    nature: 'boisson',
   },
   {
     id: 'eau-bouteille',
@@ -274,6 +305,18 @@ export const GESTES: Geste[] = [
     equivalent: 'eauenbouteille',
     quantite: 1.5,
     justification: "Bouteille d'eau minérale standard.",
+    nature: 'boisson',
+  },
+  {
+    id: 'eau-robinet',
+    titre: "Boire de l'eau du robinet",
+    sousTitre: '1,5 L',
+    equivalent: 'eaudurobinet',
+    quantite: 1.5,
+    justification: "Même volume que la bouteille d'eau, pour la comparaison.",
+    nature: 'boisson',
+    // Empreinte quasi nulle (0,2 g) : face à presque tout, le Rapport serait démesuré.
+    seulementEnDuelThematique: true,
   },
 
   // ─── Numérique : Équivalents « par unité », usage sur la durée retenue par l'ADEME inclus
@@ -284,6 +327,7 @@ export const GESTES: Geste[] = [
     equivalent: 'smartphone',
     quantite: 1,
     justification: UN_APPAREIL,
+    nature: 'objet',
   },
   {
     id: 'tablette',
@@ -292,6 +336,7 @@ export const GESTES: Geste[] = [
     equivalent: 'tabletteclassique',
     quantite: 1,
     justification: UN_APPAREIL,
+    nature: 'objet',
   },
   {
     id: 'ordinateur-portable',
@@ -300,6 +345,7 @@ export const GESTES: Geste[] = [
     equivalent: 'ordinateurportable',
     quantite: 1,
     justification: UN_APPAREIL,
+    nature: 'objet',
   },
   {
     id: 'ordinateur-fixe',
@@ -308,6 +354,7 @@ export const GESTES: Geste[] = [
     equivalent: 'ordinateurfixeparticulier',
     quantite: 1,
     justification: UN_APPAREIL,
+    nature: 'objet',
   },
   {
     id: 'ecran',
@@ -316,6 +363,7 @@ export const GESTES: Geste[] = [
     equivalent: 'ecran',
     quantite: 1,
     justification: UN_APPAREIL,
+    nature: 'objet',
   },
   {
     id: 'television',
@@ -324,6 +372,7 @@ export const GESTES: Geste[] = [
     equivalent: 'television',
     quantite: 1,
     justification: UN_APPAREIL,
+    nature: 'objet',
   },
   {
     id: 'box',
@@ -332,6 +381,7 @@ export const GESTES: Geste[] = [
     equivalent: 'box',
     quantite: 1,
     justification: UN_APPAREIL,
+    nature: 'objet',
   },
   {
     id: 'enceinte-connectee',
@@ -340,6 +390,7 @@ export const GESTES: Geste[] = [
     equivalent: 'enceintebluetooth',
     quantite: 1,
     justification: UN_APPAREIL,
+    nature: 'objet',
   },
 
   // ─── Usages numériques ──────────────────────────────────────────────────────────────
@@ -350,6 +401,7 @@ export const GESTES: Geste[] = [
     equivalent: 'email',
     quantite: 10,
     justification: "Une dizaine d'e-mails, l'envoi d'une matinée de travail.",
+    nature: 'usage',
   },
   {
     id: 'telecharger-film',
@@ -358,6 +410,7 @@ export const GESTES: Geste[] = [
     equivalent: 'telechargement',
     quantite: 4,
     justification: "Taille courante d'un film en haute définition.",
+    nature: 'usage',
   },
 
   // ─── Électroménager : Équivalents « par unité », usage sur la durée retenue par l'ADEME inclus
@@ -368,6 +421,7 @@ export const GESTES: Geste[] = [
     equivalent: 'bouilloire',
     quantite: 1,
     justification: UN_APPAREIL,
+    nature: 'objet',
   },
   {
     id: 'aspirateur',
@@ -376,6 +430,7 @@ export const GESTES: Geste[] = [
     equivalent: 'aspirateur',
     quantite: 1,
     justification: UN_APPAREIL,
+    nature: 'objet',
   },
   {
     id: 'micro-ondes',
@@ -384,6 +439,7 @@ export const GESTES: Geste[] = [
     equivalent: 'microondes',
     quantite: 1,
     justification: UN_APPAREIL,
+    nature: 'objet',
   },
   {
     id: 'cafetiere-dosettes',
@@ -392,6 +448,7 @@ export const GESTES: Geste[] = [
     equivalent: 'cafetieredosette',
     quantite: 1,
     justification: UN_APPAREIL,
+    nature: 'objet',
   },
   {
     id: 'refrigerateur',
@@ -400,6 +457,7 @@ export const GESTES: Geste[] = [
     equivalent: 'refrigirateur',
     quantite: 1,
     justification: UN_APPAREIL,
+    nature: 'objet',
   },
   {
     id: 'lave-vaisselle',
@@ -408,6 +466,7 @@ export const GESTES: Geste[] = [
     equivalent: 'lavevaisselle',
     quantite: 1,
     justification: UN_APPAREIL,
+    nature: 'objet',
   },
   {
     id: 'lave-linge',
@@ -416,6 +475,7 @@ export const GESTES: Geste[] = [
     equivalent: 'lavelinge',
     quantite: 1,
     justification: UN_APPAREIL,
+    nature: 'objet',
   },
 
   // ─── Mobilier : Équivalents « par unité » ───────────────────────────────────────────
@@ -426,6 +486,7 @@ export const GESTES: Geste[] = [
     equivalent: 'chaiseenbois',
     quantite: 1,
     justification: UN_MEUBLE,
+    nature: 'objet',
   },
   {
     id: 'table',
@@ -434,6 +495,7 @@ export const GESTES: Geste[] = [
     equivalent: 'tableenbois',
     quantite: 1,
     justification: UN_MEUBLE,
+    nature: 'objet',
   },
   {
     id: 'armoire',
@@ -442,6 +504,7 @@ export const GESTES: Geste[] = [
     equivalent: 'armoire',
     quantite: 1,
     justification: UN_MEUBLE,
+    nature: 'objet',
   },
 
   // ─── Habillement : Équivalents « par unité », entretien sur la durée retenue par l'ADEME inclus
@@ -452,6 +515,7 @@ export const GESTES: Geste[] = [
     equivalent: 'tshirtencoton',
     quantite: 1,
     justification: UN_VETEMENT,
+    nature: 'objet',
   },
   {
     id: 'tshirt-polyester',
@@ -460,6 +524,7 @@ export const GESTES: Geste[] = [
     equivalent: 'tshirtenpolyester',
     quantite: 1,
     justification: UN_VETEMENT,
+    nature: 'objet',
   },
   {
     id: 'chemise-coton',
@@ -468,6 +533,7 @@ export const GESTES: Geste[] = [
     equivalent: 'chemiseencoton',
     quantite: 1,
     justification: UN_VETEMENT,
+    nature: 'objet',
   },
   {
     id: 'chaussures-sport',
@@ -476,6 +542,7 @@ export const GESTES: Geste[] = [
     equivalent: 'chaussuresdesport',
     quantite: 1,
     justification: "Une paire ; l'ADEME ne compte pas d'entretien pour les chaussures.",
+    nature: 'objet',
   },
   {
     id: 'jean',
@@ -484,6 +551,7 @@ export const GESTES: Geste[] = [
     equivalent: 'jeans',
     quantite: 1,
     justification: UN_VETEMENT,
+    nature: 'objet',
   },
   {
     id: 'pull-acrylique',
@@ -492,6 +560,7 @@ export const GESTES: Geste[] = [
     equivalent: 'pullenacrylique',
     quantite: 1,
     justification: UN_VETEMENT,
+    nature: 'objet',
   },
   {
     id: 'sweat-coton',
@@ -500,6 +569,7 @@ export const GESTES: Geste[] = [
     equivalent: 'sweatencoton',
     quantite: 1,
     justification: UN_VETEMENT,
+    nature: 'objet',
   },
   {
     id: 'pull-laine',
@@ -508,6 +578,7 @@ export const GESTES: Geste[] = [
     equivalent: 'pullenlaine',
     quantite: 1,
     justification: UN_VETEMENT,
+    nature: 'objet',
   },
   {
     id: 'manteau',
@@ -516,6 +587,7 @@ export const GESTES: Geste[] = [
     equivalent: 'manteau',
     quantite: 1,
     justification: UN_VETEMENT,
+    nature: 'objet',
   },
 
   // ─── Transport : Équivalents ADEME exprimés par km et par passager (ta part) ────────
@@ -526,6 +598,7 @@ export const GESTES: Geste[] = [
     equivalent: 'metro',
     quantite: 10,
     justification: 'Trajet quotidien type en ville ; 10 km × facteur ADEME par passager.',
+    nature: 'trajet',
   },
   {
     id: 'velo-electrique-10km',
@@ -534,6 +607,7 @@ export const GESTES: Geste[] = [
     equivalent: 'veloelectrique',
     quantite: 10,
     justification: 'Trajet domicile-travail type ; 10 km × facteur ADEME.',
+    nature: 'trajet',
   },
   {
     id: 'scooter-10km',
@@ -542,6 +616,7 @@ export const GESTES: Geste[] = [
     equivalent: 'scooter',
     quantite: 10,
     justification: 'Trajet domicile-travail type ; 10 km × facteur ADEME.',
+    nature: 'trajet',
   },
   {
     id: 'bus-10km',
@@ -550,6 +625,7 @@ export const GESTES: Geste[] = [
     equivalent: 'busthermique',
     quantite: 10,
     justification: "Trajet quotidien type ; 10 km × facteur ADEME par passager (remplissage moyen retenu par l'ADEME).",
+    nature: 'trajet',
   },
   {
     id: 'voiture-10km',
@@ -558,6 +634,7 @@ export const GESTES: Geste[] = [
     equivalent: 'voiturethermique',
     quantite: 10,
     justification: 'Trajet domicile-travail type ; 10 km × facteur ADEME (conducteur seul).',
+    nature: 'trajet',
   },
   {
     id: 'voiture-electrique-10km',
@@ -566,6 +643,7 @@ export const GESTES: Geste[] = [
     equivalent: 'voitureelectrique',
     quantite: 10,
     justification: 'Trajet domicile-travail type ; 10 km × facteur ADEME (conducteur seul).',
+    nature: 'trajet',
   },
   {
     id: 'paris-marseille-tgv',
@@ -574,6 +652,7 @@ export const GESTES: Geste[] = [
     equivalent: 'tgv',
     quantite: 750,
     justification: "Environ 750 km de voie ferrée ; c'est la distance qui retrouve l'aller-retour Paris–Marseille de l'ADEME (4,4 kg).",
+    nature: 'trajet',
   },
   {
     id: 'paris-marseille-covoiturage',
@@ -582,6 +661,7 @@ export const GESTES: Geste[] = [
     equivalent: 'voiturethermique',
     quantite: 775 / 4,
     justification: 'Environ 775 km de route, partagés entre 4 personnes : chacune compte un quart du trajet.',
+    nature: 'trajet',
   },
   {
     id: 'paris-marseille-voiture',
@@ -590,6 +670,7 @@ export const GESTES: Geste[] = [
     equivalent: 'voiturethermique',
     quantite: 775,
     justification: 'Environ 775 km de route, conducteur seul.',
+    nature: 'trajet',
   },
   {
     id: 'paris-marseille-avion',
@@ -598,6 +679,7 @@ export const GESTES: Geste[] = [
     equivalent: 'avion-courtcourrier',
     quantite: 660,
     justification: 'Environ 660 km à vol d’oiseau entre Paris et Marseille, × facteur ADEME « avion trajet court ».',
+    nature: 'trajet',
   },
   {
     id: 'paris-new-york',
@@ -606,6 +688,7 @@ export const GESTES: Geste[] = [
     equivalent: 'avion-pny',
     quantite: 1,
     justification: "Cas pratique de l'ADEME : un aller-retour, pour un passager.",
+    nature: 'trajet',
   },
 
   // ─── Livraison : scénarios ADEME pour un colis de 1 kg ──────────────────────────────
@@ -616,6 +699,7 @@ export const GESTES: Geste[] = [
     equivalent: 'magasindouce',
     quantite: 1,
     justification: "Scénario de l'ADEME : achat en magasin, déplacement en mobilité douce, colis de 1 kg.",
+    nature: 'livraison',
   },
   {
     id: 'livraison-domicile',
@@ -624,6 +708,7 @@ export const GESTES: Geste[] = [
     equivalent: 'livraisondomicile',
     quantite: 1,
     justification: "Scénario de l'ADEME : un colis de 1 kg livré à domicile.",
+    nature: 'livraison',
   },
   {
     id: 'livraison-point-relais',
@@ -632,6 +717,7 @@ export const GESTES: Geste[] = [
     equivalent: 'pointrelais',
     quantite: 1,
     justification: "Scénario de l'ADEME : colis de 1 kg livré en point relais, retiré en voiture (7 km aller-retour).",
+    nature: 'livraison',
   },
   {
     id: 'colis-magasin-voiture',
@@ -640,6 +726,7 @@ export const GESTES: Geste[] = [
     equivalent: 'magasin',
     quantite: 1,
     justification: "Scénario de l'ADEME : achat en magasin à 15 km, aller-retour en voiture, colis de 1 kg.",
+    nature: 'livraison',
   },
 
   // ─── Chauffage : Équivalents ADEME par m² chauffé pendant 1 an (sans Répartition) ───
@@ -650,6 +737,7 @@ export const GESTES: Geste[] = [
     equivalent: 'pompeachaleur',
     quantite: 40,
     justification: "Surface moyenne d'un logement par habitant en France : environ 40 m² (Insee).",
+    nature: 'usage',
   },
   {
     id: 'chauffage-gaz',
@@ -658,6 +746,7 @@ export const GESTES: Geste[] = [
     equivalent: 'chauffagegaz',
     quantite: 40,
     justification: "Surface moyenne d'un logement par habitant en France : environ 40 m² (Insee).",
+    nature: 'usage',
   },
   {
     id: 'chauffage-fioul',
@@ -666,6 +755,7 @@ export const GESTES: Geste[] = [
     equivalent: 'chauffagefioul',
     quantite: 40,
     justification: "Surface moyenne d'un logement par habitant en France : environ 40 m² (Insee).",
+    nature: 'usage',
   },
 
   // ─── Loisirs : cas pratiques ADEME ──────────────────────────────────────────────────
@@ -676,6 +766,7 @@ export const GESTES: Geste[] = [
     equivalent: 'friends',
     quantite: 1,
     justification: "Cas pratique de l'ADEME : l'intégrale de la série regardée en streaming.",
+    nature: 'usage',
   },
   {
     id: 'nuit-hotel',
@@ -684,6 +775,7 @@ export const GESTES: Geste[] = [
     equivalent: 'hotel',
     quantite: 1,
     justification: "Cas pratique de l'ADEME : une nuit dans un hôtel.",
+    nature: 'usage',
   },
   {
     id: 'journee-ski',
@@ -692,5 +784,6 @@ export const GESTES: Geste[] = [
     equivalent: 'ski',
     quantite: 1,
     justification: "Cas pratique de l'ADEME : une journée au ski. À vérifier : ce que l'ADEME inclut (trajet, remontées).",
+    nature: 'usage',
   },
 ]
