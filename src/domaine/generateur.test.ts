@@ -3,19 +3,21 @@ import { GESTES_CALCULES } from '../donnees/index.ts'
 import { difficulteAttendue } from './difficulte.ts'
 import { rapport } from './duel.ts'
 import { cleDePaire, genererPartie, type DuelThematique } from './generateur.ts'
-import type { GesteCalcule } from './geste.ts'
+import type { GesteCalcule, Nature } from './geste.ts'
 import { hasardReproductible } from './hasard.ts'
 import { REGLES } from './regles.ts'
 
-const geste = (id: string, empreinte: number): GesteCalcule => ({
+const geste = (id: string, empreinte: number, champs: Partial<GesteCalcule> = {}): GesteCalcule => ({
   id,
   titre: id,
   sousTitre: '',
   justification: '',
+  nature: 'objet',
   quantite: 1,
   empreinte,
   etapes: [],
   equivalent: { slug: id, nom: id, unite: 'unité', valeur: empreinte, url: '' },
+  ...champs,
 })
 
 /**
@@ -142,6 +144,42 @@ describe('Générateur de Partie : les paires récentes et l’assouplissement',
       expect(rapport(duels[9])).toBeCloseTo(1.6, 6)
       expect(duels.every((d) => rapport(d) >= REGLES.plancher)).toBe(true)
     }
+  })
+})
+
+describe('Générateur de Partie : les paires exclues du tirage', () => {
+  it('n’oppose jamais deux Natures qui forment une Combinaison interdite (un repas et un aliment)', () => {
+    const natures: Nature[] = ['repas', 'aliment', 'objet']
+    const melange = RICHE.map((g, k) => ({ ...g, nature: natures[k % 3] }))
+    const interdite = (d: { a: GesteCalcule; b: GesteCalcule }) =>
+      new Set([d.a.nature, d.b.nature]).size === 2 && [d.a.nature, d.b.nature].every((n) => n === 'repas' || n === 'aliment')
+    for (const graine of graines) {
+      const duels = genererPartie({ gestes: melange, hasard: hasardReproductible(graine) })
+      expect(duels.filter(interdite)).toEqual([])
+    }
+  })
+
+  it('n’oppose deux trajets que s’ils font le même Parcours', () => {
+    const trajets = RICHE.map((g, k) => ({ ...g, nature: 'trajet' as const, parcours: k % 2 ? 'court' : 'long' }))
+    for (const graine of graines) {
+      const duels = genererPartie({ gestes: trajets, hasard: hasardReproductible(graine) })
+      expect(duels.filter((d) => d.a.parcours !== d.b.parcours)).toEqual([])
+    }
+  })
+
+  it('ne tire jamais au hasard un Geste réservé aux Duels thématiques', () => {
+    const avecReserve = RICHE.map((g) => (g.id === 'g5' ? { ...g, seulementEnDuelThematique: true } : g))
+    for (const graine of graines) {
+      const duels = genererPartie({ gestes: avecReserve, hasard: hasardReproductible(graine) })
+      expect(duels.some((d) => d.a.id === 'g5' || d.b.id === 'g5')).toBe(false)
+    }
+  })
+
+  it('accepte un Geste réservé dans un Duel thématique, même d’empreinte nulle', () => {
+    const catalogue = [...RICHE, geste('robinet', 0, { seulementEnDuelThematique: true })]
+    const thematique: DuelThematique = { a: 'robinet', b: 'g3', texte: 'Eau du robinet ou en bouteille ?' }
+    const duels = genererPartie({ gestes: catalogue, thematiques: [thematique], hasard: hasardReproductible(1) })
+    expect(cle(duels[9])).toBe(cleDePaire('robinet', 'g3'))
   })
 })
 

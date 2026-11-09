@@ -4,6 +4,12 @@
  */
 import type { Equivalent, Instantane } from '../donnees/referentiel.ts'
 
+/**
+ * La Nature d'un Geste : ce qu'il est pour le joueur. Elle sert à écarter les Duels qui n'ont
+ * pas de sens (un repas face à l'un de ses ingrédients) : voir REGLES.combinaisonsInterdites.
+ */
+export type Nature = 'aliment' | 'repas' | 'boisson' | 'objet' | 'trajet' | 'livraison' | 'usage'
+
 /** Une entrée du catalogue éditorial : ce que le joueur voit et compare. */
 export type Geste = {
   /** Identifiant stable, utilisé dans les Duels thématiques et la mémoire locale. */
@@ -18,6 +24,17 @@ export type Geste = {
   quantite: number
   /** Pourquoi cette Quantité : la source de crédibilité du Geste. */
   justification: string
+  nature: Nature
+  /**
+   * Pour un trajet : le chemin parcouru (« paris-marseille », « quotidien-10km »). Deux trajets ne
+   * s'affrontent que sur le même Parcours : comparer des modes de transport, oui ; des distances, non.
+   */
+  parcours?: string
+  /**
+   * Jamais tiré au hasard : le Geste n'apparaît que dans un Duel thématique, avec un texte.
+   * Obligatoire pour un Geste d'empreinte nulle (le Rapport serait infini).
+   */
+  seulementEnDuelThematique?: boolean
 }
 
 /** Une étape de la Répartition d'un Geste, en kg CO2e. */
@@ -90,6 +107,11 @@ export function validerCatalogue(gestes: Geste[], instantane: Instantane): void 
       problemes.push(`${g.id} : Équivalent « ${g.equivalent} » inconnu dans l'Instantané du ${instantane.dateImport}.`)
     } else if (equivalent.unite === null) {
       problemes.push(`${g.id} : l'unité de référence de « ${g.equivalent} » est encore à vérifier.`)
+    } else if (equivalent.valeur * g.quantite === 0 && !g.seulementEnDuelThematique) {
+      problemes.push(`${g.id} : empreinte nulle, le Geste doit être réservé aux Duels thématiques.`)
+    }
+    if (g.nature === 'trajet' && !g.parcours) {
+      problemes.push(`${g.id} : un trajet doit indiquer son Parcours.`)
     }
     if (!Number.isFinite(g.quantite) || g.quantite <= 0) {
       problemes.push(`${g.id} : Quantité invalide (${g.quantite}), elle doit être un nombre strictement positif.`)

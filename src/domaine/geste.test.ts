@@ -46,6 +46,15 @@ const INSTANTANE: Instantane = {
       url: 'https://impactco2.fr/outils/caspratiques/avion-pny',
     },
     {
+      slug: 'marche',
+      nom: 'Marche',
+      thematique: 'transport',
+      unite: 'km parcouru par passager',
+      valeur: 0,
+      etapes: [],
+      url: 'https://impactco2.fr/outils/transport/marche',
+    },
+    {
       slug: 'streamingvideo',
       nom: 'Streaming vidéo',
       thematique: 'usagenumerique',
@@ -64,6 +73,7 @@ const geste = (champs: Partial<Geste> = {}): Geste => ({
   equivalent: 'boeuf',
   quantite: 0.12,
   justification: 'Portion courante.',
+  nature: 'aliment',
   ...champs,
 })
 
@@ -135,6 +145,18 @@ describe('Validation du catalogue', () => {
 
   it('refuse deux Gestes avec le même identifiant', () => {
     expect(() => validerCatalogue([geste(), geste()], INSTANTANE)).toThrow(/steak.*deux fois/)
+  })
+
+  it('refuse un Geste d’empreinte nulle qui n’est pas réservé aux Duels thématiques', () => {
+    const marche = geste({ id: 'marche', equivalent: 'marche', quantite: 5, nature: 'trajet', parcours: 'quotidien-5km' })
+    expect(() => validerCatalogue([marche], INSTANTANE)).toThrow(/marche.*Duels thématiques/)
+    expect(() => validerCatalogue([{ ...marche, seulementEnDuelThematique: true }], INSTANTANE)).not.toThrow()
+  })
+
+  it('refuse un trajet sans Parcours', () => {
+    const trajet = geste({ id: 'avion', equivalent: 'avion-pny', quantite: 1, nature: 'trajet' })
+    expect(() => validerCatalogue([trajet], INSTANTANE)).toThrow(/avion.*Parcours/)
+    expect(() => validerCatalogue([{ ...trajet, parcours: 'paris-new-york' }], INSTANTANE)).not.toThrow()
   })
 
   it('liste tous les problèmes en une seule fois', () => {

@@ -24,6 +24,10 @@ _À éviter_ : item, produit, facteur
 Ce que le joueur voit et compare : un Équivalent multiplié par une quantité réaliste qui figure dans son libellé (« Manger un steak de bœuf (120 g) »). Un Geste concerne toujours une seule personne : pour un trajet, c'est la part d'un passager (« Paris–Marseille en covoiturage à 4 (ta part) »). Voir l'ADR 0001.
 _À éviter_ : action, activité, item
 
+**Nature** :
+Ce qu'est un Geste pour le joueur : un aliment, un repas, une boisson, un objet, un trajet, une livraison ou un usage (chauffer son logement, regarder une série…). Elle sert à écarter les Combinaisons interdites.
+_À éviter_ : type, famille, catégorie
+
 **Quantité** :
 Le multiplicateur appliqué à l'unité de référence d'un Équivalent pour obtenir un Geste (0,12 kg pour un steak ; 1 pour un objet ou un repas).
 _À éviter_ : portion, coefficient
@@ -45,6 +49,18 @@ _À éviter_ : durée de vie
 **Duel** :
 La confrontation de deux Gestes dont le joueur doit désigner celui qui a la plus grande Empreinte carbone. Leur Rapport est toujours d'au moins ×1,25. Dans une Partie, chaque Duel porte un numéro de 1 à 10 qui fixe sa Difficulté attendue.
 _À éviter_ : manche, question, match, round
+
+**Parcours** :
+Le chemin effectué par un trajet (« 10 km du quotidien », « Paris–Marseille », « Paris–New York »). Deux trajets ne s'affrontent que sur le même Parcours : on compare des modes de transport, jamais des distances.
+_À éviter_ : itinéraire, distance, trajet (le trajet est le Geste, le Parcours est son chemin)
+
+**Combinaison interdite** :
+Deux Natures qui ne s'affrontent jamais dans un Duel tiré au hasard, parce que la comparaison n'aurait pas de sens : un repas face à un aliment (« Repas avec du bœuf » contre « 120 g de bœuf »). Un Duel thématique, écrit à la main, n'est pas concerné.
+_À éviter_ : paire interdite, exclusion
+
+**Geste réservé** :
+Un Geste qui n'est jamais tiré au hasard et n'apparaît que dans un Duel thématique, avec un texte qui l'explique. C'est obligatoire pour un Geste dont l'Empreinte carbone est nulle ou quasi nulle (l'eau du robinet), car son Rapport avec presque tout le reste serait démesuré.
+_À éviter_ : Geste caché, Geste exclu
 
 **Duel thématique** :
 Un Duel choisi et rédigé à la main pour son intérêt pédagogique, avec sa propre explication et éventuellement sa propre Difficulté.

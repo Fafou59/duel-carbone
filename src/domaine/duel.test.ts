@@ -7,6 +7,7 @@ const geste = (id: string, empreinte: number): GesteCalcule => ({
   titre: id,
   sousTitre: '',
   justification: '',
+  nature: 'objet',
   quantite: 1,
   empreinte,
   etapes: [],

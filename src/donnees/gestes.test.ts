@@ -27,8 +27,8 @@ describe('Catalogue des Gestes face à l’Instantané actuel', () => {
     expect(sansIcone).toEqual([])
   })
 
-  it('donne une empreinte strictement positive à chaque Geste', () => {
-    for (const g of GESTES) {
+  it('donne une empreinte positive à chaque Geste tiré au hasard (une empreinte nulle est réservée aux Duels thématiques)', () => {
+    for (const g of GESTES.filter((x) => !x.seulementEnDuelThematique)) {
       expect(calculerGeste(g, instantane).empreinte, g.id).toBeGreaterThan(0)
     }
   })

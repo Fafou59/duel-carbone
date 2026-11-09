@@ -44,10 +44,10 @@ describe("Explication après un Duel : le tableau comparatif", () => {
   })
 
   it("dit clairement quand l'ADEME ne publie pas le détail d'un Geste", () => {
-    render(<DuelDeTest duel={duel('paris-new-york', 'smartphone')} />)
-    choisir(/Paris/)
-    expect(screen.getByText(/ne publie pas le détail pour : faire un aller-retour paris–new york en avion/i)).toBeInTheDocument()
-    expect(within(within(tableau()).getByRole('row', { name: /Total/ })).getByText('2,1 t')).toBeInTheDocument()
+    render(<DuelDeTest duel={duel('chauffage-gaz', 'smartphone')} />)
+    choisir(/gaz/)
+    expect(screen.getByText(/ne publie pas le détail pour : se chauffer 1 an au gaz/i)).toBeInTheDocument()
+    expect(within(within(tableau()).getByRole('row', { name: /Total/ })).getByText('713 kg')).toBeInTheDocument()
   })
 
   it('renvoie vers les fiches ADEME des deux Gestes, dans un nouvel onglet', () => {
