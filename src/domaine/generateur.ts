@@ -8,7 +8,8 @@
  *   2. « paire-recente »   : si la tranche n'a plus que des paires vues récemment, on en réutilise une ;
  *   3. « tranche-voisine » : si la tranche est vide, on prend la paire dont le Rapport est le plus proche.
  * Dans tous les cas : jamais sous le plancher, jamais deux fois la même paire dans une Partie.
- * Le tirage au hasard écarte aussi les Combinaisons interdites et les Gestes réservés aux Duels thématiques.
+ * Le tirage au hasard écarte aussi les paires exclues (Combinaisons interdites, trajets de Parcours différents)
+ * et les Gestes réservés aux Duels thématiques.
  */
 import { difficulteAttendue, type Difficulte } from './difficulte.ts'
 import { rapport, type Duel } from './duel.ts'
@@ -98,7 +99,7 @@ export function pairesJouables(gestes: GesteCalcule[]): Candidat[] {
   for (let i = 0; i < tirables.length; i++) {
     for (let j = i + 1; j < tirables.length; j++) {
       const duel = { a: tirables[i], b: tirables[j] }
-      if (estCombinaisonInterdite(duel)) continue
+      if (estPaireExclue(duel)) continue
       const r = rapport(duel)
       // Number.isFinite écarte aussi un Rapport infini (un Geste à 0 oublié par le catalogue).
       if (r >= REGLES.plancher && Number.isFinite(r)) paires.push({ duel, cle: cleDePaire(duel.a.id, duel.b.id), rapport: r })
@@ -106,6 +107,13 @@ export function pairesJouables(gestes: GesteCalcule[]): Candidat[] {
   }
   return paires
 }
+
+/** Une paire que le tirage au hasard n'oppose jamais. */
+export const estPaireExclue = (duel: Duel): boolean => estCombinaisonInterdite(duel) || sontDeParcoursDifferents(duel)
+
+/** Deux trajets qui ne font pas le même chemin : on comparerait des distances, pas des modes de transport. */
+export const sontDeParcoursDifferents = ({ a, b }: Duel): boolean =>
+  a.nature === 'trajet' && b.nature === 'trajet' && a.parcours !== b.parcours
 
 /** Les deux Natures du Duel forment-elles une Combinaison interdite (dans un sens ou dans l'autre) ? */
 export const estCombinaisonInterdite = ({ a, b }: Duel): boolean =>

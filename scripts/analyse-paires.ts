@@ -7,7 +7,13 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { difficulteAttendue, type Difficulte } from '../src/domaine/difficulte.ts'
 import { rapport } from '../src/domaine/duel.ts'
-import { estCombinaisonInterdite, genererPartie, pairesJouables, type NiveauDeTirage } from '../src/domaine/generateur.ts'
+import {
+  estCombinaisonInterdite,
+  genererPartie,
+  pairesJouables,
+  sontDeParcoursDifferents,
+  type NiveauDeTirage,
+} from '../src/domaine/generateur.ts'
 import { calculerGeste } from '../src/domaine/geste.ts'
 import { hasardReproductible } from '../src/domaine/hasard.ts'
 import { REGLES } from '../src/domaine/regles.ts'
@@ -29,12 +35,14 @@ for (const { rapport: r } of pairesJouables(gestes)) {
 }
 // Ce qui est écarté, pour comprendre les écarts avec le nombre total de paires
 let interdites = 0
+let parcoursDifferents = 0
 let sousLePlancher = 0
 const tirables = gestes.filter((g) => !g.seulementEnDuelThematique)
 for (let i = 0; i < tirables.length; i++) {
   for (let j = i + 1; j < tirables.length; j++) {
     const duel = { a: tirables[i], b: tirables[j] }
     if (estCombinaisonInterdite(duel)) interdites++
+    else if (sontDeParcoursDifferents(duel)) parcoursDifferents++
     else if (rapport(duel) < REGLES.plancher) sousLePlancher++
   }
 }
@@ -42,6 +50,7 @@ const total = (gestes.length * (gestes.length - 1)) / 2
 console.log(`${gestes.length} Gestes (dont ${gestes.length - tirables.length} réservé(s) aux Duels thématiques), ${total} paires possibles :`)
 for (const [tranche, n] of Object.entries(parTranche)) console.log(`  ${tranche.padEnd(24)} ${String(n).padStart(4)} paires`)
 console.log(`  ${'combinaisons interdites'.padEnd(24)} ${String(interdites).padStart(4)} paires`)
+console.log(`  ${'parcours différents'.padEnd(24)} ${String(parcoursDifferents).padStart(4)} paires`)
 console.log(`  ${'sous le plancher'.padEnd(24)} ${String(sousLePlancher).padStart(4)} paires`)
 
 // 2. Simulation de 1 000 Parties

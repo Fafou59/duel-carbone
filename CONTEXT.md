@@ -50,6 +50,10 @@ _À éviter_ : durée de vie
 La confrontation de deux Gestes dont le joueur doit désigner celui qui a la plus grande Empreinte carbone. Leur Rapport est toujours d'au moins ×1,25. Dans une Partie, chaque Duel porte un numéro de 1 à 10 qui fixe sa Difficulté attendue.
 _À éviter_ : manche, question, match, round
 
+**Parcours** :
+Le chemin effectué par un trajet (« 10 km du quotidien », « Paris–Marseille », « Paris–New York »). Deux trajets ne s'affrontent que sur le même Parcours : on compare des modes de transport, jamais des distances.
+_À éviter_ : itinéraire, distance, trajet (le trajet est le Geste, le Parcours est son chemin)
+
 **Combinaison interdite** :
 Deux Natures qui ne s'affrontent jamais dans un Duel tiré au hasard, parce que la comparaison n'aurait pas de sens : un repas face à un aliment (« Repas avec du bœuf » contre « 120 g de bœuf »). Un Duel thématique, écrit à la main, n'est pas concerné.
 _À éviter_ : paire interdite, exclusion

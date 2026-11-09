@@ -148,9 +148,15 @@ describe('Validation du catalogue', () => {
   })
 
   it('refuse un Geste d’empreinte nulle qui n’est pas réservé aux Duels thématiques', () => {
-    const marche = geste({ id: 'marche', equivalent: 'marche', quantite: 5, nature: 'trajet' })
+    const marche = geste({ id: 'marche', equivalent: 'marche', quantite: 5, nature: 'trajet', parcours: 'quotidien-5km' })
     expect(() => validerCatalogue([marche], INSTANTANE)).toThrow(/marche.*Duels thématiques/)
     expect(() => validerCatalogue([{ ...marche, seulementEnDuelThematique: true }], INSTANTANE)).not.toThrow()
+  })
+
+  it('refuse un trajet sans Parcours', () => {
+    const trajet = geste({ id: 'avion', equivalent: 'avion-pny', quantite: 1, nature: 'trajet' })
+    expect(() => validerCatalogue([trajet], INSTANTANE)).toThrow(/avion.*Parcours/)
+    expect(() => validerCatalogue([{ ...trajet, parcours: 'paris-new-york' }], INSTANTANE)).not.toThrow()
   })
 
   it('liste tous les problèmes en une seule fois', () => {

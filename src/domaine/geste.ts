@@ -26,6 +26,11 @@ export type Geste = {
   justification: string
   nature: Nature
   /**
+   * Pour un trajet : le chemin parcouru (« paris-marseille », « quotidien-10km »). Deux trajets ne
+   * s'affrontent que sur le même Parcours : comparer des modes de transport, oui ; des distances, non.
+   */
+  parcours?: string
+  /**
    * Jamais tiré au hasard : le Geste n'apparaît que dans un Duel thématique, avec un texte.
    * Obligatoire pour un Geste d'empreinte nulle (le Rapport serait infini).
    */
@@ -104,6 +109,9 @@ export function validerCatalogue(gestes: Geste[], instantane: Instantane): void 
       problemes.push(`${g.id} : l'unité de référence de « ${g.equivalent} » est encore à vérifier.`)
     } else if (equivalent.valeur * g.quantite === 0 && !g.seulementEnDuelThematique) {
       problemes.push(`${g.id} : empreinte nulle, le Geste doit être réservé aux Duels thématiques.`)
+    }
+    if (g.nature === 'trajet' && !g.parcours) {
+      problemes.push(`${g.id} : un trajet doit indiquer son Parcours.`)
     }
     if (!Number.isFinite(g.quantite) || g.quantite <= 0) {
       problemes.push(`${g.id} : Quantité invalide (${g.quantite}), elle doit être un nombre strictement positif.`)

@@ -159,6 +159,14 @@ describe('Générateur de Partie : les paires exclues du tirage', () => {
     }
   })
 
+  it('n’oppose deux trajets que s’ils font le même Parcours', () => {
+    const trajets = RICHE.map((g, k) => ({ ...g, nature: 'trajet' as const, parcours: k % 2 ? 'court' : 'long' }))
+    for (const graine of graines) {
+      const duels = genererPartie({ gestes: trajets, hasard: hasardReproductible(graine) })
+      expect(duels.filter((d) => d.a.parcours !== d.b.parcours)).toEqual([])
+    }
+  })
+
   it('ne tire jamais au hasard un Geste réservé aux Duels thématiques', () => {
     const avecReserve = RICHE.map((g) => (g.id === 'g5' ? { ...g, seulementEnDuelThematique: true } : g))
     for (const graine of graines) {
