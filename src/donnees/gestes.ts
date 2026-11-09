@@ -95,11 +95,11 @@ export const GESTES: Geste[] = [
   {
     id: 'lentilles',
     titre: 'Manger des lentilles',
-    sousTitre: '60 g (poids sec)',
+    sousTitre: '150 g',
     equivalent: 'lentilles',
-    quantite: 0.06,
+    quantite: 0.15,
     justification:
-      "Portion individuelle de légumineuses sèches (environ 150 g une fois cuites). L'ADEME s'appuie sur Agribalyse, où ce produit est vendu sec.",
+      "Portion individuelle en plat principal (validée à la relecture du ticket #12). L'ADEME ne précise pas si le poids s'entend sec ou cuit.",
   },
   {
     id: 'pates',
