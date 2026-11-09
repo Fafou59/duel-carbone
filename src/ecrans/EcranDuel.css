@@ -97,9 +97,55 @@
   background: var(--carte);
 }
 
+/*
+ * « Duel suivant » collé en bas de l'écran (position: sticky).
+ * Tant que la fin de l'explication est sous l'écran, la barre reste visible en bas ;
+ * arrivée à la fin, elle reprend sa place normale et ne cache plus rien.
+ * Les marges négatives l'étendent sur le rembourrage de la carte, d'un bord à l'autre.
+ */
+.duel__suite {
+  --rembourrage-x: 18px;
+  --rembourrage-y: 18px;
+
+  container-type: scroll-state;
+  position: sticky;
+  bottom: 0;
+  margin: 0 calc(-1 * var(--rembourrage-x)) calc(-1 * var(--rembourrage-y));
+}
+
+.duel__suite-barre {
+  display: grid;
+  padding: 12px var(--rembourrage-x) calc(var(--rembourrage-y) + env(safe-area-inset-bottom));
+  border-radius: 0 0 20px 20px;
+  background: var(--carte);
+}
+
+/* Sur téléphone, un bouton large, facile à atteindre avec le pouce. */
+@media (max-width: 699px) {
+  .duel__suite .bouton {
+    justify-self: stretch;
+  }
+}
+
+/*
+ * Une ombre seulement quand la barre est « décollée » de sa place (elle flotte sur le texte).
+ * Requête récente (Chrome 133+) : les autres navigateurs affichent la barre sans ombre.
+ */
+@container scroll-state(stuck: bottom) {
+  .duel__suite-barre {
+    border-radius: 0;
+    box-shadow: 0 -8px 16px -8px rgb(0 0 0 / 30%);
+  }
+}
+
 @media (max-width: 360px) {
   .duel__explication {
     padding: 14px 10px;
+  }
+
+  .duel__suite {
+    --rembourrage-x: 10px;
+    --rembourrage-y: 14px;
   }
 }
 
