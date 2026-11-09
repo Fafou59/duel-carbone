@@ -7,7 +7,7 @@ const steak = gesteCalcule('steak-boeuf')
 const avocat = gesteCalcule('avocat')
 const laveLinge = gesteCalcule('lave-linge')
 const microOndes = gesteCalcule('micro-ondes')
-const parisNewYork = gesteCalcule('paris-new-york')
+const chauffageGaz = gesteCalcule('chauffage-gaz')
 const smartphone = gesteCalcule('smartphone')
 
 describe("Tableau comparatif de l'explication", () => {
@@ -66,9 +66,9 @@ describe("Tableau comparatif de l'explication", () => {
   })
 
   it("liste les Gestes dont l'ADEME ne publie pas le détail", () => {
-    const t = tableauComparatif({ a: parisNewYork, b: smartphone })
-    expect(t.sansDetail.map((g) => g.id)).toEqual(['paris-new-york'])
+    const t = tableauComparatif({ a: chauffageGaz, b: smartphone })
+    expect(t.sansDetail.map((g) => g.id)).toEqual(['chauffage-gaz'])
     expect(t.lignes.every((l) => l.valeurs[0] === null)).toBe(true)
-    expect(t.totaux[0]).toBe(2060)
+    expect(t.totaux[0]).toBe(chauffageGaz.empreinte)
   })
 })

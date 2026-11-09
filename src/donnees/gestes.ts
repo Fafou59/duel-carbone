@@ -599,6 +599,7 @@ export const GESTES: Geste[] = [
     quantite: 10,
     justification: 'Trajet quotidien type en ville ; 10 km × facteur ADEME par passager.',
     nature: 'trajet',
+    parcours: 'quotidien-10km',
   },
   {
     id: 'velo-electrique-10km',
@@ -608,6 +609,7 @@ export const GESTES: Geste[] = [
     quantite: 10,
     justification: 'Trajet domicile-travail type ; 10 km × facteur ADEME.',
     nature: 'trajet',
+    parcours: 'quotidien-10km',
   },
   {
     id: 'scooter-10km',
@@ -617,6 +619,7 @@ export const GESTES: Geste[] = [
     quantite: 10,
     justification: 'Trajet domicile-travail type ; 10 km × facteur ADEME.',
     nature: 'trajet',
+    parcours: 'quotidien-10km',
   },
   {
     id: 'bus-10km',
@@ -626,6 +629,7 @@ export const GESTES: Geste[] = [
     quantite: 10,
     justification: "Trajet quotidien type ; 10 km × facteur ADEME par passager (remplissage moyen retenu par l'ADEME).",
     nature: 'trajet',
+    parcours: 'quotidien-10km',
   },
   {
     id: 'voiture-10km',
@@ -635,6 +639,7 @@ export const GESTES: Geste[] = [
     quantite: 10,
     justification: 'Trajet domicile-travail type ; 10 km × facteur ADEME (conducteur seul).',
     nature: 'trajet',
+    parcours: 'quotidien-10km',
   },
   {
     id: 'voiture-electrique-10km',
@@ -644,6 +649,7 @@ export const GESTES: Geste[] = [
     quantite: 10,
     justification: 'Trajet domicile-travail type ; 10 km × facteur ADEME (conducteur seul).',
     nature: 'trajet',
+    parcours: 'quotidien-10km',
   },
   {
     id: 'paris-marseille-tgv',
@@ -653,6 +659,7 @@ export const GESTES: Geste[] = [
     quantite: 750,
     justification: "Environ 750 km de voie ferrée ; c'est la distance qui retrouve l'aller-retour Paris–Marseille de l'ADEME (4,4 kg).",
     nature: 'trajet',
+    parcours: 'paris-marseille',
   },
   {
     id: 'paris-marseille-covoiturage',
@@ -662,6 +669,7 @@ export const GESTES: Geste[] = [
     quantite: 775 / 4,
     justification: 'Environ 775 km de route, partagés entre 4 personnes : chacune compte un quart du trajet.',
     nature: 'trajet',
+    parcours: 'paris-marseille',
   },
   {
     id: 'paris-marseille-voiture',
@@ -671,6 +679,7 @@ export const GESTES: Geste[] = [
     quantite: 775,
     justification: 'Environ 775 km de route, conducteur seul.',
     nature: 'trajet',
+    parcours: 'paris-marseille',
   },
   {
     id: 'paris-marseille-avion',
@@ -680,15 +689,18 @@ export const GESTES: Geste[] = [
     quantite: 660,
     justification: 'Environ 660 km à vol d’oiseau entre Paris et Marseille, × facteur ADEME « avion trajet court ».',
     nature: 'trajet',
+    parcours: 'paris-marseille',
   },
   {
     id: 'paris-new-york',
-    titre: 'Faire un aller-retour Paris–New York en avion',
-    sousTitre: '1 passager',
-    equivalent: 'avion-pny',
-    quantite: 1,
-    justification: "Cas pratique de l'ADEME : un aller-retour, pour un passager.",
+    titre: 'Faire Paris–New York en avion',
+    sousTitre: 'aller simple, 1 passager',
+    equivalent: 'avion-longcourrier',
+    quantite: 5840,
+    justification:
+      "Environ 5 840 km à vol d'oiseau, × facteur ADEME « avion trajet long ». C'est cohérent avec le cas pratique de l'ADEME (2 060 kg l'aller-retour, soit 1 030 kg l'aller).",
     nature: 'trajet',
+    parcours: 'paris-new-york',
   },
 
   // ─── Livraison : scénarios ADEME pour un colis de 1 kg ──────────────────────────────
