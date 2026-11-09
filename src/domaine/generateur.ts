@@ -8,6 +8,7 @@
  *   2. « paire-recente »   : si la tranche n'a plus que des paires vues récemment, on en réutilise une ;
  *   3. « tranche-voisine » : si la tranche est vide, on prend la paire dont le Rapport est le plus proche.
  * Dans tous les cas : jamais sous le plancher, jamais deux fois la même paire dans une Partie.
+ * Le tirage au hasard écarte aussi les Combinaisons interdites et les Gestes réservés aux Duels thématiques.
  */
 import { difficulteAttendue, type Difficulte } from './difficulte.ts'
 import { rapport, type Duel } from './duel.ts'
@@ -31,7 +32,7 @@ export type DuelTire = Duel & {
 /** Identifiant d'une paire, indépendant de l'ordre des deux Gestes. */
 export const cleDePaire = (idA: string, idB: string): string => [idA, idB].sort().join('|')
 
-type Candidat = { duel: Duel; cle: string; rapport: number; texte?: string }
+export type Candidat = { duel: Duel; cle: string; rapport: number; texte?: string }
 
 export function genererPartie({
   gestes,
@@ -90,18 +91,25 @@ export function genererPartie({
   return partie
 }
 
-/** Toutes les paires de Gestes au-dessus du plancher, chacune une seule fois. */
-function pairesJouables(gestes: GesteCalcule[]): Candidat[] {
+/** Toutes les paires qu'on peut tirer au hasard, chacune une seule fois. */
+export function pairesJouables(gestes: GesteCalcule[]): Candidat[] {
+  const tirables = gestes.filter((g) => !g.seulementEnDuelThematique)
   const paires: Candidat[] = []
-  for (let i = 0; i < gestes.length; i++) {
-    for (let j = i + 1; j < gestes.length; j++) {
-      const duel = { a: gestes[i], b: gestes[j] }
+  for (let i = 0; i < tirables.length; i++) {
+    for (let j = i + 1; j < tirables.length; j++) {
+      const duel = { a: tirables[i], b: tirables[j] }
+      if (estCombinaisonInterdite(duel)) continue
       const r = rapport(duel)
-      if (r >= REGLES.plancher) paires.push({ duel, cle: cleDePaire(duel.a.id, duel.b.id), rapport: r })
+      // Number.isFinite écarte aussi un Rapport infini (un Geste à 0 oublié par le catalogue).
+      if (r >= REGLES.plancher && Number.isFinite(r)) paires.push({ duel, cle: cleDePaire(duel.a.id, duel.b.id), rapport: r })
     }
   }
   return paires
 }
+
+/** Les deux Natures du Duel forment-elles une Combinaison interdite (dans un sens ou dans l'autre) ? */
+export const estCombinaisonInterdite = ({ a, b }: Duel): boolean =>
+  REGLES.combinaisonsInterdites.some(([x, y]) => (a.nature === x && b.nature === y) || (a.nature === y && b.nature === x))
 
 /** Les Duels thématiques dont les deux Gestes existent et qui respectent le plancher. */
 function candidatsThematiques(thematiques: DuelThematique[], gestes: GesteCalcule[]): Candidat[] {
