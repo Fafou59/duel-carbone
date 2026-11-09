@@ -783,7 +783,8 @@ export const GESTES: Geste[] = [
     sousTitre: '1 journée',
     equivalent: 'ski',
     quantite: 1,
-    justification: "Cas pratique de l'ADEME : une journée au ski. À vérifier : ce que l'ADEME inclut (trajet, remontées).",
+    justification:
+      "Cas pratique de l'ADEME : valeur moyenne d'une journée de ski (étude à La Clusaz, au Grand-Bornand et à Tignes), transport compris (52 %), avec l'équipement, le domaine skiable, l'alimentation et le logement.",
     nature: 'usage',
   },
 ]
