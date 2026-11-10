@@ -1,9 +1,11 @@
 import { useEffect, useRef, type ReactNode } from 'react'
 import { CarteGeste, type EtatCarte } from '../composants/CarteGeste.tsx'
+import { lancerEclat } from '../composants/eclat.ts'
 import { ExplicationDuel } from '../composants/ExplicationDuel.tsx'
 import { estBonChoix, plusEmetteur, rapport, type Duel } from '../domaine/duel.ts'
 import { formaterRapport } from '../domaine/format.ts'
 import type { GesteCalcule } from '../domaine/geste.ts'
+import { mouvementReduit } from '../navigateur/mouvement.ts'
 import './EcranDuel.css'
 
 /**
@@ -26,17 +28,27 @@ export function EcranDuel({ duel, choix, onChoisir, suite }: Props) {
   const revele = choix !== null
   // Une « référence » vers l'élément HTML de l'explication, pour pouvoir y faire défiler la page.
   const explication = useRef<HTMLDivElement>(null)
+  const cartes = useRef<HTMLDivElement>(null)
+  const bonChoix = choix !== null && estBonChoix(duel, choix)
+
+  // Bon choix : un éclat de confettis part de la carte gagnante (rien si les animations sont réduites).
+  useEffect(() => {
+    if (!bonChoix) return
+    const gagnante = cartes.current?.querySelector('.carte--plus-emetteur')
+    if (!gagnante) return
+    // En quittant le Duel, on arrête l'éclat s'il est encore en cours.
+    return lancerEclat(gagnante.getBoundingClientRect())
+  }, [bonChoix])
 
   // Après le choix : 1,5 s pour voir les chiffres, puis on descend vers l'explication.
   // Sans animation si le joueur a demandé à son appareil de réduire les animations.
   useEffect(() => {
     if (!revele) return
     const minuteur = window.setTimeout(() => {
-      const calme = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
       // D'abord le focus (sans défiler), ensuite le défilement : dans l'autre ordre,
       // le focus interrompt l'animation de défilement dans Chrome.
       explication.current?.focus({ preventScroll: true })
-      explication.current?.scrollIntoView({ behavior: calme ? 'auto' : 'smooth', block: 'start' })
+      explication.current?.scrollIntoView({ behavior: mouvementReduit() ? 'auto' : 'smooth', block: 'start' })
     }, DELAI_DEFILEMENT_MS)
     // Si le joueur passe au Duel suivant avant la fin du délai, on annule le défilement prévu.
     return () => window.clearTimeout(minuteur)
@@ -47,6 +59,8 @@ export function EcranDuel({ duel, choix, onChoisir, suite }: Props) {
     if (revele) return
     const surTouche = (evenement: KeyboardEvent) => {
       if (evenement.altKey || evenement.ctrlKey || evenement.metaKey) return
+      // Pendant une boîte de dialogue (ex. l'annonce d'un Duel thématique), les touches lui reviennent.
+      if (evenement.target instanceof Element && evenement.target.closest('dialog')) return
       if (evenement.key === '1') onChoisir(duel.a.id)
       if (evenement.key === '2') onChoisir(duel.b.id)
     }
@@ -71,7 +85,6 @@ export function EcranDuel({ duel, choix, onChoisir, suite }: Props) {
   )
 
   const r = rapport(duel)
-  const bonChoix = choix !== null && estBonChoix(duel, choix)
 
   return (
     <section className="duel" aria-labelledby="duel-question">
@@ -79,7 +92,7 @@ export function EcranDuel({ duel, choix, onChoisir, suite }: Props) {
         Lequel émet le plus ?
       </h2>
 
-      <div className="duel__cartes">
+      <div ref={cartes} className="duel__cartes">
         {carte(duel.a, '1')}
         {revele ? (
           <div className="duel__rapport">

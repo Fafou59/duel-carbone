@@ -159,4 +159,9 @@
   .duel__rapport {
     animation: none;
   }
+
+  /* Sans éclat de confettis, une petite étincelle fixe à côté du verdict (décorative : le « / "" » la tait aux lecteurs d'écran). */
+  .duel__verdict--bon::after {
+    content: ' ✨' / '';
+  }
 }

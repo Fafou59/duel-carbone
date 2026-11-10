@@ -1,0 +1,95 @@
+/* L'annonce d'un Duel thématique : une carte au centre de l'écran, qui se retourne en apparaissant. */
+.annonce-thematique {
+  width: min(420px, calc(100% - 32px));
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-top: 6px solid var(--thematique);
+  border-radius: 22px;
+  background: var(--carte);
+  color: var(--encre);
+  text-align: center;
+  box-shadow: 0 14px 40px rgb(0 0 0 / 40%);
+}
+
+/* Le voile commence sous la barre de progression (--debut-voile) : la case bleue du Duel reste visible. */
+.annonce-thematique::backdrop {
+  background: linear-gradient(
+    to bottom,
+    transparent var(--debut-voile, 0px),
+    rgb(0 0 0 / 50%) var(--debut-voile, 0px)
+  );
+}
+
+.annonce-thematique__contenu {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 20px 18px 22px;
+}
+
+.annonce-thematique__titre {
+  margin: 0;
+  color: var(--thematique-texte);
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.15;
+}
+
+.annonce-thematique__duo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0;
+  font-size: 40px;
+  line-height: 1;
+}
+
+.annonce-thematique__duo small {
+  color: var(--discret);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.annonce-thematique__texte {
+  margin: 0 0 10px;
+}
+
+.annonce-thematique__bouton {
+  justify-self: center;
+  background: var(--thematique);
+  color: #fff;
+}
+
+.annonce-thematique__bouton:focus-visible {
+  outline-color: var(--thematique);
+}
+
+/* Tant que l'annonce est ouverte, la page derrière ne défile pas. */
+body:has(.annonce-thematique[open]) {
+  overflow: hidden;
+}
+
+/* La carte se retourne après le changement d'étiquette (0,3 s), pendant que le voile apparaît. */
+@media (prefers-reduced-motion: no-preference) {
+  .annonce-thematique[open] {
+    animation: annonce-retourne 0.65s 0.3s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  }
+
+  .annonce-thematique[open]::backdrop {
+    animation: voile-apparait 0.3s both;
+  }
+}
+
+@keyframes annonce-retourne {
+  from {
+    transform: perspective(700px) rotateY(90deg) scale(0.8);
+    opacity: 0;
+  }
+}
+
+@keyframes voile-apparait {
+  from {
+    opacity: 0;
+  }
+}

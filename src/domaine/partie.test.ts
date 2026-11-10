@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Duel } from './duel.ts'
 import type { GesteCalcule } from './geste.ts'
-import { avancer, demarrerPartie, NOMBRE_DE_DUELS, score, type EtatPartie } from './partie.ts'
+import { avancer, demarrerPartie, estThematique, NOMBRE_DE_DUELS, score, type EtatPartie } from './partie.ts'
 
 const geste = (id: string, empreinte: number): GesteCalcule => ({
   id,
@@ -88,5 +88,12 @@ describe("Machine à états d'une Partie", () => {
 
   it(`refuse de démarrer sans exactement ${NOMBRE_DE_DUELS} Duels`, () => {
     expect(() => demarrerPartie(DUELS.slice(0, 3))).toThrow(/10 Duels/)
+  })
+})
+
+describe('Duel thématique', () => {
+  it('se reconnaît à son texte rédigé à la main', () => {
+    expect(estThematique({ ...DUELS[0], texte: "L'eau du robinet n'émet presque rien." })).toBe(true)
+    expect(estThematique(DUELS[0])).toBe(false)
   })
 })
