@@ -97,6 +97,44 @@
   background: var(--carte);
 }
 
+/*
+ * « Duel suivant » collé en bas de l'écran (position: sticky).
+ * Un élément sticky reste dans les limites de son parent : la barre est donc un enfant
+ * direct de l'écran Duel (cartes + explication), pour rester collée en bas de l'écran
+ * même quand le joueur remonte vers les cartes. Arrivée tout en bas, elle reprend
+ * sa place normale, sous l'explication, et ne cache plus rien.
+ * Les marges négatives l'étendent sur la marge de la page, d'un bord à l'autre.
+ */
+.duel__suite {
+  container-type: scroll-state;
+  position: sticky;
+  bottom: 0;
+  margin: 0 -16px;
+}
+
+.duel__suite-barre {
+  display: grid;
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+  background: var(--fond);
+}
+
+/* Sur téléphone, un bouton large, facile à atteindre avec le pouce. */
+@media (max-width: 699px) {
+  .duel__suite .bouton {
+    justify-self: stretch;
+  }
+}
+
+/*
+ * Une ombre seulement quand la barre est « décollée » de sa place (elle flotte sur le contenu).
+ * Requête récente (Chrome 133+) : les autres navigateurs affichent la barre sans ombre.
+ */
+@container scroll-state(stuck: bottom) {
+  .duel__suite-barre {
+    box-shadow: 0 -8px 16px -8px rgb(0 0 0 / 30%);
+  }
+}
+
 @media (max-width: 360px) {
   .duel__explication {
     padding: 14px 10px;

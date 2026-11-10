@@ -108,10 +108,19 @@ export function EcranDuel({ duel, choix, onChoisir, suite }: Props) {
         {revele && (
           <section className="duel__explication" aria-label="Explication">
             <ExplicationDuel duel={duel} />
-            {suite}
           </section>
         )}
       </div>
+
+      {/* La suite reste collée en bas de l'écran une fois le choix fait, que le joueur lise
+          l'explication ou remonte vers les cartes. Elle est placée directement dans l'écran Duel
+          (et non dans la carte d'explication) : un élément « sticky » ne peut pas sortir de son parent.
+          Elle vient après l'explication dans le code : l'ordre de lecture ne change pas. */}
+      {revele && suite && (
+        <div className="duel__suite">
+          <div className="duel__suite-barre">{suite}</div>
+        </div>
+      )}
     </section>
   )
 }
