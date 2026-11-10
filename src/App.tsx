@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { GESTES_CALCULES } from './donnees/index.ts'
+import { CALIBRAGE, GESTES_CALCULES } from './donnees/index.ts'
 import type { Duel } from './domaine/duel.ts'
 import { cleDePaire, genererPartie } from './domaine/generateur.ts'
 import { NOMBRE_DE_DUELS } from './domaine/partie.ts'
@@ -26,7 +26,11 @@ export default function App({ memoire: memoireFournie }: Props) {
 
   const lancerPartie = () => {
     // Duels thématiques : ticket #13.
-    const partie = genererPartie({ gestes: GESTES_CALCULES, pairesRecentes: memoire.pairesRecentes() })
+    const partie = genererPartie({
+      gestes: GESTES_CALCULES,
+      pairesRecentes: memoire.pairesRecentes(),
+      coefficients: CALIBRAGE.coefficients,
+    })
     memoire.enregistrerPartie(partie.map((duel) => cleDePaire(duel.a.id, duel.b.id)))
     setAncienRecord(memoire.meilleurScore())
     setDuels(partie)

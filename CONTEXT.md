@@ -63,8 +63,12 @@ Un Geste qui n'est jamais tiré au hasard et n'apparaît que dans un Duel théma
 _À éviter_ : Geste caché, Geste exclu
 
 **Duel thématique** :
-Un Duel choisi et rédigé à la main pour son intérêt pédagogique, avec sa propre explication et éventuellement sa propre Difficulté.
+Un Duel choisi et rédigé à la main pour son intérêt pédagogique, avec sa propre explication et éventuellement sa propre Difficulté. Il échappe au plafond, aux tranches et au Coefficient d'équilibrage, et peut apparaître à n'importe quel Duel de la Partie.
 _À éviter_ : duel spécial, duel custom
+
+**Coefficient d'équilibrage** :
+Le poids d'un Geste dans le tirage au hasard, calculé par simulation pour que tous les Gestes apparaissent aussi souvent dans les Parties. Un Geste qui a peu d'adversaires dans les tranches (le thé, un vol Paris–New York) reçoit un coefficient plus fort. Il ne change jamais la Difficulté : chaque Duel reste dans sa tranche.
+_À éviter_ : poids, bonus, priorité
 
 **Partie** :
 Une suite de 10 Duels au terme de laquelle le joueur obtient un score final.
@@ -75,7 +79,7 @@ Le quotient entre la plus grande et la plus petite Empreinte carbone d'un Duel (
 _À éviter_ : écart, différence
 
 **Difficulté** :
-Le niveau d'un Duel, déduit de son Rapport : facile, moyen, difficile ou ultime. Une Partie enchaîne 3 Duels faciles, 3 moyens, 3 difficiles et 1 ultime.
+Le niveau d'un Duel, déduit de son Rapport : facile, moyen, difficile ou ultime. Une Partie enchaîne 3 Duels faciles, 3 moyens, 3 difficiles et 1 ultime. Chaque Duel a sa propre tranche de Rapport, de plus en plus serrée ; la Difficulté est l'étiquette qui regroupe ces tranches.
 _À éviter_ : niveau
 
 **Récapitulatif** :
