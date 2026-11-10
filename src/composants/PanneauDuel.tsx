@@ -46,7 +46,11 @@ export function PanneauDuel({ ligne, onFermer }: Props) {
             Duel {numero} <span className={`difficulte difficulte--${difficulte}`}>{difficulte}</span>
           </p>
           <button ref={croix} type="button" className="panneau__fermer" aria-label="Fermer le détail" onClick={fermer}>
-            ×
+            {/* Une croix dessinée plutôt que le caractère « × » : selon la police, le caractère est dessiné
+                plus bas que le centre de sa ligne (4,5 px sous Windows). Le dessin, lui, est centré partout. */}
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+              <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+            </svg>
           </button>
         </div>
         <p className={`panneau__verdict panneau__verdict--${bonne ? 'bon' : 'mauvais'}`}>

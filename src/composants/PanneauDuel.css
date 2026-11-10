@@ -57,13 +57,11 @@
   place-items: center;
   width: 44px;
   height: 44px;
+  padding: 0;
   border: 2px solid var(--ligne);
   border-radius: 50%;
   background: var(--carte);
   color: var(--encre);
-  font: inherit;
-  font-size: 24px;
-  line-height: 1;
   cursor: pointer;
 }
 
