@@ -30,8 +30,8 @@ Grand public francophone, à partir d'environ 15 ans, majoritairement sur smartp
 8. En tant que joueur, je veux que les premiers Duels soient faciles et que la difficulté monte, afin de prendre confiance avant d'être piégé.
 9. En tant que joueur, je ne veux jamais voir deux fois la même paire dans une Partie, afin de ne pas m'ennuyer.
 10. En tant que joueur régulier, je veux éviter autant que possible les paires vues lors de mes Parties récentes, afin de découvrir de nouveaux Gestes.
-11. En tant que joueur, je veux tomber sur des Duels qui mélangent les Thématiques (un steak contre un jean), afin d'être surpris.
-12. En tant que joueur, je veux que le dernier Duel soit un vrai piège contre-intuitif (un Duel thématique), afin de finir sur un moment fort.
+11. En tant que joueur, je veux tomber sur des Duels qui mélangent les Thématiques (un steak contre un jean), afin d'être surpris. Je veux aussi voir passer tous les Gestes, des plus légers (un thé) aux plus lourds (un vol Paris–New York), afin de découvrir toute l'étendue des ordres de grandeur.
+12. En tant que joueur, je veux tomber de temps en temps sur un vrai piège contre-intuitif (un Duel thématique), afin de vivre des moments forts.
 13. En tant que joueur, je ne veux jamais tomber sur un Duel quasi à égalité (Rapport inférieur à ×1,25), afin de ne pas me sentir volé.
 
 ### Comprendre la réponse
@@ -71,16 +71,22 @@ Grand public francophone, à partir d'environ 15 ans, majoritairement sur smartp
 | Élément | Règle |
 |---|---|
 | Partie | 10 Duels : 1-3 faciles, 4-6 moyens, 7-9 difficiles, 10 ultime |
-| Difficulté | facile ≥ ×10 · moyen ×3 à ×10 · difficile ×1,5 à ×3 · ultime ×1,25 à ×1,5 |
+| Difficulté | une tranche de Rapport par Duel : 1) ×80 à ×500 · 2) ×25 à ×80 · 3) ×10 à ×25 · 4) ×5 à ×10 · 5) ×3,3 à ×5 · 6) ×2,4 à ×3,3 · 7) ×2 à ×2,4 · 8) ×1,7 à ×2 · 9) ×1,5 à ×1,7 · 10) ×1,25 à ×1,5. Les étiquettes facile (1-3), moyen (4-6), difficile (7-9) et ultime (10) regroupent ces tranches |
+| Plafond | aucun Duel tiré au hasard au-delà de ×500 : au-delà, personne ne se trompe |
 | Plancher | aucun Duel sous ×1,25, aucune égalité |
-| Duel thématique | Difficulté éventuellement imposée ; tiré en priorité pour le Duel ultime |
+| Tirage | on tire d'abord un Geste, puis son adversaire dans la tranche du Duel. Chaque tirage tient compte du Coefficient d'équilibrage des Gestes, pour que tous apparaissent aussi souvent. Un Geste peut revenir dans une même Partie : le joueur attentif aux réponses en profite |
+| Coefficient d'équilibrage | calculé par `npm run calibrer`, qui se lance aussi après `npm run import`. La CI refuse des coefficients qui ne correspondent plus au catalogue, aux valeurs ADEME ou aux règles |
+| Diversité | sur 2 000 Parties simulées, le Geste le moins vu apparaît dans au moins 80 % des Parties où apparaît un Geste moyen |
+| Duel thématique | hors plafond, hors tranche et hors Coefficient d'équilibrage ; sa propre Difficulté ; peut apparaître à n'importe quel Duel (règle de placement : ticket #13) |
 | Combinaisons interdites | un repas n'affronte jamais un aliment dans un Duel tiré au hasard (liste dans `regles.ts`) |
 | Parcours | deux trajets ne s'affrontent que s'ils font le même Parcours (on compare des modes de transport, pas des distances) |
 | Gestes réservés | un Geste d'empreinte nulle ou quasi nulle (l'eau du robinet) n'apparaît que dans un Duel thématique |
 | Unicité | jamais la même paire dans une Partie ; on évite les paires des Parties récentes |
-| Assouplissement | si une tranche manque de paires : 1) réutiliser une paire récente de la tranche ; 2) si la tranche est vide, prendre la paire au Rapport le plus proche. Jamais sous le plancher |
+| Assouplissement | si la tranche n'a plus de paire jamais vue : 1) la paire jamais vue au Rapport le plus proche ; 2) sinon, une paire récente (de la tranche s'il en reste). Même tirage pondéré à chaque niveau. Jamais sous le plancher, jamais au-delà du plafond |
 | Score | 1 point par bonne réponse, score sur 10, pas de chrono |
 | Ton | tutoiement, ludique mais rigoureux, jamais moralisateur |
+
+> **Pourquoi ces règles ont changé (novembre 2026, ticket #33).** Les premiers testeurs trouvaient les Duels faciles *trop* faciles : sans plafond, le tirage pouvait opposer un vol Paris–New York à 10 km en métro (×189 047). Les 4 tranches de Difficulté faisaient aussi monter la difficulté par paliers. D'où le plafond à ×500 (le Duel 1 reste un échauffement assumé) et une tranche par Duel, qui se resserre vite. Les simulations ont montré un second défaut : en tirant une paire au hasard, les Gestes extrêmes sortaient presque deux fois moins souvent qu'un Geste moyen (le thé dans 13 % des Parties, contre 22 %), car ils ont peu d'adversaires dans chaque tranche. Tirer un Geste d'abord, avec un Coefficient d'équilibrage calculé par simulation, ramène le Geste le moins vu à environ 90 % de la moyenne.
 
 ### Écrans (validés par prototype)
 
@@ -111,11 +117,12 @@ La référence visuelle est la variante **A2** du prototype ; le détail et les 
 
 ### Les modules principaux
 
-1. **Script d'import** (TypeScript, lancé à la main). Il appelle `GET /thematiques/ecv/{id}?detail=1` pour chaque Thématique utile, avec la clé d'API ADEME si elle est disponible. Il complète les données avec les libellés de Répartition (absents de l'API) et l'unité de référence de chaque Thématique, puis écrit l'Instantané daté dans le dépôt. Il vérifie aussi que chaque Geste du catalogue pointe vers un Équivalent existant (ADR 0002).
+1. **Script d'import** (TypeScript, lancé à la main). Il appelle `GET /thematiques/ecv/{id}?detail=1` pour chaque Thématique utile, avec la clé d'API ADEME si elle est disponible. Il complète les données avec les libellés de Répartition (absents de l'API) et l'unité de référence de chaque Thématique, puis écrit l'Instantané daté dans le dépôt. Il vérifie aussi que chaque Geste du catalogue pointe vers un Équivalent existant (ADR 0002). Il enchaîne sur le calibrage des Coefficients d'équilibrage, qui dépendent des valeurs ADEME.
 2. **Catalogue des Gestes** : un fichier éditorial avec, pour chaque Geste, son identifiant, son libellé, l'identifiant (*slug*) de son Équivalent, sa Quantité, la justification de cette Quantité, sa Nature (aliment, repas, boisson, objet, trajet, livraison, usage) et, pour un trajet, son Parcours. Environ 80 entrées, de préférence avec une Répartition.
 3. **Catalogue des Duels thématiques** : un fichier éditorial avec, pour chaque Duel, ses deux Gestes, son texte explicatif et, éventuellement, une Difficulté imposée. Une quinzaine d'entrées en v1.
 4. **Calcul d'un Geste** (fonction pure) : Empreinte carbone = valeur de l'Équivalent × Quantité ; la Répartition est mise à la même échelle.
-5. **Générateur de Partie** (fonction pure, cœur testable du produit). Il reçoit les Gestes, les Duels thématiques, les paires vues récemment et une source de hasard ; il renvoie 10 Duels qui respectent les règles de la section 5. Si une tranche de Difficulté manque de paires disponibles, il réutilise d'abord une paire récente de cette tranche ; si la tranche est vide, il prend la paire dont le Rapport est le plus proche de la tranche. Jamais sous le plancher de ×1,25. Les seuils sont réunis dans `src/domaine/regles.ts` : les modifier après des retours de joueurs se fait en une ligne, en mettant ce PRD à jour en même temps.
+5. **Générateur de Partie** (fonction pure, cœur testable du produit). Il reçoit les Gestes, les paires vues récemment, les Coefficients d'équilibrage et une source de hasard ; il renvoie 10 Duels qui respectent les règles de la section 5. Pour chaque Duel, il tire un Geste puis son adversaire dans la tranche du Duel, en suivant l'ordre d'assouplissement si la tranche n'a plus de paire jamais vue. Jamais sous le plancher de ×1,25, jamais au-delà du plafond de ×500. Les seuils sont réunis dans `src/domaine/regles.ts` : les modifier après des retours de joueurs se fait en une ligne, en mettant ce PRD à jour en même temps (puis `npm run calibrer`).
+   **Calibrage** (`src/domaine/equilibrage.ts`, `npm run calibrer`) : il simule des milliers de Parties, mesure la fréquence de chaque Geste et ajuste les Coefficients d'équilibrage jusqu'à ce que tous sortent aussi souvent. Il les enregistre dans `src/donnees/coefficients.json` avec une empreinte du catalogue, des valeurs ADEME et des règles. `npm run analyse:paires` affiche les paires par Duel et les indicateurs de diversité.
 6. **Moteur de Partie** : les états successifs d'une Partie (accueil → Duel → révélation → … → fin), le score et le Récapitulatif.
 7. **Stockage local** (dans le navigateur) : le meilleur score et les paires vues récemment. Aucune donnée personnelle.
 8. **Partage** : le menu de partage natif du téléphone, ou une copie dans le presse-papiers sur ordinateur.
@@ -129,8 +136,9 @@ Le **temps de jeu** est mesuré sur l'appareil, de l'affichage du premier Duel j
 
 ## 7. Stratégie de test
 
-- **Tests unitaires (Vitest)** sur les fonctions pures : calcul d'un Geste, générateur de Partie (respect des tranches de Difficulté, plancher ×1,25, unicité des paires, priorité des Duels thématiques pour le Duel ultime, assouplissement quand les paires manquent), mise en forme des nombres, transformation des réponses de l'API dans le script d'import.
-- Un bon test vérifie un **comportement observable** (« le Duel n°10 est un Duel thématique quand il y en a un de disponible »), pas les détails internes du code.
+- **Tests unitaires (Vitest)** sur les fonctions pures : calcul d'un Geste, générateur de Partie (respect de la tranche de chaque Duel, plancher ×1,25, plafond ×500, unicité des paires, tirage d'un Geste d'abord, Coefficient d'équilibrage, assouplissement quand les paires manquent), calibrage, mise en forme des nombres, transformation des réponses de l'API dans le script d'import.
+- **Garde-fous du calibrage** : un test vérifie que les Coefficients d'équilibrage correspondent au catalogue actuel (empreinte), un autre que la diversité atteint le seuil sur 2 000 Parties simulées.
+- Un bon test vérifie un **comportement observable** (« le Duel n°10 a un Rapport entre ×1,25 et ×1,5 »), pas les détails internes du code.
 - **Test de bout en bout** (plus tard, avec Playwright) : jouer une Partie complète au clavier.
 - **Contrôle des données** : l'import échoue si le catalogue référence un Équivalent inconnu, ou si une Quantité est absente ou inférieure ou égale à zéro.
 
