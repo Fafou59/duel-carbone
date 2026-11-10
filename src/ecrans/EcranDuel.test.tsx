@@ -26,6 +26,17 @@ describe('Écran Duel', () => {
     expect(within(carte(/steak/)).getByText(/Ton choix · émet le plus/)).toBeInTheDocument()
   })
 
+  it('fête un bon choix sur la carte choisie, pas un mauvais', () => {
+    const { unmount } = render(<DuelDeTest duel={duel} />)
+    fireEvent.click(carte(/steak/))
+    expect(carte(/steak/)).toHaveClass('carte--bon-choix')
+    unmount()
+
+    render(<DuelDeTest duel={duel} />)
+    fireEvent.click(carte(/avocat/))
+    expect(carte(/steak/)).not.toHaveClass('carte--bon-choix')
+  })
+
   it('signale un mauvais choix par un texte, pas seulement par la couleur', () => {
     render(<DuelDeTest duel={duel} />)
     fireEvent.click(carte(/avocat/))

@@ -8,15 +8,22 @@
  * Fonction pure : avancer(état, action) renvoie le nouvel état, sans rien modifier d'autre.
  */
 import { estBonChoix, type Duel } from './duel.ts'
+import type { DuelTire } from './generateur.ts'
 import { REGLES } from './regles.ts'
 
 export const NOMBRE_DE_DUELS = REGLES.nombreDeDuels
+
+/** Un Duel d'une Partie : deux Gestes, et le texte qui l'explique si c'est un Duel thématique. */
+export type DuelDePartie = Duel & Pick<DuelTire, 'texte'>
+
+/** Un Duel thématique se reconnaît à son texte, rédigé à la main. */
+export const estThematique = (duel: DuelDePartie): boolean => Boolean(duel.texte)
 
 export type Reponse = { idChoisi: string; bonne: boolean }
 
 export type EtatPartie = {
   phase: 'duel' | 'revelation' | 'fin'
-  duels: Duel[]
+  duels: DuelDePartie[]
   /** Position du Duel en cours (0 à 9). */
   index: number
   /** Une réponse par Duel déjà joué, dans l'ordre. */
@@ -25,7 +32,7 @@ export type EtatPartie = {
 
 export type Action = { type: 'choisir'; idGeste: string } | { type: 'suivant' }
 
-export function demarrerPartie(duels: Duel[]): EtatPartie {
+export function demarrerPartie(duels: DuelDePartie[]): EtatPartie {
   if (duels.length !== NOMBRE_DE_DUELS) {
     throw new Error(`Une Partie compte ${NOMBRE_DE_DUELS} Duels (reçu : ${duels.length}).`)
   }

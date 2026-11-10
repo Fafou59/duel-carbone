@@ -13,6 +13,9 @@
   --moyen: #9a6a00;
   --difficile: #b4501a;
   --ultime: #6b2fa3;
+  /* Duel thématique : un fond bleu sous du texte blanc, et un bleu lisible pour du texte sur la page. */
+  --thematique: #2563b0;
+  --thematique-texte: #2563b0;
   color-scheme: light dark;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.45;
@@ -29,6 +32,7 @@
     --sur-marque: #0d1411;
     --bon: #5fd08f;
     --mauvais: #ff8a80;
+    --thematique-texte: #8db8ff;
   }
 }
 
@@ -116,20 +120,31 @@ a {
   text-transform: uppercase;
 }
 
+/* --c : la couleur de l'élément, réutilisée par ses anneaux et ses animations. */
 .difficulte--facile {
+  --c: var(--facile);
   background: var(--facile);
 }
 
 .difficulte--moyen {
+  --c: var(--moyen);
   background: var(--moyen);
 }
 
 .difficulte--difficile {
+  --c: var(--difficile);
   background: var(--difficile);
 }
 
 .difficulte--ultime {
+  --c: var(--ultime);
   background: var(--ultime);
+}
+
+/* Un Duel thématique (étiquette « ★ thématique », case de la barre de progression). */
+.difficulte--thematique {
+  --c: var(--thematique);
+  background: var(--thematique);
 }
 
 /* Texte lu par les lecteurs d'écran mais invisible à l'écran. */

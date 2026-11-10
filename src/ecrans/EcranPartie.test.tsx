@@ -104,3 +104,47 @@ describe('Une Partie de 10 Duels', () => {
     expect(screen.getByText('Duel 2/10')).toHaveFocus()
   })
 })
+
+describe('Un Duel thématique dans la Partie', () => {
+  // La même Partie, où le Duel 3 devient un Duel thématique (il a un texte rédigé à la main).
+  const AVEC_THEMATIQUE = DUELS.map((duel, i) => (i === 2 ? { ...duel, texte: 'Un texte rédigé à la main.' } : duel))
+  const segmentsThematiques = (conteneur: HTMLElement) =>
+    conteneur.querySelectorAll('.progression__segment--thematique').length
+
+  it("ne se devine pas avant d'y arriver", () => {
+    const { container } = render(<EcranPartie duels={AVEC_THEMATIQUE} onRejouer={() => {}} />)
+    jouerDuel(0, true)
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(segmentsThematiques(container)).toBe(0)
+  })
+
+  it("s'annonce en arrivant dessus, avec son étiquette et sa case dans la barre", () => {
+    const { container } = render(<EcranPartie duels={AVEC_THEMATIQUE} onRejouer={() => {}} />)
+    jouerDuel(0, true)
+    jouerDuel(1, true)
+    expect(screen.getByRole('dialog', { name: 'Duel thématique' })).toBeInTheDocument()
+    expect(screen.getByText('thématique')).toBeInTheDocument()
+    expect(segmentsThematiques(container)).toBe(1)
+  })
+
+  it("garde les touches 1 et 2 pour l'annonce tant qu'elle est ouverte", () => {
+    render(<EcranPartie duels={AVEC_THEMATIQUE} onRejouer={() => {}} />)
+    jouerDuel(0, true)
+    jouerDuel(1, true)
+    fireEvent.keyDown(screen.getByRole('button', { name: 'Au Duel !' }), { key: '1' })
+    expect(screen.queryByRole('button', { name: 'Duel suivant →' })).not.toBeInTheDocument()
+  })
+
+  it("se joue une fois l'annonce fermée, et garde sa case bleue ensuite", () => {
+    const { container } = render(<EcranPartie duels={AVEC_THEMATIQUE} onRejouer={() => {}} />)
+    jouerDuel(0, true)
+    jouerDuel(1, true)
+    fireEvent.click(screen.getByRole('button', { name: 'Au Duel !' }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.getByText('Duel 3/10')).toHaveFocus()
+    jouerDuel(2, true)
+    expect(screen.getByText('Duel 4/10')).toBeInTheDocument()
+    expect(screen.getByText('moyen')).toBeInTheDocument()
+    expect(segmentsThematiques(container)).toBe(1)
+  })
+})

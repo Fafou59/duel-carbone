@@ -83,8 +83,37 @@
   font-weight: 900;
 }
 
+/* Bon choix : la carte fait un petit bond et s'entoure d'un halo, pendant que l'éclat de confettis part de son centre. */
+.carte--bon-choix {
+  animation:
+    bond 0.5s cubic-bezier(0.3, 1.8, 0.5, 1),
+    halo 1s ease-out;
+}
+
+@keyframes bond {
+  40% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes halo {
+  from {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--bon) 60%, transparent);
+  }
+
+  to {
+    box-shadow: 0 0 0 18px transparent;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .carte {
     transition: none;
+  }
+
+  /* Sans animation, le halo reste affiché, immobile. */
+  .carte--bon-choix {
+    animation: none;
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--bon) 30%, transparent);
   }
 }
