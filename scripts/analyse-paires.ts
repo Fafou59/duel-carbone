@@ -1,13 +1,22 @@
 /**
- * npm run analyse:paires : le catalogue offre-t-il assez de paires dans chaque tranche de Difficulté ?
- * Compte les paires par tranche, puis simule 1 000 Parties pour voir combien de fois
- * le générateur doit assouplir les règles. Outil d'aide pour enrichir le catalogue (ticket #12).
+ * npm run analyse:paires : le catalogue offre-t-il assez de paires à chaque Duel, et tous les Gestes sortent-ils ?
+ * 1. Compte les paires de chaque tranche de la courbe de difficulté (et celles que le tirage écarte).
+ * 2. Simule 1 000 Parties d'un joueur régulier pour voir combien de fois le générateur assouplit les règles.
+ * 3. Mesure la diversité : à quelle fréquence chaque Geste apparaît, avec les Coefficients d'équilibrage.
+ * Outil d'aide pour enrichir le catalogue ou retoucher les règles.
  */
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { difficulteAttendue, type Difficulte } from '../src/domaine/difficulte.ts'
+import { difficulteAttendue } from '../src/domaine/difficulte.ts'
 import { rapport } from '../src/domaine/duel.ts'
 import {
+  empreinteDuTirage,
+  frequencesDApparition,
+  indicateursDeDiversite,
+  type Calibrage,
+} from '../src/domaine/equilibrage.ts'
+import {
+  cleDePaire,
   estCombinaisonInterdite,
   genererPartie,
   pairesJouables,
@@ -19,25 +28,20 @@ import { hasardReproductible } from '../src/domaine/hasard.ts'
 import { REGLES } from '../src/domaine/regles.ts'
 import { GESTES } from '../src/donnees/gestes.ts'
 import type { Instantane } from '../src/donnees/referentiel.ts'
+import { PARTIES_MEMORISEES } from '../src/navigateur/taille-memoire.ts'
 
-const instantane = JSON.parse(
-  readFileSync(fileURLToPath(new URL('../src/donnees/instantane.json', import.meta.url)), 'utf8'),
-) as Instantane
+const lire = <T>(fichier: string) => JSON.parse(readFileSync(fileURLToPath(new URL(fichier, import.meta.url)), 'utf8')) as T
+const instantane = lire<Instantane>('../src/donnees/instantane.json')
+const calibrage = lire<Calibrage>('../src/donnees/coefficients.json')
 const gestes = GESTES.map((g) => calculerGeste(g, instantane))
+const nombre = (n: number) => String(n).padStart(5)
 
-// 1. Paires par tranche, telles que le générateur les voit (même fonction : les deux ne peuvent pas diverger)
-const parTranche: Record<Difficulte, number> = { facile: 0, moyen: 0, difficile: 0, ultime: 0 }
-for (const { rapport: r } of pairesJouables(gestes)) {
-  const tranche = (Object.keys(REGLES.tranches) as Difficulte[]).find(
-    (d) => r >= REGLES.tranches[d].min && r < REGLES.tranches[d].max,
-  )
-  if (tranche) parTranche[tranche]++
-}
-// Ce qui est écarté, pour comprendre les écarts avec le nombre total de paires
+// 1. Paires par Duel, telles que le générateur les voit (mêmes fonctions : les deux ne peuvent pas diverger)
+const jouables = pairesJouables(gestes)
+const tirables = gestes.filter((g) => !g.seulementEnDuelThematique)
 let interdites = 0
 let parcoursDifferents = 0
 let sousLePlancher = 0
-const tirables = gestes.filter((g) => !g.seulementEnDuelThematique)
 for (let i = 0; i < tirables.length; i++) {
   for (let j = i + 1; j < tirables.length; j++) {
     const duel = { a: tirables[i], b: tirables[j] }
@@ -48,23 +52,49 @@ for (let i = 0; i < tirables.length; i++) {
 }
 const total = (gestes.length * (gestes.length - 1)) / 2
 console.log(`${gestes.length} Gestes (dont ${gestes.length - tirables.length} réservé(s) aux Duels thématiques), ${total} paires possibles :`)
-for (const [tranche, n] of Object.entries(parTranche)) console.log(`  ${tranche.padEnd(24)} ${String(n).padStart(4)} paires`)
-console.log(`  ${'combinaisons interdites'.padEnd(24)} ${String(interdites).padStart(4)} paires`)
-console.log(`  ${'parcours différents'.padEnd(24)} ${String(parcoursDifferents).padStart(4)} paires`)
-console.log(`  ${'sous le plancher'.padEnd(24)} ${String(sousLePlancher).padStart(4)} paires`)
+REGLES.tranchesParDuel.forEach(({ min, max }, i) => {
+  const n = jouables.filter((c) => c.rapport >= min && c.rapport < max).length
+  console.log(`  Duel ${String(i + 1).padStart(2)} (${difficulteAttendue(i).padEnd(9)}) ×${min} à ×${max}`.padEnd(42) + `${nombre(n)} paires`)
+})
+console.log(`  ${`au-delà du plafond (×${REGLES.plafond})`.padEnd(40)}${nombre(jouables.filter((c) => c.rapport >= REGLES.plafond).length)} paires`)
+console.log(`  ${'combinaisons interdites'.padEnd(40)}${nombre(interdites)} paires`)
+console.log(`  ${'parcours différents'.padEnd(40)}${nombre(parcoursDifferents)} paires`)
+console.log(`  ${'sous le plancher'.padEnd(40)}${nombre(sousLePlancher)} paires`)
 
-// 2. Simulation de 1 000 Parties
+// 2. Simulation de 1 000 Parties d'un joueur régulier (qui garde en mémoire ses dernières Parties)
 const PARTIES = 1000
 const niveaux: Record<NiveauDeTirage, number[]> = {
   regle: Array(REGLES.nombreDeDuels).fill(0),
-  'paire-recente': Array(REGLES.nombreDeDuels).fill(0),
   'tranche-voisine': Array(REGLES.nombreDeDuels).fill(0),
+  'paire-recente': Array(REGLES.nombreDeDuels).fill(0),
 }
-for (let graine = 0; graine < PARTIES; graine++) {
-  genererPartie({ gestes, hasard: hasardReproductible(graine) }).forEach((d, i) => niveaux[d.niveau][i]++)
+const hasard = hasardReproductible(1)
+const historique: string[][] = []
+for (let p = 0; p < PARTIES; p++) {
+  const pairesRecentes = new Set(historique.slice(-PARTIES_MEMORISEES).flat())
+  const duels = genererPartie({ gestes, pairesRecentes, coefficients: calibrage.coefficients, hasard })
+  historique.push(duels.map((d) => cleDePaire(d.a.id, d.b.id)))
+  duels.forEach((d, i) => niveaux[d.niveau][i]++)
 }
-console.log(`\nSur ${PARTIES} Parties simulées, part des Duels tirés hors de leur tranche (« tranche voisine ») :`)
+const part = (n: number) => `${String(Math.round((n / PARTIES) * 100)).padStart(3)} %`
+console.log(`\nSur ${PARTIES} Parties simulées, Duels tirés hors de leur tranche (« tranche voisine ») ou parmi des paires récentes :`)
 for (let i = 0; i < REGLES.nombreDeDuels; i++) {
-  const part = Math.round((niveaux['tranche-voisine'][i] / PARTIES) * 100)
-  console.log(`  Duel ${String(i + 1).padStart(2)} (${difficulteAttendue(i).padEnd(9)}) : ${String(part).padStart(3)} %`)
+  console.log(`  Duel ${String(i + 1).padStart(2)} : hors tranche ${part(niveaux['tranche-voisine'][i])} · paire récente ${part(niveaux['paire-recente'][i])}`)
+}
+
+// 3. Diversité des Gestes
+const aJour = calibrage.empreinte === empreinteDuTirage(gestes)
+console.log(`\nDiversité (2 000 Parties simulées) — coefficients ${aJour ? 'à jour' : 'PÉRIMÉS : lance npm run calibrer'} :`)
+const pourcent = (x: number) => `${(x * 100).toFixed(1)} %`
+for (const [nom, coefficients] of [
+  ['sans coefficient', {}],
+  ['avec coefficients', calibrage.coefficients],
+] as const) {
+  const d = indicateursDeDiversite(
+    frequencesDApparition(gestes, { coefficients, parties: 2000, partiesMemorisees: PARTIES_MEMORISEES, graine: 2026 }),
+  )
+  console.log(
+    `  ${nom.padEnd(18)} moins vu : ${d.moinsVu.id} ${pourcent(d.moinsVu.frequence)} (${Math.round((d.moinsVu.frequence / d.moyenne) * 100)} % de la moyenne, seuil 80 %)` +
+      ` · plus vu : ${d.plusVu.id} ${pourcent(d.plusVu.frequence)} · moyenne ${pourcent(d.moyenne)} · écart-type ${(d.ecartType * 100).toFixed(1)}`,
+  )
 }

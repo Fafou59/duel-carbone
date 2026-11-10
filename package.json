@@ -11,7 +11,8 @@
     "lint": "oxlint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "import": "node --env-file-if-exists=.env scripts/import/index.ts",
+    "import": "node --env-file-if-exists=.env scripts/import/index.ts && npm run calibrer",
+    "calibrer": "node scripts/calibrer.ts",
     "analyse:paires": "node scripts/analyse-paires.ts"
   },
   "dependencies": {

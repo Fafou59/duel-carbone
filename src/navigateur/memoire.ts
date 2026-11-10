@@ -7,17 +7,14 @@
  * ou contenir n'importe quoi (version ancienne, modification à la main) :
  * dans tous ces cas, le jeu continue, simplement sans mémoire.
  */
+import { PARTIES_MEMORISEES } from './taille-memoire.ts'
+
+export { PARTIES_MEMORISEES }
+
 /** Le strict nécessaire d'un stockage : lire et écrire du texte. localStorage convient. */
 export type Stockage = Pick<Storage, 'getItem' | 'setItem'>
 
 export const CLE_MEMOIRE = 'duel-carbone/memoire'
-
-/**
- * Taille de la mémoire : combien de Parties on garde. Une limite est nécessaire, sinon le stockage
- * grossirait à chaque Partie. Ce n'est pas une règle du jeu : si une tranche manque de paires,
- * le générateur réutilise une paire récente (assouplissement prévu par le PRD).
- */
-export const PARTIES_MEMORISEES = 3
 
 /** Ce qui est enregistré. Le numéro de version permettra de faire évoluer le format sans tout casser. */
 type Contenu = { version: 1; meilleurScore: number | null; partiesRecentes: string[][] }
