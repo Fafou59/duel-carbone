@@ -38,3 +38,79 @@
 .progression__segment--a-venir {
   opacity: 0.3;
 }
+
+/* Le Duel en cours est entouré d'un anneau à sa couleur (--c, défini avec les couleurs de Difficulté). */
+.progression__segment--courant {
+  box-shadow:
+    0 0 0 2px var(--fond),
+    0 0 0 4px var(--c);
+}
+
+/* Un Duel thématique : sa case passe au bleu en arrivant dessus, et le reste jusqu'à la fin de la Partie. */
+.progression__segment--thematique {
+  --c: var(--thematique);
+  background: var(--thematique);
+}
+
+/*
+ * Animations de la Difficulté (variante A du prototype `prototype/animations`) :
+ * - l'étiquette se retourne vers sa nouvelle couleur quand elle change ;
+ * - au premier Duel d'une Difficulté, les segments de sa tranche s'illuminent l'un après l'autre ;
+ * - sinon, le segment du Duel en cours se remplit.
+ * Sans animation si le joueur a demandé à son appareil de les réduire : tout change d'un coup.
+ */
+.difficulte--entree {
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .difficulte--entree {
+    animation:
+      etiquette-retourne 0.7s cubic-bezier(0.2, 1.5, 0.4, 1) both,
+      etiquette-anneau 1s 0.3s ease-out;
+  }
+
+  .progression__segment--allume {
+    animation: segment-allume 0.6s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+  }
+
+  .progression__segment--remplit {
+    transform-origin: left;
+    animation: segment-remplit 0.45s ease-out both;
+  }
+}
+
+@keyframes etiquette-retourne {
+  0% {
+    transform: perspective(200px) rotateX(90deg) scale(1.5);
+    opacity: 0;
+  }
+
+  50% {
+    transform: perspective(200px) rotateX(0) scale(1.5);
+    opacity: 1;
+  }
+}
+
+@keyframes etiquette-anneau {
+  from {
+    box-shadow: 0 0 0 0 var(--c);
+  }
+
+  to {
+    box-shadow: 0 0 0 14px transparent;
+  }
+}
+
+@keyframes segment-allume {
+  45% {
+    transform: scaleY(2.6);
+    opacity: 1;
+  }
+}
+
+@keyframes segment-remplit {
+  from {
+    transform: scaleX(0);
+  }
+}

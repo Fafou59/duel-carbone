@@ -24,10 +24,12 @@ type Props = {
 
 export function CarteGeste({ geste, etat, choisie, raccourci, onChoisir }: Props) {
   const revelee = etat !== 'question'
+  // Le bon choix du joueur : la carte fait un petit bond (voir CarteGeste.css).
+  const bonChoix = etat === 'plus-emetteur' && choisie
   return (
     <button
       type="button"
-      className={`carte carte--${etat}`}
+      className={`carte carte--${etat}${bonChoix ? ' carte--bon-choix' : ''}`}
       onClick={onChoisir}
       disabled={revelee}
       aria-keyshortcuts={raccourci}

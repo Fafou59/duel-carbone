@@ -11,6 +11,11 @@ if (typeof window !== 'undefined') {
   window.scrollTo = vi.fn() as unknown as typeof window.scrollTo
 }
 
+// jsdom ne sait pas dessiner : sans contexte de dessin, l'éclat de confettis ne se lance pas (et jsdom ne s'en plaint plus).
+if (typeof HTMLCanvasElement !== 'undefined') {
+  HTMLCanvasElement.prototype.getContext = (() => null) as typeof HTMLCanvasElement.prototype.getContext
+}
+
 // jsdom connaît la balise <dialog> mais ne sait ni l'ouvrir ni la fermer : on imite le minimum.
 // (Un vrai navigateur ajoute le fond sombre, bloque le reste de la page et gère la touche Échap.)
 if (typeof HTMLDialogElement !== 'undefined' && !HTMLDialogElement.prototype.showModal) {
