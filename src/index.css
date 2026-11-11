@@ -57,10 +57,21 @@ a {
 }
 
 .entete {
-  display: flex;
+  margin-bottom: 12px;
+}
+
+.entete__lien {
+  display: inline-flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 12px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.entete__lien:focus-visible {
+  outline: 3px solid var(--marque);
+  outline-offset: 4px;
+  border-radius: 12px;
 }
 
 /* Le logo : un steak sur fond vert, un avocat sur fond rouge (scripts/logo.ts). */

@@ -31,7 +31,7 @@ describe('« Comment ça marche ? » : le diaporama en 5 étapes', () => {
     const { fenetre } = ouvrir()
     fireEvent.click(within(fenetre).getByRole('button', { name: /TGV/ }))
     expect(within(fenetre).getByRole('heading', { name: '2. La réponse tombe' })).toBeInTheDocument()
-    expect(within(fenetre).getByText(/tu n’es pas le seul/)).toBeInTheDocument()
+    expect(within(fenetre).getByText('Raté !')).toBeInTheDocument()
   })
 
   it('termine sur « Jouer le Duel du jour »', () => {

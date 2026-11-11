@@ -62,6 +62,15 @@ describe('Application : accueil', () => {
     expect(container.querySelector('.entete img')).toHaveAttribute('src', expect.stringMatching(/favicon\.svg$/))
   })
 
+  it('ramène à l’accueil d’un clic sur le logo, même en pleine Partie', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'Partie libre' }))
+    expect(screen.getByText('Duel 1/10')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('link', { name: 'Duel Carbone' }))
+    expect(screen.queryByText('Duel 1/10')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Duel du jour n° / })).toBeInTheDocument()
+  })
+
   it('ouvre « Comment ça marche ? » depuis le pied de page, sur tous les écrans', () => {
     render(<App />)
     fireEvent.click(screen.getByRole('button', { name: 'Partie libre' }))

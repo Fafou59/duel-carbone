@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import './Co2e.css'
 
 /**
- * La définition du CO2e, en deux temps : ce que c'est, puis un exemple concret et ce que couvrent les chiffres.
+ * La définition du CO2e : ce que c'est, un exemple concret, puis ce que couvrent les chiffres du jeu.
  * Utilisée dans la fenêtre de l'accueil et dans la page Sources et méthode (où ses titres descendent d'un niveau).
  */
 export function DefinitionCo2e({ niveau: Titre = 'h3' }: { niveau?: 'h3' | 'h4' }) {
@@ -19,6 +19,9 @@ export function DefinitionCo2e({ niveau: Titre = 'h3' }: { niveau?: 'h3' | 'h4' 
       <section>
         <Titre>Par exemple</Titre>
         <p>Sur 100 ans, 1 kg de méthane réchauffe autant qu’environ 30 kg de CO2 : il compte pour 30 kg CO2e.</p>
+      </section>
+      {/* Une autre idée que l'exemple : ce que couvrent les chiffres du jeu. */}
+      <section>
         <p>Dans le jeu, les chiffres couvrent toute la vie d’un geste : fabrication, transport, usage et fin de vie.</p>
       </section>
     </div>

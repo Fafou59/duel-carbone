@@ -55,7 +55,7 @@ const Equivalence = () => (
 )
 
 const verdict = (choix: string | null) =>
-  !choix ? null : choix === GAGNANT.id ? <b>Bien vu ! </b> : <b>Raté, et tu n’es pas le seul ! </b>
+  !choix ? null : choix === GAGNANT.id ? <b>Bien vu ! </b> : <b>Raté ! </b>
 
 /** Les 5 étapes, une à la fois, avec « ← Précédent » et « Suivant → » toujours visibles en bas de la fenêtre. */
 function Diaporama({ onJouer, onSources }: { onJouer: () => void; onSources: () => void }) {

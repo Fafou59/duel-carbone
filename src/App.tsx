@@ -115,6 +115,12 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
     return { score: duJour.score, bonnes: complet ? duels.map((duel, i) => estBonChoix(duel, duJour.reponses[i])) : [] }
   })()
 
+  const revenirALAccueil = () => {
+    setPartie(null)
+    setTutoriel(false)
+    window.scrollTo(0, 0)
+  }
+
   const terminerPartieLibre = (score: number) => {
     memoire.enregistrerScore(score)
     setRecord(memoire.meilleurScore())
@@ -123,8 +129,13 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
   return (
     <div className="page">
       <header className="entete">
-        <img className="entete__logo" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width="36" height="36" />
-        <h1>Duel Carbone</h1>
+        {/* Le logo et le nom ramènent à l'accueil, d'où qu'on soit (une Partie du jour se reprendra là où elle en était). */}
+        <h1>
+          <a className="entete__lien" href={ADRESSES.jeu} onClick={revenirALAccueil}>
+            <img className="entete__logo" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width="36" height="36" />
+            Duel Carbone
+          </a>
+        </h1>
       </header>
       <main>
         {page === 'sources' && <EcranSources />}
