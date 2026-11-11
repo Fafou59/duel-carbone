@@ -1,0 +1,7 @@
+/* Une icône occupe la place d'un emoji : un carré de la taille du texte, aligné sur la ligne. */
+.icone {
+  display: inline-block;
+  width: 1.1em;
+  height: 1.1em;
+  vertical-align: -0.2em;
+}

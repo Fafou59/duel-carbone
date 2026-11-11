@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
+import { preload } from 'react-dom'
 import { AnnonceThematique } from '../composants/AnnonceThematique.tsx'
 import { difficulteAttendue } from '../domaine/difficulte.ts'
+import { iconeDe } from '../donnees/icones.ts'
 import { avancer, demarrerPartie, estThematique, NOMBRE_DE_DUELS, score, type DuelDePartie } from '../domaine/partie.ts'
 import { recapitulatif } from '../domaine/recapitulatif.ts'
 import { EcranDuel } from './EcranDuel.tsx'
@@ -21,6 +23,14 @@ export function EcranPartie({ duels, onRejouer, ancienRecord = null, onTerminee 
   // « envoyer » une action calcule le nouvel état, et React redessine l'écran.
   const [etat, envoyer] = useReducer(avancer, duels, demarrerPartie)
   const choisir = useCallback((idGeste: string) => envoyer({ type: 'choisir', idGeste }), [])
+
+  // Les icônes du Duel suivant se téléchargent pendant qu'on joue celui-ci : elles s'afficheront sans attendre.
+  // (preload ajoute <link rel="preload"> dans la page ; le navigateur ne télécharge chaque fichier qu'une fois.)
+  const suivant = etat.phase === 'fin' ? undefined : duels[etat.index + 1]
+  if (suivant) {
+    preload(iconeDe(suivant.a.id), { as: 'image' })
+    preload(iconeDe(suivant.b.id), { as: 'image' })
+  }
 
   // Fin de Partie : on prévient l'application (qui enregistre le score), une seule fois.
   // La référence évite de prévenir à nouveau si l'application nous redonne une autre fonction.

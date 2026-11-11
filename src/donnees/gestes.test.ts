@@ -3,7 +3,6 @@
 import { describe, expect, it } from 'vitest'
 import { calculerGeste, validerCatalogue } from '../domaine/geste.ts'
 import { GESTES } from './gestes.ts'
-import { ICONES } from './icones.ts'
 import instantaneJson from './instantane.json'
 import type { Instantane } from './referentiel.ts'
 
@@ -22,8 +21,10 @@ describe('Catalogue des Gestes face à l’Instantané actuel', () => {
     }
   })
 
-  it('a une icône pour chaque Geste', () => {
-    const sansIcone = GESTES.filter((g) => !(g.id in ICONES)).map((g) => g.id)
+  it('a une icône pour chaque Geste (public/icones/<id>.svg, fabriquée par npm run icones)', () => {
+    // import.meta.glob (Vite) liste les fichiers du dossier, sans les charger.
+    const fichiers = new Set(Object.keys(import.meta.glob('../../public/icones/*.svg')))
+    const sansIcone = GESTES.filter((g) => !fichiers.has(`../../public/icones/${g.id}.svg`)).map((g) => g.id)
     expect(sansIcone).toEqual([])
   })
 

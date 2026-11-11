@@ -1,5 +1,5 @@
 import { useEffect, useRef, type MouseEvent, type RefObject } from 'react'
-import { iconeDe } from '../donnees/icones.ts'
+import { Icone } from './Icone.tsx'
 import type { Duel } from '../domaine/duel.ts'
 import './AnnonceThematique.css'
 
@@ -52,7 +52,7 @@ export function AnnonceThematique({ duel, barre, onFermer }: Props) {
           <span aria-hidden="true">★ </span>Duel thématique
         </h2>
         <p className="annonce-thematique__duo" aria-hidden="true">
-          {iconeDe(duel.a.id)} <small>ou</small> {iconeDe(duel.b.id)}
+          <Icone id={duel.a.id} /> <small>ou</small> <Icone id={duel.b.id} />
         </p>
         <p className="annonce-thematique__texte">Un Duel choisi à la main, parce qu'il en dit long. Ouvre l'œil !</p>
         <button ref={bouton} type="button" className="bouton annonce-thematique__bouton" onClick={fermer}>

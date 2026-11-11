@@ -1,4 +1,4 @@
-import { iconeDe } from '../donnees/icones.ts'
+import { Icone } from './Icone.tsx'
 import { moinsEmetteur, plusEmetteur, rapport, type Duel } from '../domaine/duel.ts'
 import { formaterMultiple, queDevant } from '../domaine/format.ts'
 import { TableauRepartition } from './TableauRepartition.tsx'
@@ -16,7 +16,7 @@ export function ExplicationDuel({ duel }: { duel: Duel }) {
     <>
       <p className="equivalence">
         <span aria-hidden="true">
-          1 {iconeDe(plus.id)} = {formaterMultiple(r)} {iconeDe(moins.id)}
+          1 <Icone id={plus.id} /> = {formaterMultiple(r)} <Icone id={moins.id} />
         </span>
         <small>
           {plus.titre} ({plus.sousTitre}) émet {formaterMultiple(r)} fois plus {queDevant(moins.titre)} (

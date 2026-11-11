@@ -1,4 +1,4 @@
-import { iconeDe } from '../donnees/icones.ts'
+import { Icone } from './Icone.tsx'
 import type { Duel } from '../domaine/duel.ts'
 import { tableauComparatif } from '../domaine/explication.ts'
 import { formaterEmpreinte } from '../domaine/format.ts'
@@ -41,7 +41,7 @@ export function TableauRepartition({ duel }: Props) {
             {t.colonnes.map((g) => (
               <th scope="col" key={g.id} className="repartition__nombre">
                 <span className="repartition__icone" aria-hidden="true">
-                  {iconeDe(g.id)}
+                  <Icone id={g.id} />
                 </span>
                 <span className="repartition__geste">{g.titre}</span>
               </th>
