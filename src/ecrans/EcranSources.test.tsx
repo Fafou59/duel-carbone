@@ -58,6 +58,12 @@ describe('Page Sources et méthode', () => {
     )
   })
 
+  it('explique le Duel Carbone du jour et ce qui en reste sur l’appareil', () => {
+    render(<EcranSources />)
+    expect(screen.getByText(/le Duel Carbone du jour propose la même Partie à tous les joueurs/)).toBeInTheDocument()
+    expect(screen.getByText(/ta Partie du jour \(pour la reprendre ou revoir ton résultat\), ta série/)).toBeInTheDocument()
+  })
+
   it('nomme l’hébergeur, qui reçoit les demandes du navigateur comme tout hébergeur', () => {
     render(<EcranSources />)
     expect(screen.getByText(/Le jeu est hébergé par Cloudflare/)).toHaveTextContent(/adresse IP/)
