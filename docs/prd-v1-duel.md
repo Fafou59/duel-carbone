@@ -96,6 +96,20 @@ Grand public francophone, à partir d'environ 15 ans, majoritairement sur smartp
 
 La référence visuelle est la variante **A2** du prototype ; le détail et les raisons sont dans [docs/prototypes/verdict-duel-ui.md](prototypes/verdict-duel-ui.md).
 
+- **Logo** (variante 3 du prototype d'accueil, ticket #52) : un steak sur fond vert, un avocat sur fond rouge, séparés par une diagonale. C'est aussi l'icône de l'onglet (`public/favicon.svg`, fabriqué par `npm run logo`).
+- **Accueil d'un nouveau joueur, la vitrine** : tout tient sur un écran de téléphone (360 × 640) sans faire défiler.
+  - Deux colonnes d'icônes qui défilent en sens inverse autour d'un « VS » fixe.
+  - Le titre « Lequel émet le plus ? ».
+  - L'accroche : l'empreinte moyenne d'un Français et l'objectif pour 2050 (9,1 t et 2 t de CO2e par an, lus dans l'Instantané), puis « 10 Duels par jour pour apprendre à connaître l'empreinte des gestes du quotidien ». Une pastille « ? » à côté de CO2e ouvre sa définition (reprise dans Sources et méthode).
+  - Le bouton « Jouer le Duel du jour n° N », et le lien « Comment ça marche ? ».
+  - Sous la ligne de flottaison : « Envie de t'entraîner avant le Duel du jour ? » et la Partie libre.
+- **Accueil d'un joueur qui revient, le tableau de bord** : la date, le numéro du Duel du jour et la vitrine en petit, puis :
+  - **Duel du jour joué** : le score et sa grille, « Défier mes proches », « Revoir mon Récapitulatif », la série et le compte à rebours jusqu'à minuit (heure de Paris). Puis la Partie libre, mise en avant (« Envie de t'entraîner pour le Duel de demain ? »).
+  - **Joué hier, pas encore aujourd'hui** : « Série de N jours. Ne la casse pas ! », le bouton du Duel du jour avec le score d'hier et le temps qui reste, et la Partie libre en simple lien.
+  - Après la Partie libre : le titre et l'accroche, comme pour un nouveau joueur.
+- **Sur tous les écrans** : la frise d'icônes qui défile de droite à gauche, puis le pied de page « Comment ça marche ? · Sources et méthode · Chiffres de l'ADEME, sans cookie ni compte ». Les rubans d'icônes sont décoratifs (cachés aux lecteurs d'écran) et s'arrêtent si l'appareil demande moins d'animations.
+- **Comment ça marche ?** : un diaporama en 5 étapes, dans une fenêtre, sur un Duel fixe (un jean contre un Paris–Marseille en TGV). Toucher une carte dès la première étape passe directement à la réponse ; la navigation reste visible en bas de la fenêtre ; la dernière étape lance le Duel du jour.
+
 - **Duel** : deux cartes (empilées sur mobile) qui tiennent sur un écran de téléphone. Le libellé tient sur deux lignes : le geste, puis la quantité ou la durée d'utilisation.
 - **Révélation** :
   - les empreintes s'affichent sur les cartes ;
