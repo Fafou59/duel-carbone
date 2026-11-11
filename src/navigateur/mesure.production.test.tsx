@@ -55,14 +55,14 @@ describe('La mesure d’audience d’une Partie', () => {
     jouerDuels(0, 9)
     vi.setSystemTime(minutes(3))
     jouerDuel(9)
-    expect(recus()).toEqual(['partie_lancee/libre', 'partie_terminee/libre', 'duree_partie/2-a-5-min'])
+    expect(recus()).toEqual(['partie_lancee/libre', 'partie_terminee/libre', 'duree_partie/3m00-3m30'])
   })
 
   it('distingue la Partie du jour de la Partie libre', () => {
     render(<EcranPartie mode="jour" duels={DUELS} onRejouer={() => {}} />)
     vi.setSystemTime(minutes(12))
     jouerDuels(0, 10)
-    expect(recus()).toEqual(['partie_lancee/jour', 'partie_terminee/jour', 'duree_partie/plus-de-10-min'])
+    expect(recus()).toEqual(['partie_lancee/jour', 'partie_terminee/jour', 'duree_partie/10m00-et-plus'])
   })
 
   it('ne relance pas une Partie du jour reprise, et n’envoie pas sa durée (incomplète)', () => {

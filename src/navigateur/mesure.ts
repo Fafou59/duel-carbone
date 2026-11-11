@@ -18,7 +18,8 @@ const SCRIPT = 'https://gc.zgo.at/count.js'
 const ADRESSES_MESUREES = new Set([new URL(ADRESSE_DU_JEU).hostname, 'duelcarbone.fr', 'www.duelcarbone.fr'])
 
 export type Mode = 'jour' | 'libre'
-export type Tranche = 'moins-de-2-min' | '2-a-5-min' | '5-a-10-min' | 'plus-de-10-min'
+/** Une tranche de durée de 30 secondes : « 2m30-3m00 », ou « 10m00-et-plus » au-delà de 10 minutes. */
+export type Tranche = `${number}m${number}-${number}m${number}` | `${number}m${number}-et-plus`
 export type Evenement =
   | `partie_lancee/${Mode}`
   | `partie_terminee/${Mode}`
@@ -47,13 +48,22 @@ export function estAdresseMesuree(hote: string): boolean {
   return ADRESSES_MESUREES.has(hote)
 }
 
-/** La tranche de durée d'une Partie (en millisecondes) : moins de 2 min, 2 à 5, 5 à 10, plus de 10. */
+/** La largeur d'une tranche de durée, et la durée au-delà de laquelle on ne détaille plus (en secondes). */
+const PAS = 30
+const MAXIMUM = 10 * 60
+
+/** « 150 » secondes → « 2m30 » : des minutes et des secondes, sur deux chiffres pour les secondes. */
+const minutesSecondes = (secondes: number) => `${Math.floor(secondes / 60)}m${String(secondes % 60).padStart(2, '0')}`
+
+/**
+ * La tranche de durée d'une Partie (en millisecondes), par pas de 30 secondes jusqu'à 10 minutes :
+ * « 0m00-0m30 », « 0m30-1m00 »… « 9m30-10m00 », puis « 10m00-et-plus ».
+ */
 export function trancheDeDuree(duree: number): Tranche {
-  const minutes = duree / 60_000
-  if (minutes < 2) return 'moins-de-2-min'
-  if (minutes < 5) return '2-a-5-min'
-  if (minutes < 10) return '5-a-10-min'
-  return 'plus-de-10-min'
+  const secondes = Math.max(0, Math.floor(duree / 1000))
+  if (secondes >= MAXIMUM) return `${minutesSecondes(MAXIMUM)}-et-plus` as Tranche
+  const debut = Math.floor(secondes / PAS) * PAS
+  return `${minutesSecondes(debut)}-${minutesSecondes(debut + PAS)}` as Tranche
 }
 
 /** Envoie un événement à GoatCounter, sur l'adresse publique seulement. Ne lève jamais d'erreur. */

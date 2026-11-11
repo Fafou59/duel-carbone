@@ -27,16 +27,16 @@ describe('Les adresses où l’on mesure l’audience', () => {
   })
 })
 
-describe('La durée d’une Partie, en tranches', () => {
+describe('La durée d’une Partie, en tranches de 30 secondes', () => {
   it.each([
-    [0, 'moins-de-2-min'],
-    [minutes(2) - 1, 'moins-de-2-min'],
-    [minutes(2), '2-a-5-min'],
-    [minutes(5) - 1, '2-a-5-min'],
-    [minutes(5), '5-a-10-min'],
-    [minutes(10) - 1, '5-a-10-min'],
-    [minutes(10), 'plus-de-10-min'],
-    [minutes(90), 'plus-de-10-min'],
+    [0, '0m00-0m30'],
+    [minutes(0.5) - 1, '0m00-0m30'],
+    [minutes(0.5), '0m30-1m00'],
+    [minutes(2.5), '2m30-3m00'],
+    [minutes(3) - 1, '2m30-3m00'],
+    [minutes(10) - 1, '9m30-10m00'],
+    [minutes(10), '10m00-et-plus'],
+    [minutes(90), '10m00-et-plus'],
   ])('%i ms → %s', (duree, tranche) => {
     expect(trancheDeDuree(duree)).toBe(tranche)
   })
