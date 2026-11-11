@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
+import { useCallback, useEffect, useReducer, useRef, useState, type ReactNode } from 'react'
 import { preload } from 'react-dom'
 import { AnnonceThematique } from '../composants/AnnonceThematique.tsx'
 import { difficulteAttendue } from '../domaine/difficulte.ts'
 import { iconeDe } from '../donnees/icones.ts'
-import { avancer, demarrerPartie, estThematique, NOMBRE_DE_DUELS, score, type DuelDePartie } from '../domaine/partie.ts'
+import { avancer, estThematique, NOMBRE_DE_DUELS, reprendrePartie, score, type DuelDePartie } from '../domaine/partie.ts'
 import { recapitulatif } from '../domaine/recapitulatif.ts'
 import { EcranDuel } from './EcranDuel.tsx'
 import { EcranFin } from './EcranFin.tsx'
@@ -16,13 +16,36 @@ type Props = {
   ancienRecord?: number | null
   /** Appelé une fois, à la fin de la Partie, avec le score (pour l'enregistrer). */
   onTerminee?: (score: number) => void
+  /** Les réponses déjà données d'une Partie interrompue (Partie du jour) : on reprend au Duel suivant. */
+  reponsesInitiales?: string[]
+  /** Appelé à chaque nouvelle réponse, pour la retenir aussitôt (et pouvoir reprendre la Partie). */
+  onReponse?: (idChoisi: string) => void
+  /** L'écran de fin propre à la Partie du jour : son titre, la série, et « Partie libre » au lieu de « Rejouer ». */
+  fin?: { titre?: string; complement?: ReactNode; libelleRejouer?: string }
 }
 
-export function EcranPartie({ duels, onRejouer, ancienRecord = null, onTerminee }: Props) {
+export function EcranPartie({
+  duels,
+  onRejouer,
+  ancienRecord = null,
+  onTerminee,
+  reponsesInitiales = [],
+  onReponse,
+  fin,
+}: Props) {
   // useReducer branche la machine à états (domaine/partie.ts) sur React :
   // « envoyer » une action calcule le nouvel état, et React redessine l'écran.
-  const [etat, envoyer] = useReducer(avancer, duels, demarrerPartie)
+  // Une Partie interrompue repart de ses réponses déjà données.
+  const [etat, envoyer] = useReducer(avancer, undefined, () => reprendrePartie(duels, reponsesInitiales))
   const choisir = useCallback((idGeste: string) => envoyer({ type: 'choisir', idGeste }), [])
+
+  // Chaque nouvelle réponse est signalée une seule fois (pas celles d'une Partie reprise).
+  const signalees = useRef(etat.reponses.length)
+  useEffect(() => {
+    if (etat.reponses.length <= signalees.current) return
+    signalees.current = etat.reponses.length
+    onReponse?.(etat.reponses[etat.reponses.length - 1].idChoisi)
+  }, [etat.reponses, onReponse])
 
   // Les icônes du Duel suivant se téléchargent pendant qu'on joue celui-ci : elles s'afficheront sans attendre.
   // (preload ajoute <link rel="preload"> dans la page ; le navigateur ne télécharge chaque fichier qu'une fois.)
@@ -91,6 +114,9 @@ export function EcranPartie({ duels, onRejouer, ancienRecord = null, onTerminee 
         total={NOMBRE_DE_DUELS}
         ancienRecord={ancienRecord}
         onRejouer={onRejouer}
+        titre={fin?.titre}
+        complement={fin?.complement}
+        libelleRejouer={fin?.libelleRejouer}
       />
     )
   }

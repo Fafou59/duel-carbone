@@ -217,3 +217,42 @@ describe('Un Duel thématique dans la Partie', () => {
     expect(segmentsThematiques(container)).toBe(1)
   })
 })
+
+describe('La Partie du jour : reprise, mémoire de chaque réponse, fin sans « Rejouer »', () => {
+  it('reprend une Partie interrompue au Duel suivant, avec le score déjà acquis', () => {
+    const dejaDonnees = [plusEmetteur(DUELS[0]).id, moinsEmetteur(DUELS[1]).id, plusEmetteur(DUELS[2]).id]
+    render(<EcranPartie duels={DUELS} reponsesInitiales={dejaDonnees} onRejouer={() => {}} />)
+    expect(screen.getByText('Duel 4/10')).toBeInTheDocument()
+    expect(screen.getByText('Score : 2')).toBeInTheDocument()
+  })
+
+  it('signale chaque réponse dès qu’elle est donnée, pour pouvoir reprendre plus tard', () => {
+    const onReponse = vi.fn()
+    render(<EcranPartie duels={DUELS} onReponse={onReponse} onRejouer={() => {}} />)
+    jouerDuel(0, true)
+    jouerDuel(1, false)
+    expect(onReponse.mock.calls.map(([id]) => id)).toEqual([plusEmetteur(DUELS[0]).id, moinsEmetteur(DUELS[1]).id])
+  })
+
+  it('ne signale pas à nouveau les réponses d’une Partie reprise', () => {
+    const onReponse = vi.fn()
+    render(<EcranPartie duels={DUELS} reponsesInitiales={[plusEmetteur(DUELS[0]).id]} onReponse={onReponse} onRejouer={() => {}} />)
+    expect(onReponse).not.toHaveBeenCalled()
+  })
+
+  it('termine sur son propre titre et propose la Partie libre plutôt que « Rejouer »', () => {
+    const toutes = DUELS.map((d) => plusEmetteur(d).id)
+    render(
+      <EcranPartie
+        duels={DUELS}
+        reponsesInitiales={toutes}
+        fin={{ titre: 'Duel Carbone du jour n° 12', complement: 'Série : 3 jours', libelleRejouer: 'Partie libre' }}
+        onRejouer={() => {}}
+      />,
+    )
+    expect(screen.getByRole('heading', { name: 'Duel Carbone du jour n° 12' })).toBeInTheDocument()
+    expect(screen.getByText('Série : 3 jours')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Partie libre' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Rejouer' })).not.toBeInTheDocument()
+  })
+})

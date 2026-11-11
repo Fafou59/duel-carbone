@@ -20,9 +20,9 @@ describe('Application', () => {
     expect(screen.getByRole('link', { name: /ADEME/ })).toHaveAttribute('href', 'https://impactco2.fr')
   })
 
-  it('lance une Partie depuis l’accueil, en un clic', () => {
+  it('lance une Partie libre depuis l’accueil, en un clic', () => {
     render(<App />)
-    fireEvent.click(screen.getByRole('button', { name: 'Jouer' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Partie libre' }))
     expect(screen.getByText('Duel 1/10')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Lequel émet le plus ?' })).toBeInTheDocument()
   })
@@ -32,7 +32,7 @@ describe('Application : mémoire locale', () => {
   it('retient les 10 paires de la Partie lancée, pour les éviter ensuite', () => {
     const memoire = creerMemoire(stockage())
     render(<App memoire={memoire} />)
-    fireEvent.click(screen.getByRole('button', { name: 'Jouer' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Partie libre' }))
     expect(memoire.pairesRecentes().size).toBe(10)
   })
 
@@ -40,13 +40,13 @@ describe('Application : mémoire locale', () => {
     const s = stockage()
     creerMemoire(s).enregistrerScore(8)
     render(<App memoire={creerMemoire(s)} />)
-    expect(screen.getByText('Ton record : 8/10')).toBeInTheDocument()
+    expect(screen.getByText('Ton record en Partie libre : 8/10')).toBeInTheDocument()
   })
 
   it('reste jouable sans stockage', () => {
     render(<App memoire={creerMemoire(null)} />)
     expect(screen.queryByText(/record/i)).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Jouer' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Partie libre' }))
     expect(screen.getByText('Duel 1/10')).toBeInTheDocument()
   })
 })
@@ -73,7 +73,7 @@ describe('Application : page Sources et méthode', () => {
     window.location.hash = '#sources'
     render(<App />)
     expect(screen.getByRole('heading', { level: 2, name: 'Sources et méthode' })).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Jouer' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Partie libre' })).not.toBeInTheDocument()
     expect(document.title).toBe('Sources et méthode · Duel Carbone')
   })
 
@@ -82,13 +82,13 @@ describe('Application : page Sources et méthode', () => {
     fireEvent.click(screen.getAllByRole('link', { name: 'Sources et méthode' })[0])
     expect(await screen.findByRole('heading', { level: 2, name: 'Sources et méthode' })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('link', { name: /Retour au jeu/ }))
-    expect(await screen.findByRole('button', { name: 'Jouer' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Partie libre' })).toBeInTheDocument()
     expect(document.title).toBe('Duel Carbone')
   })
 
   it('garde la Partie en cours pendant la lecture des sources', async () => {
     render(<App />)
-    fireEvent.click(screen.getByRole('button', { name: 'Jouer' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Partie libre' }))
     // Le joueur répond au Duel 1 : la révélation s'affiche.
     fireEvent.click(within(screen.getByRole('region', { name: 'Lequel émet le plus ?' })).getAllByRole('button')[0])
     const suivant = screen.getByRole('button', { name: 'Duel suivant →' })
@@ -97,6 +97,97 @@ describe('Application : page Sources et méthode', () => {
     expect(suivant).not.toBeVisible()
     fireEvent.click(screen.getByRole('link', { name: /Retour au jeu/ }))
     await waitFor(() => expect(screen.getByRole('button', { name: 'Duel suivant →' })).toBeVisible())
+    expect(screen.getByText('Duel 1/10')).toBeInTheDocument()
+  })
+})
+
+describe('Application : le Duel Carbone du jour', () => {
+  // Un jour fixe, couvert par le calendrier : le 10e jour depuis le premier (n° 10).
+  const JOUR = '2026-11-20'
+  // Le bouton reste désactivé tant que le calendrier (chargé à part) n'est pas arrivé.
+  const boutonDuJour = async () => {
+    const bouton = await screen.findByRole('button', { name: /Duel Carbone du jour n° 10|Revoir mon Duel du jour/ })
+    await waitFor(() => expect(bouton).toBeEnabled())
+    return bouton
+  }
+  // Un Duel thématique s'annonce d'abord : on ferme l'annonce pour accéder aux cartes.
+  const fermerAnnonce = () => {
+    const auDuel = screen.queryByRole('button', { name: 'Au Duel !' })
+    if (auDuel) fireEvent.click(auDuel)
+  }
+  const titresDesCartes = () =>
+    within(screen.getByRole('region', { name: 'Lequel émet le plus ?' }))
+      .getAllByRole('button')
+      .map((b) => b.textContent)
+
+  it('propose le Duel Carbone du jour, numéroté, et la Partie libre', async () => {
+    render(<App memoire={creerMemoire(stockage())} aujourdhui={JOUR} />)
+    expect(await boutonDuJour()).toHaveTextContent('Jouer le Duel Carbone du jour n° 10')
+    expect(screen.getByRole('button', { name: 'Partie libre' })).toBeInTheDocument()
+  })
+
+  it('donne les mêmes Duels sur deux appareils différents, le même jour', async () => {
+    const premier = render(<App memoire={creerMemoire(stockage())} aujourdhui={JOUR} />)
+    fireEvent.click(await boutonDuJour())
+    fermerAnnonce()
+    const surLePremier = titresDesCartes()
+    premier.unmount()
+    render(<App memoire={creerMemoire(stockage())} aujourdhui={JOUR} />)
+    fireEvent.click(await boutonDuJour())
+    fermerAnnonce()
+    expect(titresDesCartes()).toEqual(surLePremier)
+  })
+
+  it('reprend une Partie du jour interrompue au même Duel, avec les réponses déjà données', async () => {
+    const s = stockage()
+    const avant = render(<App memoire={creerMemoire(s)} aujourdhui={JOUR} />)
+    fireEvent.click(await boutonDuJour())
+    for (let i = 0; i < 2; i++) {
+      fermerAnnonce()
+      fireEvent.click(within(screen.getByRole('region', { name: 'Lequel émet le plus ?' })).getAllByRole('button')[0])
+      fireEvent.click(screen.getByRole('button', { name: 'Duel suivant →' }))
+    }
+    avant.unmount()
+    render(<App memoire={creerMemoire(s)} aujourdhui={JOUR} />)
+    const bouton = await boutonDuJour()
+    expect(bouton).toHaveTextContent('Reprendre le Duel Carbone du jour n° 10')
+    fireEvent.click(bouton)
+    expect(screen.getByText('Duel 3/10')).toBeInTheDocument()
+  })
+
+  it('ne se rejoue pas : une fois terminé, l’accueil propose de revoir le résultat, et la Partie libre reste là', async () => {
+    const s = stockage()
+    render(<App memoire={creerMemoire(s)} aujourdhui={JOUR} />)
+    fireEvent.click(await boutonDuJour())
+    for (let i = 0; i < 10; i++) {
+      fermerAnnonce()
+      fireEvent.click(within(screen.getByRole('region', { name: 'Lequel émet le plus ?' })).getAllByRole('button')[0])
+      fireEvent.click(screen.getByRole('button', { name: i === 9 ? 'Voir mon score' : 'Duel suivant →' }))
+    }
+    expect(screen.getByRole('heading', { name: 'Duel Carbone du jour n° 10' })).toBeInTheDocument()
+    expect(screen.getByText(/Série : 1 jour d'affilée/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Partie libre' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Rejouer' })).not.toBeInTheDocument()
+  })
+
+  it('affiche le résultat et la série sur l’accueil le jour même, et la série encore le lendemain', async () => {
+    const s = stockage()
+    const memoire = creerMemoire(s)
+    memoire.terminerPartieDuJour('2026-11-19', 7)
+    memoire.terminerPartieDuJour(JOUR, 8)
+    const jourMeme = render(<App memoire={creerMemoire(s)} aujourdhui={JOUR} />)
+    expect(await boutonDuJour()).toHaveTextContent('Revoir mon Duel du jour')
+    expect(screen.getByText('Duel Carbone du jour n° 10 : 8/10')).toBeInTheDocument()
+    expect(screen.getByText("Série : 2 jours d'affilée")).toBeInTheDocument()
+    jourMeme.unmount()
+    render(<App memoire={creerMemoire(s)} aujourdhui="2026-11-21" />)
+    expect(await screen.findByRole('button', { name: 'Jouer le Duel Carbone du jour n° 11' })).toBeInTheDocument()
+    expect(screen.getByText("Série : 2 jours d'affilée")).toBeInTheDocument()
+  })
+
+  it('reste jouable sans stockage', async () => {
+    render(<App memoire={creerMemoire(null)} aujourdhui={JOUR} />)
+    fireEvent.click(await boutonDuJour())
     expect(screen.getByText('Duel 1/10')).toBeInTheDocument()
   })
 })

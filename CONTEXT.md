@@ -74,6 +74,18 @@ _À éviter_ : poids, bonus, priorité
 Une suite de 10 Duels au terme de laquelle le joueur obtient un score final.
 _À éviter_ : session, run
 
+**Partie du jour** :
+La Partie identique pour tous les joueurs un jour donné, tirée à l'avance dans le calendrier. Elle change à minuit, heure de Paris, ne se joue qu'une fois par appareil et reprend là où le joueur l'a laissée. À l'écran : « Le Duel Carbone du jour n° N ».
+_À éviter_ : défi du jour, quotidienne
+
+**Partie libre** :
+Une Partie tirée au hasard, rejouable à volonté, présentée comme un entraînement. Elle garde son propre record.
+_À éviter_ : mode classique, entraînement (à l'écran seulement)
+
+**Série** :
+Le nombre de jours consécutifs où le joueur a terminé la Partie du jour. Elle retombe à zéro après un jour manqué ; la meilleure série est gardée.
+_À éviter_ : streak, combo
+
 **Rapport** :
 Le quotient entre la plus grande et la plus petite Empreinte carbone d'un Duel (« ×11 »).
 _À éviter_ : écart, différence

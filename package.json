@@ -12,7 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "import": "node --env-file-if-exists=.env scripts/import/index.ts && npm run calibrer",
-    "calibrer": "node scripts/calibrer.ts",
+    "calibrer": "node scripts/calibrer.ts && node scripts/calendrier.ts",
+    "calendrier": "node scripts/calendrier.ts",
     "icones": "node scripts/icones/index.ts",
     "analyse:paires": "node scripts/analyse-paires.ts"
   },

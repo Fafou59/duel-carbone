@@ -119,6 +119,11 @@ export function EcranSources() {
       <section>
         <h3>Les règles du jeu</h3>
         <p>
+          Chaque jour, le Duel Carbone du jour propose la même Partie à tous les joueurs : elle change à minuit, heure
+          de Paris, et ne se joue qu'une fois. Ses Duels sont tirés à l'avance, selon les mêmes règles que la Partie
+          libre, que tu peux rejouer à volonté pour t'entraîner.
+        </p>
+        <p>
           Une Partie, c'est {REGLES.nombreDeDuels} Duels, sans chrono, de plus en plus serrés. Au Duel 1, l'un des
           deux gestes émet entre {nombre(PREMIERE_TRANCHE.min)} et {nombre(PREMIERE_TRANCHE.max)} fois plus que
           l'autre ; au Duel {REGLES.nombreDeDuels}, entre {nombre(DERNIERE_TRANCHE.min)} et{' '}
@@ -143,8 +148,9 @@ export function EcranSources() {
       <section>
         <h3>Ta vie privée</h3>
         <p>
-          Sans cookie, sans compte. Ton record et les derniers Duels joués (pour ne pas te reposer les mêmes) sont
-          gardés dans ton navigateur, sur cet appareil. Ils ne sont envoyés nulle part.
+          Sans cookie, sans compte. Ton record, ta Partie du jour (pour la reprendre ou revoir ton résultat), ta
+          série et les derniers Duels joués (pour ne pas te reposer les mêmes) sont gardés dans ton navigateur, sur cet
+          appareil. Ils ne sont envoyés nulle part.
         </p>
         <p>
           Le jeu est hébergé par Cloudflare : comme tout hébergeur, il reçoit les demandes de ton navigateur (dont ton

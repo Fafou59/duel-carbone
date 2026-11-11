@@ -101,10 +101,78 @@ describe('Mémoire locale : robustesse', () => {
     const memoire = creerMemoire(s)
     memoire.enregistrerScore(5)
     memoire.enregistrerPartie(['a|b'])
+    memoire.enregistrerReponseDuJour('2026-11-20', 'steak-boeuf')
     expect(JSON.parse(s.donnees.get(CLE_MEMOIRE)!)).toEqual({
-      version: 1,
+      version: 2,
       meilleurScore: 5,
       partiesRecentes: [['a|b']],
+      duJour: { jour: '2026-11-20', reponses: ['steak-boeuf'], score: null },
+      serie: null,
+      meilleureSerie: 0,
     })
+  })
+
+  it('garde le record et les paires récentes d’un joueur de l’ancienne version (format 1)', () => {
+    const ancien = JSON.stringify({ version: 1, meilleurScore: 7, partiesRecentes: [['a|b']] })
+    const memoire = creerMemoire(stockage({ [CLE_MEMOIRE]: ancien }))
+    expect(memoire.meilleurScore()).toBe(7)
+    expect([...memoire.pairesRecentes()]).toEqual(['a|b'])
+    expect(memoire.partieDuJour('2026-11-20')).toBeNull()
+  })
+})
+
+describe('Mémoire locale : la Partie du jour', () => {
+  const JOUR = '2026-11-20'
+
+  it('retient les réponses de la Partie du jour au fil du jeu, pour pouvoir la reprendre', () => {
+    const memoire = creerMemoire(stockage())
+    expect(memoire.partieDuJour(JOUR)).toBeNull()
+    memoire.enregistrerReponseDuJour(JOUR, 'steak-boeuf')
+    memoire.enregistrerReponseDuJour(JOUR, 'tgv-100km')
+    expect(memoire.partieDuJour(JOUR)).toEqual({ reponses: ['steak-boeuf', 'tgv-100km'], score: null })
+  })
+
+  it('oublie une Partie du jour d’hier restée inachevée : elle est perdue à minuit', () => {
+    const memoire = creerMemoire(stockage())
+    memoire.enregistrerReponseDuJour('2026-11-19', 'steak-boeuf')
+    expect(memoire.partieDuJour(JOUR)).toBeNull()
+    memoire.enregistrerReponseDuJour(JOUR, 'tgv-100km')
+    expect(memoire.partieDuJour(JOUR)?.reponses).toEqual(['tgv-100km'])
+  })
+
+  it('retient le score de la Partie du jour terminée, sans toucher au record de la Partie libre', () => {
+    const memoire = creerMemoire(stockage())
+    memoire.terminerPartieDuJour(JOUR, 8)
+    expect(memoire.partieDuJour(JOUR)?.score).toBe(8)
+    expect(memoire.meilleurScore()).toBeNull()
+  })
+
+  it('compte la série : un jour de plus chaque jour terminé, retour à zéro après un jour manqué', () => {
+    const memoire = creerMemoire(stockage())
+    memoire.terminerPartieDuJour('2026-11-18', 6)
+    memoire.terminerPartieDuJour('2026-11-19', 7)
+    memoire.terminerPartieDuJour('2026-11-20', 9)
+    expect(memoire.serie('2026-11-20')).toEqual({ actuelle: 3, meilleure: 3 })
+    // Le lendemain, avant de jouer : la série tient toujours.
+    expect(memoire.serie('2026-11-21').actuelle).toBe(3)
+    // Un jour manqué : elle retombe à zéro, la meilleure série reste.
+    expect(memoire.serie('2026-11-22')).toEqual({ actuelle: 0, meilleure: 3 })
+    memoire.terminerPartieDuJour('2026-11-22', 5)
+    expect(memoire.serie('2026-11-22')).toEqual({ actuelle: 1, meilleure: 3 })
+  })
+
+  it('ne compte pas deux fois le même jour', () => {
+    const memoire = creerMemoire(stockage())
+    memoire.terminerPartieDuJour(JOUR, 6)
+    memoire.terminerPartieDuJour(JOUR, 6)
+    expect(memoire.serie(JOUR).actuelle).toBe(1)
+  })
+
+  it('reste jouable sans stockage : rien n’est retenu, rien ne plante', () => {
+    const memoire = creerMemoire(null)
+    memoire.enregistrerReponseDuJour(JOUR, 'steak-boeuf')
+    memoire.terminerPartieDuJour(JOUR, 8)
+    expect(memoire.partieDuJour(JOUR)).toBeNull()
+    expect(memoire.serie(JOUR)).toEqual({ actuelle: 0, meilleure: 0 })
   })
 })
