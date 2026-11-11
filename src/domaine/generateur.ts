@@ -22,7 +22,7 @@ import { cleDePaire, rapport, type Duel } from './duel.ts'
 import type { GesteCalcule } from './geste.ts'
 import type { SourceDeHasard } from './hasard.ts'
 import { REGLES, type Tranche } from './regles.ts'
-import { positionDuDuelThematique, type DuelThematique } from './thematiques.ts'
+import { positionDuDuelThematique, redigerTexte, type DuelThematique } from './thematiques.ts'
 
 export { cleDePaire }
 
@@ -128,7 +128,7 @@ function choisirThematique(
   const b = gestes.find((g) => g.id === t.b)
   if (!a || !b) throw new Error(`Duel thématique ${t.a} / ${t.b} : Geste absent du catalogue.`)
   const duel = hasard() < 0.5 ? { a, b } : { a: b, b: a }
-  return { duel, position: positionDuDuelThematique(rapport(duel)), textes: { titre: t.titre, accroche: t.accroche, texte: t.texte } }
+  return { duel, position: positionDuDuelThematique(rapport(duel)), textes: { titre: t.titre, accroche: t.accroche, texte: redigerTexte(t, gestes) } }
 }
 
 /**

@@ -10,6 +10,7 @@
  * src/donnees/coefficients.json avec l'empreinte du tirage : un test vérifie qu'ils sont toujours à jour.
  */
 import { cleDePaire, genererPartie, type Coefficients } from './generateur.ts'
+import { fnv1a } from './hachage.ts'
 import type { GesteCalcule } from './geste.ts'
 import { hasardReproductible } from './hasard.ts'
 import { REGLES } from './regles.ts'
@@ -125,14 +126,4 @@ export function calibrerCoefficients(
   const valeurs = Object.values(coefficients)
   const moyenne = valeurs.reduce((s, c) => s + c, 0) / valeurs.length
   return Object.fromEntries(Object.entries(coefficients).map(([id, c]) => [id, Math.round((c / moyenne) * 1000) / 1000]))
-}
-
-/** Hachage FNV-1a (32 bits) : transforme un texte en 8 caractères qui changent dès que le texte change. */
-function fnv1a(texte: string): string {
-  let hash = 0x811c9dc5
-  for (let i = 0; i < texte.length; i++) {
-    hash ^= texte.charCodeAt(i)
-    hash = Math.imul(hash, 0x01000193)
-  }
-  return (hash >>> 0).toString(16).padStart(8, '0')
 }

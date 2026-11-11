@@ -3,7 +3,9 @@ import type { GesteCalcule } from './geste.ts'
 import { REGLES } from './regles.ts'
 import {
   doitForcerUnDuelThematique,
+  empreinteDesChiffres,
   positionDuDuelThematique,
+  redigerTexte,
   validerDuelsThematiques,
   type DuelThematique,
 } from './thematiques.ts'
@@ -95,5 +97,33 @@ describe('Garantie : jamais plus de quelques Parties de suite sans Duel thémati
 
   it('ne force rien sans Duel thématique au catalogue', () => {
     expect(doitForcerUnDuelThematique(Array(n).fill(sans), [])).toBe(false)
+  })
+})
+
+describe('Les chiffres des textes : calculés quand c’est possible, surveillés sinon', () => {
+  const gestes = [geste('a', 10), geste('b', 4), geste('c', 2)]
+
+  it('remplace {a}, {b} et {rapport} par les valeurs du moment, comme sur les cartes', () => {
+    const t = thematique('a', 'b', { texte: '{a} contre {b} : {rapport} fois plus.' })
+    expect(redigerTexte(t, gestes)).toBe('10 kg CO2e contre 4 kg CO2e : 2,5 fois plus.')
+  })
+
+  it('refuse un repère inconnu ou un Geste cité absent du catalogue', () => {
+    expect(() => validerDuelsThematiques([thematique('a', 'b', { texte: 'Voir {c}.' })], gestes)).toThrow(/\{c\}/)
+    expect(() => validerDuelsThematiques([thematique('a', 'b', { cites: ['licorne'] })], gestes)).toThrow(/licorne/)
+  })
+
+  it('change d’empreinte quand une valeur ADEME change, pour l’un des deux Gestes ou un Geste cité', () => {
+    const t = thematique('a', 'b', { cites: ['c'] })
+    const reference = empreinteDesChiffres(t, gestes)
+    expect(empreinteDesChiffres(t, [geste('a', 11), geste('b', 4), geste('c', 2)])).not.toBe(reference)
+    expect(empreinteDesChiffres(t, [geste('a', 10), geste('b', 4), geste('c', 3)])).not.toBe(reference)
+  })
+
+  it('garde la même empreinte si seuls les textes changent', () => {
+    const t = thematique('a', 'b', { cites: ['c'] })
+    expect(empreinteDesChiffres({ ...t, texte: 'Autre texte.', titre: 'Autre titre' }, gestes)).toBe(
+      empreinteDesChiffres(t, gestes),
+    )
   })
 })
