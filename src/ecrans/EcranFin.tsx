@@ -1,13 +1,15 @@
-import { useRef, useState, type ReactNode } from 'react'
+import { useRef, useState } from 'react'
+import { CompteARebours } from '../composants/CompteARebours.tsx'
 import { PanneauDuel } from '../composants/PanneauDuel.tsx'
 import { Icone } from '../composants/Icone.tsx'
+import { ACCROCHES_DU_JOUR } from '../donnees/accroches.ts'
 import { formaterMultiple, queDevant } from '../domaine/format.ts'
-import { texteDePartage } from '../domaine/partage.ts'
+import { texteDePartage, texteDePartageDuJour } from '../domaine/partage.ts'
 import { messageDeScore, type LigneRecapitulatif } from '../domaine/recapitulatif.ts'
 import { partager, type ResultatPartage } from '../navigateur/partager.ts'
 import './EcranFin.css'
 
-type Props = {
+export type PropsFin = {
   /** Reçoit le titre, pour que la Partie puisse y placer le focus. */
   refTitre?: (element: HTMLElement | null) => void
   lignes: LigneRecapitulatif[]
@@ -15,18 +17,23 @@ type Props = {
   total: number
   /** Le record d'avant cette Partie (null : première Partie, ou pas de mémoire locale). */
   ancienRecord?: number | null
+  /** « Rejouer » (Partie libre), ou « Partie libre » après le Duel du jour. */
   onRejouer: () => void
-  /** Le titre (« Partie terminée ! » par défaut ; « Duel Carbone du jour n° 12 » pour la Partie du jour). */
-  titre?: string
-  /** Une information de plus sous le score (la série, pour la Partie du jour). */
-  complement?: ReactNode
-  /** Le libellé du second bouton (« Rejouer » par défaut ; « Partie libre » après la Partie du jour). */
-  libelleRejouer?: string
+  /** La fin du Duel du jour : son numéro et la série. Sans elle, c'est la fin d'une Partie libre. */
+  partieDuJour?: { numero: number; serie: number }
+  /** À la fin d'une Partie libre : où en est le Duel du jour, pour y inviter s'il n'est pas encore joué. */
+  duJour?: { numero: number; situation: 'aJouer' | 'enCours' | 'joue'; onJouer: () => void }
   /** Comment partager (remplaçable dans les tests) : par défaut, avec les outils du navigateur. */
   onPartager?: (texte: string) => Promise<ResultatPartage>
 }
 
-/** Fin de Partie : le score, un message, le partage, « Rejouer », puis le Récapitulatif des 10 Duels. */
+const jours = (n: number) => `${n} jour${n > 1 ? 's' : ''}`
+
+/**
+ * Fin de Partie : le score, un message, puis ce qu'on fait ensuite, et enfin le Récapitulatif des 10 Duels.
+ * - Fin du Duel du jour : on pousse au partage (« Défier mes proches »), puis à la Partie libre pour s'entraîner.
+ * - Fin de Partie libre : on pousse au Duel du jour s'il n'est pas encore joué, sinon à « Rejouer ».
+ */
 export function EcranFin({
   refTitre,
   lignes,
@@ -34,16 +41,24 @@ export function EcranFin({
   total,
   ancienRecord = null,
   onRejouer,
-  titre = 'Partie terminée !',
-  complement,
-  libelleRejouer = 'Rejouer',
+  partieDuJour,
+  duJour,
   onPartager = partager,
-}: Props) {
+}: PropsFin) {
+  // Le texte partagé : celui du jour (accroche, score, grille) ou celui de la Partie libre.
+  const texte = partieDuJour
+    ? texteDePartageDuJour({
+        numero: partieDuJour.numero,
+        score,
+        bonnes: lignes.map((ligne) => ligne.bonne),
+        accroches: ACCROCHES_DU_JOUR,
+      })
+    : texteDePartage(score, total)
   // Résultat du dernier partage, pour afficher une confirmation (ou le texte, si la copie a échoué).
   const [partage, setPartage] = useState<ResultatPartage | null>(null)
   const partagerLeScore = async () => {
     setPartage(null)
-    setPartage(await onPartager(texteDePartage(score, total)))
+    setPartage(await onPartager(texte))
   }
 
   // Position (0 à 9) du Duel dont le détail est ouvert, ou null si le panneau est fermé.
@@ -57,18 +72,27 @@ export function EcranFin({
     cases.current[ouvert]?.focus()
   }
 
+  // Le Duel du jour reste à jouer (ou à finir) : il passe devant « Rejouer ».
+  const inviterAuDuJour = !partieDuJour && duJour && duJour.situation !== 'joue' ? duJour : null
+
   return (
     <section className="fin" aria-labelledby="fin-titre">
       <h2 id="fin-titre" ref={refTitre} tabIndex={-1}>
-        {titre}
+        {partieDuJour ? `Duel Carbone du jour n° ${partieDuJour.numero}` : 'Partie terminée !'}
       </h2>
       <p className="fin__score">
         {score}
         <span>/{total}</span>
       </p>
       <p className="fin__message">{messageDeScore(score, total)}</p>
-      {complement && <p className="fin__complement">{complement}</p>}
-      {ancienRecord !== null &&
+      {partieDuJour && (
+        <p className="fin__complement">
+          {partieDuJour.serie > 0 && <>🔥 Série : {jours(partieDuJour.serie)} d'affilée · </>}
+          Prochain Duel du jour dans <CompteARebours />
+        </p>
+      )}
+      {!partieDuJour &&
+        ancienRecord !== null &&
         (score > ancienRecord ? (
           <p className="fin__record fin__record--nouveau">
             🏆 Nouveau record ! (ancien : {ancienRecord}/{total})
@@ -78,13 +102,28 @@ export function EcranFin({
             Ton record : {ancienRecord}/{total}
           </p>
         ))}
-      <div className="fin__actions">
-        <button type="button" className="bouton" onClick={partagerLeScore}>
-          Partager mon score
-        </button>
-        <button type="button" className="bouton bouton--secondaire" onClick={onRejouer}>
-          {libelleRejouer}
-        </button>
+      {inviterAuDuJour && <p className="fin__invitation">Échauffement terminé : place au Duel du jour !</p>}
+
+      <div className="fin__actions" role="group" aria-label="Et maintenant ?">
+        {partieDuJour ? (
+          <button type="button" className="bouton fin__gros" onClick={partagerLeScore}>
+            Défier mes proches
+          </button>
+        ) : (
+          <>
+            {inviterAuDuJour && (
+              <button type="button" className="bouton fin__gros" onClick={inviterAuDuJour.onJouer}>
+                {inviterAuDuJour.situation === 'enCours' ? 'Reprendre' : 'Jouer'} le Duel du jour n° {inviterAuDuJour.numero}
+              </button>
+            )}
+            <button type="button" className={inviterAuDuJour ? 'bouton bouton--secondaire' : 'bouton'} onClick={onRejouer}>
+              Rejouer
+            </button>
+            <button type="button" className="bouton bouton--secondaire" onClick={partagerLeScore}>
+              Partager mon score
+            </button>
+          </>
+        )}
       </div>
       {/* role="status" : un lecteur d'écran annonce la confirmation de copie dès qu'elle apparaît. */}
       <div role="status" className="fin__partage">
@@ -92,10 +131,23 @@ export function EcranFin({
         {partage === 'echec' && (
           <>
             <p>La copie automatique n'a pas fonctionné. Voici le texte à copier :</p>
-            <p className="fin__texte-partage">{texteDePartage(score, total)}</p>
+            <p className="fin__texte-partage">{texte}</p>
           </>
         )}
       </div>
+      {!partieDuJour && duJour?.situation === 'joue' && (
+        <p className="fin__complement">
+          Prochain Duel du jour dans <CompteARebours />
+        </p>
+      )}
+      {partieDuJour && (
+        <div className="fin__entrainement">
+          <p>Envie de t’entraîner pour le Duel de demain ?</p>
+          <button type="button" className="bouton bouton--secondaire" onClick={onRejouer}>
+            Partie libre
+          </button>
+        </div>
+      )}
 
       <h3 id="recap-titre" className="fin__recap-titre">
         Récapitulatif

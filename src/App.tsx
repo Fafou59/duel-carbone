@@ -27,8 +27,6 @@ type Props = {
 /** La Partie en cours : la Partie du jour (avec son jour et ses réponses déjà données) ou une Partie libre. */
 type Partie = { mode: 'libre'; duels: DuelDePartie[] } | { mode: 'jour'; jour: string; duels: DuelDePartie[]; reponses: string[] }
 
-const jours = (n: number) => `${n} jour${n > 1 ? 's' : ''}`
-
 export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }: Props) {
   // useState(() => …) : la mémoire est créée une seule fois, au premier affichage.
   const [memoire] = useState(() => memoireFournie ?? creerMemoire())
@@ -164,6 +162,16 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
               ancienRecord={ancienRecord}
               onTerminee={terminerPartieLibre}
               onRejouer={lancerPartie}
+              // Le Duel du jour, proposé en premier à la fin s'il reste à jouer (une fois le calendrier arrivé).
+              fin={{
+                duJour: calendrier
+                  ? {
+                      numero: numeroDuJourAffiche,
+                      situation: duJour?.score != null ? 'joue' : duJour ? 'enCours' : 'aJouer',
+                      onJouer: lancerPartieDuJour,
+                    }
+                  : undefined,
+              }}
             />
           )}
           {partie?.mode === 'jour' && (
@@ -177,14 +185,7 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
                 setActualisation((n) => n + 1)
               }}
               onRejouer={lancerPartie}
-              fin={{
-                titre: `Duel Carbone du jour n° ${numeroDuJour(partie.jour)}`,
-                complement:
-                  serie.actuelle > 0
-                    ? `Série : ${jours(serie.actuelle)} d'affilée · Prochain Duel du jour à minuit.`
-                    : 'Prochain Duel du jour à minuit.',
-                libelleRejouer: 'Partie libre',
-              }}
+              fin={{ partieDuJour: { numero: numeroDuJour(partie.jour), serie: serie.actuelle } }}
             />
           )}
         </div>

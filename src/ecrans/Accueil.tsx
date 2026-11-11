@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Co2e } from '../composants/Co2e.tsx'
+import { CompteARebours } from '../composants/CompteARebours.tsx'
 import { Vitrine } from '../composants/Vitrine.tsx'
+import { ACCROCHES_DU_JOUR } from '../donnees/accroches.ts'
 import { REPERES_CLIMAT } from '../donnees/index.ts'
 import { formaterEmpreinte } from '../domaine/format.ts'
-import { formaterDuree, secondesAvantMinuitAParis } from '../domaine/jour.ts'
-import { texteDePartage } from '../domaine/partage.ts'
+import { texteDePartageDuJour } from '../domaine/partage.ts'
 import { NOMBRE_DE_DUELS } from '../domaine/partie.ts'
 import { partager, type ResultatPartage } from '../navigateur/partager.ts'
 import './Accueil.css'
@@ -50,16 +51,6 @@ const formaterJour = (jour: string) =>
   new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }).format(
     new Date(`${jour}T00:00:00Z`),
   )
-
-/** Le temps qui reste avant minuit à Paris (l'arrivée du prochain Duel du jour), mis à jour chaque seconde. */
-function useCompteARebours(): string {
-  const [secondes, setSecondes] = useState(() => secondesAvantMinuitAParis(new Date()))
-  useEffect(() => {
-    const minuterie = setInterval(() => setSecondes(secondesAvantMinuitAParis(new Date())), 1000)
-    return () => clearInterval(minuterie)
-  }, [])
-  return formaterDuree(secondes)
-}
 
 /** Le « pourquoi » du jeu, sur tous les accueils : le titre, puis l'accroche avec les repères 9,1 t et 2 t (ADEME). */
 function Presentation() {
@@ -127,10 +118,12 @@ function AccueilNouveau(props: PropsAccueil) {
 function TableauDeBord(props: PropsAccueil) {
   const { jour, numero, situation, resultat, scoreHier, serie, record, calendrierPret } = props
   const { onJouerDuJour, onPartieLibre, onRevoir, onPartager = partager } = props
-  const reste = useCompteARebours()
   // Résultat du dernier partage, pour afficher une confirmation (ou le texte, si la copie a échoué).
   const [partage, setPartage] = useState<ResultatPartage | null>(null)
-  const texte = resultat ? texteDePartage(resultat.score, NOMBRE_DE_DUELS) : ''
+  // Le même texte qu'à la fin du Duel du jour : l'accroche du jour, le score et la grille.
+  const texte = resultat
+    ? texteDePartageDuJour({ numero, score: resultat.score, bonnes: resultat.bonnes, accroches: ACCROCHES_DU_JOUR })
+    : ''
   const defier = async () => {
     setPartage(null)
     setPartage(await onPartager(texte))
@@ -184,7 +177,9 @@ function TableauDeBord(props: PropsAccueil) {
                 <small>de série</small>
               </span>
               <span>
-                <b>{reste}</b>
+                <b>
+                  <CompteARebours />
+                </b>
                 <small>avant le prochain Duel</small>
               </span>
             </p>
@@ -226,7 +221,9 @@ function TableauDeBord(props: PropsAccueil) {
                 <span />
               )}
               <span>
-                <b>{reste}</b>
+                <b>
+                  <CompteARebours />
+                </b>
                 <small>pour le jouer</small>
               </span>
             </p>

@@ -246,12 +246,12 @@ describe('La Partie du jour : reprise, mémoire de chaque réponse, fin sans « 
       <EcranPartie
         duels={DUELS}
         reponsesInitiales={toutes}
-        fin={{ titre: 'Duel Carbone du jour n° 12', complement: 'Série : 3 jours', libelleRejouer: 'Partie libre' }}
+        fin={{ partieDuJour: { numero: 12, serie: 3 } }}
         onRejouer={() => {}}
       />,
     )
     expect(screen.getByRole('heading', { name: 'Duel Carbone du jour n° 12' })).toBeInTheDocument()
-    expect(screen.getByText('Série : 3 jours')).toBeInTheDocument()
+    expect(screen.getByText(/Série : 3 jours/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Partie libre' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Rejouer' })).not.toBeInTheDocument()
   })

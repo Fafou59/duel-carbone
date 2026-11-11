@@ -6,7 +6,8 @@ import { formaterMultiple, queDevant } from '../domaine/format.ts'
 import { genererPartie } from '../domaine/generateur.ts'
 import { hasardReproductible } from '../domaine/hasard.ts'
 import { avancer, demarrerPartie, score } from '../domaine/partie.ts'
-import { texteDePartage } from '../domaine/partage.ts'
+import { texteDePartage, texteDePartageDuJour } from '../domaine/partage.ts'
+import { ACCROCHES_DU_JOUR } from '../donnees/accroches.ts'
 import { recapitulatif } from '../domaine/recapitulatif.ts'
 import type { ResultatPartage } from '../navigateur/partager.ts'
 import { EcranFin } from './EcranFin.tsx'
@@ -40,6 +41,79 @@ describe('Écran de fin de Partie', () => {
     afficher(onRejouer)
     fireEvent.click(screen.getByRole('button', { name: 'Rejouer' }))
     expect(onRejouer).toHaveBeenCalledOnce()
+  })
+})
+
+describe('Fin de Partie libre : cap sur le Duel du jour', () => {
+  const finLibre = (situation: 'aJouer' | 'enCours' | 'joue') => {
+    const onJouer = vi.fn()
+    const onRejouer = vi.fn()
+    render(
+      <EcranFin lignes={LIGNES} score={7} total={10} onRejouer={onRejouer} duJour={{ numero: 12, situation, onJouer }} />,
+    )
+    return { onJouer, onRejouer }
+  }
+  const boutons = () => within(screen.getByRole('group', { name: 'Et maintenant ?' })).getAllByRole('button')
+
+  it('propose d’abord le Duel du jour s’il n’est pas encore joué, puis « Rejouer »', () => {
+    const { onJouer } = finLibre('aJouer')
+    expect(screen.getByText('Échauffement terminé : place au Duel du jour !')).toBeInTheDocument()
+    expect(boutons().map((b) => b.textContent)).toEqual(['Jouer le Duel du jour n° 12', 'Rejouer', 'Partager mon score'])
+    fireEvent.click(screen.getByRole('button', { name: 'Jouer le Duel du jour n° 12' }))
+    expect(onJouer).toHaveBeenCalledOnce()
+  })
+
+  it('propose de reprendre un Duel du jour commencé', () => {
+    finLibre('enCours')
+    expect(boutons()[0]).toHaveTextContent('Reprendre le Duel du jour n° 12')
+  })
+
+  it('garde « Rejouer » en premier si le Duel du jour est déjà joué, et annonce le prochain', () => {
+    finLibre('joue')
+    expect(boutons().map((b) => b.textContent)).toEqual(['Rejouer', 'Partager mon score'])
+    expect(screen.getByText(/Prochain Duel du jour dans/)).toBeInTheDocument()
+  })
+})
+
+describe('Fin du Duel du jour : cap sur le partage', () => {
+  const finDuJour = (serie = 3) => {
+    const onRejouer = vi.fn()
+    const onPartager = vi.fn<(texte: string) => Promise<ResultatPartage>>(async () => 'copie')
+    render(
+      <EcranFin
+        lignes={LIGNES}
+        score={7}
+        total={10}
+        onRejouer={onRejouer}
+        onPartager={onPartager}
+        partieDuJour={{ numero: 12, serie }}
+      />,
+    )
+    return { onRejouer, onPartager }
+  }
+
+  it('titre sur le numéro du jour, avec la série et le temps avant le prochain', () => {
+    finDuJour()
+    expect(screen.getByRole('heading', { level: 2, name: 'Duel Carbone du jour n° 12' })).toBeInTheDocument()
+    expect(screen.getByText(/Série : 3 jours d'affilée/)).toBeInTheDocument()
+    expect(screen.getByText(/Prochain Duel du jour dans/)).toBeInTheDocument()
+  })
+
+  it('met « Défier mes proches » en premier, avec le texte du jour : accroche, score et grille', () => {
+    const { onPartager } = finDuJour()
+    fireEvent.click(screen.getByRole('button', { name: 'Défier mes proches' }))
+    expect(onPartager).toHaveBeenCalledWith(
+      texteDePartageDuJour({ numero: 12, score: 7, bonnes: LIGNES.map((l) => l.bonne), accroches: ACCROCHES_DU_JOUR }),
+    )
+    expect(onPartager.mock.calls[0][0]).toContain('🟩🟩🟩🟩🟩🟩🟩🟥🟥🟥')
+  })
+
+  it('propose ensuite la Partie libre, pour s’entraîner', () => {
+    const { onRejouer } = finDuJour()
+    expect(screen.getByText('Envie de t’entraîner pour le Duel de demain ?')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Partie libre' }))
+    expect(onRejouer).toHaveBeenCalledOnce()
+    expect(screen.queryByRole('button', { name: 'Rejouer' })).not.toBeInTheDocument()
   })
 })
 
