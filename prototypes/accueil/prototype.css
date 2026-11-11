@@ -295,7 +295,7 @@
   font-size: 16px;
 }
 
-.proto-accroche b {
+.proto-accroche > b {
   display: block;
   margin-top: 6px;
 }
@@ -581,4 +581,126 @@
   padding: 10px 16px 16px;
   background: var(--fond);
   box-shadow: 0 -8px 16px -12px rgb(0 0 0 / 40%);
+}
+
+/* ─── 3e tour : logo, pastille CO2e, vitrine en petit ──────────────────────────────── */
+.proto-marque {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.proto-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+}
+
+.proto-titre {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.proto-titre abbr,
+.proto-accroche abbr {
+  text-decoration: none;
+}
+
+/* La pastille « ? » à côté de CO2e : un vrai bouton, assez grand pour un doigt (zone de 32 px). */
+.proto-pastille {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin: 0 0 0 4px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--marque);
+  color: var(--sur-marque);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1;
+  vertical-align: middle;
+  position: relative;
+  cursor: pointer;
+}
+
+/* Zone de toucher agrandie (34 px) sans grossir la pastille. */
+.proto-pastille::after {
+  position: absolute;
+  inset: -6px;
+  content: '';
+}
+
+/* La fenêtre est rangée dans le titre (prototype) : on annule le style du titre. Dans le jeu, la sortir du <h2>. */
+.proto-definition {
+  width: min(420px, calc(100vw - 32px));
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.proto-definition p {
+  margin: 0 0 14px;
+}
+
+.proto-note {
+  max-width: 44ch;
+  margin: 0;
+  color: var(--discret);
+  font-size: 12px;
+  text-align: left;
+}
+
+.proto-retour__entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.proto-vitrine--mini {
+  grid-template-columns: 40px auto 40px;
+  gap: 8px;
+  height: 64px;
+}
+
+.proto-vitrine--mini .proto-ruban {
+  height: 64px;
+  font-size: 34px;
+}
+
+.proto-vitrine--mini .proto-vitrine__vs {
+  width: 30px;
+  height: 30px;
+  font-size: 11px;
+}
+
+.proto-retour .proto-frise {
+  margin-top: 4px;
+}
+
+/* Petit téléphone : on resserre pour que tout le premier écran tienne sans défiler. */
+@media (max-height: 700px), (max-width: 360px) {
+  .proto-titre {
+    font-size: 23px;
+  }
+
+  .proto-vitrine:not(.proto-vitrine--mini) {
+    height: 104px;
+  }
+
+  .proto-vitrine:not(.proto-vitrine--mini) .proto-ruban {
+    height: 104px;
+    font-size: 48px;
+  }
+
+  .proto-accroche {
+    font-size: 15px;
+  }
 }

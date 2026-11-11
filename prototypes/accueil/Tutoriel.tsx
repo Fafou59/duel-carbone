@@ -1,26 +1,32 @@
-// PROTOTYPE JETABLE — « Comment ça marche ? » : deux formes de tutoriel, sur un même Duel fixe (steak contre TGV).
+// PROTOTYPE JETABLE — « Comment ça marche ? » : deux formes de tutoriel, sur un même Duel fixe (jean contre TGV).
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { CarteGeste, type EtatCarte } from '../../src/composants/CarteGeste.tsx'
 import { Icone } from '../../src/composants/Icone.tsx'
 import { TableauRepartition } from '../../src/composants/TableauRepartition.tsx'
 import { gesteCalcule } from '../../src/donnees/index.ts'
-import { plusEmetteur, rapport, type Duel } from '../../src/domaine/duel.ts'
+import { moinsEmetteur, plusEmetteur, rapport, type Duel } from '../../src/domaine/duel.ts'
 import { formaterMultiple, formaterRapport } from '../../src/domaine/format.ts'
-import '../../src/composants/TableauRepartition.css'
 
 export type FormeTutoriel = 'diaporama' | 'guide'
-export const FORMES: Record<FormeTutoriel, string> = { diaporama: 'Diaporama en 4 étapes', guide: 'Duel guidé' }
+export const FORMES: Record<FormeTutoriel, string> = { diaporama: 'Diaporama', guide: 'Duel guidé' }
 
-// Le Duel du tutoriel : un steak émet plus qu'un Paris–Marseille en TGV (×1,5), de quoi surprendre.
-const DUEL: Duel = { a: gesteCalcule('steak-boeuf'), b: gesteCalcule('paris-marseille-tgv') }
+// Le Duel du tutoriel : un jean émet 11 fois plus qu'un Paris–Marseille en TGV. Surprenant, et la Répartition
+// reste simple (fabrication, usage, fin de vie ; construction et carburant). Des choux et des carottes, exprès.
+const DUEL: Duel = { a: gesteCalcule('jean'), b: gesteCalcule('paris-marseille-tgv') }
 const GAGNANT = plusEmetteur(DUEL)
+const PERDANT = moinsEmetteur(DUEL)
+const FOIS = formaterMultiple(rapport(DUEL))
 
-function Cartes({ etat, onChoisir }: { etat: (id: string) => EtatCarte; onChoisir?: (id: string) => void }) {
-  const revele = etat(DUEL.a.id) !== 'question'
+/** Les deux cartes ; tant que rien n'est révélé, toucher une carte appelle onChoisir. */
+function Cartes({ choix, onChoisir }: { choix: string | null; onChoisir?: (id: string) => void }) {
+  const etat = (id: string): EtatCarte => (!choix ? 'question' : id === GAGNANT.id ? 'plus-emetteur' : id === choix ? 'mauvais-choix' : 'autre')
+  const carte = (geste: typeof DUEL.a, raccourci: string) => (
+    <CarteGeste geste={geste} etat={etat(geste.id)} choisie={choix === geste.id} raccourci={raccourci} onChoisir={() => onChoisir?.(geste.id)} />
+  )
   return (
     <div className="duel__cartes">
-      <CarteGeste geste={DUEL.a} etat={etat(DUEL.a.id)} choisie={false} raccourci="1" onChoisir={() => onChoisir?.(DUEL.a.id)} />
-      {revele ? (
+      {carte(DUEL.a, '1')}
+      {choix ? (
         <div className="duel__rapport">
           <b>{formaterRapport(rapport(DUEL))}</b>
           <small>fois plus</small>
@@ -30,63 +36,91 @@ function Cartes({ etat, onChoisir }: { etat: (id: string) => EtatCarte; onChoisi
           VS
         </div>
       )}
-      <CarteGeste geste={DUEL.b} etat={etat(DUEL.b.id)} choisie={false} raccourci="2" onChoisir={() => onChoisir?.(DUEL.b.id)} />
+      {carte(DUEL.b, '2')}
     </div>
   )
 }
 
-const revelee = (id: string): EtatCarte => (id === GAGNANT.id ? 'plus-emetteur' : 'autre')
-
 const Equivalence = () => (
   <p className="equivalence">
     <span aria-hidden="true">
-      1 <Icone id={GAGNANT.id} /> = {formaterMultiple(rapport(DUEL))} <Icone id={DUEL.b.id} />
+      1 <Icone id={GAGNANT.id} /> = {FOIS} <Icone id={PERDANT.id} />
     </span>
   </p>
 )
 
-// ─── Forme 1 : le diaporama ─────────────────────────────────────────────────────────────
-const ETAPES: { titre: string; visuel: ReactNode; texte: ReactNode }[] = [
-  {
-    titre: 'Deux gestes s’affrontent',
-    visuel: <Cartes etat={() => 'question'} />,
-    texte: 'Touche celui qui émet le plus de CO2e sur tout son cycle de vie. Pas de chrono : prends ton temps.',
-  },
-  {
-    titre: 'La réponse tombe',
-    visuel: <Cartes etat={revelee} />,
-    texte: (
-      <>
-        Les empreintes s’affichent, et le badge dit <b>combien de fois plus</b> : ici, le steak émet{' '}
-        {formaterMultiple(rapport(DUEL))} fois plus que le TGV. Surprenant&nbsp;?
-      </>
-    ),
-  },
-  {
-    titre: 'D’où viennent les émissions',
-    visuel: <TableauRepartition duel={DUEL} />,
-    texte: 'Le tableau détaille chaque étape, pour les deux gestes. Pour le steak, presque tout vient de l’élevage, pas du transport.',
-  },
-  {
-    titre: 'Pour aller plus loin',
-    visuel: <Equivalence />,
-    texte: (
-      <>
-        Sous chaque explication, les liens mènent aux fiches de l’ADEME, et <a href="./#sources">Sources et méthode</a> explique nos
-        calculs. Une Partie, c’est 10 Duels de plus en plus serrés ; un nouveau Duel du jour t’attend chaque jour à minuit.
-      </>
-    ),
-  },
-]
+const verdict = (choix: string | null) =>
+  !choix ? null : choix === GAGNANT.id ? <b>Bien vu&nbsp;! </b> : <b>Raté, et tu n’es pas le seul&nbsp;! </b>
 
+// ─── Forme 1 : le diaporama ─────────────────────────────────────────────────────────────
 function Diaporama({ onJouer }: { onJouer: () => void }) {
   const [etape, setEtape] = useState(0)
-  const { titre, visuel, texte } = ETAPES[etape]
-  const derniere = etape === ETAPES.length - 1
+  // Le joueur a envie de toucher une carte dès la première étape : on le laisse faire, et on passe à la réponse.
+  const [choix, setChoix] = useState<string | null>(null)
+  const choisir = (id: string) => {
+    setChoix(id)
+    setEtape(1)
+  }
+  const revele = choix ?? GAGNANT.id
+
+  const etapes: { titre: string; texte: ReactNode; visuel: ReactNode }[] = [
+    {
+      titre: 'Deux gestes s’affrontent',
+      texte: (
+        <>
+          Touche celui qui émet le plus de CO2e sur toute sa vie : fabrication, transport, usage, fin de vie. Pas de chrono.
+          <br />
+          Lis bien <b>la précision sous chaque geste</b> (un poids, une durée d’utilisation, un nombre de passagers) : elle
+          peut tout changer. Ici, un jean porté 5 ans, et un aller simple pour un passager.
+        </>
+      ),
+      visuel: <Cartes choix={null} onChoisir={choisir} />,
+    },
+    {
+      titre: 'La réponse tombe',
+      texte: (
+        <>
+          {verdict(choix)}Les empreintes s’affichent, et le badge dit <b>combien de fois plus</b> : le jean émet {FOIS} fois
+          plus que le Paris–Marseille en TGV.
+        </>
+      ),
+      visuel: <Cartes choix={revele} />,
+    },
+    {
+      titre: 'D’où viennent les émissions',
+      texte: 'Le tableau détaille chaque étape, pour les deux gestes. Pour le jean, presque tout vient de sa fabrication.',
+      visuel: <TableauRepartition duel={DUEL} />,
+    },
+    {
+      titre: 'Des choux et des carottes ?',
+      texte: (
+        <>
+          Un jean contre un train : oui, on compare parfois des choux et des carottes, et c’est voulu. Le but n’est pas de
+          choisir entre deux alternatives, mais de te forger des <b>ordres de grandeur</b> : savoir ce qui pèse lourd, et ce
+          qui ne pèse presque rien.
+        </>
+      ),
+      visuel: <Equivalence />,
+    },
+    {
+      titre: 'Pour aller plus loin',
+      texte: (
+        <>
+          Sous chaque explication, des liens mènent aux fiches de l’ADEME, et <a href="./#sources">Sources et méthode</a>{' '}
+          détaille nos calculs. Une Partie, c’est 10 Duels de plus en plus serrés ; un nouveau Duel du jour t’attend chaque
+          jour à minuit.
+        </>
+      ),
+      visuel: <Equivalence />,
+    },
+  ]
+
+  const { titre, texte, visuel } = etapes[etape]
+  const derniere = etape === etapes.length - 1
   return (
     <div className="proto-diaporama">
-      <p className="proto-diaporama__points" aria-label={`Étape ${etape + 1} sur ${ETAPES.length}`}>
-        {ETAPES.map((_, i) => (
+      <p className="proto-diaporama__points" aria-label={`Étape ${etape + 1} sur ${etapes.length}`}>
+        {etapes.map((_, i) => (
           <span key={i} className={i === etape ? 'actif' : ''} />
         ))}
       </p>
@@ -118,7 +152,6 @@ function Diaporama({ onJouer }: { onJouer: () => void }) {
 // ─── Forme 2 : le Duel guidé ────────────────────────────────────────────────────────────
 function Bulle({ children, onSuivant, libelle = 'Suivant →' }: { children: ReactNode; onSuivant?: () => void; libelle?: string }) {
   const element = useRef<HTMLDivElement>(null)
-  // Chaque nouvelle bulle se place sous les yeux du joueur.
   // Accolades obligatoires : scrollIntoView renvoie une promesse dans les navigateurs récents, et React prendrait
   // tout ce que renvoie l'effet pour une fonction de nettoyage.
   useEffect(() => {
@@ -137,15 +170,20 @@ function Bulle({ children, onSuivant, libelle = 'Suivant →' }: { children: Rea
 }
 
 function DuelGuide({ onJouer }: { onJouer: () => void }) {
-  // 0 : à toi de jouer ; 1 : la réponse ; 2 : le tableau ; 3 : les liens.
+  // 0 : à toi de jouer ; 1 : la réponse ; 2 : le tableau ; 3 : choux et carottes, et les liens.
   const [etape, setEtape] = useState(0)
   const [choix, setChoix] = useState<string | null>(null)
   return (
     <div className="proto-guide" data-etape={etape}>
-      {etape === 0 && <Bulle>À toi&nbsp;: lequel émet le plus de CO2e&nbsp;? Touche une carte.</Bulle>}
+      {etape === 0 && (
+        <Bulle>
+          À toi&nbsp;: lequel émet le plus de CO2e&nbsp;? Lis bien la précision sous chaque geste (durée, passagers…), elle
+          compte.
+        </Bulle>
+      )}
       <div className={etape <= 1 ? 'proto-guide__zone proto-guide__zone--focus' : 'proto-guide__zone'}>
         <Cartes
-          etat={(id) => (etape === 0 ? 'question' : id === GAGNANT.id ? 'plus-emetteur' : id === choix ? 'mauvais-choix' : 'autre')}
+          choix={choix}
           onChoisir={(id) => {
             if (etape > 0) return
             setChoix(id)
@@ -157,8 +195,7 @@ function DuelGuide({ onJouer }: { onJouer: () => void }) {
         <>
           {etape === 1 && (
             <Bulle onSuivant={() => setEtape(2)}>
-              <b>{choix === GAGNANT.id ? 'Bien vu !' : 'Raté, et tu n’es pas le seul !'}</b> La carte verte est celle qui émet le
-              plus. Le badge dit combien de fois plus&nbsp;: ici ×{formaterMultiple(rapport(DUEL))}.
+              {verdict(choix)}La carte verte émet le plus ; le badge dit combien de fois plus : ici ×{FOIS}.
             </Bulle>
           )}
           <Equivalence />
@@ -167,13 +204,14 @@ function DuelGuide({ onJouer }: { onJouer: () => void }) {
           </div>
           {etape === 2 && (
             <Bulle onSuivant={() => setEtape(3)}>
-              Le tableau montre <b>d’où viennent les émissions</b>, étape par étape. Pour le steak, presque tout vient de l’élevage.
+              Le tableau montre <b>d’où viennent les émissions</b>, étape par étape. Pour le jean, presque tout vient de sa
+              fabrication.
             </Bulle>
           )}
           {etape === 3 && (
             <Bulle onSuivant={onJouer} libelle="Jouer le Duel du jour">
-              Les liens <b>Sources ADEME</b>, juste au-dessus, ouvrent la fiche de chaque geste. Une Partie, c’est 10 Duels de plus en
-              plus serrés. À toi&nbsp;!
+              Un jean contre un train&nbsp;? Des choux et des carottes, exprès&nbsp;: le but est de te forger des ordres de
+              grandeur. Les liens <b>Sources ADEME</b>, juste au-dessus, ouvrent la fiche de chaque geste.
             </Bulle>
           )}
         </>
@@ -201,8 +239,8 @@ export function Tutoriel({ forme, ouvert, onFermer, onJouer }: { forme: FormeTut
           ✕
         </button>
       </div>
-      {/* key : rouvrir le tutoriel repart de la première étape. */}
-      {ouvert && (forme === 'diaporama' ? <Diaporama key="d" onJouer={jouer} /> : <DuelGuide key="g" onJouer={jouer} />)}
+      {/* Rouvrir le tutoriel repart de la première étape. */}
+      {ouvert && (forme === 'diaporama' ? <Diaporama onJouer={jouer} /> : <DuelGuide onJouer={jouer} />)}
     </dialog>
   )
 }

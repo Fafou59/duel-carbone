@@ -1,5 +1,5 @@
 // PROTOTYPE JETABLE (refonte de l'accueil, 2e tour) : ce qui est commun aux écrans. Branche jamais fusionnée.
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { OFFICIELLES } from '../../scripts/icones/officielles.ts'
 import { Icone } from '../../src/composants/Icone.tsx'
 import { INSTANTANE } from '../../src/donnees/index.ts'
@@ -27,36 +27,95 @@ const valeur = (slug: string) => INSTANTANE.equivalents.find((e) => e.slug === s
 const FRANCAIS = formaterEmpreinte(valeur('francais'), { co2e: false })
 const OBJECTIF_2050 = formaterEmpreinte(valeur('2050'), { co2e: false })
 
-/** Trois façons d'enchaîner les repères 9,1 t / 2 t vers le principe du jeu (« le jeu d'abord »). */
-export type Accroche = 't1' | 't2' | 't3'
+/** L'accroche retenue (« Savoir ce qui pèse »), en deux formulations. */
+export type Accroche = 'pese' | 'emet'
 export const ACCROCHES: Record<Accroche, string> = {
-  t1: '1 · Savoir ce qui pèse',
-  t2: '2 · Concrètement ?',
-  t3: '3 · Première étape',
+  pese: '« …savoir ce qui pèse »',
+  emet: '« …savoir ce qui émet le plus »',
 }
 
-export function TexteAccroche({ accroche }: { accroche: Accroche }) {
-  const jeu = <b>10 Duels par jour pour apprendre à connaître l’empreinte des gestes du quotidien.</b>
-  if (accroche === 't1')
-    return (
-      <p className="proto-accroche">
-        Un Français émet en moyenne {FRANCAIS} de CO2e par an ; l’objectif pour 2050, c’est {OBJECTIF_2050}. Pour s’en
-        rapprocher, il faut d’abord savoir ce qui pèse. {jeu}
-      </p>
-    )
-  if (accroche === 't2')
-    return (
-      <p className="proto-accroche">
-        {FRANCAIS} de CO2e par an et par Français en moyenne, {OBJECTIF_2050} visées en 2050. Mais concrètement, un
-        steak, un jean ou un trajet en train, ça pèse combien ? {jeu}
-      </p>
-    )
+/** Comment présenter le CO2e : titre court ou avec « de CO2e », définition par pastille ou par astérisque. */
+export type Titre = 'pastille' | 'court' | 'etoile'
+export const TITRES: Record<Titre, string> = {
+  pastille: '« …de CO2e ? » + pastille',
+  court: '« Lequel émet le plus ? »',
+  etoile: '« …de CO2e* ? » + note',
+}
+
+const DEFINITION = (
+  <>
+    <b>CO2e, ou « équivalent CO2 »</b> : l’unité qui additionne tous les gaz à effet de serre (CO2, méthane, protoxyde
+    d’azote…) selon leur effet sur le climat. Sur 100 ans, 1 kg de méthane réchauffe autant qu’environ 30 kg de CO2 :
+    il compte donc pour 30 kg CO2e. Les chiffres du jeu couvrent toute la vie d’un geste : fabrication, transport,
+    usage et fin de vie.
+  </>
+)
+
+/**
+ * « CO2e » suivi d'une pastille « ? » qui ouvre la définition. Un vrai bouton : le clavier et les lecteurs d'écran
+ * y accèdent, et la fenêtre se ferme avec Échap.
+ */
+export function Co2e() {
+  const fenetre = useRef<HTMLDialogElement>(null)
+  return (
+    <>
+      <abbr title="équivalent CO2">CO2e</abbr>
+      <button type="button" className="proto-pastille" aria-label="Qu’est-ce que le CO2e ?" onClick={() => fenetre.current?.showModal()}>
+        ?
+      </button>
+      <dialog ref={fenetre} className="proto-dialogue proto-definition" aria-label="Définition du CO2e">
+        <p>{DEFINITION}</p>
+        <button type="button" className="bouton" onClick={() => fenetre.current?.close()}>
+          Compris
+        </button>
+      </dialog>
+    </>
+  )
+}
+
+/** Le titre de la vitrine, selon la variante. */
+export function TitreVitrine({ titre }: { titre: Titre }) {
+  if (titre === 'court') return <h2 className="proto-titre">Lequel émet le plus&nbsp;?</h2>
+  if (titre === 'etoile') return <h2 className="proto-titre">Lequel émet le plus de CO2e*&nbsp;?</h2>
+  return (
+    <h2 className="proto-titre">
+      Lequel émet le plus de <Co2e />
+      &nbsp;?
+    </h2>
+  )
+}
+
+/** La note de bas d'écran de la variante « astérisque ». */
+export function NoteCo2e() {
+  return <p className="proto-note">* {DEFINITION}</p>
+}
+
+export function TexteAccroche({ accroche, titre }: { accroche: Accroche; titre: Titre }) {
+  // Avec le titre court, la définition se raccroche au premier « CO2e » de l'accroche.
+  const co2e = titre === 'court' ? <Co2e /> : 'CO2e'
   return (
     <p className="proto-accroche">
-      Objectif 2050 : passer de {FRANCAIS} à {OBJECTIF_2050} de CO2e par personne et par an. Première étape : repérer ce
-      qui compte vraiment. {jeu}
+      Un Français émet en moyenne {FRANCAIS} de {co2e} par an ; l’objectif pour 2050, c’est {OBJECTIF_2050}. Pour s’en
+      rapprocher, il faut d’abord savoir ce qui {accroche === 'pese' ? 'pèse' : 'émet le plus'}.{' '}
+      <b>10 Duels par jour pour apprendre à connaître l’empreinte des gestes du quotidien.</b>
     </p>
   )
+}
+
+/** Les deux colonnes d'icônes qui défilent en sens inverse autour d'un « VS » fixe. */
+export function Vitrine({ taille = 'grande' }: { taille?: 'grande' | 'mini' }) {
+  return (
+    <div className={`proto-vitrine proto-vitrine--${taille}`} aria-hidden="true">
+      <Ruban ids={COLONNE_GAUCHE} sens="bas" />
+      <span className="proto-vitrine__vs">VS</span>
+      <Ruban ids={COLONNE_DROITE} sens="haut" />
+    </div>
+  )
+}
+
+/** La frise du bas de page, qui défile de droite à gauche. */
+export function Frise() {
+  return <Ruban ids={[...COLONNE_DROITE, ...COLONNE_GAUCHE]} sens="gauche" className="proto-frise" />
 }
 
 /** Le temps qui reste avant minuit, heure de Paris (le prochain Duel du jour), mis à jour chaque seconde. */

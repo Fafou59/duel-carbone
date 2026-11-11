@@ -6,7 +6,8 @@ import '../../src/index.css'
 import '../../src/ecrans/EcranDuel.css'
 import '../../src/composants/ExplicationDuel.css'
 import './prototype.css'
-import { ACCROCHES, SITUATIONS, useSimulation, type Accroche, type Situation } from './commun.tsx'
+import { ACCROCHES, SITUATIONS, TITRES, useSimulation, type Accroche, type Situation, type Titre } from './commun.tsx'
+import { adresseLogo, ImageLogo, LOGOS, type Logo } from './logos.tsx'
 import { Nouveau } from './Nouveau.tsx'
 import { Retour } from './Retour.tsx'
 import { FORMES, Tutoriel, type FormeTutoriel } from './Tutoriel.tsx'
@@ -36,7 +37,9 @@ function Menu<T extends string>({ titre, valeur, options, onChange }: { titre: s
 
 function Prototype() {
   const [situation, setSituation] = useState<Situation>(() => lire('s', ['jamais', 'aujourdhui', 'hier'], 'jamais'))
-  const [accroche, setAccroche] = useState<Accroche>(() => lire('a', ['t1', 't2', 't3'], 't1'))
+  const [accroche, setAccroche] = useState<Accroche>(() => lire('a', ['pese', 'emet'], 'pese'))
+  const [titre, setTitre] = useState<Titre>(() => lire('c', ['pastille', 'court', 'etoile'], 'pastille'))
+  const [logo, setLogo] = useState<Logo>(() => lire('l', ['aucun', 'nuages', 'balance', 'eclair'], 'nuages'))
   const [forme, setForme] = useState<FormeTutoriel>(() => lire('f', ['diaporama', 'guide'], 'diaporama'))
   const [theme, setTheme] = useState<Theme>(() => lire('t', ['systeme', 'clair', 'sombre'], 'systeme'))
   const [tutoriel, setTutoriel] = useState(false)
@@ -44,11 +47,14 @@ function Prototype() {
 
   useEffect(() => {
     const adresse = new URL(location.href)
-    for (const [cle, valeur] of Object.entries({ s: situation, a: accroche, f: forme, t: theme })) adresse.searchParams.set(cle, valeur)
+    for (const [cle, valeur] of Object.entries({ s: situation, a: accroche, c: titre, l: logo, f: forme, t: theme })) adresse.searchParams.set(cle, valeur)
     history.replaceState(null, '', adresse)
     if (theme === 'systeme') delete document.documentElement.dataset.theme
     else document.documentElement.dataset.theme = theme
-  }, [situation, accroche, forme, theme])
+    // L'icône de l'onglet suit le logo choisi.
+    const icone = document.querySelector<HTMLLinkElement>('link[rel="icon"]')
+    if (icone) icone.href = logo === 'aucun' ? '/favicon.svg' : adresseLogo(logo)
+  }, [situation, accroche, titre, logo, forme, theme])
 
   const actions = {
     onJouer: simuler('lancerait le Duel du jour'),
@@ -60,6 +66,8 @@ function Prototype() {
     <>
       <div className="proto-commandes">
         <Menu titre="Joueur" valeur={situation} options={SITUATIONS} onChange={setSituation} />
+        <Menu titre="Logo" valeur={logo} options={LOGOS} onChange={setLogo} />
+        <Menu titre="Titre" valeur={titre} options={TITRES} onChange={setTitre} />
         <Menu titre="Accroche" valeur={accroche} options={ACCROCHES} onChange={setAccroche} />
         <Menu titre="Tutoriel" valeur={forme} options={FORMES} onChange={setForme} />
         <Menu titre="Thème" valeur={theme} options={{ systeme: 'Appareil', clair: 'Clair', sombre: 'Sombre' }} onChange={setTheme} />
@@ -67,11 +75,14 @@ function Prototype() {
 
       <div className="page">
         <header className="entete">
-          <h1>Duel Carbone</h1>
+          <h1 className="proto-marque">
+            <ImageLogo logo={logo} />
+            Duel Carbone
+          </h1>
         </header>
         <main>
           {situation === 'jamais' ? (
-            <Nouveau accroche={accroche} {...actions} />
+            <Nouveau accroche={accroche} titre={titre} {...actions} />
           ) : (
             <Retour key={situation} situation={situation} onPartager={simuler('ouvrirait le partage')} {...actions} />
           )}
