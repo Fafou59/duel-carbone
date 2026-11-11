@@ -15,6 +15,7 @@
     "calibrer": "node scripts/calibrer.ts && node scripts/calendrier.ts",
     "calendrier": "node scripts/calendrier.ts",
     "icones": "node scripts/icones/index.ts",
+    "logo": "node scripts/logo.ts",
     "analyse:paires": "node scripts/analyse-paires.ts"
   },
   "dependencies": {
