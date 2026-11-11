@@ -8,7 +8,7 @@ Steak ou avocat ? Livraison à domicile ou voiture jusqu'au magasin ? À chaque 
 
 > 🚧 **En cours de construction.** Le cadrage, le cahier des charges et le prototype des écrans sont terminés ; le développement de la v1 commence.
 >
-> 🌐 Suivre l'avancement en ligne : **https://duel-carbone.netlify.app**
+> 🌐 Suivre l'avancement en ligne : **https://duel-carbone.fabien-lesage.workers.dev**
 
 ## Pourquoi ce projet
 

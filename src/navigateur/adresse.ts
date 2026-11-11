@@ -5,7 +5,7 @@
  * - Un lien <a href="#sources"> change l'ancre sans recharger la page : le navigateur prévient
  *   par l'événement « hashchange », et React réaffiche la bonne page.
  * - Le bouton « Retour » du téléphone et les liens partagés fonctionnent d'eux-mêmes.
- * - Netlify n'a rien à configurer : le serveur reçoit toujours la même page, l'ancre ne lui est jamais envoyée.
+ * - L'hébergeur n'a rien à configurer : le serveur reçoit toujours la même page, l'ancre ne lui est jamais envoyée.
  */
 import { useSyncExternalStore } from 'react'
 

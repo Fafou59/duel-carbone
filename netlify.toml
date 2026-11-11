@@ -1,7 +1,0 @@
-# Configuration de Netlify, versionnée avec le code (plutôt que réglée à la main dans l'interface).
-[build]
-  command = "npm run build"
-  publish = "dist"
-
-[build.environment]
-  NODE_VERSION = "26"
