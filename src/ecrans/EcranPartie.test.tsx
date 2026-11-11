@@ -82,6 +82,16 @@ describe('Une Partie de 10 Duels', () => {
     expect(screen.getByText('Duel 2/10')).toBeInTheDocument()
   })
 
+  it('consomme la touche Entrée qui passe au Duel suivant : elle ne déclenche rien d’autre (Firefox)', () => {
+    // Firefox active un bouton avec Entrée un instant après l'appui (événement « keypress ») :
+    // sans cela, l'Entrée qui ouvre un Duel thématique « cliquait » aussitôt « Au Duel ! » et fermait l'annonce.
+    render(<EcranPartie duels={DUELS} onRejouer={() => {}} />)
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(DUELS[0].a.titre) }))
+    const nonAnnulee = fireEvent.keyDown(document.body, { key: 'Enter' })
+    expect(screen.getByText('Duel 2/10')).toBeInTheDocument()
+    expect(nonAnnulee).toBe(false)
+  })
+
   it('mène au score avec Entrée après le dernier Duel', () => {
     render(<EcranPartie duels={DUELS} onRejouer={() => {}} />)
     for (let i = 0; i < 9; i++) jouerDuel(i, true)
