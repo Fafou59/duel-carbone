@@ -146,6 +146,10 @@ export function EcranSources() {
           Sans cookie, sans compte. Ton record et les derniers Duels joués (pour ne pas te reposer les mêmes) sont
           gardés dans ton navigateur, sur cet appareil. Ils ne sont envoyés nulle part.
         </p>
+        <p>
+          Le jeu est hébergé par Cloudflare : comme tout hébergeur, il reçoit les demandes de ton navigateur (dont ton
+          adresse IP) pour t'envoyer les pages du jeu.
+        </p>
       </section>
 
       <section>

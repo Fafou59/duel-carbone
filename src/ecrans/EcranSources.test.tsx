@@ -58,6 +58,11 @@ describe('Page Sources et méthode', () => {
     )
   })
 
+  it('nomme l’hébergeur, qui reçoit les demandes du navigateur comme tout hébergeur', () => {
+    render(<EcranSources />)
+    expect(screen.getByText(/Le jeu est hébergé par Cloudflare/)).toHaveTextContent(/adresse IP/)
+  })
+
   it('crédite le jeu d’icônes, comme le demande sa licence', () => {
     render(<EcranSources />)
     expect(screen.getByRole('link', { name: /Fluent Emoji/ })).toHaveAttribute(

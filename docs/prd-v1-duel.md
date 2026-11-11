@@ -112,8 +112,8 @@ La référence visuelle est la variante **A2** du prototype ; le détail et les 
 ### Pile technique
 - **React + TypeScript + Vite**, site 100 % statique, sans serveur.
 - **PWA** (installable, utilisable hors ligne) grâce à un module dédié de Vite.
-- **Navigation sans routeur** : la page Sources et méthode a pour adresse l'ancre `#sources` (`src/navigateur/adresse.ts`). Pas de bibliothèque ni de réglage Netlify ; le bouton « Retour » et les liens partagés fonctionnent, et une Partie en cours reste intacte pendant la lecture des sources.
-- Code sur **GitHub** (dépôt public), hébergement sur **Netlify** avec une prévisualisation automatique à chaque modification proposée, domaine **duelcarbone.fr** acheté à la mise en ligne.
+- **Navigation sans routeur** : la page Sources et méthode a pour adresse l'ancre `#sources` (`src/navigateur/adresse.ts`). Pas de bibliothèque ni de réglage chez l'hébergeur ; le bouton « Retour » et les liens partagés fonctionnent, et une Partie en cours reste intacte pendant la lecture des sources.
+- Code sur **GitHub** (dépôt public), hébergement chez **Cloudflare** (Workers, fichiers statiques : gratuits et sans limite de trafic) avec un aperçu automatique pour chaque branche, domaine **duelcarbone.fr** acheté à la mise en ligne. Netlify, utilisé jusqu'au 2026-11-11, a été abandonné quand ses crédits gratuits ont bloqué la mise en production (ADR 0003).
 - Mesure d'audience avec **GoatCounter**, sans cookie.
 
 ### Les modules principaux
