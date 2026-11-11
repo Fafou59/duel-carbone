@@ -4,6 +4,7 @@ import { GESTES_CALCULES } from '../donnees/index.ts'
 import { plusEmetteur, moinsEmetteur } from '../domaine/duel.ts'
 import { hasardReproductible } from '../domaine/hasard.ts'
 import { genererPartie } from '../domaine/generateur.ts'
+import { PROTECTION_DU_FOND_MS } from '../composants/AnnonceThematique.tsx'
 import { EcranPartie } from './EcranPartie.tsx'
 
 // Une Partie reproductible : toujours les mêmes 10 Duels, tirés avec la graine 3.
@@ -140,6 +141,26 @@ describe('Un Duel thématique dans la Partie', () => {
     expect(annonce.getByText(TEXTES.titre)).toBeInTheDocument()
     expect(annonce.getByText(TEXTES.accroche)).toBeInTheDocument()
     expect(annonce.queryByText(TEXTES.texte)).not.toBeInTheDocument()
+  })
+
+  it('ne se ferme pas sur un toucher du fond pendant son apparition (un doigt encore en route vers les cartes)', () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    try {
+      render(<EcranPartie duels={AVEC_THEMATIQUE} onRejouer={() => {}} />)
+      jouerDuel(0, true)
+      jouerDuel(1, true)
+      const annonce = screen.getByRole('dialog', { name: 'Duel thématique' })
+      // Juste après l'ouverture, un toucher sur le fond est ignoré : l'annonce reste.
+      vi.advanceTimersByTime(300)
+      fireEvent.click(annonce)
+      expect(annonce).toHaveAttribute('open')
+      // Une fois la carte bien visible, toucher le fond la ferme, comme prévu.
+      vi.advanceTimersByTime(PROTECTION_DU_FOND_MS)
+      fireEvent.click(annonce)
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('explique le piège après la réponse, avec son texte rédigé à la main', () => {

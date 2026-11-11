@@ -12,6 +12,12 @@ type Props = {
 }
 
 /**
+ * Durée pendant laquelle un toucher sur le fond ne ferme pas l'annonce : le temps qu'elle apparaisse
+ * (0,3 s d'attente puis 0,65 s de retournement). « Au Duel ! » et Échap la ferment à tout moment.
+ */
+export const PROTECTION_DU_FOND_MS = 1200
+
+/**
  * L'annonce d'un Duel thématique, que le joueur découvre en arrivant dessus.
  * Elle ne donne pas la réponse : seulement les deux Gestes et l'idée qu'il y a quelque chose à apprendre.
  *
@@ -21,6 +27,7 @@ type Props = {
 export function AnnonceThematique({ duel, barre, onFermer }: Props) {
   const boite = useRef<HTMLDialogElement>(null)
   const bouton = useRef<HTMLButtonElement>(null)
+  const ouverteA = useRef(0)
 
   useEffect(() => {
     const dialogue = boite.current
@@ -29,14 +36,19 @@ export function AnnonceThematique({ duel, barre, onFermer }: Props) {
     const bas = barre.current?.getBoundingClientRect().bottom ?? 0
     dialogue.style.setProperty('--debut-voile', `${Math.max(0, bas + 6)}px`)
     if (!dialogue.open) dialogue.showModal()
+    ouverteA.current = Date.now()
     bouton.current?.focus()
   }, [barre])
 
   const fermer = () => boite.current?.close()
 
   // Un clic dont la cible est la balise <dialog> elle-même (et non son contenu) est un clic sur le fond.
+  // Pendant l'apparition de la carte, on l'ignore : sur téléphone, le joueur qui vient de toucher
+  // « Duel suivant » touche souvent aussitôt les cartes, et fermerait l'annonce sans l'avoir vue.
   const surClic = (evenement: MouseEvent<HTMLDialogElement>) => {
-    if (evenement.target === evenement.currentTarget) fermer()
+    if (evenement.target !== evenement.currentTarget) return
+    if (Date.now() - ouverteA.current < PROTECTION_DU_FOND_MS) return
+    fermer()
   }
 
   return (
