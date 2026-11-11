@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { afterEach, describe, expect, it } from 'vitest'
 import App from './App'
 import { creerMemoire, type Stockage } from './navigateur/memoire.ts'
 
@@ -47,6 +47,56 @@ describe('Application : mémoire locale', () => {
     render(<App memoire={creerMemoire(null)} />)
     expect(screen.queryByText(/record/i)).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Jouer' }))
+    expect(screen.getByText('Duel 1/10')).toBeInTheDocument()
+  })
+})
+
+describe('Application : accueil', () => {
+  it('rassure : sans cookie, sans compte', () => {
+    render(<App />)
+    expect(screen.getByText(/sans cookie, sans compte/i)).toBeInTheDocument()
+  })
+
+  it('mène à la page Sources et méthode', () => {
+    render(<App />)
+    expect(screen.getAllByRole('link', { name: 'Sources et méthode' })[0]).toHaveAttribute('href', '#sources')
+  })
+})
+
+describe('Application : page Sources et méthode', () => {
+  // Chaque test repart de l'accueil : on efface l'ancre laissée par le précédent.
+  afterEach(() => {
+    window.location.hash = ''
+  })
+
+  it("s'ouvre directement depuis son adresse (#sources)", () => {
+    window.location.hash = '#sources'
+    render(<App />)
+    expect(screen.getByRole('heading', { level: 2, name: 'Sources et méthode' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Jouer' })).not.toBeInTheDocument()
+    expect(document.title).toBe('Sources et méthode · Duel Carbone')
+  })
+
+  it("s'ouvre d'un clic, puis ramène à l'accueil", async () => {
+    render(<App />)
+    fireEvent.click(screen.getAllByRole('link', { name: 'Sources et méthode' })[0])
+    expect(await screen.findByRole('heading', { level: 2, name: 'Sources et méthode' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('link', { name: /Retour au jeu/ }))
+    expect(await screen.findByRole('button', { name: 'Jouer' })).toBeInTheDocument()
+    expect(document.title).toBe('Duel Carbone')
+  })
+
+  it('garde la Partie en cours pendant la lecture des sources', async () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'Jouer' }))
+    // Le joueur répond au Duel 1 : la révélation s'affiche.
+    fireEvent.click(within(screen.getByRole('region', { name: 'Lequel émet le plus ?' })).getAllByRole('button')[0])
+    const suivant = screen.getByRole('button', { name: 'Duel suivant →' })
+    fireEvent.click(screen.getByRole('link', { name: 'Sources et méthode' }))
+    await screen.findByRole('heading', { level: 2, name: 'Sources et méthode' })
+    expect(suivant).not.toBeVisible()
+    fireEvent.click(screen.getByRole('link', { name: /Retour au jeu/ }))
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Duel suivant →' })).toBeVisible())
     expect(screen.getByText('Duel 1/10')).toBeInTheDocument()
   })
 })

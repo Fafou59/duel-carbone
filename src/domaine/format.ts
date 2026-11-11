@@ -47,3 +47,15 @@ export function queDevant(texte: string): string {
 export function formaterMultiple(multiple: number): string {
   return nombre(multiple, 1)
 }
+
+/**
+ * Une date « AAAA-MM-JJ » (celle de l'Instantané) en toutes lettres : « 9 novembre 2026 », « 1er janvier 2027 ».
+ * Le fuseau UTC évite qu'un joueur à l'ouest de Greenwich voie la veille.
+ */
+export function formaterDate(iso: string): string {
+  const date = new Date(`${iso}T00:00:00Z`)
+  const texte = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+    .format(date)
+  // En français, on écrit « 1er » pour le premier jour du mois.
+  return date.getUTCDate() === 1 ? texte.replace(/^1 /, '1er ') : texte
+}

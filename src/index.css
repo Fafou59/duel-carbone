@@ -85,6 +85,13 @@ a {
   font-weight: 700;
 }
 
+.accueil__confiance {
+  margin: 0;
+  max-width: 52ch;
+  color: var(--discret);
+  font-size: 15px;
+}
+
 .pied {
   margin-top: 32px;
   font-size: 14px;
