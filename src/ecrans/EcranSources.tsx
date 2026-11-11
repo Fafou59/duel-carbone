@@ -159,6 +159,11 @@ export function EcranSources() {
           appareil. Ils ne sont envoyés nulle part.
         </p>
         <p>
+          Pour que le jeu marche sans réseau (et s'installe sur ton écran d'accueil), ton navigateur garde aussi une
+          copie de ses fichiers, moins d'1 Mo : le code, les icônes et le calendrier des Duels du jour. Une nouvelle
+          version du jeu la remplace d'elle-même, jamais en pleine Partie.
+        </p>
+        <p>
           Rien ne part sans toi : quand tu défies tes proches, c'est toi qui choisis où envoyer le texte. Il ne contient
           que ton score, une case verte ou rouge par Duel et le lien du jeu, jamais le nom des gestes : il ne gâche pas
           la Partie des autres.
