@@ -1,0 +1,429 @@
+/* PROTOTYPE JETABLE — styles des trois variantes d'accueil. */
+
+/* Thème forcé par le sélecteur (sinon, celui de l'appareil). Mêmes valeurs que src/index.css. */
+:root[data-theme='clair'] {
+  color-scheme: light;
+  --fond: #f6f4ee;
+  --carte: #ffffff;
+  --encre: #1d2320;
+  --discret: #5d665f;
+  --ligne: #d9d6cc;
+  --marque: #1f6f50;
+  --sur-marque: #ffffff;
+  --bon: #1b7a45;
+  --mauvais: #b3261e;
+}
+
+:root[data-theme='sombre'] {
+  color-scheme: dark;
+  --fond: #141816;
+  --carte: #1e2421;
+  --encre: #ecefe9;
+  --discret: #a7b0a8;
+  --ligne: #333b36;
+  --marque: #4fbf8c;
+  --sur-marque: #0d1411;
+  --bon: #5fd08f;
+  --mauvais: #ff8a80;
+}
+
+/* La barre de réglages du prototype (n'existera pas dans le jeu). */
+.proto-commandes {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  padding: 6px 16px;
+  background: #2a2f2c;
+  color: #fff;
+  font-size: 13px;
+}
+
+.proto-commandes label {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  font-size: 11px;
+}
+
+.proto-commandes select {
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+  font-size: 12px;
+}
+
+/* ─── Briques communes ─────────────────────────────────────────────────────────────── */
+.proto-a,
+.proto-b,
+.proto-c {
+  display: grid;
+  gap: 16px;
+  padding-bottom: 24px;
+}
+
+.proto-a h2,
+.proto-b h2,
+.proto-c h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.proto-gros {
+  padding: 16px 28px;
+  font-size: 19px;
+}
+
+.proto-slogan {
+  margin: 0;
+  color: var(--marque);
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: 0.02em;
+}
+
+.proto-discret {
+  margin: 0;
+  color: var(--discret);
+  font-size: 14px;
+}
+
+.proto-carte {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  padding: 18px;
+  border: 3px solid var(--ligne);
+  border-radius: 20px;
+  background: var(--carte);
+}
+
+.proto-carte p {
+  margin: 0;
+}
+
+.proto-carte--jour {
+  border-color: var(--marque);
+}
+
+.proto-etiquette {
+  color: var(--marque);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.proto-score {
+  margin: 0;
+  font-size: 56px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.proto-score span {
+  font-size: 24px;
+}
+
+.proto-grille {
+  display: flex;
+  gap: 4px;
+  margin: 0;
+}
+
+.proto-grille span {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+}
+
+.proto-grille .bon {
+  background: var(--bon);
+}
+
+.proto-grille .mauvais {
+  background: var(--mauvais);
+}
+
+.proto-libre {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+}
+
+.proto-libre p {
+  margin: 0;
+  font-weight: 700;
+}
+
+.proto-climat {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--marque) 10%, var(--carte));
+}
+
+.proto-climat p {
+  margin: 0;
+}
+
+.proto-climat em {
+  font-style: italic;
+}
+
+.proto-climat__chute {
+  font-weight: 800;
+}
+
+/* Jauge : la barre pleine = 9,1 t aujourd'hui ; la barre verte = la part de l'objectif 2050. */
+.proto-jauge {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.proto-jauge > span {
+  display: block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.proto-jauge__aujourdhui {
+  background: var(--difficile);
+  color: #fff;
+}
+
+.proto-jauge__objectif {
+  min-width: max-content;
+  background: var(--marque);
+  color: var(--sur-marque);
+}
+
+.proto-frise {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin: 0;
+  font-size: 34px;
+}
+
+.proto-sources {
+  margin: 0;
+  color: var(--discret);
+  font-size: 14px;
+}
+
+.proto-lien-bouton {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--marque);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.proto-toast {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  left: 16px;
+  z-index: 20;
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--encre);
+  color: var(--fond);
+  font-weight: 700;
+  text-align: center;
+}
+
+/* ─── A · Essaie tout de suite ─────────────────────────────────────────────────────── */
+.proto-a__accroche {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.proto-a__hier {
+  margin: 0;
+  font-size: 18px;
+}
+
+.proto-a__commentaire {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: var(--carte);
+}
+
+.proto-a__commentaire p {
+  margin: 0;
+}
+
+.proto-a__verdict {
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.proto-a__jour,
+.proto-a__resultat {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+}
+
+.proto-a__jour p,
+.proto-a__resultat p {
+  margin: 0;
+}
+
+/* ─── B · La vitrine ───────────────────────────────────────────────────────────────── */
+.proto-b__vitrine {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  text-align: center;
+}
+
+.proto-b__duo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  font-size: 64px;
+}
+
+.proto-b__duo span {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: var(--encre);
+  color: var(--fond);
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.proto-b .proto-b__titre {
+  font-size: 30px;
+  font-weight: 900;
+}
+
+.proto-b__accroche {
+  max-width: 34ch;
+  margin: 0;
+  font-size: 17px;
+}
+
+.proto-b__hier {
+  font-size: 15px;
+}
+
+.proto-tutoriel {
+  max-width: min(420px, calc(100vw - 32px));
+  border: 0;
+  border-radius: 20px;
+  background: var(--carte);
+  color: var(--encre);
+}
+
+.proto-tutoriel::backdrop {
+  background: rgb(0 0 0 / 50%);
+}
+
+.proto-tutoriel ol {
+  display: grid;
+  gap: 10px;
+  padding-left: 22px;
+}
+
+/* ─── C · Le rendez-vous quotidien ─────────────────────────────────────────────────── */
+.proto-c__date {
+  margin: 0;
+  color: var(--discret);
+  font-weight: 700;
+}
+
+.proto-c__date::first-letter {
+  text-transform: uppercase;
+}
+
+.proto-c__bulle {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: var(--thematique);
+  color: #fff;
+}
+
+.proto-c__bulle p {
+  margin: 0;
+}
+
+.proto-c__bulle .proto-lien-bouton {
+  color: #fff;
+}
+
+/* La pointe de la bulle, vers la carte du jour. */
+.proto-c__bulle::after {
+  position: absolute;
+  bottom: -8px;
+  left: 28px;
+  width: 16px;
+  height: 16px;
+  background: var(--thematique);
+  transform: rotate(45deg);
+  content: '';
+}
+
+.proto-c__grand {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.proto-c__rebours {
+  color: var(--discret);
+  font-size: 14px;
+}
+
+.proto-c__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.proto-c__stats li {
+  display: grid;
+  gap: 2px;
+  padding: 10px;
+  border: 2px solid var(--ligne);
+  border-radius: 14px;
+  text-align: center;
+}
+
+.proto-c__stats b {
+  font-size: 22px;
+}
+
+.proto-c__stats span {
+  color: var(--discret);
+  font-size: 12px;
+}
