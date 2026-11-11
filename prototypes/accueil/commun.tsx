@@ -1,5 +1,6 @@
-// PROTOTYPE JETABLE (refonte de l'accueil) : ce qui est commun aux trois variantes. Branche jamais fusionnée.
+// PROTOTYPE JETABLE (refonte de l'accueil, 2e tour) : ce qui est commun aux écrans. Branche jamais fusionnée.
 import { useEffect, useState } from 'react'
+import { OFFICIELLES } from '../../scripts/icones/officielles.ts'
 import { Icone } from '../../src/composants/Icone.tsx'
 import { INSTANTANE } from '../../src/donnees/index.ts'
 import { formaterEmpreinte } from '../../src/domaine/format.ts'
@@ -13,32 +14,60 @@ export const SITUATIONS: Record<Situation, string> = {
   hier: 'Joué hier, pas encore aujourd’hui',
 }
 
-/** Données simulées : le Duel du jour n° 12, un score de 7/10 aujourd'hui, 8/10 hier, une série de 3 jours. */
+/** Données simulées : le Duel du jour n° 12, 7/10 aujourd'hui, 8/10 hier, une série de 3 jours avant aujourd'hui. */
 export const SIMULATION = {
   numero: 12,
   aujourdhui: { score: 7, reponses: [true, true, true, false, true, true, false, true, false, true] },
   hier: { score: 8 },
   serie: 3,
-  meilleureSerie: 5,
-  recordLibre: 9,
 }
 
-/** Les deux repères climat, lus dans l'Instantané ADEME (jamais écrits à la main). */
+/** Les repères climat, lus dans l'Instantané ADEME (jamais écrits à la main). */
 const valeur = (slug: string) => INSTANTANE.equivalents.find((e) => e.slug === slug)?.valeur ?? 0
-export const FRANCAIS = formaterEmpreinte(valeur('francais'), { co2e: false })
-export const OBJECTIF_2050 = formaterEmpreinte(valeur('2050'), { co2e: false })
-export const PART_OBJECTIF = valeur('2050') / valeur('francais')
+const FRANCAIS = formaterEmpreinte(valeur('francais'), { co2e: false })
+const OBJECTIF_2050 = formaterEmpreinte(valeur('2050'), { co2e: false })
+
+/** Trois façons d'enchaîner les repères 9,1 t / 2 t vers le principe du jeu (« le jeu d'abord »). */
+export type Accroche = 't1' | 't2' | 't3'
+export const ACCROCHES: Record<Accroche, string> = {
+  t1: '1 · Savoir ce qui pèse',
+  t2: '2 · Concrètement ?',
+  t3: '3 · Première étape',
+}
+
+export function TexteAccroche({ accroche }: { accroche: Accroche }) {
+  const jeu = <b>10 Duels par jour pour apprendre à connaître l’empreinte des gestes du quotidien.</b>
+  if (accroche === 't1')
+    return (
+      <p className="proto-accroche">
+        Un Français émet en moyenne {FRANCAIS} de CO2e par an ; l’objectif pour 2050, c’est {OBJECTIF_2050}. Pour s’en
+        rapprocher, il faut d’abord savoir ce qui pèse. {jeu}
+      </p>
+    )
+  if (accroche === 't2')
+    return (
+      <p className="proto-accroche">
+        {FRANCAIS} de CO2e par an et par Français en moyenne, {OBJECTIF_2050} visées en 2050. Mais concrètement, un
+        steak, un jean ou un trajet en train, ça pèse combien ? {jeu}
+      </p>
+    )
+  return (
+    <p className="proto-accroche">
+      Objectif 2050 : passer de {FRANCAIS} à {OBJECTIF_2050} de CO2e par personne et par an. Première étape : repérer ce
+      qui compte vraiment. {jeu}
+    </p>
+  )
+}
 
 /** Le temps qui reste avant minuit, heure de Paris (le prochain Duel du jour), mis à jour chaque seconde. */
 export function useCompteARebours(): string {
   const calculer = () => {
-    const maintenant = new Date()
-    const paris = new Date(maintenant.toLocaleString('en-US', { timeZone: 'Europe/Paris' }))
+    const paris = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Paris' }))
     const minuit = new Date(paris)
     minuit.setHours(24, 0, 0, 0)
     const s = Math.floor((minuit.getTime() - paris.getTime()) / 1000)
     const deux = (n: number) => String(n).padStart(2, '0')
-    return `${deux(Math.floor(s / 3600))} h ${deux(Math.floor((s % 3600) / 60))} min ${deux(s % 60)} s`
+    return `${Math.floor(s / 3600)} h ${deux(Math.floor((s % 3600) / 60))} min ${deux(s % 60)} s`
   }
   const [reste, setReste] = useState(calculer)
   useEffect(() => {
@@ -64,33 +93,6 @@ export function useSimulation() {
   return { simuler: (texte: string) => () => setMessage(`Prototype : ${texte}`), bulle }
 }
 
-/** « No Shame, Just Game » : toujours à la fin, près du bouton Jouer. */
-export function Slogan() {
-  return <p className="proto-slogan">No Shame, Just Game.</p>
-}
-
-/** Les repères climat : la phrase validée par Fabien, avec une jauge 9,1 t → 2 t. */
-export function ReperesClimat({ jauge = true }: { jauge?: boolean }) {
-  return (
-    <div className="proto-climat">
-      <p>
-        Un Français émet <em>en moyenne</em> <b>{FRANCAIS}</b> de CO2e par an. Objectif 2050 : <b>{OBJECTIF_2050}</b>.
-      </p>
-      {jauge && (
-        <div className="proto-jauge" aria-hidden="true">
-          <span className="proto-jauge__aujourdhui">
-            <span>Aujourd’hui · {FRANCAIS}</span>
-          </span>
-          <span className="proto-jauge__objectif" style={{ width: `${PART_OBJECTIF * 100}%` }}>
-            <span>2050 · {OBJECTIF_2050}</span>
-          </span>
-        </div>
-      )}
-      <p className="proto-climat__chute">Spoiler : ce ne sont pas tes e‑mails. Devine ce qui pèse vraiment.</p>
-    </div>
-  )
-}
-
 /** La grille du résultat du jour, comme dans le texte de partage (#45). */
 export function GrilleDuJour() {
   return (
@@ -102,22 +104,43 @@ export function GrilleDuJour() {
   )
 }
 
-/** Une rangée d'icônes de Gestes, pour illustrer. */
-export function Frise({ ids }: { ids: string[] }) {
+/** Uniquement des icônes Fluent natives (pas les dessins maison à badge), mélangées une fois pour toutes. */
+// Mélange fixe : on prend un Geste sur 7 en tournant, pour alterner aliments, objets et trajets.
+const IDS = Object.keys(OFFICIELLES)
+const NATIVES = IDS.map((_, i) => IDS[(i * 7) % IDS.length]).filter((id, i, liste) => liste.indexOf(id) === i)
+const moitie = Math.ceil(NATIVES.length / 2)
+export const COLONNE_GAUCHE = NATIVES.slice(0, moitie)
+export const COLONNE_DROITE = NATIVES.slice(moitie)
+
+/**
+ * Un ruban d'icônes qui défile en boucle. La liste est écrite deux fois : quand la première moitié est sortie,
+ * l'animation repart du début sans à-coup. Arrêté si l'appareil demande moins d'animations.
+ */
+export function Ruban({ ids, sens, className }: { ids: string[]; sens: 'haut' | 'bas' | 'gauche'; className?: string }) {
   return (
-    <p className="proto-frise" aria-hidden="true">
-      {ids.map((id) => (
-        <Icone key={id} id={id} />
-      ))}
-    </p>
+    <div className={`proto-ruban proto-ruban--${sens} ${className ?? ''}`} aria-hidden="true">
+      <div className="proto-ruban__piste">
+        {[...ids, ...ids].map((id, i) => (
+          <Icone key={i} id={id} />
+        ))}
+      </div>
+    </div>
   )
 }
 
-export function LienSources() {
+/** Le bas de page : Sources et méthode, et (pour un joueur qui revient) le lien vers le tutoriel. */
+export function PiedAccueil({ onTutoriel }: { onTutoriel?: () => void }) {
   return (
     <p className="proto-sources">
-      Chiffres de l’ADEME (Impact CO2), calcul expliqué dans <a href="./#sources">Sources et méthode</a>. Sans cookie,
-      sans compte.
+      {onTutoriel && (
+        <>
+          <button type="button" className="proto-lien-bouton proto-lien-bouton--discret" onClick={onTutoriel}>
+            Comment ça marche&nbsp;?
+          </button>
+          {' · '}
+        </>
+      )}
+      <a href="./#sources">Sources et méthode</a> · Chiffres de l’ADEME, sans cookie ni compte.
     </p>
   )
 }

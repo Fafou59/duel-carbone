@@ -1,76 +1,68 @@
-// PROTOTYPE JETABLE — refonte de l'accueil : trois variantes, trois situations du joueur, clair ou sombre.
+// PROTOTYPE JETABLE — refonte de l'accueil, 2e tour : vitrine pour un nouveau joueur, tableau de bord pour celui qui revient.
 // Branche prototype/accueil, jamais fusionnée. Page : /prototype-accueil.html
 import { StrictMode, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import '../../src/index.css'
 import '../../src/ecrans/EcranDuel.css'
+import '../../src/composants/ExplicationDuel.css'
 import './prototype.css'
-import { SITUATIONS, type Situation } from './commun.tsx'
-import { VarianteA } from './VarianteA.tsx'
-import { VarianteB } from './VarianteB.tsx'
-import { VarianteC } from './VarianteC.tsx'
+import { ACCROCHES, SITUATIONS, useSimulation, type Accroche, type Situation } from './commun.tsx'
+import { Nouveau } from './Nouveau.tsx'
+import { Retour } from './Retour.tsx'
+import { FORMES, Tutoriel, type FormeTutoriel } from './Tutoriel.tsx'
 
-type Variante = 'A' | 'B' | 'C'
 type Theme = 'systeme' | 'clair' | 'sombre'
 
-const VARIANTES: Record<Variante, string> = {
-  A: 'A · Essaie tout de suite',
-  B: 'B · La vitrine',
-  C: 'C · Le rendez-vous quotidien',
-}
-
-/** Les choix sont gardés dans l'adresse (?v=B&s=hier&t=sombre) : un lien montre exactement le même écran. */
+/** Les choix sont gardés dans l'adresse (?s=hier&a=t2&f=guide&t=sombre) : un lien montre exactement le même écran. */
 const lire = <T extends string>(cle: string, valeurs: readonly T[], defaut: T): T => {
   const v = new URLSearchParams(location.search).get(cle) as T | null
   return v && valeurs.includes(v) ? v : defaut
 }
 
+function Menu<T extends string>({ titre, valeur, options, onChange }: { titre: string; valeur: T; options: Record<T, string>; onChange: (v: T) => void }) {
+  return (
+    <label>
+      <span>{titre}</span>
+      <select value={valeur} onChange={(e) => onChange(e.target.value as T)}>
+        {(Object.entries(options) as [T, string][]).map(([v, nom]) => (
+          <option key={v} value={v}>
+            {nom}
+          </option>
+        ))}
+      </select>
+    </label>
+  )
+}
+
 function Prototype() {
-  const [variante, setVariante] = useState<Variante>(() => lire('v', ['A', 'B', 'C'], 'A'))
   const [situation, setSituation] = useState<Situation>(() => lire('s', ['jamais', 'aujourdhui', 'hier'], 'jamais'))
+  const [accroche, setAccroche] = useState<Accroche>(() => lire('a', ['t1', 't2', 't3'], 't1'))
+  const [forme, setForme] = useState<FormeTutoriel>(() => lire('f', ['diaporama', 'guide'], 'diaporama'))
   const [theme, setTheme] = useState<Theme>(() => lire('t', ['systeme', 'clair', 'sombre'], 'systeme'))
+  const [tutoriel, setTutoriel] = useState(false)
+  const { simuler, bulle } = useSimulation()
 
   useEffect(() => {
     const adresse = new URL(location.href)
-    adresse.searchParams.set('v', variante)
-    adresse.searchParams.set('s', situation)
-    adresse.searchParams.set('t', theme)
+    for (const [cle, valeur] of Object.entries({ s: situation, a: accroche, f: forme, t: theme })) adresse.searchParams.set(cle, valeur)
     history.replaceState(null, '', adresse)
     if (theme === 'systeme') delete document.documentElement.dataset.theme
     else document.documentElement.dataset.theme = theme
-  }, [variante, situation, theme])
+  }, [situation, accroche, forme, theme])
+
+  const actions = {
+    onJouer: simuler('lancerait le Duel du jour'),
+    onPartieLibre: simuler('lancerait une Partie libre'),
+    onTutoriel: () => setTutoriel(true),
+  }
 
   return (
     <>
       <div className="proto-commandes">
-        <label>
-          <span>Variante</span>
-          <select value={variante} onChange={(e) => setVariante(e.target.value as Variante)}>
-            {Object.entries(VARIANTES).map(([v, nom]) => (
-              <option key={v} value={v}>
-                {nom}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          <span>Joueur</span>
-          <select value={situation} onChange={(e) => setSituation(e.target.value as Situation)}>
-            {Object.entries(SITUATIONS).map(([s, nom]) => (
-              <option key={s} value={s}>
-                {nom}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          <span>Thème</span>
-          <select value={theme} onChange={(e) => setTheme(e.target.value as Theme)}>
-            <option value="systeme">Celui de l’appareil</option>
-            <option value="clair">Clair</option>
-            <option value="sombre">Sombre</option>
-          </select>
-        </label>
+        <Menu titre="Joueur" valeur={situation} options={SITUATIONS} onChange={setSituation} />
+        <Menu titre="Accroche" valeur={accroche} options={ACCROCHES} onChange={setAccroche} />
+        <Menu titre="Tutoriel" valeur={forme} options={FORMES} onChange={setForme} />
+        <Menu titre="Thème" valeur={theme} options={{ systeme: 'Appareil', clair: 'Clair', sombre: 'Sombre' }} onChange={setTheme} />
       </div>
 
       <div className="page">
@@ -78,12 +70,15 @@ function Prototype() {
           <h1>Duel Carbone</h1>
         </header>
         <main>
-          {/* key : changer de variante ou de situation repart d'un écran neuf. */}
-          {variante === 'A' && <VarianteA key={situation} situation={situation} />}
-          {variante === 'B' && <VarianteB key={situation} situation={situation} />}
-          {variante === 'C' && <VarianteC key={situation} situation={situation} />}
+          {situation === 'jamais' ? (
+            <Nouveau accroche={accroche} {...actions} />
+          ) : (
+            <Retour key={situation} situation={situation} onPartager={simuler('ouvrirait le partage')} {...actions} />
+          )}
         </main>
       </div>
+      <Tutoriel forme={forme} ouvert={tutoriel} onFermer={() => setTutoriel(false)} onJouer={actions.onJouer} />
+      {bulle}
     </>
   )
 }

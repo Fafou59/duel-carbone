@@ -1,6 +1,6 @@
-/* PROTOTYPE JETABLE — styles des trois variantes d'accueil. */
+/* PROTOTYPE JETABLE — styles de la refonte de l'accueil (2e tour). */
 
-/* Thème forcé par le sélecteur (sinon, celui de l'appareil). Mêmes valeurs que src/index.css. */
+/* Thème forcé par le menu (sinon, celui de l'appareil). Mêmes valeurs que src/index.css. */
 :root[data-theme='clair'] {
   color-scheme: light;
   --fond: #f6f4ee;
@@ -27,18 +27,23 @@
   --mauvais: #ff8a80;
 }
 
-/* La barre de réglages du prototype (n'existera pas dans le jeu). */
+/* ─── Les menus du prototype (n'existeront pas dans le jeu) ──────────────────────────── */
 .proto-commandes {
   position: sticky;
   top: 0;
   z-index: 10;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 8px;
   padding: 6px 16px;
   background: #2a2f2c;
   color: #fff;
-  font-size: 13px;
+}
+
+@media (min-width: 640px) {
+  .proto-commandes {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 .proto-commandes label {
@@ -56,32 +61,9 @@
 }
 
 /* ─── Briques communes ─────────────────────────────────────────────────────────────── */
-.proto-a,
-.proto-b,
-.proto-c {
-  display: grid;
-  gap: 16px;
-  padding-bottom: 24px;
-}
-
-.proto-a h2,
-.proto-b h2,
-.proto-c h2 {
-  margin: 0;
-  font-size: 20px;
-}
-
 .proto-gros {
-  padding: 16px 28px;
-  font-size: 19px;
-}
-
-.proto-slogan {
-  margin: 0;
-  color: var(--marque);
-  font-weight: 900;
-  font-style: italic;
-  letter-spacing: 0.02em;
+  padding: 15px 26px;
+  font-size: 18px;
 }
 
 .proto-discret {
@@ -93,8 +75,8 @@
 .proto-carte {
   display: grid;
   justify-items: start;
-  gap: 10px;
-  padding: 18px;
+  gap: 12px;
+  padding: 16px;
   border: 3px solid var(--ligne);
   border-radius: 20px;
   background: var(--carte);
@@ -118,24 +100,25 @@
 
 .proto-score {
   margin: 0;
-  font-size: 56px;
+  font-size: 52px;
   font-weight: 900;
   line-height: 1;
 }
 
 .proto-score span {
-  font-size: 24px;
+  font-size: 22px;
 }
 
 .proto-grille {
   display: flex;
+  flex-wrap: wrap;
   gap: 4px;
   margin: 0;
 }
 
 .proto-grille span {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border-radius: 4px;
 }
 
@@ -149,8 +132,9 @@
 
 .proto-libre {
   display: grid;
-  justify-items: start;
+  justify-items: center;
   gap: 8px;
+  text-align: center;
 }
 
 .proto-libre p {
@@ -158,70 +142,15 @@
   font-weight: 700;
 }
 
-.proto-climat {
-  display: grid;
-  gap: 8px;
-  padding: 14px 16px;
-  border-radius: 16px;
-  background: color-mix(in srgb, var(--marque) 10%, var(--carte));
-}
-
-.proto-climat p {
-  margin: 0;
-}
-
-.proto-climat em {
-  font-style: italic;
-}
-
-.proto-climat__chute {
-  font-weight: 800;
-}
-
-/* Jauge : la barre pleine = 9,1 t aujourd'hui ; la barre verte = la part de l'objectif 2050. */
-.proto-jauge {
-  position: relative;
-  display: grid;
-  gap: 4px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.proto-jauge > span {
-  display: block;
-  padding: 3px 8px;
-  border-radius: 6px;
-  white-space: nowrap;
-}
-
-.proto-jauge__aujourdhui {
-  background: var(--difficile);
-  color: #fff;
-}
-
-.proto-jauge__objectif {
-  min-width: max-content;
-  background: var(--marque);
-  color: var(--sur-marque);
-}
-
-.proto-frise {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
-  margin: 0;
-  font-size: 34px;
-}
-
 .proto-sources {
   margin: 0;
   color: var(--discret);
-  font-size: 14px;
+  font-size: 13px;
+  text-align: center;
 }
 
 .proto-lien-bouton {
-  padding: 0;
+  padding: 4px;
   border: 0;
   background: none;
   color: var(--marque);
@@ -231,12 +160,18 @@
   cursor: pointer;
 }
 
+.proto-lien-bouton--discret {
+  padding: 0;
+  color: inherit;
+  font-weight: 400;
+}
+
 .proto-toast {
   position: fixed;
   right: 16px;
   bottom: 16px;
   left: 16px;
-  z-index: 20;
+  z-index: 30;
   margin: 0;
   padding: 12px 16px;
   border-radius: 12px;
@@ -246,184 +181,404 @@
   text-align: center;
 }
 
-/* ─── A · Essaie tout de suite ─────────────────────────────────────────────────────── */
-.proto-a__accroche {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 800;
+/* ─── Les rubans d'icônes qui défilent ─────────────────────────────────────────────── */
+.proto-ruban {
+  overflow: hidden;
 }
 
-.proto-a__hier {
-  margin: 0;
-  font-size: 18px;
+.proto-ruban__piste {
+  display: flex;
+  width: max-content;
 }
 
-.proto-a__commentaire {
+/* Une marge (plutôt qu'un espacement) : la piste fait exactement deux fois la liste, la boucle ne saute pas. */
+.proto-ruban--haut .proto-ruban__piste,
+.proto-ruban--bas .proto-ruban__piste {
+  flex-direction: column;
+}
+
+.proto-ruban--haut .icone,
+.proto-ruban--bas .icone {
+  margin-bottom: 14px;
+}
+
+.proto-ruban--gauche .icone {
+  margin-right: 18px;
+}
+
+.proto-ruban--haut .proto-ruban__piste {
+  animation: proto-vers-le-haut 90s linear infinite;
+}
+
+.proto-ruban--bas .proto-ruban__piste {
+  animation: proto-vers-le-haut 90s linear infinite reverse;
+}
+
+.proto-ruban--gauche .proto-ruban__piste {
+  animation: proto-vers-la-gauche 120s linear infinite;
+}
+
+@keyframes proto-vers-le-haut {
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes proto-vers-la-gauche {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .proto-ruban__piste {
+    animation: none !important;
+  }
+}
+
+/* ─── Nouveau joueur : la vitrine ──────────────────────────────────────────────────── */
+.proto-nouveau {
   display: grid;
-  gap: 8px;
-  padding: 14px 16px;
-  border-radius: 16px;
-  background: var(--carte);
+  gap: 28px;
+  padding-bottom: 24px;
 }
 
-.proto-a__commentaire p {
-  margin: 0;
-}
-
-.proto-a__verdict {
-  font-size: 20px;
-  font-weight: 900;
-}
-
-.proto-a__jour,
-.proto-a__resultat {
+/* Le premier écran remplit la hauteur du téléphone : la Partie libre n'apparaît qu'en faisant défiler. */
+.proto-nouveau__ecran {
   display: grid;
-  justify-items: start;
-  gap: 10px;
-}
-
-.proto-a__jour p,
-.proto-a__resultat p {
-  margin: 0;
-}
-
-/* ─── B · La vitrine ───────────────────────────────────────────────────────────────── */
-.proto-b__vitrine {
-  display: grid;
+  align-content: center;
   justify-items: center;
-  gap: 8px;
-  padding: 8px 0;
+  gap: 14px;
+  min-height: calc(100svh - 150px);
   text-align: center;
 }
 
-.proto-b__duo {
-  display: flex;
+.proto-vitrine {
+  display: grid;
+  grid-template-columns: 72px auto 72px;
   align-items: center;
-  gap: 14px;
-  margin: 0;
-  font-size: 64px;
+  gap: 18px;
+  height: 128px;
 }
 
-.proto-b__duo span {
+.proto-vitrine .proto-ruban {
+  height: 128px;
+  font-size: 58px;
+  mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent);
+}
+
+.proto-vitrine .proto-ruban__piste {
+  margin: 0 auto;
+}
+
+.proto-vitrine__vs {
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   border-radius: 999px;
   background: var(--encre);
   color: var(--fond);
-  font-size: 16px;
   font-weight: 900;
 }
 
-.proto-b .proto-b__titre {
-  font-size: 30px;
-  font-weight: 900;
-}
-
-.proto-b__accroche {
-  max-width: 34ch;
+.proto-nouveau .proto-nouveau__titre {
   margin: 0;
-  font-size: 17px;
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1.15;
 }
 
-.proto-b__hier {
-  font-size: 15px;
+.proto-accroche {
+  max-width: 38ch;
+  margin: 0;
+  font-size: 16px;
 }
 
-.proto-tutoriel {
-  max-width: min(420px, calc(100vw - 32px));
-  border: 0;
-  border-radius: 20px;
-  background: var(--carte);
-  color: var(--encre);
+.proto-accroche b {
+  display: block;
+  margin-top: 6px;
 }
 
-.proto-tutoriel::backdrop {
-  background: rgb(0 0 0 / 50%);
+.proto-frise {
+  font-size: 36px;
+  mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
 }
 
-.proto-tutoriel ol {
+/* ─── Joueur qui revient : le tableau de bord ──────────────────────────────────────── */
+.proto-retour {
   display: grid;
-  gap: 10px;
-  padding-left: 22px;
+  gap: 14px;
+  padding-bottom: 24px;
 }
 
-/* ─── C · Le rendez-vous quotidien ─────────────────────────────────────────────────── */
-.proto-c__date {
+.proto-retour__date {
   margin: 0;
   color: var(--discret);
   font-weight: 700;
 }
 
-.proto-c__date::first-letter {
+.proto-retour__date::first-letter {
   text-transform: uppercase;
 }
 
-.proto-c__bulle {
-  position: relative;
+.proto-retour__score {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 14px;
+}
+
+.proto-retour__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.proto-retour__ligne {
   display: grid;
-  justify-items: start;
-  gap: 6px;
-  padding: 14px 16px;
-  border-radius: 16px;
-  background: var(--thematique);
-  color: #fff;
-}
-
-.proto-c__bulle p {
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  width: 100%;
   margin: 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--ligne);
 }
 
-.proto-c__bulle .proto-lien-bouton {
-  color: #fff;
+.proto-retour__ligne span {
+  display: grid;
 }
 
-/* La pointe de la bulle, vers la carte du jour. */
-.proto-c__bulle::after {
-  position: absolute;
-  bottom: -8px;
-  left: 28px;
-  width: 16px;
-  height: 16px;
-  background: var(--thematique);
-  transform: rotate(45deg);
-  content: '';
+.proto-retour__ligne span:last-child {
+  text-align: right;
 }
 
-.proto-c__grand {
-  font-size: 18px;
+.proto-retour__ligne b {
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+.proto-retour__ligne small {
+  color: var(--discret);
+  font-size: 12px;
+}
+
+.proto-retour .proto-carte {
+  gap: 10px;
+  padding: 14px;
+}
+
+.proto-retour .proto-score {
+  font-size: 44px;
+}
+
+.proto-retour__libre {
+  justify-items: center;
+  text-align: center;
+}
+
+.proto-retour__libre-titre {
+  font-size: 17px;
   font-weight: 800;
 }
 
-.proto-c__rebours {
-  color: var(--discret);
-  font-size: 14px;
+.proto-retour__serie {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--difficile) 16%, var(--carte));
+  font-size: 18px;
 }
 
-.proto-c__stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+.proto-retour__serie p {
   margin: 0;
+}
+
+.proto-retour__flamme {
+  font-size: 40px;
+  line-height: 1;
+}
+
+.proto-retour__libre-discret {
+  margin: 0;
+  color: var(--discret);
+  text-align: center;
+}
+
+/* ─── Fenêtres : tutoriel et Récapitulatif ─────────────────────────────────────────── */
+.proto-dialogue {
+  width: min(560px, calc(100vw - 16px));
+  max-height: calc(100svh - 16px);
+  padding: 16px;
+  border: 0;
+  border-radius: 20px;
+  background: var(--fond);
+  color: var(--encre);
+}
+
+.proto-dialogue::backdrop {
+  background: rgb(0 0 0 / 55%);
+}
+
+.proto-dialogue h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.proto-tutoriel__entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.proto-fermer {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--carte);
+  color: var(--encre);
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.proto-recap {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0;
   padding: 0;
   list-style: none;
 }
 
-.proto-c__stats li {
+.proto-recap li {
   display: grid;
   gap: 2px;
+  padding: 8px 10px;
+  border: 3px solid;
+  border-radius: 12px;
+  background: var(--carte);
+  font-size: 14px;
+}
+
+.proto-recap .bon {
+  border-color: var(--bon);
+}
+
+.proto-recap .mauvais {
+  border-color: var(--mauvais);
+}
+
+/* Diaporama */
+.proto-diaporama {
+  display: grid;
+  gap: 12px;
+}
+
+.proto-diaporama h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.proto-diaporama__points {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+}
+
+.proto-diaporama__points span {
+  width: 28px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--ligne);
+}
+
+.proto-diaporama__points .actif {
+  background: var(--marque);
+}
+
+.proto-diaporama__visuel {
   padding: 10px;
-  border: 2px solid var(--ligne);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--encre) 5%, var(--fond));
+}
+
+.proto-diaporama__texte {
+  margin: 0;
+}
+
+.proto-diaporama__navigation {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Duel guidé : des bulles bleues qui commentent, et la zone commentée entourée. */
+.proto-guide {
+  display: grid;
+  gap: 12px;
+}
+
+.proto-bulle {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  padding: 12px 14px;
   border-radius: 14px;
-  text-align: center;
+  background: var(--thematique);
+  color: #fff;
 }
 
-.proto-c__stats b {
-  font-size: 22px;
+.proto-bulle .bouton {
+  background: #fff;
+  color: var(--thematique);
 }
 
-.proto-c__stats span {
-  color: var(--discret);
-  font-size: 12px;
+.proto-guide__zone {
+  border-radius: 14px;
+  transition: opacity 0.3s;
+}
+
+.proto-guide__zone--focus {
+  outline: 3px dashed var(--thematique);
+  outline-offset: 6px;
+}
+
+.proto-guide[data-etape='3'] .repartition__sources {
+  outline: 3px dashed var(--thematique);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+/* Dans la vitrine, les boutons sont centrés (la règle .bouton du jeu les aligne à gauche). */
+.proto-nouveau__ecran .bouton,
+.proto-libre .bouton,
+.proto-retour__libre .bouton {
+  justify-self: center;
+}
+
+/* Dans le tutoriel, des cartes plus compactes, et la navigation toujours visible en bas de la fenêtre. */
+.proto-tutoriel .carte {
+  min-height: 0;
+  padding: 10px;
+}
+
+.proto-tutoriel .carte__icone {
+  font-size: 36px;
+}
+
+.proto-tutoriel .carte__titre {
+  font-size: 16px;
+}
+
+.proto-diaporama__navigation {
+  position: sticky;
+  bottom: -16px;
+  margin: 0 -16px -16px;
+  padding: 10px 16px 16px;
+  background: var(--fond);
+  box-shadow: 0 -8px 16px -12px rgb(0 0 0 / 40%);
 }
