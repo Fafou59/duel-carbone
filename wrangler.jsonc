@@ -1,0 +1,14 @@
+// Configuration de l'hébergement chez Cloudflare (Workers, fichiers statiques), versionnée avec le code.
+// Cloudflare construit le jeu (npm run build, réglé dans son tableau de bord), puis publie le dossier dist/.
+// Pas de code serveur : uniquement des fichiers statiques, servis gratuitement et sans limite de trafic.
+// Voir docs/adr/0003-hebergement-cloudflare.md.
+{
+  // Doit être identique au nom du Worker dans le tableau de bord Cloudflare.
+  "name": "duel-carbone",
+  // Version des règles d'exécution de Cloudflare à utiliser (une date figée, pour éviter les surprises).
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    // Le dossier produit par Vite.
+    "directory": "./dist"
+  }
+}

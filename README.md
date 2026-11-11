@@ -33,7 +33,7 @@ Les données restent la propriété de l'ADEME et sont réutilisées dans le cad
 
 ## Pile technique prévue
 
-React · TypeScript · Vite · application web installable (PWA) · hébergement Netlify · mesure d'audience sans cookie (GoatCounter).
+React · TypeScript · Vite · application web installable (PWA) · hébergement Cloudflare · mesure d'audience sans cookie (GoatCounter).
 
 ## Lancer le projet en local
 
