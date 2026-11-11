@@ -159,7 +159,7 @@ La référence visuelle est la variante **A2** du prototype ; le détail et les 
 ### Événements de mesure d'audience
 `partie_lancee`, `partie_terminee`, `rejouer`, `partage`, `duree_partie/<tranche>`.
 
-Dans GoatCounter, `partie_lancee`, `partie_terminee` et `rejouer` portent le mode de la Partie : `partie_lancee/jour` ou `partie_lancee/libre` (pour `rejouer`, le mode de la Partie qu'on vient de finir). Les tranches s'écrivent `moins-de-2-min`, `2-a-5-min`, `5-a-10-min` et `plus-de-10-min`.
+Dans GoatCounter, `partie_lancee`, `partie_terminee` et `rejouer` portent le mode de la Partie : `partie_lancee/jour` ou `partie_lancee/libre` (pour `rejouer`, le mode de la Partie qu'on vient de finir). Les tranches de durée font 30 secondes jusqu'à 10 minutes : `0m00-0m30`, `0m30-1m00`… `9m30-10m00`, puis `10m00-et-plus`.
 
 - `partie_lancee` part à l'affichage du premier Duel. Une Partie du jour reprise n'est pas comptée une seconde fois.
 - `partie_terminee` et `duree_partie` partent à l'écran de fin. Une Partie reprise n'envoie pas sa durée, qui serait incomplète ; une Partie du jour qu'on revoit n'envoie rien.
@@ -168,7 +168,7 @@ Dans GoatCounter, `partie_lancee`, `partie_terminee` et `rejouer` portent le mod
 
 Le script de GoatCounter n'est chargé que sur l'adresse publique du jeu : ni en local, ni sur les aperçus des branches. Si un bloqueur l'empêche de se charger, le jeu fonctionne normalement.
 Le **taux de complétion** se calcule ainsi : `partie_terminee` / `partie_lancee`.
-Le **temps de jeu** est mesuré sur l'appareil, de l'affichage du premier Duel jusqu'à l'écran de fin de Partie. GoatCounter compte des événements mais ne sait pas calculer de moyenne. Le temps est donc envoyé sous forme de tranche, avec l'événement `partie_terminee` : moins de 2 min, 2 à 5 min, 5 à 10 min, plus de 10 min. On obtient ainsi une distribution du temps de jeu.
+Le **temps de jeu** est mesuré sur l'appareil, de l'affichage du premier Duel jusqu'à l'écran de fin de Partie. GoatCounter compte des événements mais ne sait pas calculer de moyenne. Le temps est donc envoyé sous forme de tranche de 30 secondes, avec l'événement `partie_terminee`, jusqu'à 10 minutes (au-delà : une seule tranche « 10 min et plus »). On obtient ainsi une distribution fine du temps de jeu.
 
 ## 7. Stratégie de test
 
