@@ -5,6 +5,8 @@
  * Le navigateur est passé en paramètre (« Environnement ») plutôt que lu directement :
  * les tests peuvent ainsi simuler un téléphone, un ordinateur, une annulation ou une panne.
  */
+import { mesurer } from './mesure.ts'
+
 export type Environnement = {
   /** Écran tactile comme principal moyen de pointer (téléphone, tablette). */
   tactile: boolean
@@ -15,6 +17,13 @@ export type Environnement = {
 export type ResultatPartage = 'partage' | 'annule' | 'copie' | 'echec'
 
 export async function partager(texte: string, env: Environnement = environnementReel()): Promise<ResultatPartage> {
+  const resultat = await partagerOuCopier(texte, env)
+  // Mesure d'audience : un partage compte s'il a abouti (menu de partage ou copie), pas s'il est annulé ou échoue.
+  if (resultat === 'partage' || resultat === 'copie') mesurer('partage')
+  return resultat
+}
+
+async function partagerOuCopier(texte: string, env: Environnement): Promise<ResultatPartage> {
   // Sur ordinateur, Windows et macOS proposent aussi un menu de partage, mais peu pratique :
   // on lui préfère la copie, plus attendue. Le menu natif est réservé aux appareils tactiles.
   if (env.tactile && env.share) {
