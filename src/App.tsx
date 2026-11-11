@@ -35,6 +35,8 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
   const [partie, setPartie] = useState<Partie | null>(null)
   // Numéro de Partie : change à chaque nouvelle Partie, pour repartir d'un écran neuf.
   const [numero, setNumero] = useState(0)
+  // Le numéro de la dernière Partie terminée : son écran de fin est affiché, ses Duels sont joués.
+  const [partieTerminee, setPartieTerminee] = useState<number | null>(null)
   // Le record actuel de la Partie libre (affiché sur l'accueil), et celui d'avant la Partie en cours.
   const [record, setRecord] = useState(() => memoire.meilleurScore())
   const [ancienRecord, setAncienRecord] = useState<number | null>(null)
@@ -137,6 +139,9 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
     return { score: duJour.score, bonnes: complet ? duels.map((duel, i) => estBonChoix(duel, duJour.reponses[i])) : [] }
   })()
 
+  // Le joueur est en train de jouer un Duel (ni sur l'accueil, ni sur l'écran de fin, ni en train de lire les sources).
+  const enPleinDuel = partie !== null && partieTerminee !== numero && page === 'jeu'
+
   const revenirALAccueil = () => {
     setPartie(null)
     setTutoriel(false)
@@ -184,7 +189,10 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
               key={numero}
               duels={partie.duels}
               ancienRecord={ancienRecord}
-              onTerminee={terminerPartieLibre}
+              onTerminee={(score) => {
+                terminerPartieLibre(score)
+                setPartieTerminee(numero)
+              }}
               onRejouer={lancerPartie}
               // Le Duel du jour, proposé en premier à la fin s'il reste à jouer (une fois le calendrier arrivé).
               fin={{
@@ -208,6 +216,7 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
               onTerminee={(score) => {
                 memoire.terminerPartieDuJour(partie.jour, score)
                 setActualisation((n) => n + 1)
+                setPartieTerminee(numero)
               }}
               onRejouer={lancerPartie}
               fin={{ partieDuJour: { numero: numeroDuJour(partie.jour), serie: serie.actuelle } }}
@@ -215,8 +224,9 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
           )}
         </div>
       </main>
-      {/* La frise du catalogue, sur tous les écrans. */}
-      <Frise />
+      {/* La frise du catalogue, sur tous les écrans sauf pendant les Duels : un ruban qui bouge sans cesse
+          à côté des cartes détourne l'attention du joueur. */}
+      {!enPleinDuel && <Frise />}
       <footer className="pied">
         <p>
           <button type="button" className="lien-bouton pied__lien-bouton" onClick={() => setTutoriel(true)}>

@@ -242,6 +242,21 @@ describe('Application : le Duel Carbone du jour', () => {
     expect(screen.getByText('Duel 1/10')).toBeInTheDocument()
   })
 
+  it('retire la frise qui défile pendant les Duels, et la remet à l’écran de fin', async () => {
+    const { container } = render(<App memoire={creerMemoire(stockage())} aujourdhui={JOUR} />)
+    await boutonDuJour()
+    expect(container.querySelector('.frise')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Partie libre' }))
+    for (let i = 0; i < 10; i++) {
+      fermerAnnonce()
+      expect(container.querySelector('.frise')).not.toBeInTheDocument()
+      fireEvent.click(within(screen.getByRole('region', { name: 'Lequel émet le plus ?' })).getAllByRole('button')[0])
+      fireEvent.click(screen.getByRole('button', { name: i === 9 ? 'Voir mon score' : 'Duel suivant →' }))
+    }
+    expect(screen.getByRole('heading', { name: 'Partie terminée !' })).toBeInTheDocument()
+    expect(container.querySelector('.frise')).toBeInTheDocument()
+  })
+
   it('retient les Duels du jour au lancement, et reprend ceux-là même si le calendrier a changé entre-temps', async () => {
     const s = stockage()
     const avant = render(<App memoire={creerMemoire(s)} aujourdhui={JOUR} />)
