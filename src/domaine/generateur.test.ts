@@ -6,6 +6,7 @@ import { cleDePaire, genererPartie, tirerPaire, type Candidat } from './generate
 import type { GesteCalcule, Nature } from './geste.ts'
 import { hasardReproductible } from './hasard.ts'
 import { REGLES } from './regles.ts'
+import { positionDuDuelThematique, type DuelThematique } from './thematiques.ts'
 
 const geste = (id: string, empreinte: number, champs: Partial<GesteCalcule> = {}): GesteCalcule => ({
   id,
@@ -178,6 +179,78 @@ describe('Générateur de Partie : les paires récentes et l’assouplissement',
       expect(rapport(duels[9])).toBeCloseTo(1.6, 6)
       expect(duels.every((d) => rapport(d) >= REGLES.plancher)).toBe(true)
     }
+  })
+})
+
+describe('Générateur de Partie : les Duels thématiques', () => {
+  const thematique = (a: string, b: string): DuelThematique => ({
+    a,
+    b,
+    titre: `Titre ${a}/${b}`,
+    accroche: `Accroche ${a}/${b}`,
+    texte: `Texte ${a}/${b}`,
+  })
+  // g0/g4 = ×1,46 (Duel 10), g0/g20 = ×6,7 (Duel 4), g0/g50 = ×117 (Duel 1).
+  const THEMATIQUES = [thematique('g0', 'g4'), thematique('g0', 'g20'), thematique('g0', 'g50')]
+  const cles = new Set(THEMATIQUES.map((t) => cleDePaire(t.a, t.b)))
+  const parties = (options: Partial<Parameters<typeof genererPartie>[0]> = {}) =>
+    Array.from({ length: 400 }, (_, g) =>
+      genererPartie({ gestes: RICHE, thematiques: THEMATIQUES, hasard: hasardReproductible(g), ...options }),
+    )
+  const thematiquesDe = (duels: ReturnType<typeof genererPartie>) => duels.filter((d) => d.thematique)
+
+  it('en place un dans une Partie sur deux environ, par un tirage indépendant à chaque Partie', () => {
+    const avec = parties().filter((duels) => thematiquesDe(duels).length > 0).length / 400
+    expect(avec).toBeGreaterThan(0.43)
+    expect(avec).toBeLessThan(0.57)
+  })
+
+  it('en place un à coup sûr quand la garantie le demande, même si le tirage ne l’aurait pas donné', () => {
+    for (const duels of parties({ probabiliteThematique: 0, forcerThematique: true })) {
+      expect(thematiquesDe(duels)).toHaveLength(1)
+    }
+  })
+
+  it('jamais plus d’un par Partie', () => {
+    for (const duels of parties()) expect(thematiquesDe(duels).length).toBeLessThanOrEqual(1)
+  })
+
+  it('le place au Duel dont la tranche contient son Rapport, avec son titre, son accroche et son texte', () => {
+    for (const duels of parties({ probabiliteThematique: 1 })) {
+      const [duel] = thematiquesDe(duels)
+      const position = duels.indexOf(duel)
+      expect(position).toBe(positionDuDuelThematique(rapport(duel)))
+      const t = THEMATIQUES.find((x) => cleDePaire(x.a, x.b) === cleDePaire(duel.a.id, duel.b.id))!
+      expect(duel.thematique).toEqual({ titre: t.titre, accroche: t.accroche, texte: t.texte })
+      expect(duel.niveau).toBe('thematique')
+      expect(duel.difficulte).toBe(difficulteAttendue(position))
+    }
+  })
+
+  it('ne tire jamais une paire thématique au hasard : le joueur la découvre toujours avec son texte', () => {
+    for (const duels of parties()) {
+      for (const d of duels) if (cles.has(cleDePaire(d.a.id, d.b.id))) expect(d.thematique).toBeDefined()
+    }
+  })
+
+  it('préfère un Duel thématique qui n’a pas été vu récemment', () => {
+    const recentes = new Set([cleDePaire('g0', 'g4'), cleDePaire('g0', 'g50')])
+    for (const duels of parties({ probabiliteThematique: 1, pairesRecentes: recentes })) {
+      const [duel] = thematiquesDe(duels)
+      expect(cleDePaire(duel.a.id, duel.b.id)).toBe(cleDePaire('g0', 'g20'))
+    }
+  })
+
+  it('accepte un Geste réservé dans un Duel thématique, et ouvre la Partie au-delà du plafond', () => {
+    const catalogue = [...RICHE, geste('robinet', 0.0002, { seulementEnDuelThematique: true })]
+    const duels = genererPartie({
+      gestes: catalogue,
+      thematiques: [thematique('robinet', 'g3')],
+      probabiliteThematique: 1,
+      hasard: hasardReproductible(1),
+    })
+    expect(cleDePaire(duels[0].a.id, duels[0].b.id)).toBe(cleDePaire('robinet', 'g3'))
+    expect(duels[0].thematique).toBeDefined()
   })
 })
 

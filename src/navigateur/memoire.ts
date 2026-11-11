@@ -24,6 +24,8 @@ const VIDE: Contenu = { version: 1, meilleurScore: null, partiesRecentes: [] }
 export type Memoire = {
   meilleurScore: () => number | null
   pairesRecentes: () => Set<string>
+  /** Les mêmes paires, Partie par Partie (de la plus ancienne à la plus récente). */
+  partiesRecentes: () => string[][]
   enregistrerScore: (score: number) => void
   /** Retient les paires (cleDePaire) d'une Partie qui commence. */
   enregistrerPartie: (paires: string[]) => void
@@ -48,6 +50,7 @@ export function creerMemoire(stockage: Stockage | null = stockageDuNavigateur())
   return {
     meilleurScore: () => lire().meilleurScore,
     pairesRecentes: () => new Set(lire().partiesRecentes.flat()),
+    partiesRecentes: () => lire().partiesRecentes,
     enregistrerScore: (score) => {
       const contenu = lire()
       if (contenu.meilleurScore === null || score > contenu.meilleurScore) ecrire({ ...contenu, meilleurScore: score })

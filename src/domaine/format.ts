@@ -15,6 +15,13 @@ export function formaterEmpreinte(kg: number, { co2e = true }: { co2e?: boolean 
   const absolu = Math.abs(kg)
   // Une valeur minuscule mais réelle ne doit jamais s'afficher « 0 g ».
   if (absolu > 0 && absolu < 0.0005) return `${kg < 0 ? '> −1' : '< 1'} g${suffixe}`
+  // Les agrégats nationaux (une année d'émissions d'un secteur en France) se comptent en millions de tonnes.
+  // Sans « CO2e » (dans un tableau, où la place manque sur téléphone), on abrège en « Mt ».
+  if (absolu >= 1e9) {
+    const millions = kg / 1e9
+    if (!co2e) return `${nombre(millions, 1)} Mt`
+    return `${nombre(millions, 1)} ${Math.abs(millions) < 2 ? 'million' : 'millions'} de t${suffixe}`
+  }
   if (absolu >= 1000) return `${nombre(kg / 1000, 1)} t${suffixe}`
   if (absolu >= 100) return `${nombre(kg, 0)} kg${suffixe}`
   // Sous 1 kg, on passe en grammes, sauf si l'arrondi donnerait « 1 000 g ».

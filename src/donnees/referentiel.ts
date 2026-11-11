@@ -94,10 +94,13 @@ export const UNITES_PARTICULIERES: Record<string, string> = {
   rechercheweb: 'recherche',
   stockagedonnee: 'Go stocké pendant 1 an',
   telechargement: 'Go téléchargé',
+  // Vérifié le 2026-11-10 sur le calculateur d'Impact CO2 (« Heures de streaming ») : sans la construction,
+  // 7 h de streaming (télévision, haute définition, wifi) = 222 g, soit 31,7 g/h ; l'Instantané donne 31 g/h.
+  streamingvideo: 'heure',
 }
 
 /** Équivalents dont l'unité n'est pas documentée clairement par l'ADEME : à vérifier avant usage. */
-export const UNITES_A_VERIFIER = new Set(['streamingvideo', 'visioconference'])
+export const UNITES_A_VERIFIER = new Set(['visioconference'])
 
 /** Libellés des étapes de la Répartition, repris de l'ADEME (src/data/ecv.ts d'Impact CO2). */
 export const ETAPES: Record<number, string> = {

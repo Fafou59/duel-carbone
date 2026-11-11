@@ -16,3 +16,7 @@ Le Référentiel Impact CO2 exprime chaque Équivalent dans une unité propre à
 
 - Chaque Geste doit afficher sa quantité et renvoyer à son Équivalent (valeur par unité, lien vers la fiche ADEME). Les conditions de réutilisation de l'ADEME exigent de ne pas altérer le sens des informations ; la multiplication doit donc rester visible et vérifiable.
 - L'unité de référence de chaque Thématique doit être consignée chez nous, puisque ni le CSV ni l'API ne la fournissent.
+
+## Complément (2026-11-10, ticket #13) : exclure une étape de la Répartition
+
+Le calculateur d'Impact CO2 permet de retirer certaines étapes, par exemple la construction de l'écran pour le streaming vidéo. Un Geste peut donc indiquer des **étapes exclues** (par leur libellé ADEME) : elles sont retirées de l'empreinte et du tableau de l'explication. La valeur de chaque étape restante reste celle de l'ADEME ; le contrôle du catalogue refuse une étape que l'ADEME ne publie pas pour cet Équivalent. Premier usage : « Regarder un film en streaming (2 h) » sans la construction des terminaux, face au téléchargement, que l'ADEME compte lui aussi sans l'écran. La justification du Geste le dit, pour que la comparaison reste vérifiable.

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { REGLES } from '../domaine/regles.ts'
 import { CLE_MEMOIRE, creerMemoire, PARTIES_MEMORISEES, type Stockage } from './memoire.ts'
 
 /** Un faux stockage, en mémoire vive : on peut l'inspecter, le pré-remplir ou le faire tomber en panne. */
@@ -56,6 +57,16 @@ describe('Mémoire locale : paires récentes', () => {
     expect(recentes.size).toBe(PARTIES_MEMORISEES * 10)
     expect(recentes.has('p1-0')).toBe(false)
     expect(recentes.has(`p${PARTIES_MEMORISEES + 1}-9`)).toBe(true)
+  })
+
+  it('rend aussi les paires Partie par Partie, de la plus ancienne à la plus récente', () => {
+    const memoire = creerMemoire(stockage())
+    for (let n = 1; n <= PARTIES_MEMORISEES + 1; n++) memoire.enregistrerPartie(partie(n))
+    expect(memoire.partiesRecentes()).toEqual(Array.from({ length: PARTIES_MEMORISEES }, (_, i) => partie(i + 2)))
+  })
+
+  it('garde assez de Parties pour la garantie des Duels thématiques', () => {
+    expect(PARTIES_MEMORISEES).toBeGreaterThanOrEqual(REGLES.partiesMaxSansDuelThematique)
   })
 })
 

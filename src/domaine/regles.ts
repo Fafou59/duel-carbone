@@ -34,6 +34,19 @@ export const REGLES = {
   plafond: 500,
 
   /**
+   * Chance qu'une Partie contienne un Duel thématique (un au plus), tirée à chaque Partie
+   * indépendamment des précédentes : deux Parties de suite peuvent en avoir un. Le hasard seul
+   * n'en donnait que dans 14 % des Parties, très inégalement selon les pièges.
+   */
+  probabiliteDuelThematique: 0.5,
+
+  /**
+   * Garantie contre les longues séries : si les Parties récentes (ce nombre-là) n'ont eu aucun
+   * Duel thématique, la suivante en a un. Le hasard seul laissait parfois passer 5 ou 6 Parties sans.
+   */
+  partiesMaxSansDuelThematique: 3,
+
+  /**
    * La courbe de difficulté : une tranche de Rapport par Duel, du Duel 1 au Duel 10.
    * Elle part du plafond (un premier Duel d'échauffement) et se resserre vite.
    * Les étiquettes facile (1-3), moyen (4-6), difficile (7-9) et ultime (10) regroupent ces tranches.

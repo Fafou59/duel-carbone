@@ -7,8 +7,10 @@ import type { Equivalent, Instantane } from '../donnees/referentiel.ts'
 /**
  * La Nature d'un Geste : ce qu'il est pour le joueur. Elle sert à écarter les Duels qui n'ont
  * pas de sens (un repas face à l'un de ses ingrédients) : voir REGLES.combinaisonsInterdites.
+ * Un « agrégat » n'est pas un geste du quotidien mais une période d'émissions d'un secteur en France
+ * (une année du numérique, une journée des voitures…) : il est toujours réservé aux Duels thématiques.
  */
-export type Nature = 'aliment' | 'repas' | 'boisson' | 'objet' | 'trajet' | 'livraison' | 'usage'
+export type Nature = 'aliment' | 'repas' | 'boisson' | 'objet' | 'trajet' | 'livraison' | 'usage' | 'agregat'
 
 /** Une entrée du catalogue éditorial : ce que le joueur voit et compare. */
 export type Geste = {
@@ -32,9 +34,15 @@ export type Geste = {
   parcours?: string
   /**
    * Jamais tiré au hasard : le Geste n'apparaît que dans un Duel thématique, avec un texte.
-   * Obligatoire pour un Geste d'empreinte nulle (le Rapport serait infini).
+   * Obligatoire pour un Geste d'empreinte nulle (le Rapport serait infini) et pour un agrégat.
    */
   seulementEnDuelThematique?: boolean
+  /**
+   * Étapes de la Répartition ADEME à ne pas compter (par leur libellé), comme le permet le calculateur
+   * d'Impact CO2 : le streaming sans la construction de l'écran. Elles sont retirées de l'empreinte
+   * et du tableau de l'explication.
+   */
+  etapesExclues?: string[]
 }
 
 /** Une étape de la Répartition d'un Geste, en kg CO2e. */
@@ -55,6 +63,8 @@ export function calculerGeste(geste: Geste, instantane: Instantane): GesteCalcul
   const equivalent = instantane.equivalents.find((e) => e.slug === geste.equivalent)
   if (!equivalent) throw new Error(`${geste.id} : Équivalent « ${geste.equivalent} » inconnu dans l'Instantané.`)
   const q = geste.quantite
+  const exclue = (libelle: string) => geste.etapesExclues?.includes(libelle) ?? false
+  const retire = equivalent.etapes.filter((e) => exclue(e.libelle)).reduce((total, e) => total + e.valeur, 0)
 
   const calcule: GesteCalcule = {
     ...geste,
@@ -65,8 +75,8 @@ export function calculerGeste(geste: Geste, instantane: Instantane): GesteCalcul
       valeur: equivalent.valeur,
       url: equivalent.url,
     },
-    empreinte: equivalent.valeur * q,
-    etapes: equivalent.etapes.map((e) => ({ libelle: e.libelle, valeur: e.valeur * q })),
+    empreinte: (equivalent.valeur - retire) * q,
+    etapes: equivalent.etapes.filter((e) => !exclue(e.libelle)).map((e) => ({ libelle: e.libelle, valeur: e.valeur * q })),
   }
   if (equivalent.usage) calcule.usage = { total: equivalent.usage.total * q, dureeAns: equivalent.usage.dureeAns }
   if (equivalent.finDeVie !== undefined) calcule.finDeVie = equivalent.finDeVie * q
@@ -110,8 +120,16 @@ export function validerCatalogue(gestes: Geste[], instantane: Instantane): void 
     } else if (equivalent.valeur * g.quantite === 0 && !g.seulementEnDuelThematique) {
       problemes.push(`${g.id} : empreinte nulle, le Geste doit être réservé aux Duels thématiques.`)
     }
+    for (const libelle of g.etapesExclues ?? []) {
+      if (equivalent && !equivalent.etapes.some((e) => e.libelle === libelle)) {
+        problemes.push(`${g.id} : étape exclue « ${libelle} » absente de la Répartition de « ${g.equivalent} ».`)
+      }
+    }
     if (g.nature === 'trajet' && !g.parcours) {
       problemes.push(`${g.id} : un trajet doit indiquer son Parcours.`)
+    }
+    if (g.nature === 'agregat' && !g.seulementEnDuelThematique) {
+      problemes.push(`${g.id} : un agrégat n'est pas un geste du quotidien, il doit être réservé aux Duels thématiques.`)
     }
     if (!Number.isFinite(g.quantite) || g.quantite <= 0) {
       problemes.push(`${g.id} : Quantité invalide (${g.quantite}), elle doit être un nombre strictement positif.`)

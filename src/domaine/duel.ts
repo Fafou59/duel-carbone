@@ -12,3 +12,6 @@ export const moinsEmetteur = (duel: Duel): GesteCalcule => (plusEmetteur(duel) =
 export const rapport = (duel: Duel): number => plusEmetteur(duel).empreinte / moinsEmetteur(duel).empreinte
 
 export const estBonChoix = (duel: Duel, idChoisi: string): boolean => plusEmetteur(duel).id === idChoisi
+
+/** Identifiant d'une paire, indépendant de l'ordre des deux Gestes. */
+export const cleDePaire = (idA: string, idB: string): string => [idA, idB].sort().join('|')

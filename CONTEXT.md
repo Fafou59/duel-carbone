@@ -25,7 +25,7 @@ Ce que le joueur voit et compare : un Équivalent multiplié par une quantité r
 _À éviter_ : action, activité, item
 
 **Nature** :
-Ce qu'est un Geste pour le joueur : un aliment, un repas, une boisson, un objet, un trajet, une livraison ou un usage (chauffer son logement, regarder une série…). Elle sert à écarter les Combinaisons interdites.
+Ce qu'est un Geste pour le joueur : un aliment, un repas, une boisson, un objet, un trajet, une livraison, un usage (chauffer son logement, regarder une série…) ou un agrégat (une année d'émissions d'un secteur en France, toujours réservé aux Duels thématiques). Elle sert à écarter les Combinaisons interdites.
 _À éviter_ : type, famille, catégorie
 
 **Quantité** :
@@ -59,11 +59,11 @@ Deux Natures qui ne s'affrontent jamais dans un Duel tiré au hasard, parce que 
 _À éviter_ : paire interdite, exclusion
 
 **Geste réservé** :
-Un Geste qui n'est jamais tiré au hasard et n'apparaît que dans un Duel thématique, avec un texte qui l'explique. C'est obligatoire pour un Geste dont l'Empreinte carbone est nulle ou quasi nulle (l'eau du robinet), car son Rapport avec presque tout le reste serait démesuré.
+Un Geste qui n'est jamais tiré au hasard et n'apparaît que dans un Duel thématique, avec un texte qui l'explique. C'est obligatoire pour un Geste dont l'Empreinte carbone est nulle ou quasi nulle (l'eau du robinet), car son Rapport avec presque tout le reste serait démesuré, et pour un agrégat national. Un Geste peut aussi être réservé parce qu'il a été ajouté pour un Duel thématique (le pain au chocolat face au croissant).
 _À éviter_ : Geste caché, Geste exclu
 
 **Duel thématique** :
-Un Duel choisi et rédigé à la main pour son intérêt pédagogique, avec sa propre explication et éventuellement sa propre Difficulté. Il échappe au plafond, aux tranches et au Coefficient d'équilibrage, et peut apparaître à n'importe quel Duel de la Partie.
+Un Duel choisi et rédigé à la main pour son intérêt pédagogique : un titre et une accroche pour son annonce, un texte explicatif après la réponse. Une Partie sur deux en contient un, et jamais plus de 3 Parties de suite sans ; il est placé au Duel dont la tranche contient son Rapport : c'est sa Difficulté. Il échappe au plafond, aux tranches et au Coefficient d'équilibrage, pas au plancher.
 _À éviter_ : duel spécial, duel custom
 
 **Coefficient d'équilibrage** :

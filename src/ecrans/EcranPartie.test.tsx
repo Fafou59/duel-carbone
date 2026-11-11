@@ -1,9 +1,10 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { GESTES_CALCULES } from '../donnees/index.ts'
 import { plusEmetteur, moinsEmetteur } from '../domaine/duel.ts'
 import { hasardReproductible } from '../domaine/hasard.ts'
 import { genererPartie } from '../domaine/generateur.ts'
+import { PROTECTION_DU_FOND_MS } from '../composants/AnnonceThematique.tsx'
 import { EcranPartie } from './EcranPartie.tsx'
 
 // Une Partie reproductible : toujours les mêmes 10 Duels, tirés avec la graine 3.
@@ -81,6 +82,16 @@ describe('Une Partie de 10 Duels', () => {
     expect(screen.getByText('Duel 2/10')).toBeInTheDocument()
   })
 
+  it('consomme la touche Entrée qui passe au Duel suivant : elle ne déclenche rien d’autre (Firefox)', () => {
+    // Firefox active un bouton avec Entrée un instant après l'appui (événement « keypress ») :
+    // sans cela, l'Entrée qui ouvre un Duel thématique « cliquait » aussitôt « Au Duel ! » et fermait l'annonce.
+    render(<EcranPartie duels={DUELS} onRejouer={() => {}} />)
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(DUELS[0].a.titre) }))
+    const nonAnnulee = fireEvent.keyDown(document.body, { key: 'Enter' })
+    expect(screen.getByText('Duel 2/10')).toBeInTheDocument()
+    expect(nonAnnulee).toBe(false)
+  })
+
   it('mène au score avec Entrée après le dernier Duel', () => {
     render(<EcranPartie duels={DUELS} onRejouer={() => {}} />)
     for (let i = 0; i < 9; i++) jouerDuel(i, true)
@@ -119,8 +130,13 @@ describe('Les icônes du Duel suivant', () => {
 })
 
 describe('Un Duel thématique dans la Partie', () => {
-  // La même Partie, où le Duel 3 devient un Duel thématique (il a un texte rédigé à la main).
-  const AVEC_THEMATIQUE = DUELS.map((duel, i) => (i === 2 ? { ...duel, texte: 'Un texte rédigé à la main.' } : duel))
+  // La même Partie, où le Duel 3 devient un Duel thématique (il a ses textes rédigés à la main).
+  const TEXTES = {
+    titre: 'Le match des mangues',
+    accroche: 'Même fruit, même poids… mais pas le même voyage.',
+    texte: 'Tout se joue pendant le voyage.',
+  }
+  const AVEC_THEMATIQUE = DUELS.map((duel, i) => (i === 2 ? { ...duel, thematique: TEXTES } : duel))
   const segmentsThematiques = (conteneur: HTMLElement) =>
     conteneur.querySelectorAll('.progression__segment--thematique').length
 
@@ -138,6 +154,46 @@ describe('Un Duel thématique dans la Partie', () => {
     expect(screen.getByRole('dialog', { name: 'Duel thématique' })).toBeInTheDocument()
     expect(screen.getByText('thématique')).toBeInTheDocument()
     expect(segmentsThematiques(container)).toBe(1)
+  })
+
+  it('annonce son titre et son accroche, sans donner la réponse', () => {
+    render(<EcranPartie duels={AVEC_THEMATIQUE} onRejouer={() => {}} />)
+    jouerDuel(0, true)
+    jouerDuel(1, true)
+    const annonce = within(screen.getByRole('dialog', { name: 'Duel thématique' }))
+    expect(annonce.getByText(TEXTES.titre)).toBeInTheDocument()
+    expect(annonce.getByText(TEXTES.accroche)).toBeInTheDocument()
+    expect(annonce.queryByText(TEXTES.texte)).not.toBeInTheDocument()
+  })
+
+  it('ne se ferme pas sur un toucher du fond pendant son apparition (un doigt encore en route vers les cartes)', () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    try {
+      render(<EcranPartie duels={AVEC_THEMATIQUE} onRejouer={() => {}} />)
+      jouerDuel(0, true)
+      jouerDuel(1, true)
+      const annonce = screen.getByRole('dialog', { name: 'Duel thématique' })
+      // Juste après l'ouverture, un toucher sur le fond est ignoré : l'annonce reste.
+      vi.advanceTimersByTime(300)
+      fireEvent.click(annonce)
+      expect(annonce).toHaveAttribute('open')
+      // Une fois la carte bien visible, toucher le fond la ferme, comme prévu.
+      vi.advanceTimersByTime(PROTECTION_DU_FOND_MS)
+      fireEvent.click(annonce)
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('explique le piège après la réponse, avec son texte rédigé à la main', () => {
+    render(<EcranPartie duels={AVEC_THEMATIQUE} onRejouer={() => {}} />)
+    jouerDuel(0, true)
+    jouerDuel(1, true)
+    fireEvent.click(screen.getByRole('button', { name: 'Au Duel !' }))
+    expect(screen.queryByText(TEXTES.texte)).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(plusEmetteur(DUELS[2]).titre) }))
+    expect(within(screen.getByRole('region', { name: 'Explication' })).getByText(TEXTES.texte)).toBeInTheDocument()
   })
 
   it("garde les touches 1 et 2 pour l'annonce tant qu'elle est ouverte", () => {

@@ -13,6 +13,7 @@ import { cleDePaire, genererPartie, type Coefficients } from './generateur.ts'
 import type { GesteCalcule } from './geste.ts'
 import { hasardReproductible } from './hasard.ts'
 import { REGLES } from './regles.ts'
+import { doitForcerUnDuelThematique, type DuelThematique } from './thematiques.ts'
 
 /** Ce qu'enregistre npm run calibrer. */
 export type Calibrage = { empreinte: string; coefficients: Record<string, number> }
@@ -21,32 +22,51 @@ const tirables = (gestes: GesteCalcule[]) => gestes.filter((g) => !g.seulementEn
 
 /**
  * Empreinte du tirage : un court résumé de tout ce dont dépendent les coefficients
- * (Gestes tirables, leurs empreintes carbone, Natures et Parcours, et les règles du jeu).
+ * (Gestes tirables, leurs empreintes carbone, Natures et Parcours, les règles du jeu,
+ * et les paires des Duels thématiques, qui ne sortent jamais au hasard).
  * Si l'un de ces éléments change, l'empreinte change, et les coefficients doivent être recalculés.
  */
-export function empreinteDuTirage(gestes: GesteCalcule[]): string {
+export function empreinteDuTirage(gestes: GesteCalcule[], thematiques: DuelThematique[] = []): string {
   const donnees = tirables(gestes)
     .map((g) => [g.id, g.empreinte, g.nature, g.parcours ?? null] as const)
     .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-  return fnv1a(JSON.stringify({ regles: REGLES, gestes: donnees }))
+  const paires = thematiques.map((t) => cleDePaire(t.a, t.b)).sort()
+  return fnv1a(JSON.stringify({ regles: REGLES, gestes: donnees, ...(paires.length ? { thematiques: paires } : {}) }))
 }
 
 /**
  * Simule les Parties d'un joueur régulier (qui garde en mémoire ses dernières Parties, comme dans le jeu)
  * et renvoie, pour chaque Geste tirable, la part des Parties où il apparaît au moins une fois (de 0 à 1).
+ * Les Duels thématiques sont joués comme dans le jeu ; les Gestes réservés ne sont pas comptés.
  */
 export function frequencesDApparition(
   gestes: GesteCalcule[],
-  options: { coefficients: Coefficients; parties: number; partiesMemorisees: number; graine: number },
+  options: {
+    coefficients: Coefficients
+    parties: number
+    partiesMemorisees: number
+    graine: number
+    thematiques?: DuelThematique[]
+  },
 ): Map<string, number> {
   const hasard = hasardReproductible(options.graine)
   const historique: string[][] = []
   const apparitions = new Map(tirables(gestes).map((g) => [g.id, 0]))
   for (let p = 0; p < options.parties; p++) {
-    const pairesRecentes = new Set(historique.slice(-options.partiesMemorisees).flat())
-    const duels = genererPartie({ gestes, pairesRecentes, coefficients: options.coefficients, hasard })
+    const recentes = historique.slice(-options.partiesMemorisees)
+    const duels = genererPartie({
+      gestes,
+      thematiques: options.thematiques,
+      pairesRecentes: new Set(recentes.flat()),
+      forcerThematique: doitForcerUnDuelThematique(recentes, options.thematiques ?? []),
+      coefficients: options.coefficients,
+      hasard,
+    })
     historique.push(duels.map((d) => cleDePaire(d.a.id, d.b.id)))
-    for (const id of new Set(duels.flatMap((d) => [d.a.id, d.b.id]))) apparitions.set(id, (apparitions.get(id) ?? 0) + 1)
+    for (const id of new Set(duels.flatMap((d) => [d.a.id, d.b.id]))) {
+      const n = apparitions.get(id)
+      if (n !== undefined) apparitions.set(id, n + 1)
+    }
   }
   return new Map([...apparitions].map(([id, n]) => [id, n / options.parties]))
 }
@@ -76,7 +96,13 @@ export function indicateursDeDiversite(frequences: Map<string, number>): Indicat
  */
 export function calibrerCoefficients(
   gestes: GesteCalcule[],
-  reglage: { partiesMemorisees: number; iterations: number; partiesParIteration: number; graine: number },
+  reglage: {
+    partiesMemorisees: number
+    iterations: number
+    partiesParIteration: number
+    graine: number
+    thematiques?: DuelThematique[]
+  },
 ): Record<string, number> {
   let coefficients: Record<string, number> = Object.fromEntries(tirables(gestes).map((g) => [g.id, 1]))
   for (let iteration = 0; iteration < reglage.iterations; iteration++) {
@@ -85,6 +111,7 @@ export function calibrerCoefficients(
       parties: reglage.partiesParIteration,
       partiesMemorisees: reglage.partiesMemorisees,
       graine: reglage.graine + iteration,
+      thematiques: reglage.thematiques,
     })
     const { moyenne } = indicateursDeDiversite(frequences)
     // La racine carrée amortit la correction : on avance par petits pas, sans faire osciller les coefficients.

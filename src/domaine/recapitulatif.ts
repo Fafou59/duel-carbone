@@ -3,14 +3,15 @@
  * afficher la case « ✓ Duel 3 · 1 🥩 = 10,8 🥑 » et rouvrir son explication.
  */
 import { difficulteAttendue, type Difficulte } from './difficulte.ts'
-import { moinsEmetteur, plusEmetteur, rapport, type Duel } from './duel.ts'
+import { moinsEmetteur, plusEmetteur, rapport } from './duel.ts'
 import type { GesteCalcule } from './geste.ts'
-import type { EtatPartie } from './partie.ts'
+import type { DuelDePartie, EtatPartie } from './partie.ts'
 
 export type LigneRecapitulatif = {
   /** De 1 à 10, comme le joueur l'a vu (« Duel 3/10 »). */
   numero: number
-  duel: Duel
+  /** Avec les textes d'un Duel thématique : le détail les remontre. */
+  duel: DuelDePartie
   difficulte: Difficulte
   idChoisi: string
   bonne: boolean
