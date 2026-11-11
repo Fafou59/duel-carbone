@@ -126,9 +126,14 @@ function Diaporama({ onJouer, onSources }: { onJouer: () => void; onSources: () 
   const derniere = etape === etapes.length - 1
   return (
     <div className="diaporama">
-      <p className="diaporama__points" aria-label={`Étape ${etape + 1} sur ${etapes.length}`}>
+      {/* Les points ne sont qu'un dessin : un texte caché dit l'étape aux lecteurs d'écran
+          (un aria-label sur un paragraphe serait ignoré). */}
+      <p className="diaporama__points">
+        <span className="visuellement-cache">
+          Étape {etape + 1} sur {etapes.length}
+        </span>
         {etapes.map((_, i) => (
-          <span key={i} className={i === etape ? 'actif' : ''} />
+          <span key={i} className={`diaporama__point${i === etape ? ' actif' : ''}`} aria-hidden="true" />
         ))}
       </p>
       <h3>

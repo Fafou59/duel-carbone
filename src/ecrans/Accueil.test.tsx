@@ -72,6 +72,11 @@ describe('Accueil : le joueur qui a joué aujourd’hui (le tableau de bord)', (
     expect(screen.getByText(/^dimanche 22 novembre/i)).toBeInTheDocument()
   })
 
+  it('marque chaque case de la grille d’un ✓ ou d’un ✗ : le vert et le rouge seuls se confondent pour un daltonien', () => {
+    afficher({ situation: 'aujourdhui', resultat, serie: 4 })
+    expect(screen.getByLabelText('7 bonnes réponses sur 10')).toHaveTextContent('✓✓✓✗✓✓✗✓✗✓')
+  })
+
   it('propose de défier ses proches, de revoir son Récapitulatif, puis met en avant la Partie libre', async () => {
     const a = afficher({ situation: 'aujourdhui', resultat, serie: 4 })
     fireEvent.click(screen.getByRole('button', { name: 'Défier mes proches' }))

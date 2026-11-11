@@ -26,7 +26,7 @@ const afficher = (
 ) =>
   render(<EcranFin lignes={LIGNES} score={score(etat)} total={10} onRejouer={onRejouer} onPartager={onPartager} />)
 
-const caseDuel = (numero: number) => screen.getByRole('button', { name: new RegExp(`^Duel ${numero},`) })
+const caseDuel = (numero: number) => screen.getByRole('button', { name: new RegExp(`^Duel ${numero} ?\\(`) })
 
 describe('Écran de fin de Partie', () => {
   it('affiche le score sur 10 et un message adapté', () => {
@@ -172,16 +172,23 @@ describe('Récapitulatif', () => {
     afficher()
     const cases = within(screen.getByRole('list', { name: 'Récapitulatif' })).getAllByRole('button')
     expect(cases).toHaveLength(10)
-    expect(caseDuel(1)).toHaveAccessibleName(/^Duel 1, réussi/)
-    expect(caseDuel(8)).toHaveAccessibleName(/^Duel 8, raté/)
+    expect(caseDuel(1)).toHaveAccessibleName(/^Duel 1 ?\(réussi\)/)
+    expect(caseDuel(8)).toHaveAccessibleName(/^Duel 8 ?\(raté\)/)
   })
 
   it('donne à chaque case un nom lisible, sans dépendre des icônes', () => {
     afficher()
     const { plus, moins } = LIGNES[0]
-    expect(caseDuel(1)).toHaveAccessibleName(
-      `Duel 1, réussi : ${plus.titre} émet ${formaterMultiple(LIGNES[0].rapport)} fois plus ${queDevant(moins.titre)}`,
-    )
+    // L'espace avant la parenthèse dépend du navigateur (Chrome en ajoute une autour d'un texte caché).
+    const attendu = `(réussi) : ${plus.titre} émet ${formaterMultiple(LIGNES[0].rapport)} fois plus ${queDevant(moins.titre)}`
+    expect(caseDuel(1)).toHaveAccessibleName(new RegExp(`^Duel 1 ?${attendu.replace(/[()]/g, '\\$&')}$`))
+  })
+
+  it('tire ce nom du texte de la case, pour qu’on puisse la désigner à la voix (« clique sur Duel 1 »)', () => {
+    afficher()
+    // Un aria-label remplacerait le texte affiché : le nom lu ne contiendrait plus forcément ce qu'on voit.
+    expect(caseDuel(1)).not.toHaveAttribute('aria-label')
+    expect(caseDuel(1)).toHaveTextContent(/^✓ Duel 1/)
   })
 
   it('ouvre le détail du Duel dans un panneau, avec le focus sur la croix', () => {

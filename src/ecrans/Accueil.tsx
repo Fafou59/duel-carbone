@@ -73,12 +73,17 @@ const Record = ({ record }: { record: number | null }) =>
     </p>
   )
 
-/** La grille du résultat du jour : une case verte par bonne réponse, rouge sinon. */
+/**
+ * La grille du résultat du jour : une case verte marquée ✓ par bonne réponse, rouge marquée ✗ sinon.
+ * Le symbole double la couleur : un daltonien distingue mal le vert du rouge.
+ */
 function Grille({ score, bonnes }: { score: number; bonnes: boolean[] }) {
   return (
     <p className="accueil__grille" aria-label={`${score} bonnes réponses sur ${NOMBRE_DE_DUELS}`} role="img">
       {bonnes.map((bonne, i) => (
-        <span key={i} className={bonne ? 'bon' : 'mauvais'} />
+        <span key={i} className={bonne ? 'bon' : 'mauvais'}>
+          {bonne ? '✓' : '✗'}
+        </span>
       ))}
     </p>
   )

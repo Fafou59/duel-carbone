@@ -145,6 +145,12 @@
   width: 18px;
   height: 18px;
   border-radius: 4px;
+  /* Le ✓ ou le ✗, dans la couleur du fond de page : lisible sur le vert comme sur le rouge, en clair et en sombre. */
+  color: var(--fond);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 18px;
+  text-align: center;
 }
 
 .accueil__grille .bon {
