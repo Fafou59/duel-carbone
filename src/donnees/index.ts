@@ -12,6 +12,17 @@ export const INSTANTANE = instantaneJson as Instantane
 /** Coefficients d'équilibrage des Gestes, calculés par npm run calibrer (ne pas modifier à la main). */
 export const CALIBRAGE = coefficientsJson as Calibrage
 
+/**
+ * Les repères climat de l'accueil, en kg CO2e par an, lus dans l'Instantané (jamais écrits à la main) :
+ * l'empreinte moyenne d'un Français et l'objectif pour 2050 (Équivalents ADEME « francais » et « 2050 »).
+ */
+const valeurAdeme = (slug: string) => {
+  const equivalent = INSTANTANE.equivalents.find((e) => e.slug === slug)
+  if (!equivalent) throw new Error(`Équivalent « ${slug} » absent de l'Instantané.`)
+  return equivalent.valeur
+}
+export const REPERES_CLIMAT = { francais: valeurAdeme('francais'), objectif2050: valeurAdeme('2050') }
+
 /** Tous les Gestes du catalogue, calculés une fois pour toutes. */
 export const GESTES_CALCULES: GesteCalcule[] = GESTES.map((g) => calculerGeste(g, INSTANTANE))
 

@@ -1,0 +1,116 @@
+/* Les rubans d'icônes qui défilent. */
+.ruban {
+  overflow: hidden;
+}
+
+.ruban__piste {
+  display: flex;
+  width: max-content;
+}
+
+/* Une marge (plutôt qu'un espacement) : la piste fait exactement deux fois la liste, la boucle ne saute pas. */
+.ruban--haut .ruban__piste,
+.ruban--bas .ruban__piste {
+  flex-direction: column;
+  margin: 0 auto;
+}
+
+.ruban--haut .icone,
+.ruban--bas .icone {
+  margin-bottom: 14px;
+}
+
+.ruban--gauche .icone {
+  margin-right: 18px;
+}
+
+.ruban--haut .ruban__piste {
+  animation: ruban-vers-le-haut 90s linear infinite;
+}
+
+.ruban--bas .ruban__piste {
+  animation: ruban-vers-le-haut 90s linear infinite reverse;
+}
+
+.ruban--gauche .ruban__piste {
+  animation: ruban-vers-la-gauche 120s linear infinite;
+}
+
+@keyframes ruban-vers-le-haut {
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes ruban-vers-la-gauche {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ruban__piste {
+    animation: none !important;
+  }
+}
+
+/* La vitrine : deux colonnes autour d'un « VS ». */
+.vitrine {
+  display: grid;
+  grid-template-columns: 72px auto 72px;
+  align-items: center;
+  gap: 18px;
+  height: 128px;
+}
+
+.vitrine .ruban {
+  height: 128px;
+  font-size: 58px;
+  mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent);
+}
+
+.vitrine__vs {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  background: var(--encre);
+  color: var(--fond);
+  font-weight: 900;
+}
+
+.vitrine--mini {
+  grid-template-columns: 40px auto 40px;
+  gap: 8px;
+  height: 64px;
+}
+
+.vitrine--mini .ruban {
+  height: 64px;
+  font-size: 34px;
+}
+
+.vitrine--mini .vitrine__vs {
+  width: 30px;
+  height: 30px;
+  font-size: 11px;
+}
+
+.frise {
+  margin-top: 24px;
+  font-size: 36px;
+  mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+}
+
+/* Petit téléphone : la vitrine se resserre, pour que tout le premier écran tienne sans défiler. */
+@media (max-height: 700px), (max-width: 360px) {
+  .vitrine:not(.vitrine--mini) {
+    height: 104px;
+  }
+
+  .vitrine:not(.vitrine--mini) .ruban {
+    height: 104px;
+    font-size: 48px;
+  }
+}

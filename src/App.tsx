@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react'
 import { DUELS_THEMATIQUES } from './donnees/duels-thematiques.ts'
 import { CALIBRAGE, chargerCalendrier, GESTES_CALCULES } from './donnees/index.ts'
+import { Tutoriel } from './composants/Tutoriel.tsx'
+import { Frise } from './composants/Vitrine.tsx'
 import { partieDuJour, type Calendrier } from './domaine/calendrier.ts'
+import { estBonChoix } from './domaine/duel.ts'
 import { cleDePaire, genererPartie } from './domaine/generateur.ts'
-import { jourDeParis, numeroDuJour } from './domaine/jour.ts'
-import { NOMBRE_DE_DUELS, type DuelDePartie } from './domaine/partie.ts'
+import { decalerJour, jourDeParis, numeroDuJour, secondesAvantMinuitAParis } from './domaine/jour.ts'
+import type { DuelDePartie } from './domaine/partie.ts'
 import { doitForcerUnDuelThematique } from './domaine/thematiques.ts'
+import { Accueil, type Situation } from './ecrans/Accueil.tsx'
 import { EcranPartie } from './ecrans/EcranPartie.tsx'
 import { EcranSources } from './ecrans/EcranSources.tsx'
 import { ADRESSES, usePage } from './navigateur/adresse.ts'
@@ -41,19 +45,29 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
   const [, setActualisation] = useState(0)
   // La page demandée par l'adresse : le jeu, ou Sources et méthode (#sources).
   const page = usePage()
+  // « Comment ça marche ? » : le tutoriel, ouvert par-dessus l'écran en cours.
+  const [tutoriel, setTutoriel] = useState(false)
 
-  // Le jour, lu une fois au démarrage, puis à chaque retour sur l'onglet : passé minuit, l'accueil
-  // propose le nouveau Duel du jour sans avoir à recharger la page.
+  // Le jour, lu au démarrage, à chaque retour sur l'onglet et à minuit (heure de Paris) : passé minuit,
+  // l'accueil propose le nouveau Duel du jour sans avoir à recharger la page.
   const [jourCourant, setJourCourant] = useState(() => jourDeParis(new Date()))
   useEffect(() => {
     const relire = () => document.visibilityState === 'visible' && setJourCourant(jourDeParis(new Date()))
     document.addEventListener('visibilitychange', relire)
-    return () => document.removeEventListener('visibilitychange', relire)
-  }, [])
+    // Une seconde après minuit, par prudence (une minuterie peut partir un peu en avance).
+    const aMinuit = setTimeout(() => setJourCourant(jourDeParis(new Date())), (secondesAvantMinuitAParis(new Date()) + 1) * 1000)
+    return () => {
+      document.removeEventListener('visibilitychange', relire)
+      clearTimeout(aMinuit)
+    }
+  }, [jourCourant])
   const aujourdhui = jourFourni ?? jourCourant
   const numeroDuJourAffiche = numeroDuJour(aujourdhui)
   const duJour = memoire.partieDuJour(aujourdhui)
   const serie = memoire.serie(aujourdhui)
+  const situation: Situation =
+    duJour?.score != null ? 'aujourdhui' : duJour ? 'enCours' : serie.actuelle > 0 ? 'hier' : 'nouveau'
+  const scoreHier = memoire.partieDuJour(decalerJour(aujourdhui, -1))?.score ?? undefined
 
   useEffect(() => {
     let actif = true
@@ -93,53 +107,45 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
     setNumero((n) => n + 1)
   }
 
+  // Le résultat du Duel du jour, Duel par Duel (la grille de l'accueil) : il faut le calendrier pour le connaître.
+  const resultat = (() => {
+    if (duJour?.score == null) return undefined
+    const duels = calendrier ? partieDuJour(calendrier, aujourdhui, GESTES_CALCULES, DUELS_THEMATIQUES) : []
+    const complet = duels.length > 0 && duJour.reponses.length === duels.length
+    return { score: duJour.score, bonnes: complet ? duels.map((duel, i) => estBonChoix(duel, duJour.reponses[i])) : [] }
+  })()
+
   const terminerPartieLibre = (score: number) => {
     memoire.enregistrerScore(score)
     setRecord(memoire.meilleurScore())
   }
 
-  const accueil = (
-    <section className="accueil">
-      <p className="accueil__accroche">
-        Steak ou avocat ? Avion ou train ? 10 Duels pour deviner quel geste du quotidien émet le plus de CO2e.
-      </p>
-      <button type="button" className="bouton" onClick={lancerPartieDuJour} disabled={!calendrier}>
-        {duJour?.score != null
-          ? 'Revoir mon Duel du jour'
-          : `${duJour ? 'Reprendre' : 'Jouer'} le Duel Carbone du jour n° ${numeroDuJourAffiche}`}
-      </button>
-      {duJour?.score != null && (
-        <p className="accueil__record">
-          Duel Carbone du jour n° {numeroDuJourAffiche} : {duJour.score}/{NOMBRE_DE_DUELS}
-        </p>
-      )}
-      {serie.actuelle > 0 && <p className="accueil__record">Série : {jours(serie.actuelle)} d'affilée</p>}
-      <p className="accueil__libre">Envie de t'entraîner ?</p>
-      <button type="button" className="bouton bouton--secondaire" onClick={lancerPartie}>
-        Partie libre
-      </button>
-      {record !== null && (
-        <p className="accueil__record">
-          Ton record en Partie libre : {record}/{NOMBRE_DE_DUELS}
-        </p>
-      )}
-      <p className="accueil__confiance">
-        Sans cookie, sans compte : ton meilleur score et ta série restent sur cet appareil. Chiffres de l'ADEME, calcul
-        expliqué dans <a href={ADRESSES.sources}>Sources et méthode</a>.
-      </p>
-    </section>
-  )
-
   return (
     <div className="page">
       <header className="entete">
+        <img className="entete__logo" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width="36" height="36" />
         <h1>Duel Carbone</h1>
       </header>
       <main>
         {page === 'sources' && <EcranSources />}
         {/* Le jeu reste en place (simplement caché) pendant la lecture des sources : la Partie en cours n'est pas perdue. */}
         <div hidden={page === 'sources'}>
-          {!partie && accueil}
+          {!partie && (
+            <Accueil
+              jour={aujourdhui}
+              numero={numeroDuJourAffiche}
+              situation={situation}
+              resultat={resultat}
+              scoreHier={scoreHier}
+              serie={serie.actuelle}
+              record={record}
+              calendrierPret={calendrier !== null}
+              onJouerDuJour={lancerPartieDuJour}
+              onPartieLibre={lancerPartie}
+              onRevoir={lancerPartieDuJour}
+              onTutoriel={() => setTutoriel(true)}
+            />
+          )}
           {partie?.mode === 'libre' && (
             <EcranPartie
               key={numero}
@@ -172,12 +178,21 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
           )}
         </div>
       </main>
+      {/* La frise du catalogue, sur tous les écrans. */}
+      <Frise />
       <footer className="pied">
         <p>
-          Données : <a href={IMPACT_CO2}>ADEME, Impact CO2</a> ·{' '}
-          <a href={ADRESSES.sources}>Sources et méthode</a> · <a href={DEPOT}>Suivre le projet sur GitHub</a>
+          <button type="button" className="lien-bouton pied__lien-bouton" onClick={() => setTutoriel(true)}>
+            Comment ça marche ?
+          </button>{' '}
+          · <a href={ADRESSES.sources}>Sources et méthode</a> · <a href={IMPACT_CO2}>Chiffres de l’ADEME</a>, sans cookie ni
+          compte
+        </p>
+        <p>
+          <a href={DEPOT}>Suivre le projet sur GitHub</a>
         </p>
       </footer>
+      <Tutoriel ouvert={tutoriel} onFermer={() => setTutoriel(false)} onJouer={lancerPartieDuJour} />
     </div>
   )
 }

@@ -57,7 +57,16 @@ a {
 }
 
 .entete {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin-bottom: 12px;
+}
+
+/* Le logo : un steak sur fond vert, un avocat sur fond rouge (scripts/logo.ts). */
+.entete__logo {
+  display: block;
+  border-radius: 9px;
 }
 
 .entete h1 {
@@ -67,35 +76,22 @@ a {
   color: var(--marque);
 }
 
-.accueil {
-  display: grid;
-  justify-items: start;
-  gap: 16px;
-  padding: 24px 0;
-}
-
-.accueil__accroche {
-  margin: 0;
-  font-size: 20px;
-}
-
-.accueil__record {
-  margin: 0;
-  color: var(--discret);
-  font-weight: 700;
-}
-
-.accueil__confiance {
-  margin: 0;
-  max-width: 52ch;
-  color: var(--discret);
-  font-size: 15px;
-}
-
 .pied {
-  margin-top: 32px;
-  font-size: 14px;
+  margin-top: 12px;
+  font-size: 13px;
+  text-align: center;
   color: var(--discret);
+}
+
+.pied p {
+  margin: 4px 0;
+}
+
+/* « Comment ça marche ? » dans le pied de page : discret, comme les liens voisins. */
+.pied__lien-bouton {
+  padding: 0;
+  color: inherit;
+  font-weight: 400;
 }
 
 .bouton {
@@ -167,4 +163,36 @@ a {
 .bouton:focus-visible {
   outline: 3px solid var(--marque);
   outline-offset: 3px;
+}
+
+/* Les fenêtres (définition du CO2e, tutoriel). */
+.fenetre {
+  width: min(560px, calc(100vw - 16px));
+  max-height: calc(100svh - 16px);
+  padding: 16px;
+  border: 0;
+  border-radius: 20px;
+  background: var(--fond);
+  color: var(--encre);
+}
+
+.fenetre::backdrop {
+  background: rgb(0 0 0 / 55%);
+}
+
+/* Un bouton qui a l'air d'un lien (« Comment ça marche ? », « une Partie libre »). */
+.lien-bouton {
+  padding: 4px;
+  border: 0;
+  background: none;
+  color: var(--marque);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.lien-bouton:focus-visible {
+  outline: 3px solid var(--marque);
+  outline-offset: 2px;
 }

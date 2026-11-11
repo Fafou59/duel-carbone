@@ -1,0 +1,91 @@
+.tutoriel h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.tutoriel__entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.tutoriel__fermer {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--carte);
+  color: var(--encre);
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.tutoriel__fermer:focus-visible {
+  outline: 3px solid var(--marque);
+  outline-offset: 3px;
+}
+
+/* Dans le tutoriel, des cartes plus compactes. */
+.tutoriel .carte {
+  min-height: 0;
+  padding: 10px;
+}
+
+.tutoriel .carte__icone {
+  font-size: 36px;
+}
+
+.tutoriel .carte__titre {
+  font-size: 16px;
+}
+
+.diaporama {
+  display: grid;
+  gap: 12px;
+}
+
+.diaporama h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.diaporama__points {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+}
+
+.diaporama__points span {
+  width: 28px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--ligne);
+}
+
+.diaporama__points .actif {
+  background: var(--marque);
+}
+
+.diaporama__texte {
+  margin: 0;
+}
+
+.diaporama__visuel {
+  padding: 10px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--encre) 5%, var(--fond));
+}
+
+/* La navigation reste visible en bas de la fenêtre, même quand l'étape est longue. */
+.diaporama__navigation {
+  position: sticky;
+  bottom: -16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: 0 -16px -16px;
+  padding: 10px 16px 16px;
+  background: var(--fond);
+  box-shadow: 0 -8px 16px -12px rgb(0 0 0 / 40%);
+}
