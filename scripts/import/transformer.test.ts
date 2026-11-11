@@ -93,10 +93,16 @@ describe("Construction de l'Instantané", () => {
     expect(() => importer(['numerique', inconnue])).toThrow(/mystere.*999/)
   })
 
+  it("compte le streaming vidéo à l'heure (unité vérifiée sur le calculateur d'Impact CO2)", () => {
+    const { instantane } = importer(['usagenumerique', USAGE_NUMERIQUE])
+    expect(instantane.equivalents[0]).toMatchObject({ slug: 'streamingvideo', unite: 'heure' })
+  })
+
   it("signale, sans échouer, une unité à vérifier", () => {
-    const { instantane, avertissements } = importer(['usagenumerique', USAGE_NUMERIQUE])
+    const visio: ReponseEcv[] = [{ name: 'Visioconférence', slug: 'visioconference', ecv: 0.057, footprint: 0.057 }]
+    const { instantane, avertissements } = importer(['usagenumerique', visio])
     expect(instantane.equivalents[0].unite).toBeNull()
-    expect(avertissements).toContainEqual(expect.stringMatching(/streamingvideo.*unité/))
+    expect(avertissements).toContainEqual(expect.stringMatching(/visioconference.*unité/))
   })
 
   it('signale un total incohérent avec la somme de ses étapes', () => {
