@@ -31,3 +31,26 @@ export const joursEntre = (debut: string, fin: string): number => Math.round((en
 
 /** Le numéro du Duel Carbone du jour : 1 le premier jour, puis un de plus chaque jour. */
 export const numeroDuJour = (jour: string): number => joursEntre(PREMIER_JOUR, jour) + 1
+
+const heureDeParis = new Intl.DateTimeFormat('en-GB', {
+  timeZone: 'Europe/Paris',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hourCycle: 'h23',
+})
+
+/**
+ * Les secondes qui restent avant minuit à Paris, c'est-à-dire avant le prochain Duel du jour.
+ * (La nuit d'un changement d'heure, le compte peut avoir une heure d'écart : sans conséquence ici.)
+ */
+export function secondesAvantMinuitAParis(instant: Date): number {
+  const [h, m, s] = heureDeParis.format(instant).split(':').map(Number)
+  return 86_400 - (h * 3600 + m * 60 + s)
+}
+
+/** Une durée en secondes, lisible : « 3 h 05 min 09 s ». */
+export function formaterDuree(secondes: number): string {
+  const deux = (n: number) => String(n).padStart(2, '0')
+  return `${Math.floor(secondes / 3600)} h ${deux(Math.floor((secondes % 3600) / 60))} min ${deux(secondes % 60)} s`
+}

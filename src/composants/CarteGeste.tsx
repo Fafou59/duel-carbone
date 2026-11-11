@@ -17,8 +17,8 @@ type Props = {
   etat: EtatCarte
   /** La carte a été choisie par le joueur. */
   choisie: boolean
-  /** Touche du clavier qui choisit cette carte (1 ou 2). */
-  raccourci: string
+  /** Touche du clavier qui choisit cette carte (1 ou 2), s'il y en a une. */
+  raccourci?: string
   onChoisir: () => void
 }
 

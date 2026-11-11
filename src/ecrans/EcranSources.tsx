@@ -4,6 +4,7 @@ import { formaterDate, formaterEmpreinte } from '../domaine/format.ts'
 import { REGLES } from '../domaine/regles.ts'
 import { DEPOT, FLUENT_EMOJI, IMPACT_CO2, MENTIONS_LEGALES_ADEME } from '../liens.ts'
 import { ADRESSES } from '../navigateur/adresse.ts'
+import { DefinitionCo2e } from '../composants/Co2e.tsx'
 import './EcranSources.css'
 
 /** Un nombre à la française, jusqu'à deux décimales : « 0,12 », « 1,25 », « 500 ». */
@@ -70,6 +71,11 @@ export function EcranSources() {
           d'Impact CO2</a>). Les données restent la propriété de l'ADEME. Duel Carbone est un projet indépendant : il
           n'est pas édité par l'ADEME.
         </p>
+      </section>
+
+      <section>
+        <h3>L'unité : le CO2e</h3>
+        <DefinitionCo2e niveau="h4" />
       </section>
 
       <section>

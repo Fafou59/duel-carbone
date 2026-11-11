@@ -1,0 +1,248 @@
+/* ─── Commun aux deux accueils ─────────────────────────────────────────────────────── */
+.accueil {
+  display: grid;
+  gap: 14px;
+  padding-bottom: 8px;
+}
+
+.accueil p {
+  margin: 0;
+}
+
+.accueil__gros {
+  padding: 15px 26px;
+  font-size: 18px;
+}
+
+.accueil__titre {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.accueil__accroche {
+  max-width: 38ch;
+  font-size: 16px;
+}
+
+.accueil__accroche > b {
+  display: block;
+  margin-top: 6px;
+}
+
+.accueil__discret {
+  color: var(--discret);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* ─── Nouveau joueur : la vitrine ──────────────────────────────────────────────────── */
+.accueil--nouveau {
+  gap: 28px;
+}
+
+/* Le premier écran remplit la hauteur du téléphone : la Partie libre n'apparaît qu'en faisant défiler. */
+.accueil__ecran {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 14px;
+  min-height: calc(100svh - 80px);
+  text-align: center;
+}
+
+.accueil__libre {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.accueil__libre > p:first-child {
+  font-weight: 800;
+  /* Des lignes de longueur égale : pas de « ? » tout seul sur la dernière. */
+  text-wrap: balance;
+}
+
+/* Dans la vitrine, les boutons sont centrés (la règle .bouton du jeu les aligne à gauche). */
+.accueil__ecran .bouton,
+.accueil__libre .bouton {
+  justify-self: center;
+}
+
+/* ─── Joueur qui revient : le tableau de bord ──────────────────────────────────────── */
+.accueil__entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.accueil__date {
+  color: var(--discret);
+  font-weight: 700;
+}
+
+.accueil__date::first-letter {
+  text-transform: uppercase;
+}
+
+.accueil__carte {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  padding: 14px;
+  border: 3px solid var(--ligne);
+  border-radius: 20px;
+  background: var(--carte);
+}
+
+.accueil__carte--jour {
+  border-color: var(--marque);
+}
+
+.accueil__carte.accueil__libre {
+  justify-items: center;
+}
+
+.accueil__carte.accueil__libre > p:first-child {
+  font-size: 17px;
+}
+
+.accueil__etiquette {
+  color: var(--marque);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.accueil__score {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 14px;
+}
+
+.accueil__points {
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.accueil__points span {
+  font-size: 22px;
+}
+
+.accueil__grille {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.accueil__grille span {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+}
+
+.accueil__grille .bon {
+  background: var(--bon);
+}
+
+.accueil__grille .mauvais {
+  background: var(--mauvais);
+}
+
+.accueil__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.accueil__partage:empty {
+  display: none;
+}
+
+.accueil__partage {
+  display: grid;
+  gap: 4px;
+  font-weight: 700;
+}
+
+.accueil__texte-partage {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--fond);
+  font-weight: 400;
+  user-select: all;
+}
+
+/* La série et le compte à rebours, sur une seule ligne. */
+.accueil__ligne {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  width: 100%;
+  padding-top: 10px;
+  border-top: 1px solid var(--ligne);
+}
+
+.accueil__ligne span {
+  display: grid;
+}
+
+.accueil__ligne span:last-child {
+  text-align: right;
+}
+
+.accueil__ligne b {
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.accueil__ligne small {
+  color: var(--discret);
+  font-size: 12px;
+}
+
+.accueil__serie {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--difficile) 16%, var(--carte));
+  font-size: 18px;
+}
+
+.accueil__flamme {
+  font-size: 40px;
+  line-height: 1;
+}
+
+.accueil__libre-discret {
+  color: var(--discret);
+  text-align: center;
+}
+
+.accueil__presentation {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  text-align: center;
+}
+
+/* Petit téléphone : on resserre pour que tout le premier écran tienne sans défiler. */
+@media (max-height: 700px), (max-width: 360px) {
+  .accueil__titre {
+    font-size: 23px;
+  }
+
+  .accueil__accroche {
+    font-size: 15px;
+  }
+}

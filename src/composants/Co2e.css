@@ -1,0 +1,73 @@
+.co2e {
+  white-space: nowrap;
+}
+
+.co2e abbr {
+  text-decoration: none;
+}
+
+/* La pastille « ? » à côté de CO2e : un vrai bouton, avec une zone de toucher agrandie (34 px). */
+.co2e__pastille {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin: 0 0 0 4px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--marque);
+  color: var(--sur-marque);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.co2e__pastille::after {
+  position: absolute;
+  inset: -6px;
+  content: '';
+}
+
+.co2e__pastille:focus-visible {
+  outline: 3px solid var(--encre);
+  outline-offset: 3px;
+}
+
+.co2e__fenetre {
+  width: min(420px, calc(100vw - 32px));
+  line-height: 1.45;
+}
+
+.definition-co2e {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.definition-co2e section {
+  display: grid;
+  gap: 4px;
+}
+
+.definition-co2e section + section {
+  padding-top: 12px;
+  border-top: 1px solid var(--ligne);
+}
+
+.definition-co2e :is(h3, h4) {
+  margin: 0;
+  color: var(--marque);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.definition-co2e p {
+  margin: 0;
+}
