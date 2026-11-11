@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { GESTES_CALCULES, gesteCalcule, INSTANTANE } from '../donnees/index.ts'
 import { formaterDate, formaterEmpreinte } from '../domaine/format.ts'
 import { REGLES } from '../domaine/regles.ts'
-import { DEPOT, IMPACT_CO2, MENTIONS_LEGALES_ADEME } from '../liens.ts'
+import { DEPOT, FLUENT_EMOJI, IMPACT_CO2, MENTIONS_LEGALES_ADEME } from '../liens.ts'
 import { ADRESSES } from '../navigateur/adresse.ts'
 import './EcranSources.css'
 
@@ -153,6 +153,10 @@ export function EcranSources() {
         <p>
           Le <a href={DEPOT}>code source du jeu</a> est public, sous licence MIT. Une erreur, une idée ?{' '}
           <a href={`${DEPOT}/issues`}>Dis-le sur GitHub</a>.
+        </p>
+        <p>
+          Les icônes viennent de <a href={FLUENT_EMOJI}>Fluent Emoji</a>, de Microsoft, sous licence MIT. Quand aucune
+          ne parlait assez, nous avons dessiné la nôtre dans le même style (le micro-ondes, le lave-linge…).
         </p>
       </section>
     </article>

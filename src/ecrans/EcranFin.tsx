@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { PanneauDuel } from '../composants/PanneauDuel.tsx'
-import { iconeDe } from '../donnees/icones.ts'
+import { Icone } from '../composants/Icone.tsx'
 import { formaterMultiple, queDevant } from '../domaine/format.ts'
 import { texteDePartage } from '../domaine/partage.ts'
 import { messageDeScore, type LigneRecapitulatif } from '../domaine/recapitulatif.ts'
@@ -109,7 +109,7 @@ export function EcranFin({
                 {ligne.bonne ? '✓' : '✗'} Duel {ligne.numero}
               </span>
               <span className="recap__equivalence">
-                1 {iconeDe(ligne.plus.id)} = {formaterMultiple(ligne.rapport)} {iconeDe(ligne.moins.id)}
+                1 <Icone id={ligne.plus.id} /> = {formaterMultiple(ligne.rapport)} <Icone id={ligne.moins.id} />
               </span>
             </button>
           </li>

@@ -116,6 +116,19 @@ describe('Une Partie de 10 Duels', () => {
   })
 })
 
+describe('Les icônes du Duel suivant', () => {
+  /** Les icônes que le navigateur a été invité à télécharger à l'avance (<link rel="preload">). */
+  const prechargees = () =>
+    [...document.head.querySelectorAll('link[rel="preload"][as="image"]')].map((l) => l.getAttribute('href'))
+
+  it('sont téléchargées pendant le Duel en cours, pour s’afficher sans attendre', () => {
+    render(<EcranPartie duels={DUELS} onRejouer={() => {}} />)
+    expect(prechargees()).toEqual(
+      expect.arrayContaining([`/icones/${DUELS[1].a.id}.svg`, `/icones/${DUELS[1].b.id}.svg`]),
+    )
+  })
+})
+
 describe('Un Duel thématique dans la Partie', () => {
   // La même Partie, où le Duel 3 devient un Duel thématique (il a ses textes rédigés à la main).
   const TEXTES = {
