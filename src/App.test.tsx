@@ -1,7 +1,8 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
-import { afterEach, describe, expect, it } from 'vitest'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 import { creerMemoire, type Stockage } from './navigateur/memoire.ts'
+import { signalerNouvelleVersion } from './navigateur/mise-a-jour.ts'
 
 /** Un faux localStorage, partagé entre deux affichages de l'application (comme avant et après un rechargement). */
 function stockage(): Stockage {
@@ -241,9 +242,44 @@ describe('Application : le Duel Carbone du jour', () => {
     expect(screen.getByText('Duel 1/10')).toBeInTheDocument()
   })
 
+  it('retient les Duels du jour au lancement, et reprend ceux-là même si le calendrier a changé entre-temps', async () => {
+    const s = stockage()
+    const avant = render(<App memoire={creerMemoire(s)} aujourdhui={JOUR} />)
+    fireEvent.click(await boutonDuJour())
+    expect(creerMemoire(s).partieDuJour(JOUR)?.duels).toHaveLength(10)
+    avant.unmount()
+    // Une Partie du jour commencée avec d'autres Duels (une ancienne version du jeu, un autre calendrier).
+    const autre = creerMemoire(stockage())
+    const duels = ['jean>paris-marseille-tgv', ...Array(9).fill('steak-boeuf>avocat')]
+    autre.commencerPartieDuJour(JOUR, duels)
+    render(<App memoire={autre} aujourdhui={JOUR} />)
+    fireEvent.click(await boutonDuJour())
+    fermerAnnonce()
+    expect(titresDesCartes().join(' ')).toMatch(/jean.*Paris–Marseille en TGV/)
+  })
+
   it('reste jouable sans stockage', async () => {
     render(<App memoire={creerMemoire(null)} aujourdhui={JOUR} />)
     fireEvent.click(await boutonDuJour())
     expect(screen.getByText('Duel 1/10')).toBeInTheDocument()
+  })
+})
+
+describe('Application : mise à jour silencieuse (application installée)', () => {
+  it('applique une nouvelle version dès qu’elle est prête, si le joueur est sur l’accueil', () => {
+    render(<App />)
+    const appliquer = vi.fn()
+    act(() => signalerNouvelleVersion(appliquer))
+    expect(appliquer).toHaveBeenCalledOnce()
+  })
+
+  it('n’interrompt jamais une Partie : la nouvelle version attend le retour à l’accueil', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'Partie libre' }))
+    const appliquer = vi.fn()
+    act(() => signalerNouvelleVersion(appliquer))
+    expect(appliquer).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('link', { name: 'Duel Carbone' }))
+    expect(appliquer).toHaveBeenCalledOnce()
   })
 })
