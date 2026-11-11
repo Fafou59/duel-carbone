@@ -76,6 +76,15 @@ describe('Page Sources et méthode', () => {
     expect(screen.getByText(/Le jeu est hébergé par Cloudflare/)).toHaveTextContent(/adresse IP/)
   })
 
+  it('explique la mesure d’audience : GoatCounter, sans cookie, des chiffres agrégés', () => {
+    render(<EcranSources />)
+    expect(screen.getByRole('link', { name: 'GoatCounter' })).toHaveAttribute('href', 'https://www.goatcounter.com')
+    const paragraphe = screen.getByText(/Pour savoir si le jeu plaît/)
+    expect(paragraphe).toHaveTextContent(/sans cookie/)
+    expect(paragraphe).toHaveTextContent(/chiffres agrégés/)
+    expect(paragraphe).toHaveTextContent(/ni ton score ni tes réponses/)
+  })
+
   it('crédite le jeu d’icônes, comme le demande sa licence', () => {
     render(<EcranSources />)
     expect(screen.getByRole('link', { name: /Fluent Emoji/ })).toHaveAttribute(

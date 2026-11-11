@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { GESTES_CALCULES, gesteCalcule, INSTANTANE } from '../donnees/index.ts'
 import { formaterDate, formaterEmpreinte } from '../domaine/format.ts'
 import { REGLES } from '../domaine/regles.ts'
-import { DEPOT, FLUENT_EMOJI, IMPACT_CO2, MENTIONS_LEGALES_ADEME } from '../liens.ts'
+import { DEPOT, FLUENT_EMOJI, GOATCOUNTER, IMPACT_CO2, MENTIONS_LEGALES_ADEME } from '../liens.ts'
 import { ADRESSES } from '../navigateur/adresse.ts'
 import { DefinitionCo2e } from '../composants/Co2e.tsx'
 import './EcranSources.css'
@@ -161,6 +161,13 @@ export function EcranSources() {
         <p>
           Le jeu est hébergé par Cloudflare : comme tout hébergeur, il reçoit les demandes de ton navigateur (dont ton
           adresse IP) pour t'envoyer les pages du jeu.
+        </p>
+        <p>
+          Pour savoir si le jeu plaît, nous comptons les visites et quelques moments de jeu (une Partie lancée, terminée
+          et sa durée approximative, « Rejouer », un partage) avec <a href={GOATCOUNTER}>GoatCounter</a>, une mesure
+          d'audience sans cookie ni identifiant. Elle ne donne que des chiffres agrégés : elle ne peut pas te suivre
+          d'un site à l'autre, ne conserve pas ton adresse IP, et ni ton score ni tes réponses ne lui sont envoyés. Si
+          ton navigateur la bloque, le jeu marche tout autant.
         </p>
       </section>
 
