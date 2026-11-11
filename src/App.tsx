@@ -169,6 +169,7 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
           {partie?.mode === 'jour' && (
             <EcranPartie
               key={numero}
+              mode="jour"
               duels={partie.duels}
               reponsesInitiales={partie.reponses}
               onReponse={(idChoisi) => memoire.enregistrerReponseDuJour(partie.jour, idChoisi)}

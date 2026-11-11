@@ -5,12 +5,15 @@ import { difficulteAttendue } from '../domaine/difficulte.ts'
 import { iconeDe } from '../donnees/icones.ts'
 import { avancer, estThematique, NOMBRE_DE_DUELS, reprendrePartie, score, type DuelDePartie } from '../domaine/partie.ts'
 import { recapitulatif } from '../domaine/recapitulatif.ts'
+import { mesurer, useMesureDePartie, type Mode } from '../navigateur/mesure.ts'
 import { EcranDuel } from './EcranDuel.tsx'
 import { EcranFin } from './EcranFin.tsx'
 import './EcranPartie.css'
 
 type Props = {
   duels: DuelDePartie[]
+  /** Partie libre (par défaut) ou Partie du jour : pour la mesure d'audience. */
+  mode?: Mode
   onRejouer: () => void
   /** Le record d'avant cette Partie, affiché à la fin. */
   ancienRecord?: number | null
@@ -26,7 +29,8 @@ type Props = {
 
 export function EcranPartie({
   duels,
-  onRejouer,
+  mode = 'libre',
+  onRejouer: relancer,
   ancienRecord = null,
   onTerminee,
   reponsesInitiales = [],
@@ -38,6 +42,13 @@ export function EcranPartie({
   // Une Partie interrompue repart de ses réponses déjà données.
   const [etat, envoyer] = useReducer(avancer, undefined, () => reprendrePartie(duels, reponsesInitiales))
   const choisir = useCallback((idGeste: string) => envoyer({ type: 'choisir', idGeste }), [])
+
+  // Mesure d'audience (navigateur/mesure.ts) : Partie lancée, terminée, sa durée, et « Rejouer ».
+  useMesureDePartie({ mode, reprise: reponsesInitiales.length > 0, terminee: etat.phase === 'fin' })
+  const onRejouer = () => {
+    mesurer(`rejouer/${mode}`)
+    relancer()
+  }
 
   // Chaque nouvelle réponse est signalée une seule fois (pas celles d'une Partie reprise).
   const signalees = useRef(etat.reponses.length)
