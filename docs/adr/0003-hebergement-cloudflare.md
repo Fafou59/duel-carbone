@@ -5,7 +5,7 @@ date: 2026-11-11
 
 # Héberger le jeu chez Cloudflare (Workers, fichiers statiques), à la place de Netlify
 
-Le 2026-11-11, l'offre gratuite de Netlify a épuisé ses crédits du mois : les mises en production sont en pause jusqu'au 7 décembre (le site reste figé sur une ancienne version), et le même blocage pourrait revenir chaque mois avec le succès du jeu. Duel Carbone est un site 100 % statique : nous l'hébergeons désormais chez **Cloudflare**, avec **Workers et ses fichiers statiques** (« Requests to static assets are free and unlimited »), que Cloudflare recommande pour les nouveaux projets à la place de Pages. Cloudflare construit le jeu à chaque modification du dépôt GitHub : la branche `main` part en production, les autres branches ont un aperçu (signalé en commentaire de la PR). La configuration est versionnée dans `wrangler.jsonc`.
+Le 2026-11-11, l'offre gratuite de Netlify a épuisé ses crédits du mois : les mises en production sont en pause jusqu'au 7 décembre (le site reste figé sur une ancienne version), et le même blocage pourrait revenir chaque mois avec le succès du jeu. Duel Carbone est un site 100 % statique : nous l'hébergeons désormais chez **Cloudflare**, avec **Workers et ses fichiers statiques** (« Requests to static assets are free and unlimited »), que Cloudflare recommande pour les nouveaux projets à la place de Pages. Cloudflare construit le jeu à chaque modification du dépôt GitHub : la branche `main` part en production, les autres branches ont un aperçu, à l'adresse `<nom-de-la-branche>-duel-carbone.<sous-domaine du compte>.workers.dev` (son état apparaît dans les vérifications de la PR, « Workers Builds »). La configuration est versionnée dans `wrangler.jsonc`.
 
 ## Options écartées
 

@@ -10,5 +10,8 @@
   "assets": {
     // Le dossier produit par Vite.
     "directory": "./dist"
-  }
+  },
+  // Les aperçus des branches (commande « npx wrangler preview », lancée par Cloudflare pour chaque
+  // branche autre que main) exigent ce bloc, même vide : les réglages de base ci-dessus s'appliquent.
+  "previews": {}
 }
