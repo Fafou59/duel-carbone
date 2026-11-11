@@ -22,6 +22,13 @@ describe('Page Sources et méthode', () => {
     expect(screen.getByText(/non commerciale et pédagogique/)).toBeInTheDocument()
   })
 
+  it('définit le CO2e, comme la fenêtre de l’accueil', () => {
+    render(<EcranSources />)
+    expect(screen.getByRole('heading', { name: "L'unité : le CO2e" })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 4, name: 'Le CO2e, c’est quoi ?' })).toBeInTheDocument()
+    expect(screen.getByText(/1 kg de méthane réchauffe autant qu’environ 30 kg de CO2/)).toBeInTheDocument()
+  })
+
   it('explique le calcul Geste = Équivalent × Quantité sur un exemple tiré du catalogue', () => {
     render(<EcranSources />)
     const steak = gesteCalcule('steak-boeuf')
