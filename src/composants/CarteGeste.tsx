@@ -1,4 +1,4 @@
-import { iconeDe } from '../donnees/icones.ts'
+import { Icone } from './Icone.tsx'
 import { formaterEmpreinte } from '../domaine/format.ts'
 import type { GesteCalcule } from '../domaine/geste.ts'
 import './CarteGeste.css'
@@ -39,7 +39,7 @@ export function CarteGeste({ geste, etat, choisie, raccourci, onChoisir }: Props
       )}
       {etat === 'mauvais-choix' && <span className="carte__etiquette carte__etiquette--mauvais">✗ Ton choix</span>}
       <span className="carte__icone" aria-hidden="true">
-        {iconeDe(geste.id)}
+        <Icone id={geste.id} />
       </span>
       <span className="carte__titre">{geste.titre}</span>
       <span className="carte__sous-titre">{geste.sousTitre}</span>

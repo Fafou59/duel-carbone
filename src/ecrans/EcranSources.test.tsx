@@ -42,4 +42,13 @@ describe('Page Sources et méthode', () => {
       'https://github.com/Fafou59/duel-carbone',
     )
   })
+
+  it('crédite le jeu d’icônes, comme le demande sa licence', () => {
+    render(<EcranSources />)
+    expect(screen.getByRole('link', { name: /Fluent Emoji/ })).toHaveAttribute(
+      'href',
+      'https://github.com/microsoft/fluentui-emoji',
+    )
+    expect(screen.getByText(/Les icônes viennent de/)).toHaveTextContent(/de Microsoft, sous licence MIT/)
+  })
 })

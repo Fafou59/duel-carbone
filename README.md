@@ -45,6 +45,7 @@ npm run dev      # lance le site en local, avec rechargement automatique
 npm test         # lance les tests
 npm run build    # construit la version de production dans dist/
 npm run import   # met à jour l'Instantané des données ADEME (src/donnees/instantane.json)
+npm run icones   # refait les icônes des Gestes (public/icones/), après l'ajout d'un Geste
 ```
 
 La clé d'API Impact CO2 est facultative : pour l'utiliser, copier `.env.example` en `.env` et la renseigner.
@@ -52,3 +53,5 @@ La clé d'API Impact CO2 est facultative : pour l'utiliser, copier `.env.example
 ## Licence
 
 Le code est publié sous licence [MIT](LICENSE). Les données carbone appartiennent à l'ADEME et restent soumises à ses conditions de réutilisation.
+
+Les icônes des Gestes viennent de [Fluent Emoji](https://github.com/microsoft/fluentui-emoji) (Microsoft, licence MIT), complétées par des dessins maison dans le même style : voir [public/icones/LICENCE.txt](public/icones/LICENCE.txt). Elles sont fabriquées par `npm run icones` (`scripts/icones/`).

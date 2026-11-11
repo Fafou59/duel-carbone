@@ -105,7 +105,7 @@ La référence visuelle est la variante **A2** du prototype ; le détail et les 
   - un tableau comparatif unique (étapes × Gestes, ligne Total), avec des jauges à échelle commune derrière les chiffres ;
   - les liens vers les fiches ADEME.
 - **Récapitulatif** : une grille de cases « ✓/✗ Duel n » puis « 1 [A] = x [B] », encadrées en vert ou en rouge. Chaque case ouvre le détail du Duel dans un panneau qu'on peut fermer.
-- **Icônes** : un jeu d'icônes cohérent sur tous les appareils (les emojis système ne suffisent pas), à choisir au moment des tickets.
+- **Icônes** : un jeu d'icônes cohérent sur tous les appareils (les emojis système ne suffisent pas). Choix du ticket #14 : **Fluent Emoji « Flat »** (Microsoft, licence MIT), plutôt qu'OpenMoji (contour noir illisible en mode sombre, licence « share-alike ») ou Twemoji (crédit visible obligatoire). Quand l'icône officielle n'est pas parlante, on dessine la nôtre dans le même style, et deux Gestes semblables reçoivent des couleurs différentes. Une icône est un fichier par Geste (`public/icones/`, fabriqué par `npm run icones`), chargé à part : un Duel ne télécharge que ses deux icônes, et celles du Duel suivant sont préchargées.
 
 ## 6. Décisions d'implémentation
 
