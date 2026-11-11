@@ -1,6 +1,6 @@
-/// <reference types="vitest/config" />
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+import { configDefaults } from 'vitest/config'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
@@ -45,5 +45,8 @@ export default defineConfig({
     // jsdom simule un navigateur dans Node.js, pour tester les composants React sans ouvrir de vraie page.
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
+    // Vitest ne lance pas les tests de bout en bout (Playwright, dossier e2e), ni les copies du projet rangées
+    // dans .claude/worktrees (les sessions parallèles).
+    exclude: [...configDefaults.exclude, 'e2e/**', '.claude/**'],
   },
 })
