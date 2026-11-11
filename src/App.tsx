@@ -3,6 +3,7 @@ import { DUELS_THEMATIQUES } from './donnees/duels-thematiques.ts'
 import { CALIBRAGE, GESTES_CALCULES } from './donnees/index.ts'
 import { cleDePaire, genererPartie } from './domaine/generateur.ts'
 import { NOMBRE_DE_DUELS, type DuelDePartie } from './domaine/partie.ts'
+import { doitForcerUnDuelThematique } from './domaine/thematiques.ts'
 import { EcranPartie } from './ecrans/EcranPartie.tsx'
 import { EcranSources } from './ecrans/EcranSources.tsx'
 import { ADRESSES, usePage } from './navigateur/adresse.ts'
@@ -35,11 +36,13 @@ export default function App({ memoire: memoireFournie }: Props) {
   }, [page])
 
   const lancerPartie = () => {
-    // Une Partie sur deux contient un Duel thématique (REGLES.probabiliteDuelThematique).
+    // Une Partie sur deux contient un Duel thématique (REGLES.probabiliteDuelThematique),
+    // et jamais plus de 3 Parties de suite sans (la garantie, lue dans la mémoire des Parties récentes).
     const partie = genererPartie({
       gestes: GESTES_CALCULES,
       thematiques: DUELS_THEMATIQUES,
       pairesRecentes: memoire.pairesRecentes(),
+      forcerThematique: doitForcerUnDuelThematique(memoire.partiesRecentes(), DUELS_THEMATIQUES),
       coefficients: CALIBRAGE.coefficients,
     })
     memoire.enregistrerPartie(partie.map((duel) => cleDePaire(duel.a.id, duel.b.id)))

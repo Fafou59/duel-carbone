@@ -50,6 +50,7 @@ export function genererPartie({
   pairesRecentes = new Set<string>(),
   coefficients = {},
   probabiliteThematique = REGLES.probabiliteDuelThematique,
+  forcerThematique = false,
   hasard = Math.random,
 }: {
   gestes: GesteCalcule[]
@@ -58,6 +59,8 @@ export function genererPartie({
   coefficients?: Coefficients
   /** Remplaçable dans les tests (1 : toujours un Duel thématique). */
   probabiliteThematique?: number
+  /** La garantie contre les longues séries (doitForcerUnDuelThematique) : un Duel thématique à coup sûr. */
+  forcerThematique?: boolean
   hasard?: SourceDeHasard
 }): DuelTire[] {
   const { paires, parDuel } = pairesTirables(gestes)
@@ -70,7 +73,11 @@ export function genererPartie({
   const dejaTirees = new Set(thematiques.map((t) => cleDePaire(t.a, t.b)))
   const libre = (c: Candidat) => !dejaTirees.has(c.cle)
   const jamaisVue = (c: Candidat) => !pairesRecentes.has(c.cle)
-  const special = thematiques.length > 0 && hasard() < probabiliteThematique ? choisirThematique(thematiques, gestes, pairesRecentes, hasard) : null
+  // Le tirage a toujours lieu (même quand la garantie force) : la suite du hasard reste la même.
+  const special =
+    thematiques.length > 0 && (hasard() < probabiliteThematique || forcerThematique)
+      ? choisirThematique(thematiques, gestes, pairesRecentes, hasard)
+      : null
 
   const partie: DuelTire[] = []
   for (let position = 0; position < REGLES.nombreDeDuels; position++) {

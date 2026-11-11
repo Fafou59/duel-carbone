@@ -63,7 +63,7 @@ Un Geste qui n'est jamais tiré au hasard et n'apparaît que dans un Duel théma
 _À éviter_ : Geste caché, Geste exclu
 
 **Duel thématique** :
-Un Duel choisi et rédigé à la main pour son intérêt pédagogique : un titre et une accroche pour son annonce, un texte explicatif après la réponse. Une Partie sur deux en contient un, placé au Duel dont la tranche contient son Rapport : c'est sa Difficulté. Il échappe au plafond, aux tranches et au Coefficient d'équilibrage, pas au plancher.
+Un Duel choisi et rédigé à la main pour son intérêt pédagogique : un titre et une accroche pour son annonce, un texte explicatif après la réponse. Une Partie sur deux en contient un, et jamais plus de 3 Parties de suite sans ; il est placé au Duel dont la tranche contient son Rapport : c'est sa Difficulté. Il échappe au plafond, aux tranches et au Coefficient d'équilibrage, pas au plancher.
 _À éviter_ : duel spécial, duel custom
 
 **Coefficient d'équilibrage** :

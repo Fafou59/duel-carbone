@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import type { GesteCalcule } from './geste.ts'
 import { REGLES } from './regles.ts'
-import { positionDuDuelThematique, validerDuelsThematiques, type DuelThematique } from './thematiques.ts'
+import {
+  doitForcerUnDuelThematique,
+  positionDuDuelThematique,
+  validerDuelsThematiques,
+  type DuelThematique,
+} from './thematiques.ts'
 
 const geste = (id: string, empreinte: number, champs: Partial<GesteCalcule> = {}): GesteCalcule => ({
   id,
@@ -61,5 +66,34 @@ describe('Validation des Duels thématiques', () => {
     for (const champ of ['titre', 'accroche', 'texte'] as const) {
       expect(() => validerDuelsThematiques([thematique('a', 'b', { [champ]: '  ' })], gestes)).toThrow(new RegExp(champ))
     }
+  })
+})
+
+describe('Garantie : jamais plus de quelques Parties de suite sans Duel thématique', () => {
+  const THEMATIQUES = [thematique('a', 'b')]
+  const n = REGLES.partiesMaxSansDuelThematique
+  const sans = ['x|y', 'y|z']
+  const avec = ['a|b', 'y|z']
+
+  it('force un Duel thématique quand les dernières Parties n’en avaient aucun', () => {
+    expect(doitForcerUnDuelThematique(Array(n).fill(sans), THEMATIQUES)).toBe(true)
+  })
+
+  it('laisse faire le hasard si l’une d’elles en avait un', () => {
+    const parties = [...Array(n - 1).fill(sans), avec]
+    expect(doitForcerUnDuelThematique(parties, THEMATIQUES)).toBe(false)
+  })
+
+  it('laisse faire le hasard pour un nouveau joueur, qui n’a pas encore joué assez de Parties', () => {
+    expect(doitForcerUnDuelThematique([], THEMATIQUES)).toBe(false)
+    expect(doitForcerUnDuelThematique(Array(n - 1).fill(sans), THEMATIQUES)).toBe(false)
+  })
+
+  it('ne regarde que les dernières Parties', () => {
+    expect(doitForcerUnDuelThematique([avec, ...Array(n).fill(sans)], THEMATIQUES)).toBe(true)
+  })
+
+  it('ne force rien sans Duel thématique au catalogue', () => {
+    expect(doitForcerUnDuelThematique(Array(n).fill(sans), [])).toBe(false)
   })
 })

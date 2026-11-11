@@ -205,6 +205,12 @@ describe('Générateur de Partie : les Duels thématiques', () => {
     expect(avec).toBeLessThan(0.57)
   })
 
+  it('en place un à coup sûr quand la garantie le demande, même si le tirage ne l’aurait pas donné', () => {
+    for (const duels of parties({ probabiliteThematique: 0, forcerThematique: true })) {
+      expect(thematiquesDe(duels)).toHaveLength(1)
+    }
+  })
+
   it('jamais plus d’un par Partie', () => {
     for (const duels of parties()) expect(thematiquesDe(duels).length).toBeLessThanOrEqual(1)
   })

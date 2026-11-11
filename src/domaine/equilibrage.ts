@@ -13,7 +13,7 @@ import { cleDePaire, genererPartie, type Coefficients } from './generateur.ts'
 import type { GesteCalcule } from './geste.ts'
 import { hasardReproductible } from './hasard.ts'
 import { REGLES } from './regles.ts'
-import type { DuelThematique } from './thematiques.ts'
+import { doitForcerUnDuelThematique, type DuelThematique } from './thematiques.ts'
 
 /** Ce qu'enregistre npm run calibrer. */
 export type Calibrage = { empreinte: string; coefficients: Record<string, number> }
@@ -53,8 +53,15 @@ export function frequencesDApparition(
   const historique: string[][] = []
   const apparitions = new Map(tirables(gestes).map((g) => [g.id, 0]))
   for (let p = 0; p < options.parties; p++) {
-    const pairesRecentes = new Set(historique.slice(-options.partiesMemorisees).flat())
-    const duels = genererPartie({ gestes, thematiques: options.thematiques, pairesRecentes, coefficients: options.coefficients, hasard })
+    const recentes = historique.slice(-options.partiesMemorisees)
+    const duels = genererPartie({
+      gestes,
+      thematiques: options.thematiques,
+      pairesRecentes: new Set(recentes.flat()),
+      forcerThematique: doitForcerUnDuelThematique(recentes, options.thematiques ?? []),
+      coefficients: options.coefficients,
+      hasard,
+    })
     historique.push(duels.map((d) => cleDePaire(d.a.id, d.b.id)))
     for (const id of new Set(duels.flatMap((d) => [d.a.id, d.b.id]))) {
       const n = apparitions.get(id)

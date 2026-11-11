@@ -30,6 +30,22 @@ export function positionDuDuelThematique(r: number): number {
   return position === -1 && r >= REGLES.plafond ? 0 : position
 }
 
+/**
+ * Garantie contre les longues séries : faut-il forcer un Duel thématique dans la prochaine Partie ?
+ * Oui si les dernières Parties (REGLES.partiesMaxSansDuelThematique) n'en avaient aucun.
+ * Un nouveau joueur, qui n'a pas encore joué autant de Parties, laisse faire le hasard.
+ * `partiesRecentes` : les paires (cleDePaire) de chaque Partie récente, de la plus ancienne à la plus récente.
+ */
+export function doitForcerUnDuelThematique(
+  partiesRecentes: readonly (readonly string[])[],
+  thematiques: DuelThematique[],
+): boolean {
+  const n = REGLES.partiesMaxSansDuelThematique
+  if (thematiques.length === 0 || partiesRecentes.length < n) return false
+  const cles = new Set(thematiques.map((t) => cleDePaire(t.a, t.b)))
+  return partiesRecentes.slice(-n).every((paires) => !paires.some((cle) => cles.has(cle)))
+}
+
 /** Vérifie les Duels thématiques face au catalogue. Liste tous les problèmes à la fois. */
 export function validerDuelsThematiques(thematiques: DuelThematique[], gestes: GesteCalcule[]): void {
   const problemes: string[] = []

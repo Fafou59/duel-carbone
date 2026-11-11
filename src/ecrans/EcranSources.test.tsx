@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { GESTES_CALCULES, gesteCalcule, INSTANTANE } from '../donnees/index.ts'
 import { formaterDate, formaterEmpreinte } from '../domaine/format.ts'
+import { REGLES } from '../domaine/regles.ts'
 import { EcranSources } from './EcranSources.tsx'
 
 describe('Page Sources et méthode', () => {
@@ -38,6 +39,7 @@ describe('Page Sources et méthode', () => {
   it('explique les Duels ★ : leur fréquence (lue dans les règles) et les gestes qui leur sont réservés', () => {
     render(<EcranSources />)
     expect(screen.getByText(/Une Partie sur deux contient un Duel ★/)).toBeInTheDocument()
+    expect(screen.getByText(new RegExp(`jamais plus de ${REGLES.partiesMaxSansDuelThematique} Parties de suite sans`))).toBeInTheDocument()
     const reserves = GESTES_CALCULES.filter((g) => g.seulementEnDuelThematique).length
     expect(screen.getByText(new RegExp(`dont ${reserves} réservés aux Duels ★`))).toBeInTheDocument()
   })

@@ -126,8 +126,9 @@ export function EcranSources() {
           l'écart pourrait tenir dans la marge d'erreur des données.
         </p>
         <p>
-          {FREQUENCE_THEMATIQUE} contient un Duel ★ : un piège choisi à la main pour ce qu'il nous apprend, annoncé
-          quand tu arrives dessus, et expliqué après ta réponse. Il prend la place que lui donne son écart : un piège
+          {FREQUENCE_THEMATIQUE} contient un Duel ★, et jamais plus de {REGLES.partiesMaxSansDuelThematique}{' '}
+          Parties de suite sans : un piège choisi à la main pour ce qu'il nous apprend, annoncé quand tu arrives
+          dessus, et expliqué après ta réponse. Il prend la place que lui donne son écart : un piège
           serré tombe en fin de Partie. Certains gestes, comme le pain au chocolat ou le TER, ne servent qu'à ces
           Duels.
         </p>

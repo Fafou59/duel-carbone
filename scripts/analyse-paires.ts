@@ -26,6 +26,7 @@ import {
 import { calculerGeste } from '../src/domaine/geste.ts'
 import { hasardReproductible } from '../src/domaine/hasard.ts'
 import { REGLES } from '../src/domaine/regles.ts'
+import { doitForcerUnDuelThematique } from '../src/domaine/thematiques.ts'
 import { DUELS_THEMATIQUES } from '../src/donnees/duels-thematiques.ts'
 import { GESTES } from '../src/donnees/gestes.ts'
 import type { Instantane } from '../src/donnees/referentiel.ts'
@@ -72,11 +73,22 @@ const niveaux: Record<NiveauDeTirage, number[]> = {
 }
 const hasard = hasardReproductible(1)
 const historique: string[][] = []
+let serieSansThematique = 0
+let pireSerie = 0
 for (let p = 0; p < PARTIES; p++) {
-  const pairesRecentes = new Set(historique.slice(-PARTIES_MEMORISEES).flat())
-  const duels = genererPartie({ gestes, thematiques: DUELS_THEMATIQUES, pairesRecentes, coefficients: calibrage.coefficients, hasard })
+  const recentes = historique.slice(-PARTIES_MEMORISEES)
+  const duels = genererPartie({
+    gestes,
+    thematiques: DUELS_THEMATIQUES,
+    pairesRecentes: new Set(recentes.flat()),
+    forcerThematique: doitForcerUnDuelThematique(recentes, DUELS_THEMATIQUES),
+    coefficients: calibrage.coefficients,
+    hasard,
+  })
   historique.push(duels.map((d) => cleDePaire(d.a.id, d.b.id)))
   duels.forEach((d, i) => niveaux[d.niveau][i]++)
+  serieSansThematique = duels.some((d) => d.thematique) ? 0 : serieSansThematique + 1
+  pireSerie = Math.max(pireSerie, serieSansThematique)
 }
 const part = (n: number) => `${String(Math.round((n / PARTIES) * 100)).padStart(3)} %`
 console.log(`\nSur ${PARTIES} Parties simulées : Duels thématiques, Duels tirés hors de leur tranche (« tranche voisine ») ou parmi des paires récentes :`)
@@ -87,6 +99,9 @@ for (let i = 0; i < REGLES.nombreDeDuels; i++) {
 }
 const avecThematique = niveaux.thematique.reduce((s, n) => s + n, 0)
 console.log(`  Parties avec un Duel thématique : ${part(avecThematique)} (règle : ${REGLES.probabiliteDuelThematique * 100} %)`)
+console.log(
+  `  Plus longue série sans Duel thématique : ${pireSerie} Parties (garantie : ${REGLES.partiesMaxSansDuelThematique} au plus)`,
+)
 
 // 3. Diversité des Gestes
 const aJour = calibrage.empreinte === empreinteDuTirage(gestes, DUELS_THEMATIQUES)
