@@ -97,6 +97,26 @@ export const ICONES: Record<string, string> = {
   friends: '🛋️',
   'nuit-hotel': '🏨',
   'journee-ski': '⛷️',
+  // Réservés aux Duels thématiques (#13)
+  'pain-au-chocolat': '🍫',
+  'boisson-soja': '🌱',
+  'nuggets-vegetaux': '🧆',
+  'repas-poulet': '🍽️',
+  'repas-vegetalien': '🥦',
+  'streaming-film': '📺',
+  'trottinette-10km': '🛴',
+  'bus-electrique-10km': '🚎',
+  'tramway-10km': '🚊',
+  'ter-100km': '🚆',
+  'tgv-100km': '🚅',
+  'autocar-100km': '🚍',
+  'numerique-france': '💻',
+  'aviation-france': '🛫',
+  'bovins-france': '🐂',
+  'voitures-france': '🚗',
+  'voitures-france-jour': '🚙',
+  'chauffage-france': '🏠',
+  'trains-france': '🚂',
 }
 
 /** Icône d'un Geste ; un repère neutre si elle manque, pour ne jamais casser l'affichage. */

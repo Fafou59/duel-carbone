@@ -16,6 +16,7 @@ import {
   type Calibrage,
 } from '../src/domaine/equilibrage.ts'
 import { calculerGeste } from '../src/domaine/geste.ts'
+import { DUELS_THEMATIQUES } from '../src/donnees/duels-thematiques.ts'
 import { GESTES } from '../src/donnees/gestes.ts'
 import type { Instantane } from '../src/donnees/referentiel.ts'
 import { PARTIES_MEMORISEES } from '../src/navigateur/taille-memoire.ts'
@@ -30,16 +31,17 @@ const debut = Date.now()
 console.log(`Calibrage des Coefficients d'équilibrage (${gestes.length} Gestes)…`)
 const coefficients = calibrerCoefficients(gestes, {
   partiesMemorisees: PARTIES_MEMORISEES,
+  thematiques: DUELS_THEMATIQUES,
   iterations: 8,
   partiesParIteration: 3000,
   graine: 1,
 })
-const calibrage: Calibrage = { empreinte: empreinteDuTirage(gestes), coefficients }
+const calibrage: Calibrage = { empreinte: empreinteDuTirage(gestes, DUELS_THEMATIQUES), coefficients }
 writeFileSync(FICHIER, JSON.stringify(calibrage, null, 2) + '\n', 'utf8')
 console.log(`  ✓ ${Object.keys(coefficients).length} coefficients écrits en ${Math.round((Date.now() - debut) / 1000)} s`)
 
 // Contrôle sur d'autres Parties que celles du calibrage
-const controle = { parties: 4000, partiesMemorisees: PARTIES_MEMORISEES, graine: 99 }
+const controle = { parties: 4000, partiesMemorisees: PARTIES_MEMORISEES, graine: 99, thematiques: DUELS_THEMATIQUES }
 const pourcent = (x: number) => `${(x * 100).toFixed(1)} %`
 for (const [nom, c] of [
   ['sans coefficient', {}],

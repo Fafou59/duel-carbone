@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { GESTES_CALCULES } from '../donnees/index.ts'
 import { plusEmetteur, moinsEmetteur } from '../domaine/duel.ts'
@@ -106,8 +106,13 @@ describe('Une Partie de 10 Duels', () => {
 })
 
 describe('Un Duel thématique dans la Partie', () => {
-  // La même Partie, où le Duel 3 devient un Duel thématique (il a un texte rédigé à la main).
-  const AVEC_THEMATIQUE = DUELS.map((duel, i) => (i === 2 ? { ...duel, texte: 'Un texte rédigé à la main.' } : duel))
+  // La même Partie, où le Duel 3 devient un Duel thématique (il a ses textes rédigés à la main).
+  const TEXTES = {
+    titre: 'Le match des mangues',
+    accroche: 'Même fruit, même poids… mais pas le même voyage.',
+    texte: 'Tout se joue pendant le voyage.',
+  }
+  const AVEC_THEMATIQUE = DUELS.map((duel, i) => (i === 2 ? { ...duel, thematique: TEXTES } : duel))
   const segmentsThematiques = (conteneur: HTMLElement) =>
     conteneur.querySelectorAll('.progression__segment--thematique').length
 
@@ -125,6 +130,26 @@ describe('Un Duel thématique dans la Partie', () => {
     expect(screen.getByRole('dialog', { name: 'Duel thématique' })).toBeInTheDocument()
     expect(screen.getByText('thématique')).toBeInTheDocument()
     expect(segmentsThematiques(container)).toBe(1)
+  })
+
+  it('annonce son titre et son accroche, sans donner la réponse', () => {
+    render(<EcranPartie duels={AVEC_THEMATIQUE} onRejouer={() => {}} />)
+    jouerDuel(0, true)
+    jouerDuel(1, true)
+    const annonce = within(screen.getByRole('dialog', { name: 'Duel thématique' }))
+    expect(annonce.getByText(TEXTES.titre)).toBeInTheDocument()
+    expect(annonce.getByText(TEXTES.accroche)).toBeInTheDocument()
+    expect(annonce.queryByText(TEXTES.texte)).not.toBeInTheDocument()
+  })
+
+  it('explique le piège après la réponse, avec son texte rédigé à la main', () => {
+    render(<EcranPartie duels={AVEC_THEMATIQUE} onRejouer={() => {}} />)
+    jouerDuel(0, true)
+    jouerDuel(1, true)
+    fireEvent.click(screen.getByRole('button', { name: 'Au Duel !' }))
+    expect(screen.queryByText(TEXTES.texte)).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(plusEmetteur(DUELS[2]).titre) }))
+    expect(within(screen.getByRole('region', { name: 'Explication' })).getByText(TEXTES.texte)).toBeInTheDocument()
   })
 
   it("garde les touches 1 et 2 pour l'annonce tant qu'elle est ouverte", () => {

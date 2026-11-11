@@ -1,8 +1,8 @@
 import { useState } from 'react'
+import { DUELS_THEMATIQUES } from './donnees/duels-thematiques.ts'
 import { CALIBRAGE, GESTES_CALCULES } from './donnees/index.ts'
-import type { Duel } from './domaine/duel.ts'
 import { cleDePaire, genererPartie } from './domaine/generateur.ts'
-import { NOMBRE_DE_DUELS } from './domaine/partie.ts'
+import { NOMBRE_DE_DUELS, type DuelDePartie } from './domaine/partie.ts'
 import { EcranPartie } from './ecrans/EcranPartie.tsx'
 import { creerMemoire, type Memoire } from './navigateur/memoire.ts'
 
@@ -17,7 +17,7 @@ export default function App({ memoire: memoireFournie }: Props) {
   // useState(() => …) : la mémoire est créée une seule fois, au premier affichage.
   const [memoire] = useState(() => memoireFournie ?? creerMemoire())
   // null : on est sur l'accueil ; sinon, les 10 Duels de la Partie en cours.
-  const [duels, setDuels] = useState<Duel[] | null>(null)
+  const [duels, setDuels] = useState<DuelDePartie[] | null>(null)
   // Numéro de Partie : change à chaque nouvelle Partie, pour repartir d'un écran neuf.
   const [numero, setNumero] = useState(0)
   // Le record actuel (affiché sur l'accueil), et celui d'avant la Partie en cours (affiché à la fin).
@@ -25,9 +25,10 @@ export default function App({ memoire: memoireFournie }: Props) {
   const [ancienRecord, setAncienRecord] = useState<number | null>(null)
 
   const lancerPartie = () => {
-    // Duels thématiques : ticket #13.
+    // Une Partie sur deux contient un Duel thématique (REGLES.probabiliteDuelThematique).
     const partie = genererPartie({
       gestes: GESTES_CALCULES,
+      thematiques: DUELS_THEMATIQUES,
       pairesRecentes: memoire.pairesRecentes(),
       coefficients: CALIBRAGE.coefficients,
     })

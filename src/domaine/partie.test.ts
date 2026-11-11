@@ -92,8 +92,9 @@ describe("Machine à états d'une Partie", () => {
 })
 
 describe('Duel thématique', () => {
-  it('se reconnaît à son texte rédigé à la main', () => {
-    expect(estThematique({ ...DUELS[0], texte: "L'eau du robinet n'émet presque rien." })).toBe(true)
+  it('se reconnaît à ses textes rédigés à la main', () => {
+    const textes = { titre: 'Robinet contre bouteille', accroche: 'Même eau…', texte: "L'eau du robinet n'émet presque rien." }
+    expect(estThematique({ ...DUELS[0], thematique: textes })).toBe(true)
     expect(estThematique(DUELS[0])).toBe(false)
   })
 })

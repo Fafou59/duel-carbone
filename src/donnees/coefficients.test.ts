@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { empreinteDuTirage, frequencesDApparition, indicateursDeDiversite } from '../domaine/equilibrage.ts'
 import { PARTIES_MEMORISEES } from '../navigateur/taille-memoire.ts'
+import { DUELS_THEMATIQUES } from './duels-thematiques.ts'
 import { CALIBRAGE, GESTES_CALCULES } from './index.ts'
 
 describe("Coefficients d'équilibrage du vrai catalogue", () => {
@@ -8,7 +9,7 @@ describe("Coefficients d'équilibrage du vrai catalogue", () => {
     expect(
       CALIBRAGE.empreinte,
       "Le catalogue, l'Instantané ou les règles ont changé depuis le dernier calibrage : lance npm run calibrer.",
-    ).toBe(empreinteDuTirage(GESTES_CALCULES))
+    ).toBe(empreinteDuTirage(GESTES_CALCULES, DUELS_THEMATIQUES))
   })
 
   it('donnent un coefficient positif à chaque Geste tirable', () => {
@@ -25,6 +26,7 @@ describe("Coefficients d'équilibrage du vrai catalogue", () => {
         coefficients: CALIBRAGE.coefficients,
         parties: 2000,
         partiesMemorisees: PARTIES_MEMORISEES,
+        thematiques: DUELS_THEMATIQUES,
         graine: 2026,
       })
       const { moinsVu, moyenne } = indicateursDeDiversite(frequences)
