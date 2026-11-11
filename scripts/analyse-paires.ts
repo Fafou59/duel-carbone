@@ -26,6 +26,8 @@ import {
 import { calculerGeste } from '../src/domaine/geste.ts'
 import { hasardReproductible } from '../src/domaine/hasard.ts'
 import { REGLES } from '../src/domaine/regles.ts'
+import { doitForcerUnDuelThematique } from '../src/domaine/thematiques.ts'
+import { DUELS_THEMATIQUES } from '../src/donnees/duels-thematiques.ts'
 import { GESTES } from '../src/donnees/gestes.ts'
 import type { Instantane } from '../src/donnees/referentiel.ts'
 import { PARTIES_MEMORISEES } from '../src/navigateur/taille-memoire.ts'
@@ -67,23 +69,42 @@ const niveaux: Record<NiveauDeTirage, number[]> = {
   regle: Array(REGLES.nombreDeDuels).fill(0),
   'tranche-voisine': Array(REGLES.nombreDeDuels).fill(0),
   'paire-recente': Array(REGLES.nombreDeDuels).fill(0),
+  thematique: Array(REGLES.nombreDeDuels).fill(0),
 }
 const hasard = hasardReproductible(1)
 const historique: string[][] = []
+let serieSansThematique = 0
+let pireSerie = 0
 for (let p = 0; p < PARTIES; p++) {
-  const pairesRecentes = new Set(historique.slice(-PARTIES_MEMORISEES).flat())
-  const duels = genererPartie({ gestes, pairesRecentes, coefficients: calibrage.coefficients, hasard })
+  const recentes = historique.slice(-PARTIES_MEMORISEES)
+  const duels = genererPartie({
+    gestes,
+    thematiques: DUELS_THEMATIQUES,
+    pairesRecentes: new Set(recentes.flat()),
+    forcerThematique: doitForcerUnDuelThematique(recentes, DUELS_THEMATIQUES),
+    coefficients: calibrage.coefficients,
+    hasard,
+  })
   historique.push(duels.map((d) => cleDePaire(d.a.id, d.b.id)))
   duels.forEach((d, i) => niveaux[d.niveau][i]++)
+  serieSansThematique = duels.some((d) => d.thematique) ? 0 : serieSansThematique + 1
+  pireSerie = Math.max(pireSerie, serieSansThematique)
 }
 const part = (n: number) => `${String(Math.round((n / PARTIES) * 100)).padStart(3)} %`
-console.log(`\nSur ${PARTIES} Parties simulées, Duels tirés hors de leur tranche (« tranche voisine ») ou parmi des paires récentes :`)
+console.log(`\nSur ${PARTIES} Parties simulées : Duels thématiques, Duels tirés hors de leur tranche (« tranche voisine ») ou parmi des paires récentes :`)
 for (let i = 0; i < REGLES.nombreDeDuels; i++) {
-  console.log(`  Duel ${String(i + 1).padStart(2)} : hors tranche ${part(niveaux['tranche-voisine'][i])} · paire récente ${part(niveaux['paire-recente'][i])}`)
+  console.log(
+    `  Duel ${String(i + 1).padStart(2)} : thématique ${part(niveaux.thematique[i])} · hors tranche ${part(niveaux['tranche-voisine'][i])} · paire récente ${part(niveaux['paire-recente'][i])}`,
+  )
 }
+const avecThematique = niveaux.thematique.reduce((s, n) => s + n, 0)
+console.log(`  Parties avec un Duel thématique : ${part(avecThematique)} (règle : ${REGLES.probabiliteDuelThematique * 100} %)`)
+console.log(
+  `  Plus longue série sans Duel thématique : ${pireSerie} Parties (garantie : ${REGLES.partiesMaxSansDuelThematique} au plus)`,
+)
 
 // 3. Diversité des Gestes
-const aJour = calibrage.empreinte === empreinteDuTirage(gestes)
+const aJour = calibrage.empreinte === empreinteDuTirage(gestes, DUELS_THEMATIQUES)
 console.log(`\nDiversité (2 000 Parties simulées) — coefficients ${aJour ? 'à jour' : 'PÉRIMÉS : lance npm run calibrer'} :`)
 const pourcent = (x: number) => `${(x * 100).toFixed(1)} %`
 for (const [nom, coefficients] of [
@@ -91,7 +112,13 @@ for (const [nom, coefficients] of [
   ['avec coefficients', calibrage.coefficients],
 ] as const) {
   const d = indicateursDeDiversite(
-    frequencesDApparition(gestes, { coefficients, parties: 2000, partiesMemorisees: PARTIES_MEMORISEES, graine: 2026 }),
+    frequencesDApparition(gestes, {
+      coefficients,
+      parties: 2000,
+      partiesMemorisees: PARTIES_MEMORISEES,
+      graine: 2026,
+      thematiques: DUELS_THEMATIQUES,
+    }),
   )
   console.log(
     `  ${nom.padEnd(18)} moins vu : ${d.moinsVu.id} ${pourcent(d.moinsVu.frequence)} (${Math.round((d.moinsVu.frequence / d.moyenne) * 100)} % de la moyenne, seuil 80 %)` +

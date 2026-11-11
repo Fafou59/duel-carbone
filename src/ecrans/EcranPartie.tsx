@@ -64,6 +64,9 @@ export function EcranPartie({ duels, onRejouer, ancienRecord = null, onTerminee 
       // Sur un lien ou un bouton, Entrée garde son rôle habituel (ouvrir le lien, cliquer le bouton).
       const cible = evenement.target
       if (cible instanceof Element && cible.closest('a, button, input, select, textarea, [contenteditable]')) return
+      // On « consomme » la touche : Firefox active un bouton avec Entrée un instant après l'appui (« keypress »).
+      // Sans cela, l'Entrée qui ouvre un Duel thématique cliquait aussitôt « Au Duel ! » et fermait l'annonce.
+      evenement.preventDefault()
       envoyer({ type: 'suivant' })
     }
     window.addEventListener('keydown', surTouche)

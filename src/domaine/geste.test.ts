@@ -100,6 +100,13 @@ describe("Calcul d'un Geste (Équivalent × Quantité)", () => {
     expect(lavelinge.usage).toEqual({ total: 216.96, dureeAns: 12 })
     expect(lavelinge.finDeVie).toBe(-44.64)
   })
+
+  it('retire les étapes exclues, de l’empreinte comme de la Répartition', () => {
+    // Comme le streaming « hors fabrication de l'écran » : on retire une étape publiée par l'ADEME.
+    const sansTransport = calculerGeste(geste({ etapesExclues: ['Transport'] }), INSTANTANE)
+    expect(sansTransport.empreinte).toBeCloseTo((28.00917 - 0.692503) * 0.12, 9)
+    expect(sansTransport.etapes.map((e) => e.libelle)).toEqual(['Agriculture'])
+  })
 })
 
 describe('Lignes de la Répartition affichées au joueur', () => {
@@ -157,6 +164,17 @@ describe('Validation du catalogue', () => {
     const trajet = geste({ id: 'avion', equivalent: 'avion-pny', quantite: 1, nature: 'trajet' })
     expect(() => validerCatalogue([trajet], INSTANTANE)).toThrow(/avion.*Parcours/)
     expect(() => validerCatalogue([{ ...trajet, parcours: 'paris-new-york' }], INSTANTANE)).not.toThrow()
+  })
+
+  it('refuse une étape exclue que l’ADEME ne publie pas pour cet Équivalent', () => {
+    expect(() => validerCatalogue([geste({ etapesExclues: ['Emballage'] })], INSTANTANE)).toThrow(/steak.*Emballage/)
+    expect(() => validerCatalogue([geste({ etapesExclues: ['Transport'] })], INSTANTANE)).not.toThrow()
+  })
+
+  it('réserve aux Duels thématiques un agrégat national (une année d’émissions d’un secteur)', () => {
+    const agregat = geste({ id: 'pny', equivalent: 'avion-pny', quantite: 1, nature: 'agregat' })
+    expect(() => validerCatalogue([agregat], INSTANTANE)).toThrow(/pny.*agrégat/)
+    expect(() => validerCatalogue([{ ...agregat, seulementEnDuelThematique: true }], INSTANTANE)).not.toThrow()
   })
 
   it('liste tous les problèmes en une seule fois', () => {

@@ -2,9 +2,10 @@ import { useEffect, useRef, type ReactNode } from 'react'
 import { CarteGeste, type EtatCarte } from '../composants/CarteGeste.tsx'
 import { lancerEclat } from '../composants/eclat.ts'
 import { ExplicationDuel } from '../composants/ExplicationDuel.tsx'
-import { estBonChoix, plusEmetteur, rapport, type Duel } from '../domaine/duel.ts'
+import { estBonChoix, plusEmetteur, rapport } from '../domaine/duel.ts'
 import { formaterRapport } from '../domaine/format.ts'
 import type { GesteCalcule } from '../domaine/geste.ts'
+import type { DuelDePartie } from '../domaine/partie.ts'
 import { mouvementReduit } from '../navigateur/mouvement.ts'
 import './EcranDuel.css'
 
@@ -13,7 +14,7 @@ import './EcranDuel.css'
  * C'est la Partie qui garde le choix du joueur et qui décide de la suite.
  */
 type Props = {
-  duel: Duel
+  duel: DuelDePartie
   /** Identifiant du Geste choisi, ou null tant que le joueur n'a pas choisi. */
   choix: string | null
   onChoisir: (idGeste: string) => void

@@ -11,26 +11,30 @@
  *      en tenant compte du Coefficient d'équilibrage de chaque Geste (calculé par npm run calibrer).
  * Dans tous les cas : jamais sous le plancher, jamais au-delà du plafond, jamais deux fois la même paire
  * dans une Partie. Le tirage écarte aussi les paires exclues (Combinaisons interdites, trajets de Parcours
- * différents) et les Gestes réservés aux Duels thématiques.
+ * différents), les Gestes réservés et les paires des Duels thématiques.
+ *
+ * Duel thématique : une Partie sur deux (tirage indépendant), un Duel thématique pas vu récemment
+ * prend la place que lui donne son Rapport (positionDuDuelThematique). Il échappe au plafond, aux
+ * tranches et au Coefficient d'équilibrage ; sa paire ne sort jamais au hasard, sans son texte.
  */
 import { difficulteAttendue, type Difficulte } from './difficulte.ts'
-import { rapport, type Duel } from './duel.ts'
+import { cleDePaire, rapport, type Duel } from './duel.ts'
 import type { GesteCalcule } from './geste.ts'
 import type { SourceDeHasard } from './hasard.ts'
 import { REGLES, type Tranche } from './regles.ts'
+import { positionDuDuelThematique, type DuelThematique } from './thematiques.ts'
 
-export type NiveauDeTirage = 'regle' | 'tranche-voisine' | 'paire-recente'
+export { cleDePaire }
+
+export type NiveauDeTirage = 'regle' | 'tranche-voisine' | 'paire-recente' | 'thematique'
 
 /** Un Duel tiré pour une Partie, avec sa Difficulté attendue et la façon dont il a été choisi. */
 export type DuelTire = Duel & {
   difficulte: Difficulte
   niveau: NiveauDeTirage
-  /** Texte d'un Duel thématique (leur placement dans la Partie sera décidé au ticket #13). */
-  texte?: string
+  /** Les textes d'un Duel thématique : titre et accroche de l'annonce, puis l'explication. */
+  thematique?: Pick<DuelThematique, 'titre' | 'accroche' | 'texte'>
 }
-
-/** Identifiant d'une paire, indépendant de l'ordre des deux Gestes. */
-export const cleDePaire = (idA: string, idB: string): string => [idA, idB].sort().join('|')
 
 export type Candidat = { duel: Duel; cle: string; rapport: number }
 
@@ -42,13 +46,21 @@ export type CoefficientDe = (idGeste: string) => number
 
 export function genererPartie({
   gestes,
+  thematiques = [],
   pairesRecentes = new Set<string>(),
   coefficients = {},
+  probabiliteThematique = REGLES.probabiliteDuelThematique,
+  forcerThematique = false,
   hasard = Math.random,
 }: {
   gestes: GesteCalcule[]
+  thematiques?: DuelThematique[]
   pairesRecentes?: ReadonlySet<string>
   coefficients?: Coefficients
+  /** Remplaçable dans les tests (1 : toujours un Duel thématique). */
+  probabiliteThematique?: number
+  /** La garantie contre les longues séries (doitForcerUnDuelThematique) : un Duel thématique à coup sûr. */
+  forcerThematique?: boolean
   hasard?: SourceDeHasard
 }): DuelTire[] {
   const { paires, parDuel } = pairesTirables(gestes)
@@ -57,11 +69,22 @@ export function genererPartie({
   }
   const coefficientDe: CoefficientDe = (id) => coefficients[id] ?? 1
 
-  const dejaTirees = new Set<string>()
+  // Les paires des Duels thématiques ne sortent jamais au hasard : on les compte comme déjà tirées.
+  const dejaTirees = new Set(thematiques.map((t) => cleDePaire(t.a, t.b)))
   const libre = (c: Candidat) => !dejaTirees.has(c.cle)
   const jamaisVue = (c: Candidat) => !pairesRecentes.has(c.cle)
+  // Le tirage a toujours lieu (même quand la garantie force) : la suite du hasard reste la même.
+  const special =
+    thematiques.length > 0 && (hasard() < probabiliteThematique || forcerThematique)
+      ? choisirThematique(thematiques, gestes, pairesRecentes, hasard)
+      : null
+
   const partie: DuelTire[] = []
   for (let position = 0; position < REGLES.nombreDeDuels; position++) {
+    if (special && special.position === position) {
+      partie.push({ ...special.duel, difficulte: difficulteAttendue(position), niveau: 'thematique', thematique: special.textes })
+      continue
+    }
     const tranche = REGLES.tranchesParDuel[position]
 
     // 1. Une paire jamais vue de la tranche (le cas courant : on ne parcourt que la tranche).
@@ -86,6 +109,26 @@ export function genererPartie({
     partie.push({ ...duel, difficulte: difficulteAttendue(position), niveau })
   }
   return partie
+}
+
+/**
+ * Choisit le Duel thématique de la Partie : au hasard parmi ceux qui n'ont pas été vus récemment
+ * (sinon parmi tous), avec sa position et un côté tiré au sort pour chaque Geste.
+ */
+function choisirThematique(
+  thematiques: DuelThematique[],
+  gestes: GesteCalcule[],
+  pairesRecentes: ReadonlySet<string>,
+  hasard: SourceDeHasard,
+) {
+  const pasVus = thematiques.filter((t) => !pairesRecentes.has(cleDePaire(t.a, t.b)))
+  const parmi = pasVus.length > 0 ? pasVus : thematiques
+  const t = parmi[Math.floor(hasard() * parmi.length)]
+  const a = gestes.find((g) => g.id === t.a)
+  const b = gestes.find((g) => g.id === t.b)
+  if (!a || !b) throw new Error(`Duel thématique ${t.a} / ${t.b} : Geste absent du catalogue.`)
+  const duel = hasard() < 0.5 ? { a, b } : { a: b, b: a }
+  return { duel, position: positionDuDuelThematique(rapport(duel)), textes: { titre: t.titre, accroche: t.accroche, texte: t.texte } }
 }
 
 /**

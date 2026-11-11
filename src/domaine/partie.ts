@@ -13,11 +13,11 @@ import { REGLES } from './regles.ts'
 
 export const NOMBRE_DE_DUELS = REGLES.nombreDeDuels
 
-/** Un Duel d'une Partie : deux Gestes, et le texte qui l'explique si c'est un Duel thématique. */
-export type DuelDePartie = Duel & Pick<DuelTire, 'texte'>
+/** Un Duel d'une Partie : deux Gestes, et les textes rédigés à la main si c'est un Duel thématique. */
+export type DuelDePartie = Duel & Partial<Pick<DuelTire, 'thematique'>>
 
-/** Un Duel thématique se reconnaît à son texte, rédigé à la main. */
-export const estThematique = (duel: DuelDePartie): boolean => Boolean(duel.texte)
+/** Un Duel thématique se reconnaît à ses textes rédigés à la main (titre, accroche, explication). */
+export const estThematique = (duel: DuelDePartie): boolean => Boolean(duel.thematique)
 
 export type Reponse = { idChoisi: string; bonne: boolean }
 

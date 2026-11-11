@@ -12,3 +12,22 @@
   font-size: 14px;
   font-weight: 600;
 }
+
+/* Le texte d'un Duel thématique : un encart bleu « thématique », comme sa case dans la barre. */
+.explication-thematique {
+  padding: 12px 14px;
+  border-left: 4px solid var(--thematique);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--thematique) 12%, transparent);
+}
+
+.explication-thematique__titre {
+  margin: 0 0 4px;
+  color: var(--thematique-texte);
+  font-weight: 800;
+}
+
+.explication-thematique__texte {
+  margin: 0;
+  line-height: 1.45;
+}
