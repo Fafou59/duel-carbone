@@ -37,7 +37,7 @@ function Menu<T extends string>({ titre, valeur, options, onChange }: { titre: s
 
 function Prototype() {
   const [situation, setSituation] = useState<Situation>(() => lire('s', ['jamais', 'aujourdhui', 'hier'], 'jamais'))
-  const [logo, setLogo] = useState<Logo>(() => lire('l', ['eclair', 'zigzag', 'diagonale'], 'zigzag'))
+  const [logo, setLogo] = useState<Logo>(() => lire('l', ['eclair', 'zigzag', 'diagonale'], 'diagonale'))
   const [theme, setTheme] = useState<Theme>(() => lire('t', ['systeme', 'clair', 'sombre'], 'systeme'))
   const [tutoriel, setTutoriel] = useState(false)
   const { simuler, bulle } = useSimulation()
