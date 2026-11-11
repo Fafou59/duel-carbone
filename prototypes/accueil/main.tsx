@@ -14,7 +14,7 @@ import { Tutoriel } from './Tutoriel.tsx'
 
 type Theme = 'systeme' | 'clair' | 'sombre'
 
-/** Les choix sont gardés dans l'adresse (?s=hier&l=steak-avocat&t=sombre) : un lien montre exactement le même écran. */
+/** Les choix sont gardés dans l'adresse (?s=hier&l=zigzag&t=sombre) : un lien montre exactement le même écran. */
 const lire = <T extends string>(cle: string, valeurs: readonly T[], defaut: T): T => {
   const v = new URLSearchParams(location.search).get(cle) as T | null
   return v && valeurs.includes(v) ? v : defaut
@@ -37,7 +37,7 @@ function Menu<T extends string>({ titre, valeur, options, onChange }: { titre: s
 
 function Prototype() {
   const [situation, setSituation] = useState<Situation>(() => lire('s', ['jamais', 'aujourdhui', 'hier'], 'jamais'))
-  const [logo, setLogo] = useState<Logo>(() => lire('l', ['steak-avocat', 'eclair'], 'steak-avocat'))
+  const [logo, setLogo] = useState<Logo>(() => lire('l', ['eclair', 'zigzag', 'diagonale'], 'zigzag'))
   const [theme, setTheme] = useState<Theme>(() => lire('t', ['systeme', 'clair', 'sombre'], 'systeme'))
   const [tutoriel, setTutoriel] = useState(false)
   const { simuler, bulle } = useSimulation()
