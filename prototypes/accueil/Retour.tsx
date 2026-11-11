@@ -6,7 +6,7 @@ import { moinsEmetteur, plusEmetteur, rapport } from '../../src/domaine/duel.ts'
 import { formaterMultiple } from '../../src/domaine/format.ts'
 import { genererPartie } from '../../src/domaine/generateur.ts'
 import { hasardReproductible } from '../../src/domaine/hasard.ts'
-import { Frise, GrilleDuJour, PiedAccueil, SIMULATION, useCompteARebours, Vitrine } from './commun.tsx'
+import { Frise, GrilleDuJour, PiedAccueil, Presentation, SIMULATION, useCompteARebours, Vitrine } from './commun.tsx'
 
 // Une Partie du jour simulée (toujours la même), pour le bouton « Revoir mon Récapitulatif ».
 const DUELS_DU_JOUR = genererPartie({ gestes: GESTES_CALCULES, hasard: hasardReproductible(12) })
@@ -118,8 +118,12 @@ export function Retour({ situation, onJouer, onPartieLibre, onPartager, onTutori
         </>
       )}
 
-      <PiedAccueil onTutoriel={onTutoriel} />
+      {/* Après la Partie libre : le principe du jeu, comme pour un nouveau joueur. */}
+      <section className="proto-retour__presentation">
+        <Presentation />
+      </section>
       <Frise />
+      <PiedAccueil onTutoriel={onTutoriel} />
 
       <dialog ref={recap} className="proto-dialogue" aria-labelledby="proto-recap-titre">
         <h2 id="proto-recap-titre">Ton Récapitulatif du jour</h2>

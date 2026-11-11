@@ -704,3 +704,45 @@
     font-size: 15px;
   }
 }
+
+/* ─── 4e tour : définition du CO2e en deux temps, présentation sur le tableau de bord ─ */
+.proto-definition__contenu {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.proto-definition__contenu section {
+  display: grid;
+  gap: 4px;
+}
+
+.proto-definition__contenu section + section {
+  padding-top: 12px;
+  border-top: 1px solid var(--ligne);
+}
+
+.proto-definition__contenu h3 {
+  margin: 0;
+  color: var(--marque);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.proto-definition__contenu p {
+  margin: 0;
+}
+
+.proto-retour__presentation {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  text-align: center;
+}
+
+.proto-co2e {
+  white-space: nowrap;
+}

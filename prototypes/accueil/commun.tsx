@@ -24,32 +24,33 @@ export const SIMULATION = {
 
 /** Les repères climat, lus dans l'Instantané ADEME (jamais écrits à la main). */
 const valeur = (slug: string) => INSTANTANE.equivalents.find((e) => e.slug === slug)?.valeur ?? 0
-const FRANCAIS = formaterEmpreinte(valeur('francais'), { co2e: false })
-const OBJECTIF_2050 = formaterEmpreinte(valeur('2050'), { co2e: false })
+// Espace insécable entre le nombre et l'unité : « 2 t » ne se coupe jamais en fin de ligne.
+const insecable = (texte: string) => texte.replace(' ', ' ')
+const FRANCAIS = insecable(formaterEmpreinte(valeur('francais'), { co2e: false }))
+const OBJECTIF_2050 = insecable(formaterEmpreinte(valeur('2050'), { co2e: false }))
 
-/** L'accroche retenue (« Savoir ce qui pèse »), en deux formulations. */
-export type Accroche = 'pese' | 'emet'
-export const ACCROCHES: Record<Accroche, string> = {
-  pese: '« …savoir ce qui pèse »',
-  emet: '« …savoir ce qui émet le plus »',
+/**
+ * La définition du CO2e, en deux temps : d'abord ce que c'est, puis un exemple concret et ce que couvrent les chiffres.
+ * À reprendre telle quelle dans la page Sources et méthode.
+ */
+export function DefinitionCo2e() {
+  return (
+    <div className="proto-definition__contenu">
+      <section>
+        <h3>Le CO2e, c’est quoi&nbsp;?</h3>
+        <p>
+          L’« équivalent CO2 » : l’unité qui additionne tous les gaz à effet de serre (CO2, méthane, protoxyde d’azote…)
+          selon leur effet sur le climat.
+        </p>
+      </section>
+      <section>
+        <h3>Par exemple</h3>
+        <p>Sur 100 ans, 1 kg de méthane réchauffe autant qu’environ 30 kg de CO2 : il compte pour 30 kg CO2e.</p>
+        <p>Dans le jeu, les chiffres couvrent toute la vie d’un geste : fabrication, transport, usage et fin de vie.</p>
+      </section>
+    </div>
+  )
 }
-
-/** Comment présenter le CO2e : titre court ou avec « de CO2e », définition par pastille ou par astérisque. */
-export type Titre = 'pastille' | 'court' | 'etoile'
-export const TITRES: Record<Titre, string> = {
-  pastille: '« …de CO2e ? » + pastille',
-  court: '« Lequel émet le plus ? »',
-  etoile: '« …de CO2e* ? » + note',
-}
-
-const DEFINITION = (
-  <>
-    <b>CO2e, ou « équivalent CO2 »</b> : l’unité qui additionne tous les gaz à effet de serre (CO2, méthane, protoxyde
-    d’azote…) selon leur effet sur le climat. Sur 100 ans, 1 kg de méthane réchauffe autant qu’environ 30 kg de CO2 :
-    il compte donc pour 30 kg CO2e. Les chiffres du jeu couvrent toute la vie d’un geste : fabrication, transport,
-    usage et fin de vie.
-  </>
-)
 
 /**
  * « CO2e » suivi d'une pastille « ? » qui ouvre la définition. Un vrai bouton : le clavier et les lecteurs d'écran
@@ -59,12 +60,15 @@ export function Co2e() {
   const fenetre = useRef<HTMLDialogElement>(null)
   return (
     <>
-      <abbr title="équivalent CO2">CO2e</abbr>
-      <button type="button" className="proto-pastille" aria-label="Qu’est-ce que le CO2e ?" onClick={() => fenetre.current?.showModal()}>
-        ?
-      </button>
+      {/* « CO2e » et sa pastille restent sur la même ligne. */}
+      <span className="proto-co2e">
+        <abbr title="équivalent CO2">CO2e</abbr>
+        <button type="button" className="proto-pastille" aria-label="Qu’est-ce que le CO2e ?" onClick={() => fenetre.current?.showModal()}>
+          ?
+        </button>
+      </span>
       <dialog ref={fenetre} className="proto-dialogue proto-definition" aria-label="Définition du CO2e">
-        <p>{DEFINITION}</p>
+        <DefinitionCo2e />
         <button type="button" className="bouton" onClick={() => fenetre.current?.close()}>
           Compris
         </button>
@@ -73,32 +77,17 @@ export function Co2e() {
   )
 }
 
-/** Le titre de la vitrine, selon la variante. */
-export function TitreVitrine({ titre }: { titre: Titre }) {
-  if (titre === 'court') return <h2 className="proto-titre">Lequel émet le plus&nbsp;?</h2>
-  if (titre === 'etoile') return <h2 className="proto-titre">Lequel émet le plus de CO2e*&nbsp;?</h2>
+/** Le « product statement », sur tous les parcours : le titre, puis l'accroche avec les repères 9,1 t / 2 t. */
+export function Presentation() {
   return (
-    <h2 className="proto-titre">
-      Lequel émet le plus de <Co2e />
-      &nbsp;?
-    </h2>
-  )
-}
-
-/** La note de bas d'écran de la variante « astérisque ». */
-export function NoteCo2e() {
-  return <p className="proto-note">* {DEFINITION}</p>
-}
-
-export function TexteAccroche({ accroche, titre }: { accroche: Accroche; titre: Titre }) {
-  // Avec le titre court, la définition se raccroche au premier « CO2e » de l'accroche.
-  const co2e = titre === 'court' ? <Co2e /> : 'CO2e'
-  return (
-    <p className="proto-accroche">
-      Un Français émet en moyenne {FRANCAIS} de {co2e} par an ; l’objectif pour 2050, c’est {OBJECTIF_2050}. Pour s’en
-      rapprocher, il faut d’abord savoir ce qui {accroche === 'pese' ? 'pèse' : 'émet le plus'}.{' '}
-      <b>10 Duels par jour pour apprendre à connaître l’empreinte des gestes du quotidien.</b>
-    </p>
+    <>
+      <h2 className="proto-titre">Lequel émet le plus&nbsp;?</h2>
+      <p className="proto-accroche">
+        Un Français émet en moyenne {FRANCAIS} de <Co2e /> par an ; l’objectif pour 2050, c’est {OBJECTIF_2050}. Pour
+        s’en rapprocher, il faut d’abord savoir ce qui pèse.{' '}
+        <b>10 Duels par jour pour apprendre à connaître l’empreinte des gestes du quotidien.</b>
+      </p>
+    </>
   )
 }
 

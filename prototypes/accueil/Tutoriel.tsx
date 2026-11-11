@@ -1,4 +1,4 @@
-// PROTOTYPE JETABLE — « Comment ça marche ? » : deux formes de tutoriel, sur un même Duel fixe (jean contre TGV).
+// PROTOTYPE JETABLE — « Comment ça marche ? » : le diaporama en 5 étapes, sur un Duel fixe (jean contre TGV). Figé.
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { CarteGeste, type EtatCarte } from '../../src/composants/CarteGeste.tsx'
 import { Icone } from '../../src/composants/Icone.tsx'
@@ -6,9 +6,6 @@ import { TableauRepartition } from '../../src/composants/TableauRepartition.tsx'
 import { gesteCalcule } from '../../src/donnees/index.ts'
 import { moinsEmetteur, plusEmetteur, rapport, type Duel } from '../../src/domaine/duel.ts'
 import { formaterMultiple, formaterRapport } from '../../src/domaine/format.ts'
-
-export type FormeTutoriel = 'diaporama' | 'guide'
-export const FORMES: Record<FormeTutoriel, string> = { diaporama: 'Diaporama', guide: 'Duel guidé' }
 
 // Le Duel du tutoriel : un jean émet 11 fois plus qu'un Paris–Marseille en TGV. Surprenant, et la Répartition
 // reste simple (fabrication, usage, fin de vie ; construction et carburant). Des choux et des carottes, exprès.
@@ -149,79 +146,8 @@ function Diaporama({ onJouer }: { onJouer: () => void }) {
   )
 }
 
-// ─── Forme 2 : le Duel guidé ────────────────────────────────────────────────────────────
-function Bulle({ children, onSuivant, libelle = 'Suivant →' }: { children: ReactNode; onSuivant?: () => void; libelle?: string }) {
-  const element = useRef<HTMLDivElement>(null)
-  // Accolades obligatoires : scrollIntoView renvoie une promesse dans les navigateurs récents, et React prendrait
-  // tout ce que renvoie l'effet pour une fonction de nettoyage.
-  useEffect(() => {
-    element.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
-  }, [])
-  return (
-    <div ref={element} className="proto-bulle" role="status">
-      <div>{children}</div>
-      {onSuivant && (
-        <button type="button" className="bouton" onClick={onSuivant}>
-          {libelle}
-        </button>
-      )}
-    </div>
-  )
-}
-
-function DuelGuide({ onJouer }: { onJouer: () => void }) {
-  // 0 : à toi de jouer ; 1 : la réponse ; 2 : le tableau ; 3 : choux et carottes, et les liens.
-  const [etape, setEtape] = useState(0)
-  const [choix, setChoix] = useState<string | null>(null)
-  return (
-    <div className="proto-guide" data-etape={etape}>
-      {etape === 0 && (
-        <Bulle>
-          À toi&nbsp;: lequel émet le plus de CO2e&nbsp;? Lis bien la précision sous chaque geste (durée, passagers…), elle
-          compte.
-        </Bulle>
-      )}
-      <div className={etape <= 1 ? 'proto-guide__zone proto-guide__zone--focus' : 'proto-guide__zone'}>
-        <Cartes
-          choix={choix}
-          onChoisir={(id) => {
-            if (etape > 0) return
-            setChoix(id)
-            setEtape(1)
-          }}
-        />
-      </div>
-      {etape >= 1 && (
-        <>
-          {etape === 1 && (
-            <Bulle onSuivant={() => setEtape(2)}>
-              {verdict(choix)}La carte verte émet le plus ; le badge dit combien de fois plus : ici ×{FOIS}.
-            </Bulle>
-          )}
-          <Equivalence />
-          <div className={etape === 2 ? 'proto-guide__zone proto-guide__zone--focus' : 'proto-guide__zone'}>
-            <TableauRepartition duel={DUEL} />
-          </div>
-          {etape === 2 && (
-            <Bulle onSuivant={() => setEtape(3)}>
-              Le tableau montre <b>d’où viennent les émissions</b>, étape par étape. Pour le jean, presque tout vient de sa
-              fabrication.
-            </Bulle>
-          )}
-          {etape === 3 && (
-            <Bulle onSuivant={onJouer} libelle="Jouer le Duel du jour">
-              Un jean contre un train&nbsp;? Des choux et des carottes, exprès&nbsp;: le but est de te forger des ordres de
-              grandeur. Les liens <b>Sources ADEME</b>, juste au-dessus, ouvrent la fiche de chaque geste.
-            </Bulle>
-          )}
-        </>
-      )}
-    </div>
-  )
-}
-
 /** Le tutoriel, dans une fenêtre qui recouvre l'accueil. */
-export function Tutoriel({ forme, ouvert, onFermer, onJouer }: { forme: FormeTutoriel; ouvert: boolean; onFermer: () => void; onJouer: () => void }) {
+export function Tutoriel({ ouvert, onFermer, onJouer }: { ouvert: boolean; onFermer: () => void; onJouer: () => void }) {
   const fenetre = useRef<HTMLDialogElement>(null)
   useEffect(() => {
     if (ouvert && !fenetre.current?.open) fenetre.current?.showModal()
@@ -240,7 +166,7 @@ export function Tutoriel({ forme, ouvert, onFermer, onJouer }: { forme: FormeTut
         </button>
       </div>
       {/* Rouvrir le tutoriel repart de la première étape. */}
-      {ouvert && (forme === 'diaporama' ? <Diaporama onJouer={jouer} /> : <DuelGuide onJouer={jouer} />)}
+      {ouvert && <Diaporama onJouer={jouer} />}
     </dialog>
   )
 }
