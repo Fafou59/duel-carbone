@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Co2e } from '../composants/Co2e.tsx'
 import { CompteARebours } from '../composants/CompteARebours.tsx'
 import { Vitrine } from '../composants/Vitrine.tsx'
-import { ACCROCHES_DU_JOUR } from '../donnees/accroches.ts'
 import { REPERES_CLIMAT } from '../donnees/index.ts'
 import { formaterEmpreinte } from '../domaine/format.ts'
 import { texteDePartageDuJour } from '../domaine/partage.ts'
@@ -120,9 +119,9 @@ function TableauDeBord(props: PropsAccueil) {
   const { onJouerDuJour, onPartieLibre, onRevoir, onPartager = partager } = props
   // Résultat du dernier partage, pour afficher une confirmation (ou le texte, si la copie a échoué).
   const [partage, setPartage] = useState<ResultatPartage | null>(null)
-  // Le même texte qu'à la fin du Duel du jour : l'accroche du jour, le score et la grille.
+  // Le même texte qu'à la fin du Duel du jour : l'accroche, le score et la grille.
   const texte = resultat
-    ? texteDePartageDuJour({ numero, score: resultat.score, bonnes: resultat.bonnes, accroches: ACCROCHES_DU_JOUR })
+    ? texteDePartageDuJour({ numero, score: resultat.score, bonnes: resultat.bonnes })
     : ''
   const defier = async () => {
     setPartage(null)

@@ -2,7 +2,6 @@ import { useRef, useState } from 'react'
 import { CompteARebours } from '../composants/CompteARebours.tsx'
 import { PanneauDuel } from '../composants/PanneauDuel.tsx'
 import { Icone } from '../composants/Icone.tsx'
-import { ACCROCHES_DU_JOUR } from '../donnees/accroches.ts'
 import { formaterMultiple, queDevant } from '../domaine/format.ts'
 import { texteDePartage, texteDePartageDuJour } from '../domaine/partage.ts'
 import { messageDeScore, type LigneRecapitulatif } from '../domaine/recapitulatif.ts'
@@ -51,7 +50,6 @@ export function EcranFin({
         numero: partieDuJour.numero,
         score,
         bonnes: lignes.map((ligne) => ligne.bonne),
-        accroches: ACCROCHES_DU_JOUR,
       })
     : texteDePartage(score, total)
   // Résultat du dernier partage, pour afficher une confirmation (ou le texte, si la copie a échoué).

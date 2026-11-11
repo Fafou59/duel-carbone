@@ -7,7 +7,6 @@ import { genererPartie } from '../domaine/generateur.ts'
 import { hasardReproductible } from '../domaine/hasard.ts'
 import { avancer, demarrerPartie, score } from '../domaine/partie.ts'
 import { texteDePartage, texteDePartageDuJour } from '../domaine/partage.ts'
-import { ACCROCHES_DU_JOUR } from '../donnees/accroches.ts'
 import { recapitulatif } from '../domaine/recapitulatif.ts'
 import type { ResultatPartage } from '../navigateur/partager.ts'
 import { EcranFin } from './EcranFin.tsx'
@@ -103,7 +102,7 @@ describe('Fin du Duel du jour : cap sur le partage', () => {
     const { onPartager } = finDuJour()
     fireEvent.click(screen.getByRole('button', { name: 'Défier mes proches' }))
     expect(onPartager).toHaveBeenCalledWith(
-      texteDePartageDuJour({ numero: 12, score: 7, bonnes: LIGNES.map((l) => l.bonne), accroches: ACCROCHES_DU_JOUR }),
+      texteDePartageDuJour({ numero: 12, score: 7, bonnes: LIGNES.map((l) => l.bonne) }),
     )
     expect(onPartager.mock.calls[0][0]).toContain('🟩🟩🟩🟩🟩🟩🟩🟥🟥🟥')
   })

@@ -147,7 +147,7 @@ La référence visuelle est la variante **A2** du prototype ; le détail et les 
 6. **Moteur de Partie** : les états successifs d'une Partie (accueil → Duel → révélation → … → fin), le score et le Récapitulatif.
 7. **Stockage local** (dans le navigateur, format versionné) : le record de la Partie libre et ses paires vues récemment, la Partie du jour en cours ou terminée (réponses, score) et la série. Aucune donnée personnelle.
    **Calendrier des Parties du jour** (`src/domaine/calendrier.ts`, `src/donnees/calendrier.json`) : chargé à part, pour ne pas alourdir le démarrage du jeu.
-8. **Partage** : le menu de partage natif du téléphone, ou une copie dans le presse-papiers sur ordinateur. Le texte du Duel du jour suit le modèle de Wordle : une accroche qui change chaque jour (la même pour tous, `src/donnees/accroches.ts`), « Duel Carbone du jour n° N : 8/10 », une case 🟩/🟥 par Duel et le lien ; aucun nom de Geste ni marque de Duel thématique. La Partie libre garde « J'ai fait 8/10 à Duel Carbone 🌍 Sauras-tu faire mieux ? ».
+8. **Partage** : le menu de partage natif du téléphone, ou une copie dans le presse-papiers sur ordinateur. Le texte du Duel du jour suit le modèle de Wordle : l'accroche « C'est l'heure du Duel Carbone ! ⚔️ » (une accroche qui change chaque jour a été écartée pour l'instant : à revoir selon les retours des joueurs), « Duel Carbone du jour n° N : 8/10 », une case 🟩/🟥 par Duel et le lien ; aucun nom de Geste ni marque de Duel thématique. La Partie libre garde « J'ai fait 8/10 à Duel Carbone 🌍 Sauras-tu faire mieux ? ».
 9. **Mise en forme des nombres** : unité automatique (g, kg, t) et conventions françaises (virgule décimale).
 10. **Pages** : Accueil, Partie, Fin de Partie, Sources et méthode.
 
