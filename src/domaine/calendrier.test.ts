@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { CALIBRAGE, GESTES_CALCULES } from '../donnees/index.ts'
 import { DUELS_THEMATIQUES } from '../donnees/duels-thematiques.ts'
-import { joursRestants, partieDuJour, prolongerCalendrier, type Calendrier } from './calendrier.ts'
+import { duelsDepuisCodes, joursRestants, partieDuJour, prolongerCalendrier, type Calendrier } from './calendrier.ts'
 import { cleDePaire } from './duel.ts'
 import { decalerJour } from './jour.ts'
 
@@ -47,6 +47,12 @@ describe('Le calendrier des Parties du jour', () => {
     )
     expect(thematiques.length).toBeGreaterThan(0)
     for (const d of thematiques) expect(d.thematique?.texte).not.toMatch(/[{}]/)
+  })
+
+  it('reconstruit une Partie depuis ses codes « a>b », comme celle du calendrier', () => {
+    expect(duelsDepuisCodes(cal.jours[0], GESTES_CALCULES, DUELS_THEMATIQUES)).toEqual(
+      partieDuJour(cal, AUJOURDHUI, GESTES_CALCULES, DUELS_THEMATIQUES),
+    )
   })
 
   it('reboucle sur le premier jour si le calendrier est épuisé', () => {

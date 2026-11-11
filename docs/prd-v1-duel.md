@@ -131,7 +131,12 @@ La référence visuelle est la variante **A2** du prototype ; le détail et les 
 
 ### Pile technique
 - **React + TypeScript + Vite**, site 100 % statique, sans serveur.
-- **PWA** (installable, utilisable hors ligne) grâce à un module dédié de Vite.
+- **PWA** (installable, utilisable hors ligne) grâce au module `vite-plugin-pwa` (ticket #16) :
+  - un manifeste (nom, couleurs, icônes PNG tirées du logo par `npm run logo`, dans `public/application/`) ;
+  - un service worker qui garde tout le jeu en copie à la première visite (moins d'1 Mo, calendrier des Duels du jour compris) ;
+  - **mise à jour silencieuse** : une nouvelle version se télécharge en arrière-plan, puis s'applique dès que le joueur est sur l'accueil, jamais en pleine Partie, sinon à la prochaine ouverture (`src/navigateur/mise-a-jour.ts`) ;
+  - la mémoire retient les Duels du jour réellement joués : si une nouvelle version change le calendrier des jours à venir, la reprise, la grille et le Récapitulatif restent justes ;
+  - sur iPhone, l'application installée a sa propre mémoire, séparée de Safari (record et série repartent de zéro).
 - **Navigation sans routeur** : la page Sources et méthode a pour adresse l'ancre `#sources` (`src/navigateur/adresse.ts`). Pas de bibliothèque ni de réglage chez l'hébergeur ; le bouton « Retour » et les liens partagés fonctionnent, et une Partie en cours reste intacte pendant la lecture des sources.
 - Code sur **GitHub** (dépôt public), hébergement chez **Cloudflare** (Workers, fichiers statiques : gratuits et sans limite de trafic) avec un aperçu automatique pour chaque branche, domaine **duelcarbone.fr** acheté à la mise en ligne. Netlify, utilisé jusqu'au 2026-11-11, a été abandonné quand ses crédits gratuits ont bloqué la mise en production (ADR 0003).
 - Mesure d'audience avec **GoatCounter**, sans cookie (`src/navigateur/mesure.ts`). Le script est chargé par le code, et seulement sur l'adresse publique du jeu.
@@ -145,7 +150,7 @@ La référence visuelle est la variante **A2** du prototype ; le détail et les 
 5. **Générateur de Partie** (fonction pure, cœur testable du produit). Il reçoit les Gestes, les Duels thématiques, les paires vues récemment, les Coefficients d'équilibrage et une source de hasard ; il renvoie 10 Duels qui respectent les règles de la section 5. Pour chaque Duel, il tire un Geste puis son adversaire dans la tranche du Duel, en suivant l'ordre d'assouplissement si la tranche n'a plus de paire jamais vue. Jamais sous le plancher de ×1,25, jamais au-delà du plafond de ×500. Les seuils sont réunis dans `src/domaine/regles.ts` : les modifier après des retours de joueurs se fait en une ligne, en mettant ce PRD à jour en même temps (puis `npm run calibrer`).
    **Calibrage** (`src/domaine/equilibrage.ts`, `npm run calibrer`) : il simule des milliers de Parties, mesure la fréquence de chaque Geste et ajuste les Coefficients d'équilibrage jusqu'à ce que tous sortent aussi souvent. Il les enregistre dans `src/donnees/coefficients.json` avec une empreinte du catalogue, des valeurs ADEME et des règles. `npm run analyse:paires` affiche les paires par Duel et les indicateurs de diversité.
 6. **Moteur de Partie** : les états successifs d'une Partie (accueil → Duel → révélation → … → fin), le score et le Récapitulatif.
-7. **Stockage local** (dans le navigateur, format versionné) : le record de la Partie libre et ses paires vues récemment, la Partie du jour en cours ou terminée (réponses, score) et la série. Aucune donnée personnelle.
+7. **Stockage local** (dans le navigateur, format versionné) : le record de la Partie libre et ses paires vues récemment, la Partie du jour en cours ou terminée (ses Duels, les réponses, le score) et la série. Aucune donnée personnelle.
    **Calendrier des Parties du jour** (`src/domaine/calendrier.ts`, `src/donnees/calendrier.json`) : chargé à part, pour ne pas alourdir le démarrage du jeu.
 8. **Partage** : le menu de partage natif du téléphone, ou une copie dans le presse-papiers sur ordinateur. Le texte du Duel du jour suit le modèle de Wordle : l'accroche « C'est l'heure du Duel Carbone ! ⚔️ » (une accroche qui change chaque jour a été écartée pour l'instant : à revoir selon les retours des joueurs), « Duel Carbone du jour n° N : 8/10 », une case 🟩/🟥 par Duel et le lien ; aucun nom de Geste ni marque de Duel thématique. La Partie libre garde « J'ai fait 8/10 à Duel Carbone 🌍 Sauras-tu faire mieux ? ».
 9. **Mise en forme des nombres** : unité automatique (g, kg, t) et conventions françaises (virgule décimale).

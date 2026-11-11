@@ -76,6 +76,11 @@ describe('Page Sources et méthode', () => {
     expect(screen.getByText(/jamais le nom des gestes/)).toBeInTheDocument()
   })
 
+  it('dit que le jeu garde une copie de ses fichiers pour marcher sans réseau', () => {
+    render(<EcranSources />)
+    expect(screen.getByText(/marche sans réseau/)).toBeInTheDocument()
+  })
+
   it('nomme l’hébergeur, qui reçoit les demandes du navigateur comme tout hébergeur', () => {
     render(<EcranSources />)
     expect(screen.getByText(/Le jeu est hébergé par Cloudflare/)).toHaveTextContent(/adresse IP/)

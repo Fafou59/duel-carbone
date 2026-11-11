@@ -3,7 +3,7 @@ import { DUELS_THEMATIQUES } from './donnees/duels-thematiques.ts'
 import { CALIBRAGE, chargerCalendrier, GESTES_CALCULES } from './donnees/index.ts'
 import { Tutoriel } from './composants/Tutoriel.tsx'
 import { Frise } from './composants/Vitrine.tsx'
-import { partieDuJour, type Calendrier } from './domaine/calendrier.ts'
+import { duelsDepuisCodes, partieDuJour, type Calendrier } from './domaine/calendrier.ts'
 import { estBonChoix } from './domaine/duel.ts'
 import { cleDePaire, genererPartie } from './domaine/generateur.ts'
 import { decalerJour, jourDeParis, numeroDuJour, secondesAvantMinuitAParis } from './domaine/jour.ts'
@@ -14,6 +14,7 @@ import { EcranPartie } from './ecrans/EcranPartie.tsx'
 import { EcranSources } from './ecrans/EcranSources.tsx'
 import { ADRESSES, usePage } from './navigateur/adresse.ts'
 import { creerMemoire, type Memoire } from './navigateur/memoire.ts'
+import { appliquerNouvelleVersion, useNouvelleVersion } from './navigateur/mise-a-jour.ts'
 
 import { DEPOT, IMPACT_CO2 } from './liens.ts'
 
@@ -67,6 +68,13 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
     duJour?.score != null ? 'aujourdhui' : duJour ? 'enCours' : serie.actuelle > 0 ? 'hier' : 'nouveau'
   const scoreHier = memoire.partieDuJour(decalerJour(aujourdhui, -1))?.score ?? undefined
 
+  // Une nouvelle version du jeu est prête (application installée) : on l'applique en silence dès que le joueur
+  // est sur l'accueil, jamais en pleine Partie ni pendant une lecture (tutoriel, Sources et méthode).
+  const nouvelleVersion = useNouvelleVersion()
+  useEffect(() => {
+    if (nouvelleVersion && !partie && !tutoriel && page === 'jeu') appliquerNouvelleVersion()
+  }, [nouvelleVersion, partie, tutoriel, page])
+
   useEffect(() => {
     let actif = true
     chargerCalendrier().then((c) => actif && setCalendrier(c))
@@ -97,18 +105,34 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
     setNumero((n) => n + 1)
   }
 
+  /**
+   * Les Duels de la Partie du jour : ceux retenus par la mémoire si elle est commencée (une nouvelle version du jeu
+   * a pu changer le calendrier entre-temps), sinon ceux du calendrier. null tant que le calendrier n'est pas arrivé.
+   */
+  const duelsDuJour = (): DuelDePartie[] | null => {
+    if (duJour?.duels) {
+      try {
+        return duelsDepuisCodes(duJour.duels, GESTES_CALCULES, DUELS_THEMATIQUES)
+      } catch {
+        // Un Geste retiré du catalogue depuis : on se rabat sur le calendrier.
+      }
+    }
+    return calendrier ? partieDuJour(calendrier, aujourdhui, GESTES_CALCULES, DUELS_THEMATIQUES) : null
+  }
+
   // La Partie du jour : la même pour tout le monde, reprise là où le joueur l'a laissée.
   const lancerPartieDuJour = () => {
-    if (!calendrier) return
-    const duels = partieDuJour(calendrier, aujourdhui, GESTES_CALCULES, DUELS_THEMATIQUES)
+    const duels = duelsDuJour()
+    if (!duels) return
+    memoire.commencerPartieDuJour(aujourdhui, duels.map((duel) => `${duel.a.id}>${duel.b.id}`))
     setPartie({ mode: 'jour', jour: aujourdhui, duels, reponses: duJour?.reponses ?? [] })
     setNumero((n) => n + 1)
   }
 
-  // Le résultat du Duel du jour, Duel par Duel (la grille de l'accueil) : il faut le calendrier pour le connaître.
+  // Le résultat du Duel du jour, Duel par Duel (la grille de l'accueil).
   const resultat = (() => {
     if (duJour?.score == null) return undefined
-    const duels = calendrier ? partieDuJour(calendrier, aujourdhui, GESTES_CALCULES, DUELS_THEMATIQUES) : []
+    const duels = duelsDuJour() ?? []
     const complet = duels.length > 0 && duJour.reponses.length === duels.length
     return { score: duJour.score, bonnes: complet ? duels.map((duel, i) => estBonChoix(duel, duJour.reponses[i])) : [] }
   })()
