@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formaterEmpreinte, formaterMultiple, formaterRapport, queDevant } from './format.ts'
+import { formaterDate, formaterEmpreinte, formaterMultiple, formaterRapport, queDevant } from './format.ts'
 
 describe("Mise en forme d'une empreinte carbone", () => {
   it('affiche en grammes sous 1 kg, sans décimale', () => {
@@ -77,5 +77,12 @@ describe("Mise en forme d'un multiple (équivalence « 1 A = x B »)", () => {
 
   it('sépare les milliers à la française', () => {
     expect(formaterMultiple(1234.5)).toBe('1 234,5')
+  })
+})
+
+describe("Mise en forme d'une date", () => {
+  it('écrit une date AAAA-MM-JJ en toutes lettres, à la française', () => {
+    expect(formaterDate('2026-11-09')).toBe('9 novembre 2026')
+    expect(formaterDate('2027-01-01')).toBe('1er janvier 2027')
   })
 })
