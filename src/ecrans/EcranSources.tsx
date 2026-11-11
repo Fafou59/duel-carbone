@@ -159,6 +159,11 @@ export function EcranSources() {
           appareil. Ils ne sont envoyés nulle part.
         </p>
         <p>
+          Rien ne part sans toi : quand tu défies tes proches, c'est toi qui choisis où envoyer le texte. Il ne contient
+          que ton score, une case verte ou rouge par Duel et le lien du jeu, jamais le nom des gestes : il ne gâche pas
+          la Partie des autres.
+        </p>
+        <p>
           Le jeu est hébergé par Cloudflare : comme tout hébergeur, il reçoit les demandes de ton navigateur (dont ton
           adresse IP) pour t'envoyer les pages du jeu.
         </p>

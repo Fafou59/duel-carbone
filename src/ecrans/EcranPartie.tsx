@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { preload } from 'react-dom'
 import { AnnonceThematique } from '../composants/AnnonceThematique.tsx'
 import { difficulteAttendue } from '../domaine/difficulte.ts'
@@ -6,7 +6,7 @@ import { iconeDe } from '../donnees/icones.ts'
 import { avancer, estThematique, NOMBRE_DE_DUELS, reprendrePartie, score, type DuelDePartie } from '../domaine/partie.ts'
 import { recapitulatif } from '../domaine/recapitulatif.ts'
 import { EcranDuel } from './EcranDuel.tsx'
-import { EcranFin } from './EcranFin.tsx'
+import { EcranFin, type PropsFin } from './EcranFin.tsx'
 import './EcranPartie.css'
 
 type Props = {
@@ -20,8 +20,8 @@ type Props = {
   reponsesInitiales?: string[]
   /** Appelé à chaque nouvelle réponse, pour la retenir aussitôt (et pouvoir reprendre la Partie). */
   onReponse?: (idChoisi: string) => void
-  /** L'écran de fin propre à la Partie du jour : son titre, la série, et « Partie libre » au lieu de « Rejouer ». */
-  fin?: { titre?: string; complement?: ReactNode; libelleRejouer?: string }
+  /** Ce que l'écran de fin doit savoir du Duel du jour (voir EcranFin) : c'est lui qu'on termine, ou celui qui reste à jouer. */
+  fin?: Pick<PropsFin, 'partieDuJour' | 'duJour'>
 }
 
 export function EcranPartie({
@@ -114,9 +114,8 @@ export function EcranPartie({
         total={NOMBRE_DE_DUELS}
         ancienRecord={ancienRecord}
         onRejouer={onRejouer}
-        titre={fin?.titre}
-        complement={fin?.complement}
-        libelleRejouer={fin?.libelleRejouer}
+        partieDuJour={fin?.partieDuJour}
+        duJour={fin?.duJour}
       />
     )
   }

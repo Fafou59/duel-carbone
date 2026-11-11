@@ -71,6 +71,11 @@ describe('Page Sources et méthode', () => {
     expect(screen.getByText(/ta Partie du jour \(pour la reprendre ou revoir ton résultat\), ta série/)).toBeInTheDocument()
   })
 
+  it('dit ce que contient le texte partagé, et ce qu’il ne contient pas', () => {
+    render(<EcranSources />)
+    expect(screen.getByText(/jamais le nom des gestes/)).toBeInTheDocument()
+  })
+
   it('nomme l’hébergeur, qui reçoit les demandes du navigateur comme tout hébergeur', () => {
     render(<EcranSources />)
     expect(screen.getByText(/Le jeu est hébergé par Cloudflare/)).toHaveTextContent(/adresse IP/)

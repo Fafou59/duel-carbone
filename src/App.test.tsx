@@ -227,6 +227,20 @@ describe('Application : le Duel Carbone du jour', () => {
     expect(grille.querySelectorAll('.mauvais')).toHaveLength(10 - score)
   })
 
+  it('à la fin d’une Partie libre, propose d’abord le Duel du jour, qui se lance d’un clic', async () => {
+    render(<App memoire={creerMemoire(stockage())} aujourdhui={JOUR} />)
+    await boutonDuJour()
+    fireEvent.click(screen.getByRole('button', { name: 'Partie libre' }))
+    for (let i = 0; i < 10; i++) {
+      fermerAnnonce()
+      fireEvent.click(within(screen.getByRole('region', { name: 'Lequel émet le plus ?' })).getAllByRole('button')[0])
+      fireEvent.click(screen.getByRole('button', { name: i === 9 ? 'Voir mon score' : 'Duel suivant →' }))
+    }
+    fireEvent.click(screen.getByRole('button', { name: 'Jouer le Duel du jour n° 10' }))
+    fermerAnnonce()
+    expect(screen.getByText('Duel 1/10')).toBeInTheDocument()
+  })
+
   it('reste jouable sans stockage', async () => {
     render(<App memoire={creerMemoire(null)} aujourdhui={JOUR} />)
     fireEvent.click(await boutonDuJour())

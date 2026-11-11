@@ -131,3 +131,41 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.fin__complement {
+  margin: -4px 0 8px;
+  color: var(--discret);
+  font-weight: 700;
+}
+
+.fin__gros {
+  padding: 15px 26px;
+  font-size: 18px;
+}
+
+.fin__actions {
+  align-items: center;
+}
+
+.fin__invitation {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+/* Après le Duel du jour : la Partie libre, présentée comme un entraînement. */
+.fin__entrainement {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 14px;
+  border: 3px solid var(--ligne);
+  border-radius: 20px;
+  background: var(--carte);
+}
+
+.fin__entrainement p {
+  margin: 0;
+  font-weight: 800;
+}
