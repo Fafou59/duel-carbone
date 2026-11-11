@@ -57,3 +57,18 @@ export function avancer(etat: EtatPartie, action: Action): EtatPartie {
 }
 
 export const score = (etat: EtatPartie): number => etat.reponses.filter((r) => r.bonne).length
+
+/**
+ * Reprend une Partie interrompue (la Partie du jour, après une fermeture de l'appli) : on rejoue
+ * les réponses déjà données, et le joueur repart du Duel suivant, sans pouvoir changer d'avis.
+ * Une réponse qui ne correspond pas au Duel (mémoire abîmée) arrête la reprise à cet endroit.
+ */
+export function reprendrePartie(duels: DuelDePartie[], idsChoisis: readonly string[]): EtatPartie {
+  let etat = demarrerPartie(duels)
+  for (const idGeste of idsChoisis) {
+    const apresChoix = avancer(etat, { type: 'choisir', idGeste })
+    if (apresChoix === etat) break
+    etat = avancer(apresChoix, { type: 'suivant' })
+  }
+  return etat
+}

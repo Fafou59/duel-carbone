@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 import { PanneauDuel } from '../composants/PanneauDuel.tsx'
 import { Icone } from '../composants/Icone.tsx'
 import { formaterMultiple, queDevant } from '../domaine/format.ts'
@@ -16,6 +16,12 @@ type Props = {
   /** Le record d'avant cette Partie (null : première Partie, ou pas de mémoire locale). */
   ancienRecord?: number | null
   onRejouer: () => void
+  /** Le titre (« Partie terminée ! » par défaut ; « Duel Carbone du jour n° 12 » pour la Partie du jour). */
+  titre?: string
+  /** Une information de plus sous le score (la série, pour la Partie du jour). */
+  complement?: ReactNode
+  /** Le libellé du second bouton (« Rejouer » par défaut ; « Partie libre » après la Partie du jour). */
+  libelleRejouer?: string
   /** Comment partager (remplaçable dans les tests) : par défaut, avec les outils du navigateur. */
   onPartager?: (texte: string) => Promise<ResultatPartage>
 }
@@ -28,6 +34,9 @@ export function EcranFin({
   total,
   ancienRecord = null,
   onRejouer,
+  titre = 'Partie terminée !',
+  complement,
+  libelleRejouer = 'Rejouer',
   onPartager = partager,
 }: Props) {
   // Résultat du dernier partage, pour afficher une confirmation (ou le texte, si la copie a échoué).
@@ -51,13 +60,14 @@ export function EcranFin({
   return (
     <section className="fin" aria-labelledby="fin-titre">
       <h2 id="fin-titre" ref={refTitre} tabIndex={-1}>
-        Partie terminée !
+        {titre}
       </h2>
       <p className="fin__score">
         {score}
         <span>/{total}</span>
       </p>
       <p className="fin__message">{messageDeScore(score, total)}</p>
+      {complement && <p className="fin__complement">{complement}</p>}
       {ancienRecord !== null &&
         (score > ancienRecord ? (
           <p className="fin__record fin__record--nouveau">
@@ -73,7 +83,7 @@ export function EcranFin({
           Partager mon score
         </button>
         <button type="button" className="bouton bouton--secondaire" onClick={onRejouer}>
-          Rejouer
+          {libelleRejouer}
         </button>
       </div>
       {/* role="status" : un lecteur d'écran annonce la confirmation de copie dès qu'elle apparaît. */}

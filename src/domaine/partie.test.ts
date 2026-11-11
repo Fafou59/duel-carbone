@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Duel } from './duel.ts'
 import type { GesteCalcule } from './geste.ts'
-import { avancer, demarrerPartie, estThematique, NOMBRE_DE_DUELS, score, type EtatPartie } from './partie.ts'
+import { avancer, demarrerPartie, estThematique, NOMBRE_DE_DUELS, reprendrePartie, score, type EtatPartie } from './partie.ts'
 
 const geste = (id: string, empreinte: number): GesteCalcule => ({
   id,
@@ -96,5 +96,28 @@ describe('Duel thématique', () => {
     const textes = { titre: 'Robinet contre bouteille', accroche: 'Même eau…', texte: "L'eau du robinet n'émet presque rien." }
     expect(estThematique({ ...DUELS[0], thematique: textes })).toBe(true)
     expect(estThematique(DUELS[0])).toBe(false)
+  })
+})
+
+describe('Reprise d’une Partie interrompue (Partie du jour)', () => {
+  it('reprend au Duel suivant, avec les réponses déjà données et le même score', () => {
+    const etat = reprendrePartie(DUELS, ['fort-0', 'faible-1', 'fort-2'])
+    expect(etat.phase).toBe('duel')
+    expect(etat.index).toBe(3)
+    expect(etat.reponses.map((r) => r.idChoisi)).toEqual(['fort-0', 'faible-1', 'fort-2'])
+    expect(score(etat)).toBe(2)
+  })
+
+  it('arrive directement à la fin si les 10 réponses sont déjà données', () => {
+    const toutes = DUELS.map((d) => d.a.id)
+    const etat = reprendrePartie(DUELS, toutes)
+    expect(etat.phase).toBe('fin')
+    expect(score(etat)).toBe(NOMBRE_DE_DUELS)
+  })
+
+  it('ignore une réponse qui ne correspond pas au Duel (mémoire abîmée) et s’arrête là', () => {
+    const etat = reprendrePartie(DUELS, ['fort-0', 'licorne', 'fort-2'])
+    expect(etat.index).toBe(1)
+    expect(etat.reponses).toHaveLength(1)
   })
 })
