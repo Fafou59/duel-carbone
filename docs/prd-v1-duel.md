@@ -108,6 +108,8 @@ La référence visuelle est la variante **A2** du prototype ; le détail et les 
   - **Joué hier, pas encore aujourd'hui** : « Série de N jours. Ne la casse pas ! », le bouton du Duel du jour avec le score d'hier et le temps qui reste, et la Partie libre en simple lien.
   - Après la Partie libre : le titre et l'accroche, comme pour un nouveau joueur.
 - **Sur tous les écrans** : la frise d'icônes qui défile de droite à gauche, puis le pied de page « Comment ça marche ? · Sources et méthode · Chiffres de l'ADEME, sans cookie ni compte ». Les rubans d'icônes sont décoratifs (cachés aux lecteurs d'écran) et s'arrêtent si l'appareil demande moins d'animations.
+- **Fin du Duel du jour** : le titre « Duel Carbone du jour n° N », le score, la série et le temps avant le prochain Duel ; « Défier mes proches » en premier, puis la Partie libre pour s'entraîner (« Envie de t'entraîner pour le Duel de demain ? »).
+- **Fin de Partie libre** : si le Duel du jour reste à jouer, « Échauffement terminé : place au Duel du jour ! » et son bouton en premier, puis « Rejouer » ; sinon, « Rejouer » en premier et le temps avant le prochain Duel du jour.
 - **Comment ça marche ?** : un diaporama en 5 étapes, dans une fenêtre, sur un Duel fixe (un jean contre un Paris–Marseille en TGV). Toucher une carte dès la première étape passe directement à la réponse ; la navigation reste visible en bas de la fenêtre ; la dernière étape lance le Duel du jour.
 
 - **Duel** : deux cartes (empilées sur mobile) qui tiennent sur un écran de téléphone. Le libellé tient sur deux lignes : le geste, puis la quantité ou la durée d'utilisation.
@@ -145,7 +147,7 @@ La référence visuelle est la variante **A2** du prototype ; le détail et les 
 6. **Moteur de Partie** : les états successifs d'une Partie (accueil → Duel → révélation → … → fin), le score et le Récapitulatif.
 7. **Stockage local** (dans le navigateur, format versionné) : le record de la Partie libre et ses paires vues récemment, la Partie du jour en cours ou terminée (réponses, score) et la série. Aucune donnée personnelle.
    **Calendrier des Parties du jour** (`src/domaine/calendrier.ts`, `src/donnees/calendrier.json`) : chargé à part, pour ne pas alourdir le démarrage du jeu.
-8. **Partage** : le menu de partage natif du téléphone, ou une copie dans le presse-papiers sur ordinateur.
+8. **Partage** : le menu de partage natif du téléphone, ou une copie dans le presse-papiers sur ordinateur. Le texte du Duel du jour suit le modèle de Wordle : une accroche qui change chaque jour (la même pour tous, `src/donnees/accroches.ts`), « Duel Carbone du jour n° N : 8/10 », une case 🟩/🟥 par Duel et le lien ; aucun nom de Geste ni marque de Duel thématique. La Partie libre garde « J'ai fait 8/10 à Duel Carbone 🌍 Sauras-tu faire mieux ? ».
 9. **Mise en forme des nombres** : unité automatique (g, kg, t) et conventions françaises (virgule décimale).
 10. **Pages** : Accueil, Partie, Fin de Partie, Sources et méthode.
 
