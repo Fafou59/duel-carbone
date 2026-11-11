@@ -22,6 +22,12 @@ export function formaterEmpreinte(kg: number, { co2e = true }: { co2e?: boolean 
     if (!co2e) return `${nombre(millions, 1)} Mt`
     return `${nombre(millions, 1)} ${Math.abs(millions) < 2 ? 'million' : 'millions'} de t${suffixe}`
   }
+  // Au-delà de 1 000 t, trois chiffres significatifs suffisent : « 430 000 t » plutôt que « 429 970 t ».
+  if (absolu >= 1e6) {
+    const tonnes = kg / 1000
+    const pas = 10 ** (Math.floor(Math.log10(Math.abs(tonnes))) - 2)
+    return `${nombre(Math.round(tonnes / pas) * pas, 0)} t${suffixe}`
+  }
   if (absolu >= 1000) return `${nombre(kg / 1000, 1)} t${suffixe}`
   if (absolu >= 100) return `${nombre(kg, 0)} kg${suffixe}`
   // Sous 1 kg, on passe en grammes, sauf si l'arrondi donnerait « 1 000 g ».

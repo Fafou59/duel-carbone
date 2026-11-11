@@ -26,6 +26,12 @@ describe("Mise en forme d'une empreinte carbone", () => {
     expect(formaterEmpreinte(430_000_000)).toBe('430\u202f000 t CO2e')
   })
 
+  it('arrondit les milliers de tonnes \u00e0 trois chiffres : une pr\u00e9cision au kilo pr\u00e8s n\u2019aurait pas de sens', () => {
+    expect(formaterEmpreinte(429_970_000)).toBe('430\u202f000 t CO2e')
+    expect(formaterEmpreinte(193_699_000)).toBe('194\u202f000 t CO2e')
+    expect(formaterEmpreinte(1_234_567)).toBe('1\u202f230 t CO2e')
+  })
+
   it('affiche en millions de tonnes au-delà d’un million de tonnes (les agrégats nationaux)', () => {
     expect(formaterEmpreinte(29_500_000_000)).toBe('29,5 millions de t CO2e')
     expect(formaterEmpreinte(1_200_000_000)).toBe('1,2 million de t CO2e')

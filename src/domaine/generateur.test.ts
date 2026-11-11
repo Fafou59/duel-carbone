@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { GESTES_CALCULES } from '../donnees/index.ts'
 import { difficulteAttendue } from './difficulte.ts'
 import { rapport } from './duel.ts'
+import { formaterMultiple } from './format.ts'
 import { cleDePaire, genererPartie, tirerPaire, type Candidat } from './generateur.ts'
 import type { GesteCalcule, Nature } from './geste.ts'
 import { hasardReproductible } from './hasard.ts'
@@ -209,6 +210,13 @@ describe('Générateur de Partie : les Duels thématiques', () => {
     for (const duels of parties({ probabiliteThematique: 0, forcerThematique: true })) {
       expect(thematiquesDe(duels)).toHaveLength(1)
     }
+  })
+
+  it('remplace les repères du texte par les valeurs du moment (Rapport, empreintes)', () => {
+    const avecRepere = { ...thematique('g0', 'g20'), texte: 'Écart : {rapport} fois.' }
+    const duels = genererPartie({ gestes: RICHE, thematiques: [avecRepere], probabiliteThematique: 1, hasard: hasardReproductible(1) })
+    const [duel] = thematiquesDe(duels)
+    expect(duel.thematique?.texte).toBe(`Écart : ${formaterMultiple(rapport(duel))} fois.`)
   })
 
   it('jamais plus d’un par Partie', () => {
