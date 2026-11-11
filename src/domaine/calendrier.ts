@@ -81,13 +81,25 @@ export function partieDuJour(
 ): DuelDePartie[] {
   const n = calendrier.jours.length
   const index = ((joursEntre(calendrier.debut, jour) % n) + n) % n
+  try {
+    return duelsDepuisCodes(calendrier.jours[index], gestes, thematiques)
+  } catch (erreur) {
+    throw new Error(`Calendrier du ${jour} : ${(erreur as Error).message} (lance npm run calendrier).`)
+  }
+}
+
+/**
+ * Une Partie reconstruite depuis ses codes « a>b » (ceux du calendrier, ou ceux retenus par la mémoire
+ * pour la Partie du jour réellement jouée), avec les textes de ses Duels thématiques.
+ */
+export function duelsDepuisCodes(codes: string[], gestes: GesteCalcule[], thematiques: DuelThematique[]): DuelDePartie[] {
   const parCle = new Map(thematiques.map((t) => [cleDePaire(t.a, t.b), t]))
   const geste = (id: string) => {
     const g = gestes.find((x) => x.id === id)
-    if (!g) throw new Error(`Calendrier du ${jour} : Geste « ${id} » absent du catalogue (lance npm run calendrier).`)
+    if (!g) throw new Error(`Geste « ${id} » absent du catalogue`)
     return g
   }
-  return calendrier.jours[index].map((code) => {
+  return codes.map((code) => {
     const [a, b] = code.split('>').map(geste)
     const duel: Duel = { a, b }
     const t = parCle.get(cleDePaire(a.id, b.id))

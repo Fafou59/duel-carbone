@@ -17,8 +17,13 @@ export type Stockage = Pick<Storage, 'getItem' | 'setItem'>
 
 export const CLE_MEMOIRE = 'duel-carbone/memoire'
 
-/** La Partie du jour en cours ou terminée : les réponses données (pour la reprise) et le score final. */
-type DuJour = { jour: string; reponses: string[]; score: number | null }
+/**
+ * La Partie du jour en cours ou terminée : ses Duels (codes « a>b »), les réponses données (pour la reprise)
+ * et le score final. Les Duels sont retenus tels que joués : si une nouvelle version du jeu change le calendrier
+ * (#16), la reprise, la grille et le Récapitulatif restent ceux de la Partie réellement jouée.
+ * Absents d'une Partie commencée avant cette règle : on se rabat alors sur le calendrier.
+ */
+type DuJour = { jour: string; duels?: string[]; reponses: string[]; score: number | null }
 
 /** La série : combien de jours de suite la Partie du jour a été terminée, et le dernier de ces jours. */
 type Serie = { longueur: number; dernierJour: string }
@@ -48,7 +53,9 @@ export type Memoire = {
   /** Retient les paires (cleDePaire) d'une Partie libre qui commence. */
   enregistrerPartie: (paires: string[]) => void
   /** La Partie du jour de ce jour-là, en cours ou terminée (null si elle n'a pas commencé). */
-  partieDuJour: (jour: string) => { reponses: string[]; score: number | null } | null
+  partieDuJour: (jour: string) => { duels?: string[]; reponses: string[]; score: number | null } | null
+  /** Retient les Duels de la Partie du jour qui commence (sans remplacer ceux d'une Partie déjà commencée). */
+  commencerPartieDuJour: (jour: string, duels: string[]) => void
   /** Retient une réponse de la Partie du jour, dès qu'elle est donnée (une Partie de la veille est oubliée). */
   enregistrerReponseDuJour: (jour: string, idChoisi: string) => void
   /** La Partie du jour est terminée : son score, et la série qui avance d'un jour. */
@@ -88,7 +95,14 @@ export function creerMemoire(stockage: Stockage | null = stockageDuNavigateur())
     },
     partieDuJour: (jour) => {
       const { duJour } = lire()
-      return duJour?.jour === jour ? { reponses: duJour.reponses, score: duJour.score } : null
+      if (duJour?.jour !== jour) return null
+      return { ...(duJour.duels && { duels: duJour.duels }), reponses: duJour.reponses, score: duJour.score }
+    },
+    commencerPartieDuJour: (jour, duels) => {
+      const contenu = lire()
+      if (contenu.duJour?.jour === jour && contenu.duJour.duels) return
+      const enCours = contenu.duJour?.jour === jour ? contenu.duJour : { jour, reponses: [], score: null }
+      ecrire({ ...contenu, duJour: { ...enCours, duels } })
     },
     enregistrerReponseDuJour: (jour, idChoisi) => {
       const contenu = lire()
@@ -98,13 +112,14 @@ export function creerMemoire(stockage: Stockage | null = stockageDuNavigateur())
     },
     terminerPartieDuJour: (jour, score) => {
       const contenu = lire()
-      const reponses = contenu.duJour?.jour === jour ? contenu.duJour.reponses : []
+      const enCours = contenu.duJour?.jour === jour ? contenu.duJour : null
+      const reponses = enCours?.reponses ?? []
       const { serie } = contenu
       const longueur =
         serie?.dernierJour === jour ? serie.longueur : serie?.dernierJour === decalerJour(jour, -1) ? serie.longueur + 1 : 1
       ecrire({
         ...contenu,
-        duJour: { jour, reponses, score },
+        duJour: { jour, ...(enCours?.duels && { duels: enCours.duels }), reponses, score },
         serie: { longueur, dernierJour: jour },
         meilleureSerie: Math.max(contenu.meilleureSerie, longueur),
       })
@@ -135,7 +150,7 @@ function valider(brut: unknown): Contenu {
     partiesRecentes: partiesValides ? (partiesRecentes as string[][]) : [],
     duJour:
       j && jour(j.jour) && textes(j.reponses) && (j.score === null || nombre(j.score))
-        ? { jour: j.jour, reponses: j.reponses, score: j.score as number | null }
+        ? { jour: j.jour, ...(textes(j.duels) && { duels: j.duels }), reponses: j.reponses, score: j.score as number | null }
         : null,
     serie: s && nombre(s.longueur) && jour(s.dernierJour) ? { longueur: s.longueur, dernierJour: s.dernierJour } : null,
     meilleureSerie: nombre(meilleureSerie) ? meilleureSerie : 0,

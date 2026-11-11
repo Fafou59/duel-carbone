@@ -168,8 +168,26 @@ describe('Mémoire locale : la Partie du jour', () => {
     expect(memoire.serie(JOUR).actuelle).toBe(1)
   })
 
+  it('retient les Duels du jour réellement joués, même si une nouvelle version du jeu change le calendrier', () => {
+    const memoire = creerMemoire(stockage())
+    const DUELS = ['steak-boeuf>avocat', 'tgv-100km>voiture-10km']
+    memoire.commencerPartieDuJour(JOUR, DUELS)
+    memoire.enregistrerReponseDuJour(JOUR, 'steak-boeuf')
+    expect(memoire.partieDuJour(JOUR)).toEqual({ duels: DUELS, reponses: ['steak-boeuf'], score: null })
+    memoire.terminerPartieDuJour(JOUR, 8)
+    expect(memoire.partieDuJour(JOUR)?.duels).toEqual(DUELS)
+  })
+
+  it('ne remplace pas les Duels déjà retenus quand la Partie du jour reprend', () => {
+    const memoire = creerMemoire(stockage())
+    memoire.commencerPartieDuJour(JOUR, ['steak-boeuf>avocat'])
+    memoire.commencerPartieDuJour(JOUR, ['pates>riz'])
+    expect(memoire.partieDuJour(JOUR)?.duels).toEqual(['steak-boeuf>avocat'])
+  })
+
   it('reste jouable sans stockage : rien n’est retenu, rien ne plante', () => {
     const memoire = creerMemoire(null)
+    memoire.commencerPartieDuJour(JOUR, ['steak-boeuf>avocat'])
     memoire.enregistrerReponseDuJour(JOUR, 'steak-boeuf')
     memoire.terminerPartieDuJour(JOUR, 8)
     expect(memoire.partieDuJour(JOUR)).toBeNull()
