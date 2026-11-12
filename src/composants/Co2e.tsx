@@ -4,7 +4,7 @@ import './Co2e.css'
 
 /**
  * La définition du CO2e : ce que c'est, un exemple concret, puis ce que couvrent les chiffres du jeu.
- * Utilisée dans la fenêtre de l'accueil et dans la page Sources et méthode (où ses titres descendent d'un niveau).
+ * Utilisée dans la fenêtre de l'accueil et dans la page En savoir plus (où ses titres descendent d'un niveau).
  */
 export function DefinitionCo2e({ niveau: Titre = 'h3' }: { niveau?: 'h3' | 'h4' }) {
   return (

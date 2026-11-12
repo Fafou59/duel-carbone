@@ -111,8 +111,8 @@ function Diaporama({ onJouer, onSources }: { onJouer: () => void; onSources: () 
       texte: (
         <>
           Sous chaque explication, des liens mènent aux fiches de l’ADEME, et{' '}
-          <a href={ADRESSES.sources} onClick={onSources}>
-            Sources et méthode
+          <a href={ADRESSES.enSavoirPlus} onClick={onSources}>
+            En savoir plus
           </a>{' '}
           détaille nos calculs. Une Partie, c’est 10 Duels de plus en plus serrés ; un nouveau Duel du jour t’attend chaque
           jour à minuit.

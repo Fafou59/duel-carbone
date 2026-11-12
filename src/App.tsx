@@ -11,12 +11,12 @@ import type { DuelDePartie } from './domaine/partie.ts'
 import { doitForcerUnDuelThematique } from './domaine/thematiques.ts'
 import { Accueil, type Situation } from './ecrans/Accueil.tsx'
 import { EcranPartie } from './ecrans/EcranPartie.tsx'
-import { EcranSources } from './ecrans/EcranSources.tsx'
+import { EcranEnSavoirPlus } from './ecrans/EcranEnSavoirPlus.tsx'
 import { ADRESSES, usePage } from './navigateur/adresse.ts'
 import { creerMemoire, type Memoire } from './navigateur/memoire.ts'
 import { appliquerNouvelleVersion, useNouvelleVersion } from './navigateur/mise-a-jour.ts'
 
-import { DEPOT, IMPACT_CO2 } from './liens.ts'
+import { IMPACT_CO2_DOC } from './liens.ts'
 
 type Props = {
   /** La mémoire locale (remplaçable dans les tests) : par défaut, le localStorage du navigateur. */
@@ -44,7 +44,7 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
   const [calendrier, setCalendrier] = useState<Calendrier | null>(null)
   // Relu après chaque Partie du jour terminée.
   const [, setActualisation] = useState(0)
-  // La page demandée par l'adresse : le jeu, ou Sources et méthode (#sources).
+  // La page demandée par l'adresse : le jeu, ou En savoir plus (#en-savoir-plus).
   const page = usePage()
   // « Comment ça marche ? » : le tutoriel, ouvert par-dessus l'écran en cours.
   const [tutoriel, setTutoriel] = useState(false)
@@ -71,7 +71,7 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
   const scoreHier = memoire.partieDuJour(decalerJour(aujourdhui, -1))?.score ?? undefined
 
   // Une nouvelle version du jeu est prête (application installée) : on l'applique en silence dès que le joueur
-  // est sur l'accueil, jamais en pleine Partie ni pendant une lecture (tutoriel, Sources et méthode).
+  // est sur l'accueil, jamais en pleine Partie ni pendant une lecture (tutoriel, En savoir plus).
   const nouvelleVersion = useNouvelleVersion()
   useEffect(() => {
     if (nouvelleVersion && !partie && !tutoriel && page === 'jeu') appliquerNouvelleVersion()
@@ -87,7 +87,7 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
 
   // À chaque changement de page : le titre de l'onglet, et retour en haut de l'écran.
   useEffect(() => {
-    document.title = page === 'sources' ? 'Sources et méthode · Duel Carbone' : 'Duel Carbone'
+    document.title = page === 'enSavoirPlus' ? 'En savoir plus · Duel Carbone' : 'Duel Carbone'
     window.scrollTo(0, 0)
   }, [page])
 
@@ -139,10 +139,10 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
     return { score: duJour.score, bonnes: complet ? duels.map((duel, i) => estBonChoix(duel, duJour.reponses[i])) : [] }
   })()
 
-  // La frise d'icônes qui défile : seulement sur l'écran de fin et pendant la lecture des sources.
+  // La frise d'icônes qui défile : seulement sur l'écran de fin et dans En savoir plus.
   // Ni sur l'accueil (la vitrine y défile déjà : les deux ensemble, c'était chargé), ni pendant les Duels
   // (elle détournait l'attention des cartes).
-  const afficherFrise = page === 'sources' || (partie !== null && partieTerminee === numero)
+  const afficherFrise = page === 'enSavoirPlus' || (partie !== null && partieTerminee === numero)
 
   const revenirALAccueil = () => {
     setPartie(null)
@@ -167,9 +167,9 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
         </h1>
       </header>
       <main>
-        {page === 'sources' && <EcranSources />}
+        {page === 'enSavoirPlus' && <EcranEnSavoirPlus />}
         {/* Le jeu reste en place (simplement caché) pendant la lecture des sources : la Partie en cours n'est pas perdue. */}
-        <div hidden={page === 'sources'}>
+        <div hidden={page === 'enSavoirPlus'}>
           {!partie && (
             <Accueil
               jour={aujourdhui}
@@ -232,11 +232,8 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
           <button type="button" className="lien-bouton pied__lien-bouton" onClick={() => setTutoriel(true)}>
             Comment ça marche ?
           </button>{' '}
-          · <a href={ADRESSES.sources}>Sources et méthode</a> · <a href={IMPACT_CO2}>Chiffres de l’ADEME</a>, sans cookie ni
-          compte
-        </p>
-        <p>
-          <a href={DEPOT}>Suivre le projet sur GitHub</a>
+          · <a href={ADRESSES.enSavoirPlus}>En savoir plus</a> · <a href={IMPACT_CO2_DOC}>Chiffres de l’ADEME</a>, sans cookie
+          ni compte
         </p>
       </footer>
       <Tutoriel ouvert={tutoriel} onFermer={() => setTutoriel(false)} onJouer={lancerPartieDuJour} />

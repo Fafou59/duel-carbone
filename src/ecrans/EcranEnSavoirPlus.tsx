@@ -2,10 +2,12 @@ import { useEffect, useRef } from 'react'
 import { GESTES_CALCULES, gesteCalcule, INSTANTANE } from '../donnees/index.ts'
 import { formaterDate, formaterEmpreinte } from '../domaine/format.ts'
 import { REGLES } from '../domaine/regles.ts'
-import { DEPOT, FLUENT_EMOJI, GOATCOUNTER, IMPACT_CO2, MENTIONS_LEGALES_ADEME } from '../liens.ts'
+import { APPELS, DATE_DU_DECOMPTE, DEBUT_DU_PROJET, HYPOTHESES, JETONS } from '../donnees/empreinte-ia.ts'
+import { empreinteDeLaCreation } from '../domaine/empreinte-ia.ts'
+import { ADEME, DEPOT, FLUENT_EMOJI, GOATCOUNTER, IMPACT_CO2, MENTIONS_LEGALES_ADEME, METHODE_EMPREINTE_IA } from '../liens.ts'
 import { ADRESSES } from '../navigateur/adresse.ts'
 import { DefinitionCo2e } from '../composants/Co2e.tsx'
-import './EcranSources.css'
+import './EcranEnSavoirPlus.css'
 
 /** Un nombre à la française, jusqu'à deux décimales : « 0,12 », « 1,25 », « 500 ». */
 const nombre = (n: number) => new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 2 }).format(n)
@@ -32,10 +34,15 @@ const NEW_YORK = gesteCalcule('paris-new-york')
 const trainees = NEW_YORK.etapes.find((e) => e.libelle === 'Traînées de condensation')
 const PART_DES_TRAINEES = trainees ? Math.round((trainees.valeur / NEW_YORK.empreinte) * 100) : null
 
+// L'empreinte de la création du jeu par IA (domaine/empreinte-ia.ts), arrondie au kilo : c'est une estimation.
+const kgIa = (h: keyof typeof HYPOTHESES) => Math.round(empreinteDeLaCreation(JETONS, HYPOTHESES[h]).kgCo2e)
+const FRIENDS = gesteCalcule('friends')
+
 const PREMIERE_TRANCHE = REGLES.tranchesParDuel[0]
 const DERNIERE_TRANCHE = REGLES.tranchesParDuel[REGLES.tranchesParDuel.length - 1]
 
-export function EcranSources() {
+/** La page « En savoir plus » : le projet, puis les sources et la méthode, la vie privée, et l'empreinte du jeu. */
+export function EcranEnSavoirPlus() {
   const titre = useRef<HTMLHeadingElement>(null)
 
   // À l'ouverture de la page, le lecteur d'écran (et le clavier) partent de son titre.
@@ -44,27 +51,51 @@ export function EcranSources() {
   const unite = STEAK.equivalent.unite ?? 'unité'
 
   return (
-    <article className="sources" aria-labelledby="sources-titre">
-      <a className="sources__retour" href={ADRESSES.jeu}>
-        ← Retour au jeu
-      </a>
-      <h2 id="sources-titre" ref={titre} tabIndex={-1}>
-        Sources et méthode
+    <article className="savoir" aria-labelledby="savoir-titre">
+      <h2 id="savoir-titre" ref={titre} tabIndex={-1}>
+        En savoir plus
       </h2>
-      <p className="sources__chapo">Chaque chiffre du jeu vient de l'ADEME. Voici d'où, et comment on s'en sert.</p>
+      <p className="savoir__chapo">
+        Pourquoi ce jeu, d'où viennent ses chiffres et comment on s'en sert, ce qu'il garde de toi, et ce qu'il a
+        coûté.
+      </p>
+
+      <section>
+        <h3>Pourquoi Duel Carbone ?</h3>
+        <p>
+          On estime très mal l'empreinte carbone de nos gestes du quotidien. On surestime ce qui se voit (un emballage,
+          un mail) et on sous-estime ce qui ne se voit pas (la viande, la fabrication d'un smartphone, l'avion).
+        </p>
+        <p>
+          Les bons chiffres existent : l'ADEME les publie. Mais un chiffre lu dans un tableau s'oublie vite. Duel
+          Carbone fait le pari du jeu : deux gestes, un choix, puis la réponse et ce qui pèse vraiment. On apprend en se
+          trompant, sans leçon de morale.
+        </p>
+        <p>
+          C'est un jeu gratuit, sans publicité, sans compte et sans cookie : un projet indépendant, pour que chacun
+          sache où portent ses efforts.
+        </p>
+      </section>
 
       <section>
         <h3>D'où viennent les chiffres</h3>
         <p>
-          Toutes les empreintes carbone viennent d'<a href={IMPACT_CO2}>Impact CO2</a>, le site de l'ADEME (l'Agence
-          de la transition écologique) qui mesure l'empreinte des objets et des gestes du quotidien sur tout leur
-          cycle de vie : fabrication, transport, usage, fin de vie.
+          Toutes les empreintes carbone viennent de l'ADEME, l'Agence de la transition écologique. C'est un
+          établissement public, placé sous la tutelle des ministères chargés de l'environnement, de l'énergie et de la
+          recherche. Elle accompagne l'État, les entreprises, les collectivités et les citoyens pour baisser la
+          consommation d'énergie, développer les énergies renouvelables et réduire les émissions de gaz à effet de
+          serre : elle apporte son expertise, finance des projets, soutient la recherche et l'innovation, et informe le
+          public (<a href={ADEME}>les missions de l'ADEME</a>).
+        </p>
+        <p>
+          Parmi ses outils, <a href={IMPACT_CO2}>Impact CO2</a> mesure l'empreinte des objets et des gestes du
+          quotidien sur tout leur cycle de vie : fabrication, transport, usage, fin de vie.
         </p>
         <p>
           Le jeu en garde une copie datée, mise à jour à la main : {NOMBRE_DE_GESTES} gestes (dont {NOMBRE_DE_RESERVES}{' '}
           réservés aux Duels ★), construits à partir de {NOMBRE_DE_FICHES} fiches de l'ADEME.
         </p>
-        <p className="sources__citation">Source : ADEME, Impact CO2, données du {DATE_INSTANTANE}.</p>
+        <p className="savoir__citation">Source : ADEME, Impact CO2, données du {DATE_INSTANTANE}.</p>
         <p>
           L'ADEME autorise la réutilisation non commerciale et pédagogique de ses informations, à condition d'en
           respecter le sens et d'en citer l'origine et la date (<a href={MENTIONS_LEGALES_ADEME}>mentions légales
@@ -85,7 +116,7 @@ export function EcranSources() {
           objet pour un appareil. Pour comparer des choses parlantes, le jeu multiplie cette valeur par une quantité
           réaliste. Par exemple :
         </p>
-        <p className="sources__formule">
+        <p className="savoir__formule">
           {STEAK.titre} ({STEAK.sousTitre}) = {nombre(STEAK.quantite)} {unite} ×{' '}
           {formaterEmpreinte(STEAK.equivalent.valeur)} par {unite} = {formaterEmpreinte(STEAK.empreinte)}
         </p>
@@ -182,16 +213,46 @@ export function EcranSources() {
       </section>
 
       <section>
-        <h3>Le projet</h3>
+        <h3>L’empreinte de ce jeu</h3>
         <p>
-          Le <a href={DEPOT}>code source du jeu</a> est public, sous licence MIT. Une erreur, une idée ?{' '}
-          <a href={`${DEPOT}/issues`}>Dis-le sur GitHub</a>.
+          Ce jeu a été codé avec l'aide d'une IA, Claude (d'Anthropic) : un humain pilote et valide, l'IA écrit le code
+          et l'explique. Cela consomme de l'électricité, dans les centres de données qui font tourner le modèle.
+        </p>
+        <p className="savoir__citation">
+          Première estimation, au {formaterDate(DATE_DU_DECOMPTE)} : environ {kgIa('centrale')} kg CO2e, entre{' '}
+          {kgIa('basse')} et {kgIa('haute')} kg selon les hypothèses. Du même ordre que{' '}
+          {FRIENDS.titre.charAt(0).toLowerCase() + FRIENDS.titre.slice(1)} ({FRIENDS.sousTitre}) : {formaterEmpreinte(FRIENDS.empreinte)} selon l'ADEME.
+        </p>
+        <p>
+          Ce chiffre-là ne vient pas de l'ADEME : aucune source publique ne donne l'énergie consommée par ce modèle.
+          Nous l'avons estimé à partir des {nombre(APPELS)} échanges avec le modèle depuis le{' '}
+          {formaterDate(DEBUT_DU_PROJET)} (le nombre de mots lus et écrits), de l'énergie mesurée par Epoch AI pour un
+          modèle comparable, et de l'électricité des États-Unis, où tournent ses serveurs. Il ne compte ni
+          l'entraînement du modèle, ni la fabrication des serveurs : c'est un ordre de grandeur, qui grandira avec le
+          projet. La <a href={METHODE_EMPREINTE_IA}>méthode détaillée</a> est sur GitHub.
+        </p>
+      </section>
+
+      <section>
+        <h3>Suivre le projet</h3>
+        <p>
+          <a href={DEPOT}>Suivre le projet sur GitHub</a> : le <a href={DEPOT}>code source du jeu</a> est public, sous
+          licence MIT. Une erreur, une idée ? <a href={`${DEPOT}/issues`}>Dis-le sur GitHub</a>.
         </p>
         <p>
           Les icônes viennent de <a href={FLUENT_EMOJI}>Fluent Emoji</a>, de Microsoft, sous licence MIT. Quand aucune
           ne parlait assez, nous avons dessiné la nôtre dans le même style (le micro-ondes, le lave-linge…).
         </p>
       </section>
+
+      {/* « Retour au jeu » reste collé en bas de l'écran, comme « Duel suivant » : pas besoin de remonter. */}
+      <div className="savoir__suite">
+        <div className="savoir__suite-barre">
+          <a className="bouton" href={ADRESSES.jeu}>
+            ← Retour au jeu
+          </a>
+        </div>
+      </div>
     </article>
   )
 }

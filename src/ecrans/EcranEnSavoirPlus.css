@@ -1,42 +1,70 @@
-/* Page Sources et méthode : un texte à lire, donc des lignes pas trop longues. */
-.sources {
+/* Page En savoir plus : un texte à lire, donc des lignes pas trop longues. */
+.savoir {
   display: grid;
   gap: 4px;
   max-width: 68ch;
   padding: 8px 0;
 }
 
-.sources h2 {
+.savoir h2 {
   margin: 8px 0 0;
   font-size: 26px;
 }
 
-.sources h2:focus {
+.savoir h2:focus {
   outline: none;
 }
 
-.sources h3 {
+.savoir h3 {
   margin: 20px 0 4px;
   font-size: 18px;
 }
 
-.sources p {
+.savoir p {
   margin: 0 0 8px;
 }
 
-.sources__retour {
-  justify-self: start;
-  font-weight: 700;
+/* « Retour au jeu » reste collé en bas de l'écran, comme « Duel suivant » (EcranDuel.css). */
+.savoir__suite {
+  container-type: scroll-state;
+  position: sticky;
+  bottom: 0;
+  margin: 16px -16px 0;
 }
 
-.sources__chapo {
+.savoir__suite-barre {
+  display: grid;
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+  background: var(--fond);
+}
+
+.savoir__suite .bouton {
+  text-decoration: none;
+}
+
+/* Sur téléphone, un bouton large, facile à atteindre avec le pouce. */
+@media (max-width: 699px) {
+  .savoir__suite .bouton {
+    justify-self: stretch;
+    text-align: center;
+  }
+}
+
+/* Une ombre seulement quand la barre flotte sur le texte (Chrome 133+ ; ailleurs, sans ombre). */
+@container scroll-state(stuck: bottom) {
+  .savoir__suite-barre {
+    box-shadow: 0 -8px 16px -8px rgb(0 0 0 / 30%);
+  }
+}
+
+.savoir__chapo {
   color: var(--discret);
   font-size: 18px;
 }
 
 /* La citation et le calcul : mis en valeur, pour qu'on les trouve d'un coup d'œil. */
-.sources__citation,
-.sources__formule {
+.savoir__citation,
+.savoir__formule {
   padding: 10px 14px;
   border-left: 4px solid var(--marque);
   border-radius: 4px;

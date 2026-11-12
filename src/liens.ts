@@ -6,6 +6,15 @@ export const DEPOT = 'https://github.com/Fafou59/duel-carbone'
 /** Impact CO2, le site de l'ADEME d'où viennent toutes les valeurs. */
 export const IMPACT_CO2 = 'https://impactco2.fr'
 
+/** La documentation d'Impact CO2 : ses méthodes de calcul et ses sources (le lien « Chiffres de l'ADEME »). */
+export const IMPACT_CO2_DOC = 'https://impactco2.fr/doc'
+
+/** La présentation de l'ADEME et de ses missions, sur son site. */
+export const ADEME = 'https://www.ademe.fr/lagence/'
+
+/** La méthode de l'estimation de l'empreinte de la création du jeu par IA. */
+export const METHODE_EMPREINTE_IA = 'https://github.com/Fafou59/duel-carbone/blob/main/docs/empreinte-ia.md'
+
 /** Les conditions de réutilisation des informations de l'ADEME (section « Propriété intellectuelle »). */
 export const MENTIONS_LEGALES_ADEME = 'https://impactco2.fr/mentions-legales'
 

@@ -23,7 +23,7 @@ for (const theme of ['light', 'dark'] as const) {
   test.describe(`mode ${theme === 'light' ? 'clair' : 'sombre'}`, () => {
     test.use({ colorScheme: theme })
 
-    test('accueil, tutoriel et Sources et méthode', async ({ page }) => {
+    test('accueil, tutoriel et En savoir plus', async ({ page }) => {
       await page.goto('/')
       await expect(page.getByRole('button', { name: /Jouer le Duel du jour/ })).toBeEnabled()
       await verifierAccessibilite(page, 'accueil')
@@ -33,9 +33,9 @@ for (const theme of ['light', 'dark'] as const) {
       await verifierAccessibilite(page, 'tutoriel')
       await page.keyboard.press('Escape')
 
-      await page.goto('/#sources')
-      await expect(page.getByRole('heading', { level: 2, name: /Sources et méthode/ })).toBeVisible()
-      await verifierAccessibilite(page, 'Sources et méthode')
+      await page.goto('/#en-savoir-plus')
+      await expect(page.getByRole('heading', { level: 2, name: 'En savoir plus' })).toBeVisible()
+      await verifierAccessibilite(page, 'En savoir plus')
     })
 
     test('Duel : la question, puis la réponse et son explication', async ({ page }) => {
@@ -90,8 +90,8 @@ test.describe('zoom à 200 %', () => {
       await page.keyboard.press('Enter')
     }
     await sansDefilementHorizontal(page, 'fin de Partie')
-    await page.goto('/#sources')
-    await sansDefilementHorizontal(page, 'Sources et méthode')
+    await page.goto('/#en-savoir-plus')
+    await sansDefilementHorizontal(page, 'En savoir plus')
   })
 })
 
