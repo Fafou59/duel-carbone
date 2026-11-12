@@ -17,7 +17,8 @@
     "calendrier": "node scripts/calendrier.ts",
     "icones": "node scripts/icones/index.ts",
     "logo": "node scripts/logo.ts",
-    "analyse:paires": "node scripts/analyse-paires.ts"
+    "analyse:paires": "node scripts/analyse-paires.ts",
+    "empreinte-ia": "node scripts/empreinte-ia.ts"
   },
   "dependencies": {
     "react": "^19.3.1",
