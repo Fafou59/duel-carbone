@@ -57,6 +57,8 @@ export const OFFICIELLES: Record<string, string> = {
   'chauffage-gaz': 'Fire',
   'chauffage-fioul': 'Oil drum',
   friends: 'Couch and lamp',
+  // L'Easter Egg (#63) : le Geste « Créer Duel Carbone, assisté par IA ».
+  'creer-duel-carbone': 'Robot',
   'nuit-hotel': 'Hotel',
   'journee-ski': 'Skier',
   'streaming-film': 'Popcorn',

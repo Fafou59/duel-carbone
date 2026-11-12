@@ -17,9 +17,11 @@ const nombre = (n: number) => new Intl.NumberFormat('fr-FR', { maximumFractionDi
  * si l'ADEME met ses valeurs à jour ou si une règle change, la page suit d'elle-même.
  */
 const DATE_INSTANTANE = formaterDate(INSTANTANE.dateImport)
-const NOMBRE_DE_GESTES = GESTES_CALCULES.length
-const NOMBRE_DE_RESERVES = GESTES_CALCULES.filter((g) => g.seulementEnDuelThematique).length
-const NOMBRE_DE_FICHES = new Set(GESTES_CALCULES.map((g) => g.equivalent.slug)).size
+// Les Gestes construits à partir des fiches de l'ADEME : l'Easter Egg, estimé hors ADEME, n'en fait pas partie.
+const GESTES_ADEME = GESTES_CALCULES.filter((g) => !g.horsAdeme)
+const NOMBRE_DE_GESTES = GESTES_ADEME.length
+const NOMBRE_DE_RESERVES = GESTES_ADEME.filter((g) => g.seulementEnDuelThematique).length
+const NOMBRE_DE_FICHES = new Set(GESTES_ADEME.map((g) => g.equivalent.slug)).size
 
 /** La fréquence des Duels ★, lue dans les règles : « Une Partie sur deux », « 30 % des Parties »… */
 const FREQUENCE_THEMATIQUE =
@@ -230,6 +232,10 @@ export function EcranEnSavoirPlus() {
           modèle comparable, et de l'électricité des États-Unis, où tournent ses serveurs. Il ne compte ni
           l'entraînement du modèle, ni la fabrication des serveurs : c'est un ordre de grandeur, qui grandira avec le
           projet. La <a href={METHODE_EMPREINTE_IA}>méthode détaillée</a> est sur GitHub.
+        </p>
+        <p>
+          Cette estimation est aussi devenue un Geste du jeu, caché dans deux Duels ★. Ouvre l'œil : c'est le seul
+          chiffre d'un Duel qui ne vient pas de l'ADEME.
         </p>
       </section>
 

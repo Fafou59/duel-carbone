@@ -17,6 +17,7 @@ import {
 } from '../src/domaine/equilibrage.ts'
 import { calculerGeste } from '../src/domaine/geste.ts'
 import { DUELS_THEMATIQUES } from '../src/donnees/duels-thematiques.ts'
+import { GESTE_CREATION_IA } from '../src/donnees/geste-ia.ts'
 import { GESTES } from '../src/donnees/gestes.ts'
 import type { Instantane } from '../src/donnees/referentiel.ts'
 import { PARTIES_MEMORISEES } from '../src/navigateur/taille-memoire.ts'
@@ -25,7 +26,8 @@ const FICHIER = fileURLToPath(new URL('../src/donnees/coefficients.json', import
 const instantane = JSON.parse(
   readFileSync(fileURLToPath(new URL('../src/donnees/instantane.json', import.meta.url)), 'utf8'),
 ) as Instantane
-const gestes = GESTES.map((g) => calculerGeste(g, instantane))
+// Le catalogue ADEME, plus l'Easter Egg (estimé hors ADEME), comme GESTES_CALCULES dans le jeu.
+const gestes = [...GESTES.map((g) => calculerGeste(g, instantane)), GESTE_CREATION_IA]
 
 const debut = Date.now()
 console.log(`Calibrage des Coefficients d'équilibrage (${gestes.length} Gestes)…`)
