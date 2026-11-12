@@ -33,6 +33,10 @@ export type Evenement =
   | `rejouer/${Mode}`
   | `duree_partie/${Tranche}`
   | 'partage'
+  | `erreur/${Plantage}`
+
+/** Les plantages comptés : une erreur de script, ou une promesse rejetée que personne n'a rattrapée. */
+export type Plantage = 'script' | 'promesse'
 
 /** Le strict nécessaire de GoatCounter : sa fonction count(), qu'il ajoute à la page une fois chargé. */
 type GoatCounter = { count: (vars: { path: string; title?: string; event?: boolean }) => void }
@@ -95,6 +99,25 @@ export function chargerMesure(hote: string = window.location.hostname): void {
   script.async = true
   script.src = SCRIPT
   document.head.append(script)
+}
+
+/**
+ * Compte les plantages du jeu : seulement leur type, jamais leur message ni leur fichier (qui pourraient contenir
+ * autre chose), et une seule fois par type et par visite, pour qu'une erreur en boucle ne noie pas les chiffres.
+ * Le but : voir qu'un téléphone ou un navigateur pose problème avant qu'un joueur ne prenne la peine d'écrire.
+ */
+export function ecouterLesPlantages(
+  page: Pick<EventTarget, 'addEventListener'> = window,
+  env: () => Environnement = environnementReel,
+): void {
+  const dejaComptes = new Set<Plantage>()
+  const compter = (plantage: Plantage) => () => {
+    if (dejaComptes.has(plantage)) return
+    dejaComptes.add(plantage)
+    mesurer(`erreur/${plantage}`, env())
+  }
+  page.addEventListener('error', compter('script'))
+  page.addEventListener('unhandledrejection', compter('promesse'))
 }
 
 function environnementReel(): Environnement {

@@ -4,7 +4,7 @@ import { enMinuscule, formaterDate, formaterEmpreinte } from '../domaine/format.
 import { REGLES } from '../domaine/regles.ts'
 import { APPELS, DATE_DU_DECOMPTE, DEBUT_DU_PROJET, HYPOTHESES, JETONS } from '../donnees/empreinte-ia.ts'
 import { empreinteDeLaCreation } from '../domaine/empreinte-ia.ts'
-import { ADEME, DEPOT, FLUENT_EMOJI, GOATCOUNTER, IMPACT_CO2, MENTIONS_LEGALES_ADEME, METHODE_EMPREINTE_IA } from '../liens.ts'
+import { ADEME, CONTACT, DEPOT, FLUENT_EMOJI, GOATCOUNTER, IMPACT_CO2, MENTIONS_LEGALES_ADEME, METHODE_EMPREINTE_IA } from '../liens.ts'
 import { ADRESSES } from '../navigateur/adresse.ts'
 import { DefinitionCo2e } from '../composants/Co2e.tsx'
 import './EcranEnSavoirPlus.css'
@@ -207,7 +207,8 @@ export function EcranEnSavoirPlus() {
         </p>
         <p>
           Pour savoir si le jeu plaît, nous comptons les visites et quelques moments de jeu (une Partie lancée, terminée
-          et sa durée approximative, « Rejouer », un partage) avec <a href={GOATCOUNTER}>GoatCounter</a>, une mesure
+          et sa durée approximative, « Rejouer », un partage, et les plantages du jeu, sans leur détail) avec{' '}
+          <a href={GOATCOUNTER}>GoatCounter</a>, une mesure
           d'audience sans cookie ni identifiant. Elle ne donne que des chiffres agrégés : elle ne peut pas te suivre
           d'un site à l'autre, ne conserve pas ton adresse IP, et ni ton score ni tes réponses ne lui sont envoyés. Si
           ton navigateur la bloque, le jeu marche tout autant.
@@ -244,11 +245,25 @@ export function EcranEnSavoirPlus() {
         <h3>Suivre le projet</h3>
         <p>
           <a href={DEPOT}>Suivre le projet sur GitHub</a> : le <a href={DEPOT}>code source du jeu</a> est public, sous
-          licence MIT. Une erreur, une idée ? <a href={`${DEPOT}/issues`}>Dis-le sur GitHub</a>.
+          licence MIT. Une erreur, une idée ? Écris à <a href={`mailto:${CONTACT}`}>{CONTACT}</a>, ou{' '}
+          <a href={`${DEPOT}/issues`}>dis-le sur GitHub</a>.
         </p>
         <p>
           Les icônes viennent de <a href={FLUENT_EMOJI}>Fluent Emoji</a>, de Microsoft, sous licence MIT. Quand aucune
           ne parlait assez, nous avons dessiné la nôtre dans le même style (le micro-ondes, le lave-linge…).
+        </p>
+      </section>
+
+      <section>
+        <h3>Mentions légales</h3>
+        <p>
+          Éditeur et directeur de la publication : Fabien Lesage. Contact :{' '}
+          <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.
+        </p>
+        <p>Hébergeur : Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, États-Unis, +1 650 319 8930.</p>
+        <p>
+          Duel Carbone est un projet personnel, gratuit et sans publicité, sans lien avec l'ADEME, dont il réutilise
+          les données en citant leur source.
         </p>
       </section>
 

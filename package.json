@@ -12,6 +12,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "playwright test",
+    "captures": "playwright test --config playwright.captures.config.ts",
     "import": "node --env-file-if-exists=.env scripts/import/index.ts && npm run calibrer",
     "calibrer": "node scripts/calibrer.ts && node scripts/calendrier.ts",
     "calendrier": "node scripts/calendrier.ts",

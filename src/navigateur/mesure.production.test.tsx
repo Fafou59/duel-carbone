@@ -102,7 +102,7 @@ describe('La mesure d’audience depuis l’accueil', () => {
 
   it('compte une Partie du jour lancée depuis l’accueil', async () => {
     render(<App aujourdhui="2026-11-20" />)
-    const bouton = await screen.findByRole('button', { name: /Duel du jour n° 10/ })
+    const bouton = await screen.findByRole('button', { name: /Duel du jour n° 7/ })
     await waitFor(() => expect(bouton).toBeEnabled())
     fireEvent.click(bouton)
     expect(recus()).toEqual(['partie_lancee/jour'])

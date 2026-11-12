@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { chargerMesure, estAdresseMesuree, mesurer, trancheDeDuree, type Environnement } from './mesure.ts'
+import { chargerMesure, ecouterLesPlantages, estAdresseMesuree, mesurer, trancheDeDuree, type Environnement } from './mesure.ts'
 
 const PRODUCTION = 'duelcarbone.fr'
 /** L'ancienne adresse publique chez Cloudflare, et la base des aperçus des branches. */
@@ -79,6 +79,38 @@ describe('Envoyer un événement', () => {
       },
     })
     expect(() => mesurer('partage', env)).not.toThrow()
+  })
+})
+
+describe('Compter les plantages', () => {
+  const evenement = (nom: string) => ({ path: nom, title: nom, event: true })
+
+  it('compte une erreur de script et une promesse rejetée, une seule fois chacune par visite', () => {
+    const page = new EventTarget()
+    const env = environnement()
+    ecouterLesPlantages(page, () => env)
+    page.dispatchEvent(new Event('error'))
+    page.dispatchEvent(new Event('error'))
+    page.dispatchEvent(new Event('unhandledrejection'))
+    expect(env.goatcounter?.count).toHaveBeenCalledTimes(2)
+    expect(env.goatcounter?.count).toHaveBeenNthCalledWith(1, evenement('erreur/script'))
+    expect(env.goatcounter?.count).toHaveBeenNthCalledWith(2, evenement('erreur/promesse'))
+  })
+
+  it('n’envoie que le type de plantage, jamais son message (qui pourrait contenir autre chose)', () => {
+    const page = new EventTarget()
+    const env = environnement()
+    ecouterLesPlantages(page, () => env)
+    page.dispatchEvent(new ErrorEvent('error', { message: 'secret', filename: 'https://exemple/app.js' }))
+    expect(JSON.stringify(vi.mocked(env.goatcounter!.count).mock.calls)).not.toMatch(/secret|exemple/)
+  })
+
+  it('ne compte rien en dehors de l’adresse publique', () => {
+    const page = new EventTarget()
+    const env = environnement({ hote: 'localhost' })
+    ecouterLesPlantages(page, () => env)
+    page.dispatchEvent(new Event('error'))
+    expect(env.goatcounter?.count).not.toHaveBeenCalled()
   })
 })
 

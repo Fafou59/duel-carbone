@@ -17,5 +17,5 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true
   },
-  "include": ["e2e"]
+  "include": ["e2e", "scripts/captures", "playwright.captures.config.ts"]
 }

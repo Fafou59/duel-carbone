@@ -84,7 +84,7 @@ Grand public francophone, à partir d'environ 15 ans, majoritairement sur smartp
 | Unicité | jamais la même paire dans une Partie ; on évite les paires des Parties récentes |
 | Assouplissement | si la tranche n'a plus de paire jamais vue : 1) la paire jamais vue au Rapport le plus proche ; 2) sinon, une paire récente (de la tranche s'il en reste). Même tirage pondéré à chaque niveau. Jamais sous le plancher, jamais au-delà du plafond |
 | Score | 1 point par bonne réponse, score sur 10, pas de chrono |
-| Partie du jour | la même pour tous un jour donné (minuit, heure de Paris), numérotée depuis le lancement (« Duel Carbone du jour n° N ») ; une seule fois par appareil, reprise si elle est interrompue, perdue à minuit si elle n'est pas finie. Mêmes règles que la Partie libre (tranches, plancher, plafond, coefficients, Duels thématiques et leur garantie), sans tenir compte des paires récentes du joueur ; deux jours consécutifs ne reprennent jamais le même Duel |
+| Partie du jour | la même pour tous un jour donné (minuit, heure de Paris), numérotée depuis le lancement, le samedi 14 novembre 2026, qui est le n° 1 (« Duel Carbone du jour n° N » ; les jours de test d'avant s'affichent aussi n° 1) ; une seule fois par appareil, reprise si elle est interrompue, perdue à minuit si elle n'est pas finie. Mêmes règles que la Partie libre (tranches, plancher, plafond, coefficients, Duels thématiques et leur garantie), sans tenir compte des paires récentes du joueur ; deux jours consécutifs ne reprennent jamais le même Duel |
 | Calendrier | les Parties du jour des 365 prochains jours sont tirées à l'avance (`npm run calendrier`, lancé après `npm run calibrer`) ; le jour en cours et les jours passés ne changent jamais ; s'il est épuisé, il reboucle sur son premier jour. La CI échoue s'il couvre moins de 30 jours ou s'il ne correspond plus au catalogue |
 | Série | jours consécutifs où la Partie du jour est terminée ; retombe à zéro après un jour manqué |
 | Partie libre | rejouable à volonté, présentée comme un entraînement ; son record est à part |
@@ -109,7 +109,7 @@ La référence visuelle est la variante **A2** du prototype ; le détail et les 
   - Après la Partie libre : le titre et l'accroche, comme pour un nouveau joueur.
 - **Fin de Partie et En savoir plus** : la frise d'icônes qui défile de droite à gauche (ni sur l'accueil, où la vitrine défile déjà, ni pendant les Duels, où elle détournait l'attention des cartes). Un toucher sur la vitrine ou la frise arrête le défilement, un second le relance.
 - **Sur tous les écrans** : le pied de page « Comment ça marche ? · En savoir plus · Chiffres de l'ADEME, sans cookie ni compte ». « Chiffres de l'ADEME » mène à la documentation d'Impact CO2 ; le lien vers GitHub est dans En savoir plus, pour les curieux.
-- **En savoir plus** (ancienne page « Sources et méthode ») : d'abord pourquoi le jeu existe, puis l'ADEME et ses missions, la méthode, les règles, la vie privée, l'empreinte de la création du jeu par IA (une estimation hors ADEME, voir [empreinte-ia.md](empreinte-ia.md)) et le projet sur GitHub. « Retour au jeu » reste collé en bas de l'écran, comme « Duel suivant ». Les rubans d'icônes sont décoratifs (cachés aux lecteurs d'écran) et s'arrêtent si l'appareil demande moins d'animations.
+- **En savoir plus** (ancienne page « Sources et méthode ») : d'abord pourquoi le jeu existe, puis l'ADEME et ses missions, la méthode, les règles, la vie privée, l'empreinte de la création du jeu par IA (une estimation hors ADEME, voir [empreinte-ia.md](empreinte-ia.md)), le projet sur GitHub (avec le contact contact@duelcarbone.fr) et les mentions légales (éditeur, contact, hébergeur Cloudflare, Inc.). « Retour au jeu » reste collé en bas de l'écran, comme « Duel suivant ». Les rubans d'icônes sont décoratifs (cachés aux lecteurs d'écran) et s'arrêtent si l'appareil demande moins d'animations.
 - **Fin du Duel du jour** : le titre « Duel Carbone du jour n° N », le score, la série et le temps avant le prochain Duel ; « Défier mes proches » en premier, puis la Partie libre pour s'entraîner (« Envie de t'entraîner pour le Duel de demain ? »).
 - **Fin de Partie libre** : si le Duel du jour reste à jouer, « Échauffement terminé : place au Duel du jour ! » et son bouton en premier, puis « Rejouer » ; sinon, « Rejouer » en premier et le temps avant le prochain Duel du jour.
 - **Comment ça marche ?** : un diaporama en 5 étapes, dans une fenêtre, sur un Duel fixe (un jean contre un Paris–Marseille en TGV). Toucher une carte dès la première étape passe directement à la réponse ; la navigation reste visible en bas de la fenêtre ; la dernière étape lance le Duel du jour.
@@ -167,13 +167,14 @@ La référence visuelle est la variante **A2** du prototype ; le détail et les 
 10. **Pages** : Accueil, Partie, Fin de Partie, En savoir plus.
 
 ### Événements de mesure d'audience
-`partie_lancee`, `partie_terminee`, `rejouer`, `partage`, `duree_partie/<tranche>`.
+`partie_lancee`, `partie_terminee`, `rejouer`, `partage`, `duree_partie/<tranche>`, `erreur/<type>`.
 
 Dans GoatCounter, `partie_lancee`, `partie_terminee` et `rejouer` portent le mode de la Partie : `partie_lancee/jour` ou `partie_lancee/libre` (pour `rejouer`, le mode de la Partie qu'on vient de finir). Les tranches de durée font 30 secondes jusqu'à 10 minutes : `0m00-0m30`, `0m30-1m00`… `9m30-10m00`, puis `10m00-et-plus`.
 
 - `partie_lancee` part à l'affichage du premier Duel. Une Partie du jour reprise n'est pas comptée une seconde fois.
 - `partie_terminee` et `duree_partie` partent à l'écran de fin. Une Partie reprise n'envoie pas sa durée, qui serait incomplète ; une Partie du jour qu'on revoit n'envoie rien.
 - `rejouer` part du bouton de l'écran de fin (« Rejouer », ou « Partie libre » après la Partie du jour).
+- `erreur/script` et `erreur/promesse` comptent les plantages du jeu (une erreur de script, une promesse rejetée sans être rattrapée) : leur type seulement, jamais leur message, une fois par type et par visite.
 - `partage` part quand le score a bien été partagé ou copié, pas quand le joueur annule.
 
 Le script de GoatCounter n'est chargé que sur l'adresse publique du jeu : ni en local, ni sur les aperçus des branches. Si un bloqueur l'empêche de se charger, le jeu fonctionne normalement.
@@ -209,6 +210,6 @@ Le **temps de jeu** est mesuré sur l'appareil, de l'affichage du premier Duel j
 
 ## 10. Notes et dépendances
 
-- **ADEME** : la demande de clé d'API et de confirmation des conditions de réutilisation a été envoyée le 2026-11-08. Elle ne bloque pas la publication : l'API est accessible sans clé, et les mentions légales autorisent déjà la réutilisation non commerciale et pédagogique. Dès réception, la clé sera ajoutée au script d'import. Seul l'ajout d'un bouton de dons dépend de leur réponse.
+- **ADEME** : la demande de clé d'API et de confirmation des conditions de réutilisation a été envoyée le 2026-11-08. La clé a été reçue : le script d'import l'utilise (`.env`, jamais publiée), et l'Instantané du 2026-11-12 a été importé avec elle. Les mentions légales d'Impact CO2 autorisent la réutilisation non commerciale et pédagogique. Seul l'ajout d'un bouton de dons dépend d'une confirmation de leur part.
 - **Citation** : « Source : ADEME, Impact CO2 », avec la date de l'Instantané, sur chaque révélation (lien vers la fiche) et sur la page En savoir plus.
 - **Domaine** : duelcarbone.fr, acheté chez OVHcloud et relié au Worker le 2026-11-12. L'ancienne adresse (duel-carbone.fabien-lesage.workers.dev) sert toujours le jeu et reste mesurée.
