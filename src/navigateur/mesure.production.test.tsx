@@ -31,7 +31,7 @@ const count = vi.fn()
 /** Les événements reçus par GoatCounter, dans l'ordre. */
 const recus = () => count.mock.calls.map(([vars]) => vars.path)
 
-beforeAll(() => jsdom.reconfigure({ url: 'https://duel-carbone.fabien-lesage.workers.dev/' }))
+beforeAll(() => jsdom.reconfigure({ url: 'https://duelcarbone.fr/' }))
 afterAll(() => jsdom.reconfigure({ url: 'http://localhost:3000/' }))
 beforeEach(() => {
   count.mockClear()
