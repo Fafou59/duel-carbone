@@ -17,6 +17,7 @@ import { creerMemoire, type Memoire } from './navigateur/memoire.ts'
 import { appliquerNouvelleVersion, useNouvelleVersion } from './navigateur/mise-a-jour.ts'
 
 import { IMPACT_CO2_DOC } from './liens.ts'
+import { TITRE_ACCUEIL, TITRE_EN_SAVOIR_PLUS } from './referencement.ts'
 
 type Props = {
   /** La mémoire locale (remplaçable dans les tests) : par défaut, le localStorage du navigateur. */
@@ -86,8 +87,9 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
   }, [])
 
   // À chaque changement de page : le titre de l'onglet, et retour en haut de l'écran.
+  // Sur l'accueil, celui de index.html, que Google lit aussi une fois le jeu affiché (src/referencement.ts).
   useEffect(() => {
-    document.title = page === 'enSavoirPlus' ? 'En savoir plus · Duel Carbone' : 'Duel Carbone'
+    document.title = page === 'enSavoirPlus' ? TITRE_EN_SAVOIR_PLUS : TITRE_ACCUEIL
     window.scrollTo(0, 0)
   }, [page])
 

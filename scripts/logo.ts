@@ -5,7 +5,8 @@
  * Choix de Fabien (prototype d'accueil, variante 3) : un carré aux coins arrondis coupé par une diagonale
  * droite, sans trait ; un steak sur fond vert en haut à gauche, un avocat sur fond rouge en bas à droite.
  * Les deux dessins sont les icônes Fluent Emoji du jeu (public/icones/), reprises telles quelles.
- * À relancer seulement si l'une de ces deux icônes change.
+ * À relancer seulement si l'une de ces deux icônes change, puis relancer npm run image-partage (l'image des
+ * aperçus de lien reprend ce logo).
  *
  * Les PNG existent en trois variantes, parce que chaque système découpe l'icône à sa façon :
  * - « arrondie » (192 et 512 px) : le logo tel quel, coins transparents ;

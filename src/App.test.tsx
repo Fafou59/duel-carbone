@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 import { creerMemoire, type Stockage } from './navigateur/memoire.ts'
 import { signalerNouvelleVersion } from './navigateur/mise-a-jour.ts'
+import { TITRE_ACCUEIL, TITRE_EN_SAVOIR_PLUS } from './referencement.ts'
 
 /** Un faux localStorage, partagé entre deux affichages de l'application (comme avant et après un rechargement). */
 function stockage(): Stockage {
@@ -14,6 +15,12 @@ describe('Application', () => {
   it('affiche le nom du jeu comme titre principal', () => {
     render(<App />)
     expect(screen.getByRole('heading', { level: 1, name: 'Duel Carbone' })).toBeInTheDocument()
+  })
+
+  it("garde dans l'onglet le titre descriptif de index.html (Google lit la page une fois le jeu affiché)", () => {
+    document.title = ''
+    render(<App />)
+    expect(document.title).toBe(TITRE_ACCUEIL)
   })
 
   it("cite l'ADEME comme source des données", () => {
@@ -103,7 +110,7 @@ describe('Application : page En savoir plus', () => {
     render(<App />)
     expect(screen.getByRole('heading', { level: 2, name: 'En savoir plus' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Partie libre' })).not.toBeInTheDocument()
-    expect(document.title).toBe('En savoir plus · Duel Carbone')
+    expect(document.title).toBe(TITRE_EN_SAVOIR_PLUS)
     // La frise d'icônes accompagne la lecture.
     expect(document.querySelector('.frise')).toBeInTheDocument()
   })
@@ -120,7 +127,7 @@ describe('Application : page En savoir plus', () => {
     expect(await screen.findByRole('heading', { level: 2, name: 'En savoir plus' })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('link', { name: /Retour au jeu/ }))
     expect(await screen.findByRole('button', { name: 'Partie libre' })).toBeInTheDocument()
-    expect(document.title).toBe('Duel Carbone')
+    expect(document.title).toBe(TITRE_ACCUEIL)
   })
 
   it('garde la Partie en cours pendant la lecture des sources', async () => {
