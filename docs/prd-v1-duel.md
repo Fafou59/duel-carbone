@@ -52,7 +52,7 @@ Grand public francophone, à partir d'environ 15 ans, majoritairement sur smartp
 26. En tant que joueur régulier, je veux retrouver mon meilleur score sur mon appareil, afin d'essayer de le battre.
 
 ### Confiance et transparence
-27. En tant que visiteur sceptique, je veux une page « Sources et méthode » qui cite l'ADEME, la date de l'Instantané et le calcul Geste = Équivalent × Quantité, afin de faire confiance aux chiffres.
+27. En tant que visiteur sceptique, je veux une page « En savoir plus » qui cite l'ADEME, la date de l'Instantané et le calcul Geste = Équivalent × Quantité, afin de faire confiance aux chiffres.
 28. En tant que visiteur, je veux savoir que le jeu ne pose aucun cookie et ne collecte aucune donnée personnelle, afin de jouer sereinement.
 
 ### Accessibilité
@@ -100,15 +100,16 @@ La référence visuelle est la variante **A2** du prototype ; le détail et les 
 - **Accueil d'un nouveau joueur, la vitrine** : tout tient sur un écran de téléphone (360 × 640) sans faire défiler.
   - Deux colonnes d'icônes qui défilent en sens inverse autour d'un « VS » fixe.
   - Le titre « Lequel émet le plus ? ».
-  - L'accroche : l'empreinte moyenne d'un Français et l'objectif pour 2050 (9,1 t et 2 t de CO2e par an, lus dans l'Instantané), puis « 10 Duels par jour pour apprendre à connaître l'empreinte des gestes du quotidien ». Une pastille « ? » à côté de CO2e ouvre sa définition (reprise dans Sources et méthode).
+  - L'accroche : l'empreinte moyenne d'un Français et l'objectif pour 2050 (9,1 t et 2 t de CO2e par an, lus dans l'Instantané), puis « 10 Duels par jour pour apprendre à connaître l'empreinte des gestes du quotidien ». Une pastille « ? » à côté de CO2e ouvre sa définition (reprise dans En savoir plus).
   - Le bouton « Jouer le Duel du jour n° N », et le lien « Comment ça marche ? ».
   - Sous la ligne de flottaison : « Envie de t'entraîner avant le Duel du jour ? » et la Partie libre.
 - **Accueil d'un joueur qui revient, le tableau de bord** : la date, le numéro du Duel du jour et la vitrine en petit, puis :
   - **Duel du jour joué** : le score et sa grille, « Défier mes proches », « Revoir mon Récapitulatif », la série et le compte à rebours jusqu'à minuit (heure de Paris). Puis la Partie libre, mise en avant (« Envie de t'entraîner pour le Duel de demain ? »).
   - **Joué hier, pas encore aujourd'hui** : « Série de N jours. Ne la casse pas ! », le bouton du Duel du jour avec le score d'hier et le temps qui reste, et la Partie libre en simple lien.
   - Après la Partie libre : le titre et l'accroche, comme pour un nouveau joueur.
-- **Fin de Partie et Sources** : la frise d'icônes qui défile de droite à gauche (ni sur l'accueil, où la vitrine défile déjà, ni pendant les Duels, où elle détournait l'attention des cartes). Un toucher sur la vitrine ou la frise arrête le défilement, un second le relance.
-- **Sur tous les écrans** : le pied de page « Comment ça marche ? · Sources et méthode · Chiffres de l'ADEME, sans cookie ni compte ». Les rubans d'icônes sont décoratifs (cachés aux lecteurs d'écran) et s'arrêtent si l'appareil demande moins d'animations.
+- **Fin de Partie et En savoir plus** : la frise d'icônes qui défile de droite à gauche (ni sur l'accueil, où la vitrine défile déjà, ni pendant les Duels, où elle détournait l'attention des cartes). Un toucher sur la vitrine ou la frise arrête le défilement, un second le relance.
+- **Sur tous les écrans** : le pied de page « Comment ça marche ? · En savoir plus · Chiffres de l'ADEME, sans cookie ni compte ». « Chiffres de l'ADEME » mène à la documentation d'Impact CO2 ; le lien vers GitHub est dans En savoir plus, pour les curieux.
+- **En savoir plus** (ancienne page « Sources et méthode ») : d'abord pourquoi le jeu existe, puis l'ADEME et ses missions, la méthode, les règles, la vie privée, l'empreinte de la création du jeu par IA (une estimation hors ADEME, voir [empreinte-ia.md](empreinte-ia.md)) et le projet sur GitHub. « Retour au jeu » reste collé en bas de l'écran, comme « Duel suivant ». Les rubans d'icônes sont décoratifs (cachés aux lecteurs d'écran) et s'arrêtent si l'appareil demande moins d'animations.
 - **Fin du Duel du jour** : le titre « Duel Carbone du jour n° N », le score, la série et le temps avant le prochain Duel ; « Défier mes proches » en premier, puis la Partie libre pour s'entraîner (« Envie de t'entraîner pour le Duel de demain ? »).
 - **Fin de Partie libre** : si le Duel du jour reste à jouer, « Échauffement terminé : place au Duel du jour ! » et son bouton en premier, puis « Rejouer » ; sinon, « Rejouer » en premier et le temps avant le prochain Duel du jour.
 - **Comment ça marche ?** : un diaporama en 5 étapes, dans une fenêtre, sur un Duel fixe (un jean contre un Paris–Marseille en TGV). Toucher une carte dès la première étape passe directement à la réponse ; la navigation reste visible en bas de la fenêtre ; la dernière étape lance le Duel du jour.
@@ -138,7 +139,7 @@ La référence visuelle est la variante **A2** du prototype ; le détail et les 
   - **mise à jour silencieuse** : une nouvelle version se télécharge en arrière-plan, puis s'applique dès que le joueur est sur l'accueil, jamais en pleine Partie, sinon à la prochaine ouverture (`src/navigateur/mise-a-jour.ts`) ;
   - la mémoire retient les Duels du jour réellement joués : si une nouvelle version change le calendrier des jours à venir, la reprise, la grille et le Récapitulatif restent justes ;
   - sur iPhone, l'application installée a sa propre mémoire, séparée de Safari (record et série repartent de zéro).
-- **Navigation sans routeur** : la page Sources et méthode a pour adresse l'ancre `#sources` (`src/navigateur/adresse.ts`). Pas de bibliothèque ni de réglage chez l'hébergeur ; le bouton « Retour » et les liens partagés fonctionnent, et une Partie en cours reste intacte pendant la lecture des sources.
+- **Navigation sans routeur** : la page En savoir plus a pour adresse l'ancre `#en-savoir-plus` (l'ancienne, `#sources`, marche encore) (`src/navigateur/adresse.ts`). Pas de bibliothèque ni de réglage chez l'hébergeur ; le bouton « Retour » et les liens partagés fonctionnent, et une Partie en cours reste intacte pendant la lecture des sources.
 - Code sur **GitHub** (dépôt public), hébergement chez **Cloudflare** (Workers, fichiers statiques : gratuits et sans limite de trafic) avec un aperçu automatique pour chaque branche, domaine **duelcarbone.fr** acheté à la mise en ligne. Netlify, utilisé jusqu'au 2026-11-11, a été abandonné quand ses crédits gratuits ont bloqué la mise en production (ADR 0003).
 - Mesure d'audience avec **GoatCounter**, sans cookie (`src/navigateur/mesure.ts`). Le script est chargé par le code, et seulement sur l'adresse publique du jeu.
 
@@ -155,7 +156,7 @@ La référence visuelle est la variante **A2** du prototype ; le détail et les 
    **Calendrier des Parties du jour** (`src/domaine/calendrier.ts`, `src/donnees/calendrier.json`) : chargé à part, pour ne pas alourdir le démarrage du jeu.
 8. **Partage** : le menu de partage natif du téléphone, ou une copie dans le presse-papiers sur ordinateur. Le texte du Duel du jour suit le modèle de Wordle : l'accroche « C'est l'heure du Duel Carbone ! ⚔️ » (une accroche qui change chaque jour a été écartée pour l'instant : à revoir selon les retours des joueurs), « Duel Carbone du jour n° N : 8/10 », une case 🟩/🟥 par Duel et le lien ; aucun nom de Geste ni marque de Duel thématique. La Partie libre garde « J'ai fait 8/10 à Duel Carbone 🌍 Sauras-tu faire mieux ? ».
 9. **Mise en forme des nombres** : unité automatique (g, kg, t) et conventions françaises (virgule décimale).
-10. **Pages** : Accueil, Partie, Fin de Partie, Sources et méthode.
+10. **Pages** : Accueil, Partie, Fin de Partie, En savoir plus.
 
 ### Événements de mesure d'audience
 `partie_lancee`, `partie_terminee`, `rejouer`, `partage`, `duree_partie/<tranche>`.
@@ -201,5 +202,5 @@ Le **temps de jeu** est mesuré sur l'appareil, de l'affichage du premier Duel j
 ## 10. Notes et dépendances
 
 - **ADEME** : la demande de clé d'API et de confirmation des conditions de réutilisation a été envoyée le 2026-11-08. Elle ne bloque pas la publication : l'API est accessible sans clé, et les mentions légales autorisent déjà la réutilisation non commerciale et pédagogique. Dès réception, la clé sera ajoutée au script d'import. Seul l'ajout d'un bouton de dons dépend de leur réponse.
-- **Citation** : « Source : ADEME, Impact CO2 », avec la date de l'Instantané, sur chaque révélation (lien vers la fiche) et sur la page Sources et méthode.
+- **Citation** : « Source : ADEME, Impact CO2 », avec la date de l'Instantané, sur chaque révélation (lien vers la fiche) et sur la page En savoir plus.
 - **Domaine** : duelcarbone.fr était disponible le 2026-11-08.

@@ -1,7 +1,7 @@
 import { Icone } from './Icone.tsx'
 import type { Duel } from '../domaine/duel.ts'
 import { tableauComparatif } from '../domaine/explication.ts'
-import { formaterEmpreinte } from '../domaine/format.ts'
+import { enMinuscule, formaterEmpreinte } from '../domaine/format.ts'
 import './TableauRepartition.css'
 
 type Props = { duel: Duel }
@@ -69,7 +69,7 @@ export function TableauRepartition({ duel }: Props) {
 
       {t.sansDetail.length > 0 && (
         <p className="repartition__note">
-          L'ADEME ne publie pas le détail pour : {t.sansDetail.map((g) => g.titre.toLowerCase()).join(', ')}.
+          L'ADEME ne publie pas le détail pour : {t.sansDetail.map((g) => enMinuscule(g.titre)).join(', ')}.
         </p>
       )}
       {t.recyclage && (

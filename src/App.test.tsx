@@ -18,7 +18,7 @@ describe('Application', () => {
 
   it("cite l'ADEME comme source des données", () => {
     render(<App />)
-    expect(screen.getByRole('link', { name: /ADEME/ })).toHaveAttribute('href', 'https://impactco2.fr')
+    expect(screen.getByRole('link', { name: /ADEME/ })).toHaveAttribute('href', 'https://impactco2.fr/doc')
   })
 
   it('lance une Partie libre depuis l’accueil, en un clic', () => {
@@ -80,32 +80,44 @@ describe('Application : accueil', () => {
     expect(within(fenetre).getByRole('heading', { name: '1. Deux gestes s’affrontent' })).toBeInTheDocument()
   })
 
-  it('mène à la page Sources et méthode', () => {
+  it('mène à la page En savoir plus', () => {
     render(<App />)
-    expect(screen.getAllByRole('link', { name: 'Sources et méthode' })[0]).toHaveAttribute('href', '#sources')
+    expect(screen.getAllByRole('link', { name: 'En savoir plus' })[0]).toHaveAttribute('href', '#en-savoir-plus')
+  })
+
+  it('renvoie « Chiffres de l’ADEME » vers la documentation d’Impact CO2, et garde GitHub pour En savoir plus', () => {
+    render(<App />)
+    expect(screen.getByRole('link', { name: 'Chiffres de l’ADEME' })).toHaveAttribute('href', 'https://impactco2.fr/doc')
+    expect(screen.queryByRole('link', { name: /GitHub/ })).not.toBeInTheDocument()
   })
 })
 
-describe('Application : page Sources et méthode', () => {
+describe('Application : page En savoir plus', () => {
   // Chaque test repart de l'accueil : on efface l'ancre laissée par le précédent.
   afterEach(() => {
     window.location.hash = ''
   })
 
-  it("s'ouvre directement depuis son adresse (#sources)", () => {
-    window.location.hash = '#sources'
+  it("s'ouvre directement depuis son adresse (#en-savoir-plus)", () => {
+    window.location.hash = '#en-savoir-plus'
     render(<App />)
-    expect(screen.getByRole('heading', { level: 2, name: 'Sources et méthode' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: 'En savoir plus' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Partie libre' })).not.toBeInTheDocument()
-    expect(document.title).toBe('Sources et méthode · Duel Carbone')
+    expect(document.title).toBe('En savoir plus · Duel Carbone')
     // La frise d'icônes accompagne la lecture.
     expect(document.querySelector('.frise')).toBeInTheDocument()
   })
 
+  it("s'ouvre aussi depuis son ancienne adresse (#sources), pour les liens déjà partagés", () => {
+    window.location.hash = '#sources'
+    render(<App />)
+    expect(screen.getByRole('heading', { level: 2, name: 'En savoir plus' })).toBeInTheDocument()
+  })
+
   it("s'ouvre d'un clic, puis ramène à l'accueil", async () => {
     render(<App />)
-    fireEvent.click(screen.getAllByRole('link', { name: 'Sources et méthode' })[0])
-    expect(await screen.findByRole('heading', { level: 2, name: 'Sources et méthode' })).toBeInTheDocument()
+    fireEvent.click(screen.getAllByRole('link', { name: 'En savoir plus' })[0])
+    expect(await screen.findByRole('heading', { level: 2, name: 'En savoir plus' })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('link', { name: /Retour au jeu/ }))
     expect(await screen.findByRole('button', { name: 'Partie libre' })).toBeInTheDocument()
     expect(document.title).toBe('Duel Carbone')
@@ -117,8 +129,8 @@ describe('Application : page Sources et méthode', () => {
     // Le joueur répond au Duel 1 : la révélation s'affiche.
     fireEvent.click(within(screen.getByRole('region', { name: 'Lequel émet le plus ?' })).getAllByRole('button')[0])
     const suivant = screen.getByRole('button', { name: 'Duel suivant →' })
-    fireEvent.click(screen.getByRole('link', { name: 'Sources et méthode' }))
-    await screen.findByRole('heading', { level: 2, name: 'Sources et méthode' })
+    fireEvent.click(screen.getByRole('link', { name: 'En savoir plus' }))
+    await screen.findByRole('heading', { level: 2, name: 'En savoir plus' })
     expect(suivant).not.toBeVisible()
     fireEvent.click(screen.getByRole('link', { name: /Retour au jeu/ }))
     await waitFor(() => expect(screen.getByRole('button', { name: 'Duel suivant →' })).toBeVisible())

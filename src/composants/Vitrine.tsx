@@ -54,7 +54,7 @@ export function Vitrine({ taille = 'grande' }: { taille?: 'grande' | 'mini' }) {
   )
 }
 
-/** La frise du bas de page, qui défile de droite à gauche (à la fin d'une Partie et dans les Sources). */
+/** La frise du bas de page, qui défile de droite à gauche (à la fin d'une Partie et dans En savoir plus). */
 export function Frise() {
   return (
     <Defilement className="frise">

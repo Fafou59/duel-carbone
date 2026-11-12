@@ -29,6 +29,7 @@ Les données restent la propriété de l'ADEME et sont réutilisées dans le cad
 | [CONTEXT.md](CONTEXT.md) | Le glossaire : le vocabulaire commun du projet (Geste, Duel, Rapport, Répartition…) |
 | [docs/prd-v1-duel.md](docs/prd-v1-duel.md) | Le cahier des charges de la v1 : problème, récits utilisateurs, règles du jeu, écrans, tests, indicateurs |
 | [docs/accessibilite.md](docs/accessibilite.md) | La liste de vérification de l'accessibilité : ce qui est testé automatiquement, et ce qui se vérifie à la main (lecteur d'écran) |
+| [docs/empreinte-ia.md](docs/empreinte-ia.md) | L'empreinte carbone de la création du jeu par IA : la méthode de l'estimation (`npm run empreinte-ia` recompte les jetons) |
 | [docs/adr/](docs/adr) | Les décisions structurantes et leurs raisons (*Architecture Decision Records*) |
 | [docs/prototypes/](docs/prototypes) | Les enseignements des prototypes. Le code du prototype des écrans est archivé dans la branche [`prototype/duel-ui`](https://github.com/Fafou59/duel-carbone/tree/prototype/duel-ui). |
 

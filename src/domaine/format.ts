@@ -41,11 +41,17 @@ export function formaterRapport(rapport: number): string {
 }
 
 /**
+ * Un titre de Geste en milieu de phrase : seule la première lettre passe en minuscule, les titres et les noms
+ * propres gardent leur majuscule (« regarder l'intégrale de Friends », « faire Paris–Marseille en TGV »).
+ */
+export const enMinuscule = (texte: string): string => texte.charAt(0).toLowerCase() + texte.slice(1)
+
+/**
  * « que » ou « qu' » selon le mot qui suit, avec une minuscule initiale :
  * « que manger un avocat », « qu'acheter un micro-ondes ».
  */
 export function queDevant(texte: string): string {
-  const minuscule = texte.charAt(0).toLowerCase() + texte.slice(1)
+  const minuscule = enMinuscule(texte)
   return /^[aeiouyàâäéèêëîïôöùûüh]/i.test(minuscule) ? `qu'${minuscule}` : `que ${minuscule}`
 }
 
