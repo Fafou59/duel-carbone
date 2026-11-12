@@ -80,6 +80,10 @@ describe('robots.txt et sitemap.xml', () => {
     expect(robots).toMatch(/^Sitemap: https:\/\/duelcarbone\.fr\/sitemap\.xml$/m)
   })
 
+  it('robots.txt s’écrit sans accent (Cloudflare le sert sans encodage : « é » s’afficherait « Ã© »)', () => {
+    expect(robots).toMatch(/^[\x20-\x7E\n]*$/)
+  })
+
   it('sitemap.xml ne liste que l’accueil (En savoir plus est une ancre, invisible pour les moteurs)', () => {
     const plan = new DOMParser().parseFromString(sitemap, 'application/xml')
     expect(plan.querySelector('parsererror')).toBeNull()
