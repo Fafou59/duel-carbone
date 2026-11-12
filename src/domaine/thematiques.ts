@@ -55,6 +55,8 @@ export function redigerTexte(t: DuelThematique, gestes: GesteCalcule[]): string 
 export function empreinteDesChiffres(t: DuelThematique, gestes: GesteCalcule[]): string {
   const donnees = [t.a, t.b, ...(t.cites ?? [])].map((id) => {
     const g = gesteDuCatalogue(id, gestes)
+    // Un Geste estimé hors ADEME n'entre pas dans l'empreinte : son texte ne le chiffre que par {a} ou {b}.
+    if (g.horsAdeme) return [id]
     return [id, g.empreinte, g.etapes.map((e) => e.valeur), g.usage?.total ?? null, g.finDeVie ?? null]
   })
   return fnv1a(JSON.stringify(donnees))

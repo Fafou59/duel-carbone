@@ -14,8 +14,8 @@ describe('Catalogue des Duels thématiques', () => {
     expect(() => validerDuelsThematiques(DUELS_THEMATIQUES, GESTES_CALCULES)).not.toThrow()
   })
 
-  it('compte les 33 Duels validés par Fabien', () => {
-    expect(DUELS_THEMATIQUES).toHaveLength(33)
+  it('compte les 35 Duels validés par Fabien (dont les 2 de l’Easter Egg)', () => {
+    expect(DUELS_THEMATIQUES).toHaveLength(35)
   })
 
   it('utilise chaque Geste réservé dans au moins un Duel thématique (sinon il ne sortirait jamais)', () => {

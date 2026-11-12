@@ -28,6 +28,7 @@ import { hasardReproductible } from '../src/domaine/hasard.ts'
 import { REGLES } from '../src/domaine/regles.ts'
 import { doitForcerUnDuelThematique } from '../src/domaine/thematiques.ts'
 import { DUELS_THEMATIQUES } from '../src/donnees/duels-thematiques.ts'
+import { GESTE_CREATION_IA } from '../src/donnees/geste-ia.ts'
 import { GESTES } from '../src/donnees/gestes.ts'
 import type { Instantane } from '../src/donnees/referentiel.ts'
 import { PARTIES_MEMORISEES } from '../src/navigateur/taille-memoire.ts'
@@ -35,7 +36,8 @@ import { PARTIES_MEMORISEES } from '../src/navigateur/taille-memoire.ts'
 const lire = <T>(fichier: string) => JSON.parse(readFileSync(fileURLToPath(new URL(fichier, import.meta.url)), 'utf8')) as T
 const instantane = lire<Instantane>('../src/donnees/instantane.json')
 const calibrage = lire<Calibrage>('../src/donnees/coefficients.json')
-const gestes = GESTES.map((g) => calculerGeste(g, instantane))
+// Le catalogue ADEME, plus l'Easter Egg (estimé hors ADEME), comme GESTES_CALCULES dans le jeu.
+const gestes = [...GESTES.map((g) => calculerGeste(g, instantane)), GESTE_CREATION_IA]
 const nombre = (n: number) => String(n).padStart(5)
 
 // 1. Paires par Duel, telles que le générateur les voit (mêmes fonctions : les deux ne peuvent pas diverger)

@@ -38,6 +38,18 @@ describe('Page En savoir plus', () => {
     )
   })
 
+  it('glisse un indice sur l’Easter Egg, sans dire où il se cache', () => {
+    render(<EcranEnSavoirPlus />)
+    expect(screen.getByText(/caché dans deux Duels ★/)).toBeInTheDocument()
+  })
+
+  it('ne compte que les Gestes construits à partir des fiches de l’ADEME', () => {
+    render(<EcranEnSavoirPlus />)
+    const ademe = GESTES_CALCULES.filter((g) => !g.horsAdeme)
+    const reserves = ademe.filter((g) => g.seulementEnDuelThematique).length
+    expect(screen.getByText(new RegExp(`${ademe.length} gestes \\(dont ${reserves}`))).toBeInTheDocument()
+  })
+
   it('invite à suivre le projet sur GitHub', () => {
     render(<EcranEnSavoirPlus />)
     expect(screen.getByRole('link', { name: 'Suivre le projet sur GitHub' })).toHaveAttribute(
@@ -93,8 +105,8 @@ describe('Page En savoir plus', () => {
     render(<EcranEnSavoirPlus />)
     expect(screen.getByText(/Une Partie sur deux contient un Duel ★/)).toBeInTheDocument()
     expect(screen.getByText(new RegExp(`jamais plus de ${REGLES.partiesMaxSansDuelThematique} Parties de suite sans`))).toBeInTheDocument()
-    const reserves = GESTES_CALCULES.filter((g) => g.seulementEnDuelThematique).length
-    expect(screen.getByText(new RegExp(`dont ${reserves} réservés aux Duels ★`))).toBeInTheDocument()
+    // Le décompte des Gestes réservés : voir « ne compte que les Gestes construits à partir des fiches de l’ADEME ».
+    expect(screen.getByText(/réservés aux Duels ★/)).toBeInTheDocument()
   })
 
   it('signale le streaming compté sans la construction de l’écran, et le périmètre des grands secteurs', () => {

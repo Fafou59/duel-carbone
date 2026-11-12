@@ -12,22 +12,30 @@ estimée par Epoch AI pour un modèle comparable, et de l'électricité américa
 limites sont dans [docs/empreinte-ia.md](../empreinte-ia.md).
 
 C'est une **exception** à la règle qui fonde le jeu, « toutes les valeurs viennent de l'ADEME » (ADR 0001). Elle
-est cantonnée à la page « En savoir plus », présentée comme une estimation, avec sa fourchette (de 2 à 23 kg CO2e
-au 12 novembre 2026) et la mention explicite qu'elle ne vient pas de l'ADEME.
+est présentée comme une estimation, avec sa fourchette (de 2 à 23 kg CO2e au 12 novembre 2026) et la mention
+explicite qu'elle ne vient pas de l'ADEME, à deux endroits seulement :
+
+- la page « En savoir plus » ;
+- **l'Easter Egg** (décidé le 12 novembre 2026, #63) : un Geste « Créer Duel Carbone, assisté par IA », qui vaut
+  l'hypothèse centrale, **réservé à deux Duels thématiques** (face au steak de bœuf et au jean, environ 3 % des
+  Parties). Jamais tiré au hasard : les Duels ordinaires restent 100 % ADEME. Sa révélation dit « estimation de
+  Duel Carbone, hors ADEME » et renvoie vers la méthode.
 
 ## Options écartées
 
 - **Ne rien afficher** : plus simple, mais un jeu sur l'empreinte carbone qui tait la sienne perdrait en crédibilité.
-- **Un Geste du jeu** (« Créer cette application avec une IA ») : l'idée reste ouverte, mais un Geste se compare à
-  des valeurs ADEME dans un Duel ; une estimation à la fourchette aussi large y serait mal à sa place. À rediscuter
-  après le lancement.
+- **Un Geste tiré comme les autres** : il serait sorti dans environ une Partie sur cinq, face à n'importe quel
+  Geste, mêlant une estimation à la fourchette large aux valeurs de l'ADEME. Réservé à deux Duels, il reste un
+  clin d'œil.
 - **Une valeur unique, sans fourchette** : plus lisible, mais trompeuse vu l'incertitude (un facteur 10 entre les
   hypothèses basse et haute).
 
 ## Conséquences
 
 - Les chiffres vivent dans `src/donnees/empreinte-ia.ts`, le calcul dans `src/domaine/empreinte-ia.ts` ; la page
-  les lit et suit d'elle-même une mise à jour.
+  et le Geste de l'Easter Egg (`src/donnees/geste-ia.ts`) les lisent et suivent d'eux-mêmes une mise à jour. Le
+  Geste étant réservé, sa valeur n'entre ni dans l'équilibrage ni dans le calendrier : pas de `npm run calibrer` à
+  chaque décompte. Ses deux textes ne le chiffrent que par `{a}` ou `{b}` : pas de relecture non plus.
 - `npm run empreinte-ia` recompte les jetons dans les journaux de session (sur l'ordinateur où le projet est
   développé) ; on reporte le résultat à la main, avec la date du décompte. Le décompte se refait au lancement
   officiel, puis à chaque PR une fois le jeu livré (environ 20 g CO2e par mise à jour) ; jamais automatiquement.

@@ -334,4 +334,24 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     texte:
       'Les trains (voyageurs et marchandises) émettent {a} par an. Les voitures thermiques émettent {b} en une seule journée : en {rapport} jours, elles dépassent une année entière de trains.',
   },
+  // ─── L'Easter Egg (#63) : la création de ce jeu avec une IA, estimée hors ADEME (ADR 0004) ───
+  // Son empreinte n'est chiffrée que par {a} ou {b} : les textes suivent chaque nouveau décompte.
+  {
+    a: 'creer-duel-carbone',
+    b: 'steak-boeuf',
+    relu: 'f5d479b5',
+    titre: 'Un jeu, combien de steaks ?',
+    accroche: "Des milliers d'échanges avec une IA pour coder ce jeu, ou un seul steak ?",
+    texte:
+      "D'après notre estimation (hors ADEME), coder Duel Carbone avec une IA a émis environ {a} : l'électricité des serveurs qui font tourner l'IA. C'est {rapport} fois un steak de bœuf de 120 g ({b} selon l'ADEME). Une estimation large : sa méthode et sa fourchette sont dans « En savoir plus ».",
+  },
+  {
+    a: 'jean',
+    b: 'creer-duel-carbone',
+    relu: '0a9f80ec',
+    titre: "Le jean ou l'IA ?",
+    accroche: 'Tout un jeu codé avec une IA, ou un seul jean porté 5 ans ?',
+    texte:
+      "Le jean l'emporte : selon l'ADEME, l'acheter et le porter 5 ans émet {a}, {rapport} fois l'empreinte estimée de la création de ce jeu avec une IA ({b}, une estimation hors ADEME, détaillée dans « En savoir plus »).",
+  },
 ]

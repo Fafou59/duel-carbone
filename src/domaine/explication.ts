@@ -25,6 +25,8 @@ export type TableauComparatif = {
   recyclage: boolean
   /** Gestes pour lesquels l'ADEME ne publie pas de Répartition. */
   sansDetail: GesteCalcule[]
+  /** Gestes estimés hors ADEME (l'Easter Egg) : pas de Répartition, et une méthode à la place de la fiche. */
+  estimations: GesteCalcule[]
 }
 
 /** Largeur minimale d'une jauge, pour qu'une toute petite valeur reste visible. */
@@ -51,6 +53,7 @@ export function tableauComparatif(duel: Duel): TableauComparatif {
     echelle,
     largeur: (valeur) => Math.min(100, Math.max(JAUGE_MINIMALE, (Math.abs(valeur) / echelle) * 100)),
     recyclage: lignes.some((l) => l.recyclage),
-    sansDetail: colonnes.filter((_, i) => repartitions[i].length === 0),
+    sansDetail: colonnes.filter((g, i) => repartitions[i].length === 0 && !g.horsAdeme),
+    estimations: colonnes.filter((g) => g.horsAdeme),
   }
 }

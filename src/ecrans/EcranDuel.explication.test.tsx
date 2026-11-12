@@ -1,6 +1,8 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { GESTE_CREATION_IA } from '../donnees/geste-ia.ts'
 import { gesteCalcule } from '../donnees/index.ts'
+import { METHODE_EMPREINTE_IA } from '../liens.ts'
 import { DuelDeTest } from '../test/DuelDeTest.tsx'
 import { DELAI_DEFILEMENT_MS } from './EcranDuel.tsx'
 
@@ -54,6 +56,16 @@ describe("Explication après un Duel : le tableau comparatif", () => {
     render(<DuelDeTest duel={duel('friends', 'steak-boeuf')} />)
     choisir(/Friends/)
     expect(screen.getByText(/ne publie pas le détail pour : regarder l'intégrale de Friends/)).toBeInTheDocument()
+  })
+
+  it("dit qu'un Geste estimé ne vient pas de l'ADEME, et renvoie vers la méthode de l'estimation", () => {
+    render(<DuelDeTest duel={{ a: GESTE_CREATION_IA, b: gesteCalcule('steak-boeuf') }} />)
+    choisir(/Créer Duel Carbone/)
+    expect(screen.getByText(/Créer Duel Carbone : une estimation de Duel Carbone, hors ADEME/)).toBeInTheDocument()
+    expect(screen.queryByText(/ne publie pas le détail/)).not.toBeInTheDocument()
+    const sources = screen.getByText(/Sources ADEME/)
+    expect(within(sources).getAllByRole('link')).toHaveLength(1)
+    expect(screen.getByRole('link', { name: /méthode de l'estimation.*nouvel onglet/ })).toHaveAttribute('href', METHODE_EMPREINTE_IA)
   })
 
   it('renvoie vers les fiches ADEME des deux Gestes, dans un nouvel onglet', () => {
