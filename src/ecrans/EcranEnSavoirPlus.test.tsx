@@ -60,6 +60,12 @@ describe('Page En savoir plus', () => {
     expect(hebergeur).toHaveTextContent(/\+1 650 319 8930/)
   })
 
+  it('dit ce que l’invitation à installer garde et compte', () => {
+    render(<EcranEnSavoirPlus />)
+    expect(screen.getByText(/Sans cookie, sans compte/)).toHaveTextContent(/« Non merci » à l’invitation à installer le jeu/)
+    expect(screen.getByText(/Pour savoir si le jeu plaît/)).toHaveTextContent(/l'invitation à installer le jeu et sa réponse/)
+  })
+
   it('dit que les plantages du jeu sont comptés, sans leur détail', () => {
     render(<EcranEnSavoirPlus />)
     expect(screen.getByText(/Pour savoir si le jeu plaît/)).toHaveTextContent(/les plantages du jeu, sans leur détail/)

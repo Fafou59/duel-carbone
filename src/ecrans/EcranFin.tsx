@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { CompteARebours } from '../composants/CompteARebours.tsx'
+import { InvitationInstallation } from '../composants/InvitationInstallation.tsx'
 import { PanneauDuel } from '../composants/PanneauDuel.tsx'
 import { Icone } from '../composants/Icone.tsx'
 import { formaterMultiple, queDevant } from '../domaine/format.ts'
@@ -138,6 +139,7 @@ export function EcranFin({
           Prochain Duel du jour dans <CompteARebours />
         </p>
       )}
+      {partieDuJour && <InvitationInstallation />}
       {partieDuJour && (
         <div className="fin__entrainement">
           <p>Envie de t’entraîner pour le Duel de demain ?</p>

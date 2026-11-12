@@ -158,7 +158,8 @@ function valider(brut: unknown): Contenu {
 }
 
 /** Le simple fait de lire window.localStorage peut lever une erreur (cookies bloqués, par exemple). */
-function stockageDuNavigateur(): Stockage | null {
+/** Le localStorage du navigateur, ou rien s'il est inaccessible (navigation privée stricte). */
+export function stockageDuNavigateur(): Stockage | null {
   try {
     return window.localStorage
   } catch {

@@ -54,6 +54,11 @@ describe('Fin de Partie libre : cap sur le Duel du jour', () => {
   }
   const boutons = () => within(screen.getByRole('group', { name: 'Et maintenant ?' })).getAllByRole('button')
 
+  it('n’invite pas à installer le jeu : seulement à la fin du Duel du jour', () => {
+    finLibre('aJouer')
+    expect(screen.queryByRole('region', { name: 'Reviens demain en un geste' })).not.toBeInTheDocument()
+  })
+
   it('propose d’abord le Duel du jour s’il n’est pas encore joué, puis « Rejouer »', () => {
     const { onJouer } = finLibre('aJouer')
     expect(screen.getByText('Échauffement terminé : place au Duel du jour !')).toBeInTheDocument()
@@ -113,6 +118,11 @@ describe('Fin du Duel du jour : cap sur le partage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Partie libre' }))
     expect(onRejouer).toHaveBeenCalledOnce()
     expect(screen.queryByRole('button', { name: 'Rejouer' })).not.toBeInTheDocument()
+  })
+
+  it('invite à installer le jeu pour revenir demain (#68)', () => {
+    finDuJour()
+    expect(screen.getByRole('region', { name: 'Reviens demain en un geste' })).toBeInTheDocument()
   })
 })
 
