@@ -29,5 +29,6 @@ au 12 novembre 2026) et la mention explicite qu'elle ne vient pas de l'ADEME.
 - Les chiffres vivent dans `src/donnees/empreinte-ia.ts`, le calcul dans `src/domaine/empreinte-ia.ts` ; la page
   les lit et suit d'elle-même une mise à jour.
 - `npm run empreinte-ia` recompte les jetons dans les journaux de session (sur l'ordinateur où le projet est
-  développé) ; on reporte le résultat à la main, avec la date du décompte.
+  développé) ; on reporte le résultat à la main, avec la date du décompte. Le décompte ne se refait qu'à la
+  demande de Fabien, en fin de projet : jamais automatiquement, ni à chaque modification.
 - Si Anthropic publie l'énergie de ses modèles, l'estimation est refaite avec cette source.
