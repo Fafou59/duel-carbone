@@ -146,7 +146,7 @@ La référence visuelle est la variante **A2** du prototype ; le détail et les 
   - l'adresse officielle (`<link rel="canonical">` vers `https://duelcarbone.fr/`), car le jeu répond aussi sur l'adresse workers.dev et sur les aperçus des branches ;
   - les balises Open Graph et la carte X (`summary_large_image`), avec une image de partage de 1200 × 630 px (`public/apercu-partage.png`, fabriquée par `npm run image-partage` à partir du logo). Elle n'est pas gardée en copie par le service worker : seuls les réseaux la demandent ;
   - une courte présentation du jeu dans `<noscript>`, lue sans JavaScript, ignorée sinon ;
-  - `robots.txt` (tout est permis, avec l'adresse du plan du site) et `sitemap.xml` (l'accueil seul : En savoir plus est une ancre). Sur duelcarbone.fr, Cloudflare ajoute ses « content signals » devant notre `robots.txt`. Le service worker ne remplace pas ces fichiers par le jeu quand on les ouvre dans le navigateur.
+  - `robots.txt` (tout est permis, avec l'adresse du plan du site) et `sitemap.xml` (l'accueil seul : En savoir plus est une ancre). Notre `robots.txt` remplace celui que Cloudflare servait (constaté le 2026-11-12) ; il reste sans accent, car Cloudflare l'envoie sans indication d'encodage. Le service worker ne remplace pas ces fichiers par le jeu quand on les ouvre dans le navigateur.
   Vérifié par `src/referencement.test.ts` (les balises) et `e2e/referencement.spec.ts` (les fichiers servis, sans JavaScript et avec le service worker).
 - Mesure d'audience avec **GoatCounter**, sans cookie (`src/navigateur/mesure.ts`). Le script est chargé par le code, et seulement sur l'adresse publique du jeu.
 
