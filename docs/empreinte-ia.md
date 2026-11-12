@@ -92,6 +92,6 @@ C'est un **ordre de grandeur**, pas une mesure. Les deux hypothèses fortes (le 
 ressemble à Claude Opus) peuvent chacune se tromper d'un facteur 2 ou 3, d'où la largeur de la fourchette.
 L'estimation sera refaite si Anthropic publie des chiffres.
 
-**Mise à jour : seulement à la demande de Fabien, en fin de projet.** Rien ne se met à jour tout seul : le chiffre
+**Mise à jour : au lancement officiel, puis à chaque PR une fois le jeu livré.** Rien ne se met à jour tout seul : le chiffre
 affiché reste celui du dernier décompte (sa date est écrite sur la page). Pour le refaire : `npm run empreinte-ia`,
 puis reporter les jetons et la date dans `src/donnees/empreinte-ia.ts`.
