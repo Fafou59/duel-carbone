@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Le plan du site, pour les moteurs de recherche : une seule page, l'accueil.
+  « En savoir plus » est une ancre (#en-savoir-plus) de la même page : les moteurs ne la voient pas comme une page à part.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://duelcarbone.fr/</loc>
+  </url>
+</urlset>
