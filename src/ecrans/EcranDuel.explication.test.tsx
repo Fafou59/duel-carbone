@@ -50,6 +50,12 @@ describe("Explication après un Duel : le tableau comparatif", () => {
     expect(within(within(tableau()).getByRole('row', { name: /Total/ })).getByText('713 kg')).toBeInTheDocument()
   })
 
+  it('garde la majuscule des titres et des noms propres dans cette note (« l’intégrale de Friends »)', () => {
+    render(<DuelDeTest duel={duel('friends', 'steak-boeuf')} />)
+    choisir(/Friends/)
+    expect(screen.getByText(/ne publie pas le détail pour : regarder l'intégrale de Friends/)).toBeInTheDocument()
+  })
+
   it('renvoie vers les fiches ADEME des deux Gestes, dans un nouvel onglet', () => {
     render(<DuelDeTest duel={duel('steak-boeuf', 'avocat')} />)
     choisir(/steak/)

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formaterDate, formaterEmpreinte, formaterMultiple, formaterRapport, queDevant } from './format.ts'
+import { enMinuscule, formaterDate, formaterEmpreinte, formaterMultiple, formaterRapport, queDevant } from './format.ts'
 
 describe("Mise en forme d'une empreinte carbone", () => {
   it('affiche en grammes sous 1 kg, sans décimale', () => {
@@ -71,6 +71,13 @@ describe("Mise en forme d'un Rapport", () => {
   it('garde une décimale sous ×10', () => {
     expect(formaterRapport(1.587)).toBe('×1,6')
     expect(formaterRapport(3)).toBe('×3')
+  })
+})
+
+describe('Un titre de Geste en milieu de phrase', () => {
+  it('ne met en minuscule que la première lettre : les titres et les noms propres gardent leur majuscule', () => {
+    expect(enMinuscule("Regarder l'intégrale de Friends")).toBe("regarder l'intégrale de Friends")
+    expect(enMinuscule('Faire Paris–Marseille en TGV')).toBe('faire Paris–Marseille en TGV')
   })
 })
 

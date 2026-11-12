@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { GESTES_CALCULES, gesteCalcule, INSTANTANE } from '../donnees/index.ts'
-import { formaterDate, formaterEmpreinte } from '../domaine/format.ts'
+import { enMinuscule, formaterDate, formaterEmpreinte } from '../domaine/format.ts'
 import { REGLES } from '../domaine/regles.ts'
 import { APPELS, DATE_DU_DECOMPTE, DEBUT_DU_PROJET, HYPOTHESES, JETONS } from '../donnees/empreinte-ia.ts'
 import { empreinteDeLaCreation } from '../domaine/empreinte-ia.ts'
@@ -221,7 +221,7 @@ export function EcranEnSavoirPlus() {
         <p className="savoir__citation">
           Première estimation, au {formaterDate(DATE_DU_DECOMPTE)} : environ {kgIa('centrale')} kg CO2e, entre{' '}
           {kgIa('basse')} et {kgIa('haute')} kg selon les hypothèses. Du même ordre que{' '}
-          {FRIENDS.titre.charAt(0).toLowerCase() + FRIENDS.titre.slice(1)} ({FRIENDS.sousTitre}) : {formaterEmpreinte(FRIENDS.empreinte)} selon l'ADEME.
+          {enMinuscule(FRIENDS.titre)} ({FRIENDS.sousTitre}) : {formaterEmpreinte(FRIENDS.empreinte)} selon l'ADEME.
         </p>
         <p>
           Ce chiffre-là ne vient pas de l'ADEME : aucune source publique ne donne l'énergie consommée par ce modèle.
