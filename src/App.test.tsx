@@ -98,6 +98,8 @@ describe('Application : page Sources et méthode', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Sources et méthode' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Partie libre' })).not.toBeInTheDocument()
     expect(document.title).toBe('Sources et méthode · Duel Carbone')
+    // La frise d'icônes accompagne la lecture.
+    expect(document.querySelector('.frise')).toBeInTheDocument()
   })
 
   it("s'ouvre d'un clic, puis ramène à l'accueil", async () => {
@@ -240,6 +242,21 @@ describe('Application : le Duel Carbone du jour', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Jouer le Duel du jour n° 10' }))
     fermerAnnonce()
     expect(screen.getByText('Duel 1/10')).toBeInTheDocument()
+  })
+
+  it('ne montre la frise qui défile qu’à l’écran de fin : ni sur l’accueil (la vitrine y défile déjà), ni pendant les Duels', async () => {
+    const { container } = render(<App memoire={creerMemoire(stockage())} aujourdhui={JOUR} />)
+    await boutonDuJour()
+    expect(container.querySelector('.frise')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Partie libre' }))
+    for (let i = 0; i < 10; i++) {
+      fermerAnnonce()
+      expect(container.querySelector('.frise')).not.toBeInTheDocument()
+      fireEvent.click(within(screen.getByRole('region', { name: 'Lequel émet le plus ?' })).getAllByRole('button')[0])
+      fireEvent.click(screen.getByRole('button', { name: i === 9 ? 'Voir mon score' : 'Duel suivant →' }))
+    }
+    expect(screen.getByRole('heading', { name: 'Partie terminée !' })).toBeInTheDocument()
+    expect(container.querySelector('.frise')).toBeInTheDocument()
   })
 
   it('retient les Duels du jour au lancement, et reprend ceux-là même si le calendrier a changé entre-temps', async () => {

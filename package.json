@@ -11,6 +11,7 @@
     "lint": "oxlint",
     "test": "vitest run",
     "test:watch": "vitest",
+    "e2e": "playwright test",
     "import": "node --env-file-if-exists=.env scripts/import/index.ts && npm run calibrer",
     "calibrer": "node scripts/calibrer.ts && node scripts/calendrier.ts",
     "calendrier": "node scripts/calendrier.ts",
@@ -23,6 +24,8 @@
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.65.0",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",

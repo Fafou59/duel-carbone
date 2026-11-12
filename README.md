@@ -28,6 +28,7 @@ Les données restent la propriété de l'ADEME et sont réutilisées dans le cad
 |---|---|
 | [CONTEXT.md](CONTEXT.md) | Le glossaire : le vocabulaire commun du projet (Geste, Duel, Rapport, Répartition…) |
 | [docs/prd-v1-duel.md](docs/prd-v1-duel.md) | Le cahier des charges de la v1 : problème, récits utilisateurs, règles du jeu, écrans, tests, indicateurs |
+| [docs/accessibilite.md](docs/accessibilite.md) | La liste de vérification de l'accessibilité : ce qui est testé automatiquement, et ce qui se vérifie à la main (lecteur d'écran) |
 | [docs/adr/](docs/adr) | Les décisions structurantes et leurs raisons (*Architecture Decision Records*) |
 | [docs/prototypes/](docs/prototypes) | Les enseignements des prototypes. Le code du prototype des écrans est archivé dans la branche [`prototype/duel-ui`](https://github.com/Fafou59/duel-carbone/tree/prototype/duel-ui). |
 
@@ -43,6 +44,7 @@ Prérequis : [Node.js](https://nodejs.org) 26 (voir `.nvmrc`).
 npm install      # installe les dépendances
 npm run dev      # lance le site en local, avec rechargement automatique
 npm test         # lance les tests
+npm run e2e      # joue des Parties au clavier dans un vrai navigateur et analyse l'accessibilité (Playwright)
 npm run build    # construit la version de production dans dist/
 npm run import   # met à jour l'Instantané des données ADEME (src/donnees/instantane.json)
 npm run icones   # refait les icônes des Gestes (public/icones/), après l'ajout d'un Geste

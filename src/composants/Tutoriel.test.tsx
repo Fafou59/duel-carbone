@@ -27,6 +27,13 @@ describe('« Comment ça marche ? » : le diaporama en 5 étapes', () => {
     expect(within(fenetre).getByRole('heading', { name: '2. La réponse tombe' })).toBeInTheDocument()
   })
 
+  it('dit à un lecteur d’écran à quelle étape on en est (les points ne sont qu’un dessin)', () => {
+    const { fenetre } = ouvrir()
+    expect(within(fenetre).getByText('Étape 1 sur 5')).toBeInTheDocument()
+    fireEvent.click(within(fenetre).getByRole('button', { name: 'Suivant →' }))
+    expect(within(fenetre).getByText('Étape 2 sur 5')).toBeInTheDocument()
+  })
+
   it('passe directement à la réponse si le joueur touche une carte dès la première étape', () => {
     const { fenetre } = ouvrir()
     fireEvent.click(within(fenetre).getByRole('button', { name: /TGV/ }))

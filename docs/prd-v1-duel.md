@@ -107,7 +107,8 @@ La référence visuelle est la variante **A2** du prototype ; le détail et les 
   - **Duel du jour joué** : le score et sa grille, « Défier mes proches », « Revoir mon Récapitulatif », la série et le compte à rebours jusqu'à minuit (heure de Paris). Puis la Partie libre, mise en avant (« Envie de t'entraîner pour le Duel de demain ? »).
   - **Joué hier, pas encore aujourd'hui** : « Série de N jours. Ne la casse pas ! », le bouton du Duel du jour avec le score d'hier et le temps qui reste, et la Partie libre en simple lien.
   - Après la Partie libre : le titre et l'accroche, comme pour un nouveau joueur.
-- **Sur tous les écrans** : la frise d'icônes qui défile de droite à gauche, puis le pied de page « Comment ça marche ? · Sources et méthode · Chiffres de l'ADEME, sans cookie ni compte ». Les rubans d'icônes sont décoratifs (cachés aux lecteurs d'écran) et s'arrêtent si l'appareil demande moins d'animations.
+- **Fin de Partie et Sources** : la frise d'icônes qui défile de droite à gauche (ni sur l'accueil, où la vitrine défile déjà, ni pendant les Duels, où elle détournait l'attention des cartes). Un toucher sur la vitrine ou la frise arrête le défilement, un second le relance.
+- **Sur tous les écrans** : le pied de page « Comment ça marche ? · Sources et méthode · Chiffres de l'ADEME, sans cookie ni compte ». Les rubans d'icônes sont décoratifs (cachés aux lecteurs d'écran) et s'arrêtent si l'appareil demande moins d'animations.
 - **Fin du Duel du jour** : le titre « Duel Carbone du jour n° N », le score, la série et le temps avant le prochain Duel ; « Défier mes proches » en premier, puis la Partie libre pour s'entraîner (« Envie de t'entraîner pour le Duel de demain ? »).
 - **Fin de Partie libre** : si le Duel du jour reste à jouer, « Échauffement terminé : place au Duel du jour ! » et son bouton en premier, puis « Rejouer » ; sinon, « Rejouer » en premier et le temps avant le prochain Duel du jour.
 - **Comment ça marche ?** : un diaporama en 5 étapes, dans une fenêtre, sur un Duel fixe (un jean contre un Paris–Marseille en TGV). Toucher une carte dès la première étape passe directement à la réponse ; la navigation reste visible en bas de la fenêtre ; la dernière étape lance le Duel du jour.
@@ -122,7 +123,7 @@ La référence visuelle est la variante **A2** du prototype ; le détail et les 
   - le verdict ;
   - l'équivalence « 1 [A] = x [B] » ;
   - le texte du Duel thématique, s'il y en a un ;
-  - un tableau comparatif unique (étapes × Gestes, ligne Total), avec des jauges à échelle commune derrière les chiffres ;
+  - un tableau comparatif unique (étapes × Gestes, ligne Total), avec des jauges à échelle commune derrière les chiffres. Il reste affiché en entier (décision du ticket #35) : le bouton « Duel suivant » est toujours visible, donc le joueur pressé passe au Duel suivant et le curieux lit le détail ;
   - les liens vers les fiches ADEME.
 - **Récapitulatif** : une grille de cases « ✓/✗ Duel n » puis « 1 [A] = x [B] », encadrées en vert ou en rouge. Chaque case ouvre le détail du Duel dans un panneau qu'on peut fermer.
 - **Icônes** : un jeu d'icônes cohérent sur tous les appareils (les emojis système ne suffisent pas). Choix du ticket #14 : **Fluent Emoji « Flat »** (Microsoft, licence MIT), plutôt qu'OpenMoji (contour noir illisible en mode sombre, licence « share-alike ») ou Twemoji (crédit visible obligatoire). Quand l'icône officielle n'est pas parlante, on dessine la nôtre dans le même style, et deux Gestes semblables reçoivent des couleurs différentes. Une icône est un fichier par Geste (`public/icones/`, fabriqué par `npm run icones`), chargé à part : un Duel ne télécharge que ses deux icônes, et celles du Duel suivant sont préchargées.
@@ -175,7 +176,7 @@ Le **temps de jeu** est mesuré sur l'appareil, de l'affichage du premier Duel j
 - **Tests unitaires (Vitest)** sur les fonctions pures : calcul d'un Geste, générateur de Partie (respect de la tranche de chaque Duel, plancher ×1,25, plafond ×500, unicité des paires, tirage d'un Geste d'abord, Coefficient d'équilibrage, assouplissement quand les paires manquent), calibrage, mise en forme des nombres, transformation des réponses de l'API dans le script d'import.
 - **Garde-fous du calibrage** : un test vérifie que les Coefficients d'équilibrage correspondent au catalogue actuel (empreinte), un autre que la diversité atteint le seuil sur 2 000 Parties simulées.
 - Un bon test vérifie un **comportement observable** (« le Duel n°10 a un Rapport entre ×1,25 et ×1,5 »), pas les détails internes du code.
-- **Test de bout en bout** (plus tard, avec Playwright) : jouer une Partie complète au clavier.
+- **Tests de bout en bout (Playwright, `npm run e2e`, lancés par la CI)** : un vrai navigateur joue le Duel du jour et une Partie libre entièrement au clavier, en vérifiant que le focus reste visible. Chaque écran passe aussi une analyse d'accessibilité automatique (axe-core, WCAG 2.2 A et AA, en mode clair et sombre), le zoom à 200 % et le réglage « réduire les animations ». Ce qu'un robot ne vérifie pas (lecteur d'écran) est dans [accessibilite.md](accessibilite.md).
 - **Contrôle des données** : l'import échoue si le catalogue référence un Équivalent inconnu, ou si une Quantité est absente ou inférieure ou égale à zéro.
 
 ## 8. Hors périmètre de la v1

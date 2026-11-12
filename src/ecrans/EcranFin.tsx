@@ -161,14 +161,20 @@ export function EcranFin({
               type="button"
               className={`recap__case recap__case--${ligne.bonne ? 'bon' : 'mauvais'}`}
               aria-haspopup="dialog"
-              // Le nom lu par les lecteurs d'écran : des mots plutôt que des icônes.
-              aria-label={`Duel ${ligne.numero}, ${ligne.bonne ? 'réussi' : 'raté'} : ${ligne.plus.titre} émet ${formaterMultiple(ligne.rapport)} fois plus ${queDevant(ligne.moins.titre)}`}
               onClick={() => setOuvert(i)}
             >
+              {/* Le nom lu par les lecteurs d'écran vient du texte de la case : « Duel 1 (réussi) : … émet … fois
+                  plus que … ». Les symboles et les icônes sont remplacés par des mots (texte caché), mais le nom
+                  commence par ce qu'on voit (« Duel 1 ») : on peut désigner la case à la voix. */}
               <span className="recap__numero">
-                {ligne.bonne ? '✓' : '✗'} Duel {ligne.numero}
+                <span aria-hidden="true">{ligne.bonne ? '✓' : '✗'} </span>Duel {ligne.numero}
+                <span className="visuellement-cache">
+                  {' '}
+                  ({ligne.bonne ? 'réussi' : 'raté'}) : {ligne.plus.titre} émet {formaterMultiple(ligne.rapport)} fois
+                  plus {queDevant(ligne.moins.titre)}
+                </span>
               </span>
-              <span className="recap__equivalence">
+              <span className="recap__equivalence" aria-hidden="true">
                 1 <Icone id={ligne.plus.id} /> = {formaterMultiple(ligne.rapport)} <Icone id={ligne.moins.id} />
               </span>
             </button>

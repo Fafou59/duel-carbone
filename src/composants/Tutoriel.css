@@ -56,14 +56,14 @@
   margin: 0;
 }
 
-.diaporama__points span {
+.diaporama__point {
   width: 28px;
   height: 6px;
   border-radius: 999px;
   background: var(--ligne);
 }
 
-.diaporama__points .actif {
+.diaporama__point.actif {
   background: var(--marque);
 }
 
