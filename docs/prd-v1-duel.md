@@ -140,7 +140,7 @@ La référence visuelle est la variante **A2** du prototype ; le détail et les 
   - la mémoire retient les Duels du jour réellement joués : si une nouvelle version change le calendrier des jours à venir, la reprise, la grille et le Récapitulatif restent justes ;
   - sur iPhone, l'application installée a sa propre mémoire, séparée de Safari (record et série repartent de zéro).
 - **Navigation sans routeur** : la page En savoir plus a pour adresse l'ancre `#en-savoir-plus` (l'ancienne, `#sources`, marche encore) (`src/navigateur/adresse.ts`). Pas de bibliothèque ni de réglage chez l'hébergeur ; le bouton « Retour » et les liens partagés fonctionnent, et une Partie en cours reste intacte pendant la lecture des sources.
-- Code sur **GitHub** (dépôt public), hébergement chez **Cloudflare** (Workers, fichiers statiques : gratuits et sans limite de trafic) avec un aperçu automatique pour chaque branche, domaine **duelcarbone.fr** acheté à la mise en ligne. Netlify, utilisé jusqu'au 2026-11-11, a été abandonné quand ses crédits gratuits ont bloqué la mise en production (ADR 0003).
+- Code sur **GitHub** (dépôt public), hébergement chez **Cloudflare** (Workers, fichiers statiques : gratuits et sans limite de trafic) avec un aperçu automatique pour chaque branche, domaine **duelcarbone.fr** (acheté chez OVHcloud, DNS chez Cloudflare ; www.duelcarbone.fr et http redirigent vers https://duelcarbone.fr). Netlify, utilisé jusqu'au 2026-11-11, a été abandonné quand ses crédits gratuits ont bloqué la mise en production (ADR 0003).
 - Mesure d'audience avec **GoatCounter**, sans cookie (`src/navigateur/mesure.ts`). Le script est chargé par le code, et seulement sur l'adresse publique du jeu.
 
 ### Les modules principaux
@@ -203,4 +203,4 @@ Le **temps de jeu** est mesuré sur l'appareil, de l'affichage du premier Duel j
 
 - **ADEME** : la demande de clé d'API et de confirmation des conditions de réutilisation a été envoyée le 2026-11-08. Elle ne bloque pas la publication : l'API est accessible sans clé, et les mentions légales autorisent déjà la réutilisation non commerciale et pédagogique. Dès réception, la clé sera ajoutée au script d'import. Seul l'ajout d'un bouton de dons dépend de leur réponse.
 - **Citation** : « Source : ADEME, Impact CO2 », avec la date de l'Instantané, sur chaque révélation (lien vers la fiche) et sur la page En savoir plus.
-- **Domaine** : duelcarbone.fr était disponible le 2026-11-08.
+- **Domaine** : duelcarbone.fr, acheté chez OVHcloud et relié au Worker le 2026-11-12. L'ancienne adresse (duel-carbone.fabien-lesage.workers.dev) sert toujours le jeu et reste mesurée.

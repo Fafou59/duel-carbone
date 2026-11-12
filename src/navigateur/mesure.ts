@@ -1,7 +1,7 @@
 /**
  * La mesure d'audience, avec GoatCounter : sans cookie, sans donnée personnelle, des chiffres agrégés.
  *
- * - On ne compte que sur l'adresse publique du jeu : ni en local, ni depuis l'aperçu d'une branche
+ * - On ne compte que sur l'adresse publique du jeu (duelcarbone.fr) : ni en local, ni depuis l'aperçu d'une branche
  *   (« <branche>-duel-carbone.fabien-lesage.workers.dev »). Ailleurs, le script n'est même pas chargé.
  * - Le jeu ne dépend jamais de la mesure : si GoatCounter est bloqué, lent ou en panne, rien ne se passe.
  * - GoatCounter compte des événements mais ne calcule pas de moyenne : la durée d'une Partie
@@ -14,8 +14,15 @@ import { ADRESSE_DU_JEU } from '../domaine/partage.ts'
 const COMPTEUR = 'https://fafou59.goatcounter.com/count'
 const SCRIPT = 'https://gc.zgo.at/count.js'
 
-/** Les adresses où l'on compte : l'adresse publique du jeu, et duelcarbone.fr (ticket #19). */
-const ADRESSES_MESUREES = new Set([new URL(ADRESSE_DU_JEU).hostname, 'duelcarbone.fr', 'www.duelcarbone.fr'])
+/**
+ * Les adresses où l'on compte : l'adresse publique du jeu (avec ou sans www), et son ancienne adresse chez
+ * Cloudflare, qui sert toujours le jeu (premiers liens partagés, applications installées avant le #19).
+ */
+const ADRESSES_MESUREES = new Set([
+  new URL(ADRESSE_DU_JEU).hostname,
+  'www.duelcarbone.fr',
+  'duel-carbone.fabien-lesage.workers.dev',
+])
 
 export type Mode = 'jour' | 'libre'
 /** Une tranche de durée de 30 secondes : « 2m30-3m00 », ou « 10m00-et-plus » au-delà de 10 minutes. */

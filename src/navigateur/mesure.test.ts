@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { chargerMesure, estAdresseMesuree, mesurer, trancheDeDuree, type Environnement } from './mesure.ts'
 
-const PRODUCTION = 'duel-carbone.fabien-lesage.workers.dev'
+const PRODUCTION = 'duelcarbone.fr'
+/** L'ancienne adresse publique chez Cloudflare, et la base des aperçus des branches. */
+const WORKERS = 'duel-carbone.fabien-lesage.workers.dev'
 const minutes = (n: number) => n * 60_000
 
 /** Un faux navigateur : son adresse, et GoatCounter s'il est chargé. */
@@ -10,10 +12,17 @@ function environnement(options: Partial<Environnement> = {}): Environnement {
 }
 
 describe('Les adresses où l’on mesure l’audience', () => {
-  it('compte sur l’adresse publique du jeu, et sur duelcarbone.fr', () => {
+  it('compte sur duelcarbone.fr, avec ou sans www', () => {
     expect(estAdresseMesuree(PRODUCTION)).toBe(true)
-    expect(estAdresseMesuree('duelcarbone.fr')).toBe(true)
     expect(estAdresseMesuree('www.duelcarbone.fr')).toBe(true)
+  })
+
+  it('compte encore sur l’ancienne adresse, celle des premiers liens partagés et des applications déjà installées', () => {
+    expect(estAdresseMesuree(WORKERS)).toBe(true)
+  })
+
+  it('ne compte rien sur un autre sous-domaine', () => {
+    expect(estAdresseMesuree('test.duelcarbone.fr')).toBe(false)
   })
 
   it('ne compte rien en local', () => {
@@ -22,8 +31,8 @@ describe('Les adresses où l’on mesure l’audience', () => {
   })
 
   it('ne compte rien depuis l’aperçu d’une branche', () => {
-    expect(estAdresseMesuree(`feat-17-goatcounter-${PRODUCTION}`)).toBe(false)
-    expect(estAdresseMesuree(`8a3f2c1d-${PRODUCTION}`)).toBe(false)
+    expect(estAdresseMesuree(`feat-17-goatcounter-${WORKERS}`)).toBe(false)
+    expect(estAdresseMesuree(`8a3f2c1d-${WORKERS}`)).toBe(false)
   })
 })
 
@@ -86,7 +95,7 @@ describe('Charger GoatCounter', () => {
 
   it('ne le charge pas en local, ni sur l’aperçu d’une branche : aucune demande ne part', () => {
     chargerMesure('localhost')
-    chargerMesure(`feat-17-goatcounter-${PRODUCTION}`)
+    chargerMesure(`feat-17-goatcounter-${WORKERS}`)
     expect(script()).toBeNull()
   })
 })
