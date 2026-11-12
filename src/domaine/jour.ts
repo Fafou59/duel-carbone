@@ -4,10 +4,10 @@
  */
 
 /**
- * Le Duel Carbone du jour n° 1. PROVISOIRE : ce sera le jour du lancement public, fixé au ticket #19.
- * D'ici là, les numéros servent aux tests.
+ * Le Duel Carbone du jour n° 1 : le jour du lancement public (#19), le samedi 14 novembre 2026.
+ * Les jours de test d'avant gardent leur Partie dans le calendrier, et s'affichent « n° 1 » (jamais 0 ni moins).
  */
-export const PREMIER_JOUR = '2026-11-11'
+export const PREMIER_JOUR = '2026-11-14'
 
 const formatDeParis = new Intl.DateTimeFormat('en-CA', {
   timeZone: 'Europe/Paris',
@@ -30,7 +30,7 @@ export const decalerJour = (jour: string, n: number): string =>
 export const joursEntre = (debut: string, fin: string): number => Math.round((enUTC(fin) - enUTC(debut)) / UN_JOUR_MS)
 
 /** Le numéro du Duel Carbone du jour : 1 le premier jour, puis un de plus chaque jour. */
-export const numeroDuJour = (jour: string): number => joursEntre(PREMIER_JOUR, jour) + 1
+export const numeroDuJour = (jour: string): number => Math.max(1, joursEntre(PREMIER_JOUR, jour) + 1)
 
 const heureDeParis = new Intl.DateTimeFormat('en-GB', {
   timeZone: 'Europe/Paris',

@@ -28,6 +28,13 @@ describe('Le jour du Duel : minuit, heure de Paris, quel que soit le fuseau du j
 
   it('numérote les Duels du jour à partir du premier jour (n° 1)', () => {
     expect(numeroDuJour(PREMIER_JOUR)).toBe(1)
+    // Le lancement public (#19) : le samedi 14 novembre 2026 est le Duel Carbone du jour n° 1.
+    expect(numeroDuJour('2026-11-14')).toBe(1)
+  })
+
+  it('ne descend jamais sous le n° 1 : les jours de test d’avant le lancement s’affichent aussi « n° 1 »', () => {
+    expect(numeroDuJour(decalerJour(PREMIER_JOUR, -1))).toBe(1)
+    expect(numeroDuJour(decalerJour(PREMIER_JOUR, -3))).toBe(1)
     expect(numeroDuJour(decalerJour(PREMIER_JOUR, 11))).toBe(12)
   })
 })

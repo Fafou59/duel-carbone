@@ -50,6 +50,26 @@ describe('Page En savoir plus', () => {
     expect(screen.getByText(new RegExp(`${ademe.length} gestes \\(dont ${reserves}`))).toBeInTheDocument()
   })
 
+  it('donne les mentions légales : éditeur, contact et hébergeur (loi pour la confiance dans l’économie numérique)', () => {
+    render(<EcranEnSavoirPlus />)
+    expect(screen.getByRole('heading', { name: 'Mentions légales' })).toBeInTheDocument()
+    expect(screen.getByText(/Éditeur et directeur de la publication : Fabien Lesage/)).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: 'contact@duelcarbone.fr' })[0]).toHaveAttribute('href', 'mailto:contact@duelcarbone.fr')
+    const hebergeur = screen.getByText(/Hébergeur : Cloudflare, Inc\./)
+    expect(hebergeur).toHaveTextContent(/101 Townsend St, San Francisco, CA 94107, États-Unis/)
+    expect(hebergeur).toHaveTextContent(/\+1 650 319 8930/)
+  })
+
+  it('dit que les plantages du jeu sont comptés, sans leur détail', () => {
+    render(<EcranEnSavoirPlus />)
+    expect(screen.getByText(/Pour savoir si le jeu plaît/)).toHaveTextContent(/les plantages du jeu, sans leur détail/)
+  })
+
+  it('propose d’écrire, pas seulement GitHub, pour signaler une erreur', () => {
+    render(<EcranEnSavoirPlus />)
+    expect(screen.getByText(/Une erreur, une idée \?/)).toHaveTextContent(/contact@duelcarbone\.fr/)
+  })
+
   it('invite à suivre le projet sur GitHub', () => {
     render(<EcranEnSavoirPlus />)
     expect(screen.getByRole('link', { name: 'Suivre le projet sur GitHub' })).toHaveAttribute(

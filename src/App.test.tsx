@@ -146,11 +146,11 @@ describe('Application : page En savoir plus', () => {
 })
 
 describe('Application : le Duel Carbone du jour', () => {
-  // Un jour fixe, couvert par le calendrier : le 10e jour depuis le premier (n° 10).
+  // Un jour fixe, couvert par le calendrier : le 7e jour depuis le lancement du 14/11 (n° 7).
   const JOUR = '2026-11-20'
   // Le bouton reste désactivé tant que le calendrier (chargé à part) n'est pas arrivé.
   const boutonDuJour = async () => {
-    const bouton = await screen.findByRole('button', { name: /Duel du jour n° 10|Revoir mon Récapitulatif/ })
+    const bouton = await screen.findByRole('button', { name: /Duel du jour n° 7|Revoir mon Récapitulatif/ })
     await waitFor(() => expect(bouton).toBeEnabled())
     return bouton
   }
@@ -166,7 +166,7 @@ describe('Application : le Duel Carbone du jour', () => {
 
   it('propose le Duel Carbone du jour, numéroté, et la Partie libre', async () => {
     render(<App memoire={creerMemoire(stockage())} aujourdhui={JOUR} />)
-    expect(await boutonDuJour()).toHaveTextContent('Jouer le Duel du jour n° 10')
+    expect(await boutonDuJour()).toHaveTextContent('Jouer le Duel du jour n° 7')
     expect(screen.getByRole('button', { name: 'Partie libre' })).toBeInTheDocument()
   })
 
@@ -194,7 +194,7 @@ describe('Application : le Duel Carbone du jour', () => {
     avant.unmount()
     render(<App memoire={creerMemoire(s)} aujourdhui={JOUR} />)
     const bouton = await boutonDuJour()
-    expect(bouton).toHaveTextContent('Reprendre le Duel du jour n° 10')
+    expect(bouton).toHaveTextContent('Reprendre le Duel du jour n° 7')
     fireEvent.click(bouton)
     expect(screen.getByText('Duel 3/10')).toBeInTheDocument()
   })
@@ -208,7 +208,7 @@ describe('Application : le Duel Carbone du jour', () => {
       fireEvent.click(within(screen.getByRole('region', { name: 'Lequel émet le plus ?' })).getAllByRole('button')[0])
       fireEvent.click(screen.getByRole('button', { name: i === 9 ? 'Voir mon score' : 'Duel suivant →' }))
     }
-    expect(screen.getByRole('heading', { name: 'Duel Carbone du jour n° 10' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Duel Carbone du jour n° 7' })).toBeInTheDocument()
     expect(screen.getByText(/Série : 1 jour d'affilée/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Partie libre' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Rejouer' })).not.toBeInTheDocument()
@@ -225,7 +225,7 @@ describe('Application : le Duel Carbone du jour', () => {
     expect(screen.getByText('🔥 2 jours')).toBeInTheDocument()
     jourMeme.unmount()
     render(<App memoire={creerMemoire(s)} aujourdhui="2026-11-21" />)
-    expect(await screen.findByRole('button', { name: 'Jouer le Duel du jour n° 11' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Jouer le Duel du jour n° 8' })).toBeInTheDocument()
     expect(screen.getByText(/Série de 2 jours\./)).toBeInTheDocument()
     // Le score de la veille, à battre.
     expect(screen.getByText('8/10')).toBeInTheDocument()
@@ -258,7 +258,7 @@ describe('Application : le Duel Carbone du jour', () => {
       fireEvent.click(within(screen.getByRole('region', { name: 'Lequel émet le plus ?' })).getAllByRole('button')[0])
       fireEvent.click(screen.getByRole('button', { name: i === 9 ? 'Voir mon score' : 'Duel suivant →' }))
     }
-    fireEvent.click(screen.getByRole('button', { name: 'Jouer le Duel du jour n° 10' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Jouer le Duel du jour n° 7' }))
     fermerAnnonce()
     expect(screen.getByText('Duel 1/10')).toBeInTheDocument()
   })

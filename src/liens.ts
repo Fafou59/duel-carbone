@@ -1,5 +1,8 @@
 /** Les adresses extérieures citées dans le jeu, réunies pour ne les écrire qu'une fois. */
 
+/** L'adresse de contact du jeu (redirigée vers l'éditeur), dans les mentions légales. */
+export const CONTACT = 'contact@duelcarbone.fr'
+
 /** Le dépôt public du jeu sur GitHub. */
 export const DEPOT = 'https://github.com/Fafou59/duel-carbone'
 
