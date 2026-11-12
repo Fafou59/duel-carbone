@@ -1,12 +1,12 @@
 # L'empreinte de la création du jeu par IA : la méthode
 
-Duel Carbone est codé avec l'aide d'une IA, **Claude Opus** (Anthropic), dans Claude Code : un humain pilote et
-valide, l'IA écrit le code et l'explique. Ce document estime l'empreinte carbone de ce travail. Le résultat est
+Duel Carbone est codé avec l'aide d'une IA, **Claude Opus 5.5** (Anthropic), dans Claude Code : un humain pilote
+et valide, l'IA écrit le code et l'explique. Ce document estime l'empreinte carbone de ce travail. Le résultat est
 affiché dans la page « En savoir plus ».
 
-> **Première estimation, au 12 novembre 2026 : environ 10 kg CO2e, entre 2 et 23 kg selon les hypothèses.**
-> C'est du même ordre que regarder l'intégrale de Friends en streaming (7,9 kg CO2e selon l'ADEME), ou que manger
-> trois steaks de bœuf (3,4 kg chacun).
+> **Estimation au 12 novembre 2026 : environ 5 kg CO2e, entre 2 et 9 kg selon les hypothèses.**
+> C'est un peu plus qu'un steak de bœuf (3,4 kg CO2e selon l'ADEME), et moins que regarder l'intégrale de
+> Friends en streaming (7,9 kg).
 
 Cette estimation est aussi **l'Easter Egg** du jeu : le Geste « Créer Duel Carbone, assisté par IA »
 (`src/donnees/geste-ia.ts`), qui vaut l'hypothèse centrale, caché dans deux Duels thématiques.
@@ -26,8 +26,8 @@ garde un journal de chaque session de travail, où chaque réponse du modèle no
 | Relus depuis la mémoire | Le contexte de la conversation, relu à chaque échange | 675 877 238 |
 | Écrits | Les réponses du modèle : code, explications | 1 929 432 |
 
-Soit **1 919 appels au modèle** depuis le 8 novembre 2026, dans 5 journaux de session (le dépôt et ses worktrees).
-Le décompte se refait avec `npm run empreinte-ia` (`scripts/empreinte-ia.ts`).
+Soit **1 919 appels au modèle** depuis le 8 novembre 2026, dans 5 journaux de session (le dépôt et ses worktrees),
+tous avec Claude Opus 5.5. Le décompte se refait avec `npm run empreinte-ia` (`scripts/empreinte-ia.ts`).
 
 L'énorme majorité des jetons est **relue depuis la mémoire** : à chaque échange, le modèle relit toute la
 conversation (en moyenne environ 350 000 jetons). C'est beaucoup moins coûteux que de la relire « à froid », mais
@@ -36,51 +36,77 @@ pas gratuit.
 ## 2. De jetons à « jetons lus équivalents »
 
 Les quatre sortes de jetons ne demandent pas le même calcul. **Hypothèse : le prix d'Anthropic suit le calcul
-nécessaire.** Ses tarifs donnent les pondérations, comparées à un jeton lu :
+nécessaire.** Les [tarifs de Claude Opus 5.5](https://platform.claude.com/docs/en/about-claude/pricing) donnent les
+pondérations, comparées à un jeton lu :
 
-| Sorte | Pondération | Pourquoi |
-|---|---|---|
-| Lu | × 1 | La référence |
-| Mis en mémoire | × 1,25 | Lu, plus le stockage |
-| Relu depuis la mémoire | × 0,1 | Rien à recalculer, seulement à relire |
-| Écrit | × 5 | Le modèle produit les jetons un par un |
+| Sorte | Prix (par million) | Pondération | Pourquoi |
+|---|---|---|---|
+| Lu | 4 $ | × 1 | La référence |
+| Mis en mémoire | 5 $ | × 1,25 | Lu, plus le stockage |
+| Relu depuis la mémoire | 0,20 $ | × 0,05 | Rien à recalculer, seulement à relire |
+| Écrit | 20 $ | × 5 | Le modèle produit les jetons un par un |
 
-Résultat : **environ 86 millions de jetons lus équivalents**. Les jetons relus en pèsent les trois quarts
-(68 millions), les jetons écrits et mis en mémoire le reste.
+Résultat : **environ 52 millions de jetons lus équivalents**. Les jetons relus en pèsent les deux tiers
+(34 millions), les jetons écrits (9,6 millions) et mis en mémoire (9 millions) le reste.
 
 ## 3. De jetons à kWh
 
-Anthropic ne publie pas l'énergie consommée par ses modèles. La référence la plus détaillée est l'estimation
-d'**Epoch AI** pour GPT-4o ([How much energy does ChatGPT use?](https://epoch.ai/gradient-updates/how-much-energy-does-chatgpt-use),
-février 2025), qui compte le serveur et le centre de données (jusqu'à environ 1 500 W par processeur graphique) :
+Anthropic ne publie pas l'énergie consommée par ses modèles. Trois sources indépendantes donnent un ordre de
+grandeur :
 
-- une demande courte (500 jetons écrits) : environ 0,3 Wh ;
-- une demande avec 10 000 jetons lus : environ 2,5 Wh, soit environ **0,2 mWh par jeton lu** ;
-- une demande avec 100 000 jetons lus : environ 40 Wh, soit environ **0,4 mWh par jeton lu**.
+| Source | Modèle | Ce qu'elle donne | Par jeton lu équivalent |
+|---|---|---|---|
+| [Epoch AI](https://epoch.ai/gradient-updates/how-much-energy-does-chatgpt-use) (février 2025), estimation à partir du matériel, centre de données compris | GPT-4o | 2,5 Wh pour 10 000 jetons lus ; 40 Wh pour 100 000 | **0,2 à 0,4 mWh** |
+| [Jegham et al., « How Hungry is AI? »](https://arxiv.org/abs/2505.09598) (v6, novembre 2025), estimation à partir des vitesses mesurées par l'API, centre de données compris | Claude 3.7 Sonnet | 5,67 Wh pour une demande longue (10 000 jetons lus, 1 500 écrits) | **0,32 mWh** |
+| [Chung et al., « Where Do the Joules Go? »](https://arxiv.org/abs/2601.22076) (ML.ENERGY, 2026), mesures sur processeurs graphiques récents | Qwen 3 235B (modèle ouvert) | environ 0,4 J par jeton écrit, au mieux, processeurs graphiques seuls | **moins de 0,1 mWh** (voir plus bas) |
 
-Claude Opus est sans doute plus gros que GPT-4o (environ 100 milliards de paramètres actifs selon Epoch). D'où
-une fourchette : **de 0,1 à 0,6 mWh par jeton lu équivalent, 0,3 au centre**.
+Les deux premières, pour des demandes longues comme les nôtres, tombent au même endroit : **environ 0,3 mWh**. La
+troisième montre que du matériel récent et un modèle « à experts » (qui n'active qu'une partie de ses paramètres)
+font beaucoup mieux : même en doublant pour un fonctionnement réel moins optimisé, et en ajoutant la moitié pour le
+reste du serveur et le centre de données, on reste sous 0,1 mWh. Mais ce modèle est sans doute plus petit que
+Claude Opus.
+
+D'où une fourchette : **de 0,15 à 0,45 mWh par jeton lu équivalent, 0,3 au centre**.
 
 ## 4. De kWh à CO2e
 
-Les serveurs d'Anthropic tournent surtout aux États-Unis, chez des hébergeurs du cloud. L'électricité américaine
-émet en moyenne **environ 0,37 kg CO2e par kWh** (moyenne nationale de l'Agence américaine de protection de
-l'environnement, eGRID). Fourchette : de 0,2 (régions les moins carbonées, ou achats d'électricité renouvelable) à
-0,45.
+Claude tourne surtout dans les centres de données d'**Amazon Web Services**. Jegham et al. estiment l'électricité
+de ceux qui servent l'IA, selon leur répartition par région, à **0,287 kg CO2e par kWh**. La moyenne des
+États-Unis est d'environ 0,37 kg (eGRID, Agence américaine de protection de l'environnement). Fourchette : **de
+0,25 à 0,4 kg CO2e par kWh, 0,3 au centre**.
+
+Ce sont des émissions « selon le lieu » : celles de l'électricité réellement fournie par le réseau. Les achats
+d'électricité renouvelable d'Amazon ne sont pas déduits.
 
 ## 5. Le résultat
 
 | Hypothèse | Énergie par jeton lu | CO2e par kWh | Énergie | Empreinte |
 |---|---|---|---|---|
-| Basse | 0,1 mWh | 0,2 kg | 8,6 kWh | **1,7 kg CO2e** |
-| Centrale | 0,3 mWh | 0,37 kg | 25,9 kWh | **9,6 kg CO2e** |
-| Haute | 0,6 mWh | 0,45 kg | 51,7 kWh | **23,3 kg CO2e** |
+| Basse | 0,15 mWh | 0,25 kg | 7,9 kWh | **2,0 kg CO2e** |
+| Centrale | 0,3 mWh | 0,3 kg | 15,7 kWh | **4,7 kg CO2e** |
+| Haute | 0,45 mWh | 0,4 kg | 23,6 kWh | **9,4 kg CO2e** |
 
-La page « En savoir plus » arrondit au kilo : environ 10 kg, entre 2 et 23 kg. Les calculs sont dans
+La page « En savoir plus » arrondit au kilo : environ 5 kg, entre 2 et 9 kg. Les calculs sont dans
 `src/domaine/empreinte-ia.ts`, les chiffres dans `src/donnees/empreinte-ia.ts` (la page les lit : elle suit
 d'elle-même une mise à jour).
 
-## 6. Ce qui n'est pas compté
+## 6. Ce qui a changé depuis la première estimation
+
+La première estimation, du même jour, donnait **environ 10 kg, entre 2 et 23 kg** : un facteur 10 entre les
+hypothèses basse et haute. Trois corrections l'ont resserrée :
+
+- **Le bon tarif.** Les pondérations venaient des tarifs de Claude Opus 4.5, où relire la mémoire coûte un dixième
+  d'un jeton lu. Pour Claude Opus 5.5, le modèle réellement utilisé, c'est un vingtième : 52 millions de jetons
+  équivalents au lieu de 86.
+- **Une deuxième source pour l'énergie.** Jegham et al. retrouvent, pour un modèle Claude, l'ordre de grandeur
+  d'Epoch AI. L'ancienne hypothèse haute (0,6 mWh) supposait Claude Opus bien plus gourmand que GPT-4o, ce que rien
+  ne confirme.
+- **L'électricité d'AWS plutôt que celle des États-Unis en général**, d'après la répartition des centres de
+  données publiée par Jegham et al.
+
+L'écart entre les hypothèses basse et haute passe d'un facteur 10 à un facteur 5.
+
+## 7. Ce qui n'est pas compté
 
 - **L'entraînement du modèle.** Il a coûté beaucoup d'énergie, mais il sert à des millions d'utilisateurs ; la
   part d'un projet est difficile à attribuer et n'est pas publiée.
@@ -89,12 +115,21 @@ d'elle-même une mise à jour).
   française, très peu carbonée : quelques dizaines de grammes.
 - **Le jeu lui-même, une fois en ligne** : l'hébergement et les téléphones des joueurs.
 
-## 7. Limites
+## 8. Limites
 
-C'est un **ordre de grandeur**, pas une mesure. Les deux hypothèses fortes (le prix suit le calcul, et GPT-4o
-ressemble à Claude Opus) peuvent chacune se tromper d'un facteur 2 ou 3, d'où la largeur de la fourchette.
-L'estimation sera refaite si Anthropic publie des chiffres.
+C'est un **ordre de grandeur**, pas une mesure. Trois hypothèses restent fragiles :
 
-**Mise à jour : au lancement officiel, puis à chaque PR une fois le jeu livré.** Rien ne se met à jour tout seul : le chiffre
-affiché reste celui du dernier décompte (sa date est écrite sur la page). Pour le refaire : `npm run empreinte-ia`,
-puis reporter les jetons et la date dans `src/donnees/empreinte-ia.ts`.
+- **Le prix suit le calcul.** Relire un très long contexte (350 000 jetons en moyenne) sollicite surtout la
+  mémoire des processeurs : son coût réel peut s'écarter du tarif. Avec l'ancienne pondération (un dixième),
+  l'estimation centrale serait de 7,8 kg.
+- **Claude Opus 5.5 ressemble aux modèles étudiés.** Sa taille et son matériel ne sont pas publics.
+- **Où tournent les demandes.** Par défaut, Anthropic peut servir une demande depuis plusieurs régions du monde, et
+  pas seulement chez AWS.
+
+Pour aller plus loin, il faudrait qu'Anthropic publie l'énergie de ses modèles, comme Google l'a fait pour Gemini
+(0,24 Wh pour une demande médiane, en août 2025). L'estimation sera refaite dès que ce sera le cas.
+
+**Mise à jour : au lancement officiel, puis à chaque PR une fois le jeu livré.** Rien ne se met à jour tout seul :
+le chiffre affiché reste celui du dernier décompte (sa date est écrite sur la page). Pour le refaire :
+`npm run empreinte-ia`, puis reporter les jetons et la date dans `src/donnees/empreinte-ia.ts`, et lancer
+`npm run calendrier` : la valeur de l'Easter Egg fixe la place de ses deux Duels dans les Parties du jour à venir.
