@@ -1,7 +1,7 @@
-/* Ce qui défile est un bouton (un toucher l'arrête), sans en avoir l'air. */
+/* Ce qui défile est un bouton (un toucher l'arrête), sans en avoir l'air. Sa largeur est celle de ce qu'il
+   contient : la vitrine reste un bloc resserré, que l'accueil centre (la frise, elle, prend toute la largeur). */
 .defilement {
   display: block;
-  width: 100%;
   padding: 0;
   border: 0;
   background: none;
@@ -124,6 +124,7 @@
 }
 
 .frise {
+  width: 100%;
   margin-top: 24px;
   font-size: 36px;
 }
