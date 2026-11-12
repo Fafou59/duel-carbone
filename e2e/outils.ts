@@ -65,7 +65,8 @@ export async function verifierAccessibilite(page: Page, ecran: string): Promise<
 export async function jouerUnDuel(page: Page, numero: number, touche: '1' | '2' = '1'): Promise<boolean> {
   await expect(page.getByText(`Duel ${numero}/10`, { exact: true })).toBeVisible()
   // Un Duel thématique s'ouvre sur son annonce : le focus est sur « Au Duel ! », Entrée la ferme.
-  if (await page.locator('.partie__entete .difficulte--thematique').isVisible()) {
+  // (On teste la présence de l'étiquette, pas sa visibilité : elle apparaît en grandissant depuis une taille nulle.)
+  if ((await page.locator('.partie__entete .difficulte--thematique').count()) > 0) {
     const annonce = page.getByRole('dialog', { name: /Duel thématique/ })
     await expect(annonce).toBeVisible()
     await expect(focus(page)).toHaveText('Au Duel !')

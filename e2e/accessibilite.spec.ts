@@ -120,3 +120,18 @@ test.describe('réglage « réduire les animations »', () => {
     await expect(page.locator('canvas')).toHaveCount(0)
   })
 })
+
+test('un toucher arrête les icônes qui défilent, un second les relance (WCAG 2.2.2)', async ({ page }) => {
+  await page.goto('/')
+  const vitrine = page.getByRole('button', { name: 'Mettre en pause le défilement des icônes' })
+  const etats = () =>
+    page.evaluate(() => [...new Set(document.getAnimations().filter((a) => a.effect?.getTiming().iterations === Infinity).map((a) => a.playState))])
+  await expect.poll(etats).toEqual(['running'])
+  await vitrine.click()
+  await expect(vitrine).toHaveAttribute('aria-pressed', 'true')
+  await expect.poll(etats).toEqual(['paused'])
+  // Au clavier aussi : Entrée relance le défilement.
+  await vitrine.press('Enter')
+  await expect(vitrine).toHaveAttribute('aria-pressed', 'false')
+  await expect.poll(etats).toEqual(['running'])
+})

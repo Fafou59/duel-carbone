@@ -15,6 +15,7 @@ Référence : les règles WCAG 2.2, niveaux A et AA (la norme internationale, re
 | Contrastes, noms des boutons, tableaux, rôles ARIA | Analyse axe-core de chaque écran (accueil, tutoriel, Sources, Duel, réponse, fin, détail d'un Duel, tableau de bord du jour), en mode clair et en mode sombre (`e2e/accessibilite.spec.ts`) | ✓ |
 | Zoom à 200 % | Chaque écran à 320 px de large (un écran de 640 px zoomé à 200 %) : rien ne déborde sur le côté | ✓ |
 | Réglage « réduire les animations » | Plus aucune animation en cours sur l'accueil ni pendant un Duel, pas de confettis | ✓ |
+| Arrêter ce qui défile | Un clic sur la vitrine met ses rubans en pause ; Entrée les relance | ✓ |
 
 L'annonce d'un Duel thématique n'est analysée que lorsque le hasard en tire un pendant le test ; son code suit
 le même modèle que le détail d'un Duel (balise `<dialog>`), qui, lui, est toujours analysé.
@@ -27,14 +28,11 @@ le même modèle que le détail d'un Duel (balise `<dialog>`), qui, lui, est tou
   l'ignorent ; elle est maintenant écrite en texte caché.
 - **Grille du Duel du jour (accueil)** : chaque case porte un ✓ ou un ✗. Le vert et le rouge seuls se confondent
   pour un daltonien (WCAG 1.4.1, « la couleur n'est jamais la seule information »).
-- **Frise d'icônes** : retirée pendant les Duels, où son mouvement continu détournait l'attention.
-
-## Point ouvert : les rubans qui défilent
-
-La frise (bas de page) et la vitrine (accueil) défilent sans fin. Les règles WCAG demandent qu'un contenu qui bouge
-plus de 5 secondes, à côté d'autres contenus, puisse être mis en pause (critère 2.2.2, niveau A). Le réglage
-« réduire les animations » les arrête déjà, mais tout le monde ne le connaît pas. À trancher : un bouton « pause »,
-ou des rubans qui s'arrêtent d'eux-mêmes.
+- **Icônes qui défilent** (WCAG 2.2.2, un contenu qui bouge plus de 5 secondes doit pouvoir s'arrêter) : un clic,
+  un toucher ou Entrée sur la vitrine ou la frise les arrête, un second les relance. Pas de bouton « pause » visible :
+  on touche simplement les icônes, et un lecteur d'écran annonce « Mettre en pause le défilement des icônes ».
+- **Frise d'icônes** : seulement à la fin d'une Partie et dans les Sources. Ni sur l'accueil (avec la vitrine, deux
+  rubans bougeaient en même temps), ni pendant les Duels (elle détournait l'attention des cartes).
 
 ## Information jamais portée par la seule couleur (relu à la main)
 

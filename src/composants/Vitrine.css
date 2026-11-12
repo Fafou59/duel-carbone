@@ -1,5 +1,25 @@
+/* Ce qui défile est un bouton (un toucher l'arrête), sans en avoir l'air. */
+.defilement {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.defilement:focus-visible {
+  outline: 3px solid var(--marque);
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+
 /* Les rubans d'icônes qui défilent. */
 .ruban {
+  display: block;
   overflow: hidden;
 }
 
@@ -46,6 +66,12 @@
   to {
     transform: translateX(-50%);
   }
+}
+
+/* En pause : les rubans s'arrêtent là où ils en sont. Cette règle vient après celles qui lancent l'animation :
+   à force égale, la dernière gagne, et « animation » remettrait le ruban en marche. */
+.defilement--pause .ruban__piste {
+  animation-play-state: paused;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -100,6 +126,10 @@
 .frise {
   margin-top: 24px;
   font-size: 36px;
+}
+
+/* Le fondu sur les bords est posé sur le ruban, pas sur le bouton : il effacerait aussi le contour du focus. */
+.frise .ruban {
   mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
 }
 

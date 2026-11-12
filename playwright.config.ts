@@ -13,6 +13,8 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   // Une Partie complète, plus l'analyse de chaque écran : 30 s ne suffisent pas toujours sur une machine chargée.
   timeout: 90_000,
+  // Chaque vérification attend jusqu'à 15 s (5 s par défaut) : sous charge, le calendrier peut tarder à arriver.
+  expect: { timeout: 15_000 },
   forbidOnly: !!process.env.CI,
   reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
   use: {

@@ -139,8 +139,10 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
     return { score: duJour.score, bonnes: complet ? duels.map((duel, i) => estBonChoix(duel, duJour.reponses[i])) : [] }
   })()
 
-  // Le joueur est en train de jouer un Duel (ni sur l'accueil, ni sur l'écran de fin, ni en train de lire les sources).
-  const enPleinDuel = partie !== null && partieTerminee !== numero && page === 'jeu'
+  // La frise d'icônes qui défile : seulement sur l'écran de fin et pendant la lecture des sources.
+  // Ni sur l'accueil (la vitrine y défile déjà : les deux ensemble, c'était chargé), ni pendant les Duels
+  // (elle détournait l'attention des cartes).
+  const afficherFrise = page === 'sources' || (partie !== null && partieTerminee === numero)
 
   const revenirALAccueil = () => {
     setPartie(null)
@@ -224,9 +226,7 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
           )}
         </div>
       </main>
-      {/* La frise du catalogue, sur tous les écrans sauf pendant les Duels : un ruban qui bouge sans cesse
-          à côté des cartes détourne l'attention du joueur. */}
-      {!enPleinDuel && <Frise />}
+      {afficherFrise && <Frise />}
       <footer className="pied">
         <p>
           <button type="button" className="lien-bouton pied__lien-bouton" onClick={() => setTutoriel(true)}>
