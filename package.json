@@ -17,6 +17,7 @@
     "calendrier": "node scripts/calendrier.ts",
     "icones": "node scripts/icones/index.ts",
     "logo": "node scripts/logo.ts",
+    "image-partage": "node scripts/image-partage.ts",
     "analyse:paires": "node scripts/analyse-paires.ts",
     "empreinte-ia": "node scripts/empreinte-ia.ts"
   },

@@ -1,0 +1,6 @@
+# Les robots des moteurs de recherche peuvent tout explorer ; le plan du site leur donne l'adresse officielle.
+# Sur duelcarbone.fr, Cloudflare ajoute ses propres lignes (les « content signals ») avant celles-ci.
+User-agent: *
+Disallow:
+
+Sitemap: https://duelcarbone.fr/sitemap.xml

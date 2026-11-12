@@ -9,11 +9,55 @@
     <meta name="theme-color" content="#F6F4EE" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#141816" media="(prefers-color-scheme: dark)" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Duel Carbone : un jeu pour deviner quel geste du quotidien émet le plus de CO2e. Données ADEME Impact CO2." />
-    <title>Duel Carbone</title>
+    <!--
+      Ce que lisent les moteurs de recherche et les aperçus de lien (WhatsApp, LinkedIn, Messenger, X) : ces robots
+      ne lancent pas le JavaScript du jeu. Le titre est repris par le jeu dans l'onglet (src/referencement.ts), et
+      src/referencement.test.ts vérifie ces balises.
+    -->
+    <title>Duel Carbone : le jeu qui compare l’empreinte carbone des gestes du quotidien</title>
+    <meta name="description" content="Lequel émet le plus ? Un jeu gratuit pour deviner quel geste du quotidien émet le plus de CO2e : 10 Duels par jour, avec les chiffres de l’ADEME." />
+    <!-- L'adresse officielle : le jeu répond aussi sur duel-carbone.fabien-lesage.workers.dev et sur les aperçus des branches. -->
+    <link rel="canonical" href="https://duelcarbone.fr/" />
+    <!-- Open Graph : l'aperçu d'un lien partagé (titre, texte, image). Les adresses doivent être complètes. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Duel Carbone" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:url" content="https://duelcarbone.fr/" />
+    <meta property="og:title" content="Duel Carbone : le jeu qui compare l’empreinte carbone des gestes du quotidien" />
+    <meta property="og:description" content="Lequel émet le plus ? Deux gestes du quotidien s’affrontent : devine lequel émet le plus de CO2e. 10 Duels par jour, avec les chiffres de l’ADEME." />
+    <!-- L'image est fabriquée par npm run image-partage (scripts/image-partage.ts). -->
+    <meta property="og:image" content="https://duelcarbone.fr/apercu-partage.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Le logo de Duel Carbone, un steak face à un avocat, et la question « Lequel émet le plus ? »" />
+    <!-- X lit les balises Open Graph ; il lui faut seulement savoir qu'on veut une grande image. -->
+    <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
     <div id="root"></div>
+    <!--
+      Sans JavaScript (robot ou navigateur réglé ainsi), le jeu ne peut pas s'afficher : cette présentation le
+      remplace. Avec JavaScript, le navigateur l'ignore entièrement (rien à lire pour un lecteur d'écran).
+    -->
+    <noscript>
+      <div class="page">
+        <h1>Duel Carbone</h1>
+        <h2>Lequel émet le plus ?</h2>
+        <p>
+          Duel Carbone est un jeu gratuit pour apprendre à connaître l’empreinte carbone des gestes du quotidien :
+          manger, se déplacer, s’habiller, s’équiper, regarder une série… À chaque Duel, deux gestes s’affrontent ;
+          devine lequel émet le plus de CO2e (équivalent CO2). Chaque jour, 10 Duels, les mêmes pour tout le monde,
+          et des Parties libres à volonté.
+        </p>
+        <p>
+          Tous les chiffres viennent de l’ADEME, l’Agence de la transition écologique, sur son site
+          <a href="https://impactco2.fr">Impact CO2</a>, et chaque réponse cite sa source. Pas de compte, pas de
+          cookie.
+        </p>
+        <p><strong>Pour jouer, active JavaScript dans ton navigateur.</strong></p>
+      </div>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

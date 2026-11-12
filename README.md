@@ -49,6 +49,7 @@ npm run e2e      # joue des Parties au clavier dans un vrai navigateur et analys
 npm run build    # construit la version de production dans dist/
 npm run import   # met à jour l'Instantané des données ADEME (src/donnees/instantane.json)
 npm run icones   # refait les icônes des Gestes (public/icones/), après l'ajout d'un Geste
+npm run image-partage  # refait l'image des aperçus de lien (public/apercu-partage.png), après un changement de logo
 ```
 
 La clé d'API Impact CO2 est facultative : pour l'utiliser, copier `.env.example` en `.env` et la renseigner.

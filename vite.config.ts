@@ -36,6 +36,11 @@ export default defineConfig({
         // Tout le jeu est gardé en copie à la première visite (environ 1 Mo) : le code, les styles, le calendrier
         // des Duels du jour et les icônes. Une Partie se joue ensuite sans réseau.
         globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
+        // Sauf l'image des aperçus de lien (50 Ko) : elle ne sert qu'aux réseaux sociaux, jamais pendant le jeu.
+        globIgnores: ['**/apercu-partage.png'],
+        // Hors ligne, toute adresse ouverte dans le navigateur affiche le jeu (index.html)… sauf les fichiers
+        // (un nom avec une extension : robots.txt, sitemap.xml, l'image de partage), qui restent eux-mêmes.
+        navigateFallbackDenylist: [/\/[^/]+\.[^/]+$/],
         // Les copies d'une ancienne version sont effacées dès que la nouvelle prend la main.
         cleanupOutdatedCaches: true,
       },

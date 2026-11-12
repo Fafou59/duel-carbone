@@ -96,7 +96,7 @@ Grand public francophone, à partir d'environ 15 ans, majoritairement sur smartp
 
 La référence visuelle est la variante **A2** du prototype ; le détail et les raisons sont dans [docs/prototypes/verdict-duel-ui.md](prototypes/verdict-duel-ui.md).
 
-- **Logo** (variante 3 du prototype d'accueil, ticket #52) : un steak sur fond vert, un avocat sur fond rouge, séparés par une diagonale. C'est aussi l'icône de l'onglet (`public/favicon.svg`, fabriqué par `npm run logo`).
+- **Logo** (variante 3 du prototype d'accueil, ticket #52) : un steak sur fond vert, un avocat sur fond rouge, séparés par une diagonale. C'est aussi l'icône de l'onglet (`public/favicon.svg`, fabriqué par `npm run logo`), et le cœur de l'image des aperçus de lien (`npm run image-partage`).
 - **Accueil d'un nouveau joueur, la vitrine** : tout tient sur un écran de téléphone (360 × 640) sans faire défiler.
   - Deux colonnes d'icônes qui défilent en sens inverse autour d'un « VS » fixe.
   - Le titre « Lequel émet le plus ? ».
@@ -141,6 +141,13 @@ La référence visuelle est la variante **A2** du prototype ; le détail et les 
   - sur iPhone, l'application installée a sa propre mémoire, séparée de Safari (record et série repartent de zéro).
 - **Navigation sans routeur** : la page En savoir plus a pour adresse l'ancre `#en-savoir-plus` (l'ancienne, `#sources`, marche encore) (`src/navigateur/adresse.ts`). Pas de bibliothèque ni de réglage chez l'hébergeur ; le bouton « Retour » et les liens partagés fonctionnent, et une Partie en cours reste intacte pendant la lecture des sources.
 - Code sur **GitHub** (dépôt public), hébergement chez **Cloudflare** (Workers, fichiers statiques : gratuits et sans limite de trafic) avec un aperçu automatique pour chaque branche, domaine **duelcarbone.fr** (acheté chez OVHcloud, DNS chez Cloudflare ; www.duelcarbone.fr et http redirigent vers https://duelcarbone.fr). Netlify, utilisé jusqu'au 2026-11-11, a été abandonné quand ses crédits gratuits ont bloqué la mise en production (ADR 0003).
+- **Référencement et aperçus de lien** (préparation du lancement, #19) : l'essentiel du trafic viendra de liens partagés, et ni les aperçus de lien (WhatsApp, LinkedIn, Messenger, X) ni certains moteurs ne lancent le JavaScript. Tout est donc écrit dans `index.html` :
+  - un titre descriptif (« Duel Carbone : le jeu qui compare l'empreinte carbone des gestes du quotidien »), repris par le jeu dans l'onglet de l'accueil (`src/referencement.ts`), et une description qui cite l'ADEME ;
+  - l'adresse officielle (`<link rel="canonical">` vers `https://duelcarbone.fr/`), car le jeu répond aussi sur l'adresse workers.dev et sur les aperçus des branches ;
+  - les balises Open Graph et la carte X (`summary_large_image`), avec une image de partage de 1200 × 630 px (`public/apercu-partage.png`, fabriquée par `npm run image-partage` à partir du logo). Elle n'est pas gardée en copie par le service worker : seuls les réseaux la demandent ;
+  - une courte présentation du jeu dans `<noscript>`, lue sans JavaScript, ignorée sinon ;
+  - `robots.txt` (tout est permis, avec l'adresse du plan du site) et `sitemap.xml` (l'accueil seul : En savoir plus est une ancre). Sur duelcarbone.fr, Cloudflare ajoute ses « content signals » devant notre `robots.txt`. Le service worker ne remplace pas ces fichiers par le jeu quand on les ouvre dans le navigateur.
+  Vérifié par `src/referencement.test.ts` (les balises) et `e2e/referencement.spec.ts` (les fichiers servis, sans JavaScript et avec le service worker).
 - Mesure d'audience avec **GoatCounter**, sans cookie (`src/navigateur/mesure.ts`). Le script est chargé par le code, et seulement sur l'adresse publique du jeu.
 
 ### Les modules principaux
