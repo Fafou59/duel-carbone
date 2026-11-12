@@ -8,8 +8,8 @@ describe('Texte de partage de la Partie libre', () => {
     expect(texteDePartage(8, 10)).toBe(`J'ai fait 8/10 à Duel Carbone 🌍 Sauras-tu faire mieux ? ${ADRESSE_DU_JEU}`)
   })
 
-  it('pointe vers le site public, en https', () => {
-    expect(ADRESSE_DU_JEU).toMatch(/^https:\/\//)
+  it('pointe vers le site public, duelcarbone.fr, en https', () => {
+    expect(ADRESSE_DU_JEU).toBe('https://duelcarbone.fr')
   })
 })
 

@@ -57,6 +57,11 @@ export type GesteCalcule = Omit<Geste, 'equivalent'> & {
   etapes: LigneRepartition[]
   usage?: { total: number; dureeAns: number }
   finDeVie?: number
+  /**
+   * Une estimation qui ne vient pas de l'ADEME : seul l'Easter Egg (src/donnees/geste-ia.ts, ADR 0004).
+   * Son `equivalent.url` mène alors à la méthode de l'estimation, pas à une fiche ADEME.
+   */
+  horsAdeme?: true
 }
 
 export function calculerGeste(geste: Geste, instantane: Instantane): GesteCalcule {

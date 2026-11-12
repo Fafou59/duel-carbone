@@ -120,6 +120,12 @@ describe('Les chiffres des textes : calculés quand c’est possible, surveillé
     expect(empreinteDesChiffres(t, [geste('a', 10), geste('b', 4), geste('c', 3)])).not.toBe(reference)
   })
 
+  it("ignore l'empreinte d'un Geste estimé hors ADEME : son texte ne la cite que par {a} ou {b}, toujours à jour", () => {
+    const t = thematique('a', 'b')
+    const estime = (empreinte: number) => geste('a', empreinte, { horsAdeme: true })
+    expect(empreinteDesChiffres(t, [estime(10), geste('b', 4)])).toBe(empreinteDesChiffres(t, [estime(12), geste('b', 4)]))
+  })
+
   it('garde la même empreinte si seuls les textes changent', () => {
     const t = thematique('a', 'b', { cites: ['c'] })
     expect(empreinteDesChiffres({ ...t, texte: 'Autre texte.', titre: 'Autre titre' }, gestes)).toBe(

@@ -13,6 +13,7 @@ import type { Calibrage } from '../src/domaine/equilibrage.ts'
 import { calculerGeste } from '../src/domaine/geste.ts'
 import { jourDeParis } from '../src/domaine/jour.ts'
 import { DUELS_THEMATIQUES } from '../src/donnees/duels-thematiques.ts'
+import { GESTE_CREATION_IA } from '../src/donnees/geste-ia.ts'
 import { GESTES } from '../src/donnees/gestes.ts'
 import type { Instantane } from '../src/donnees/referentiel.ts'
 
@@ -21,7 +22,8 @@ const lire = <T>(fichier: string) => JSON.parse(readFileSync(chemin(fichier), 'u
 
 const instantane = lire<Instantane>('instantane.json')
 const calibrage = lire<Calibrage>('coefficients.json')
-const gestes = GESTES.map((g) => calculerGeste(g, instantane))
+// Le catalogue ADEME, plus l'Easter Egg (estimé hors ADEME), comme GESTES_CALCULES dans le jeu.
+const gestes = [...GESTES.map((g) => calculerGeste(g, instantane)), GESTE_CREATION_IA]
 const existant = existsSync(chemin('calendrier.json')) ? lire<Calendrier>('calendrier.json') : null
 const aujourdhui = jourDeParis(new Date())
 

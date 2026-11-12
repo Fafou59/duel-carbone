@@ -72,12 +72,22 @@ export function TableauRepartition({ duel }: Props) {
           L'ADEME ne publie pas le détail pour : {t.sansDetail.map((g) => enMinuscule(g.titre)).join(', ')}.
         </p>
       )}
+      {t.estimations.map((g) => (
+        <p key={g.id} className="repartition__note">
+          {g.titre} : une estimation de Duel Carbone, hors ADEME, sans détail par étape. Voir la{' '}
+          <a href={g.equivalent.url} target="_blank" rel="noopener noreferrer">
+            méthode de l'estimation <span aria-hidden="true">↗</span>
+            <span className="visuellement-cache"> (nouvel onglet)</span>
+          </a>
+          .
+        </p>
+      ))}
       {t.recyclage && (
         <p className="repartition__note">Les émissions évitées par le recyclage sont déjà déduites du total.</p>
       )}
       <p className="repartition__sources">
         Sources ADEME :{' '}
-        {t.colonnes.map((g, i) => (
+        {t.colonnes.filter((g) => !g.horsAdeme).map((g, i) => (
           <span key={g.id}>
             {i > 0 && ' · '}
             <a href={g.equivalent.url} target="_blank" rel="noopener noreferrer">

@@ -3,6 +3,7 @@ import type { Calendrier } from '../domaine/calendrier.ts'
 import type { Calibrage } from '../domaine/equilibrage.ts'
 import { calculerGeste, type GesteCalcule } from '../domaine/geste.ts'
 import coefficientsJson from './coefficients.json'
+import { GESTE_CREATION_IA } from './geste-ia.ts'
 import { GESTES } from './gestes.ts'
 import instantaneJson from './instantane.json'
 import type { Instantane } from './referentiel.ts'
@@ -23,8 +24,8 @@ const valeurAdeme = (slug: string) => {
 }
 export const REPERES_CLIMAT = { francais: valeurAdeme('francais'), objectif2050: valeurAdeme('2050') }
 
-/** Tous les Gestes du catalogue, calculés une fois pour toutes. */
-export const GESTES_CALCULES: GesteCalcule[] = GESTES.map((g) => calculerGeste(g, INSTANTANE))
+/** Tous les Gestes du jeu, calculés une fois pour toutes : le catalogue ADEME, et l'Easter Egg (estimé hors ADEME). */
+export const GESTES_CALCULES: GesteCalcule[] = [...GESTES.map((g) => calculerGeste(g, INSTANTANE)), GESTE_CREATION_IA]
 
 /**
  * Le calendrier des Parties du jour (npm run calendrier). Chargé à part, à la demande : le jeu démarre
@@ -33,9 +34,9 @@ export const GESTES_CALCULES: GesteCalcule[] = GESTES.map((g) => calculerGeste(g
 export const chargerCalendrier = async (): Promise<Calendrier> =>
   (await import('./calendrier.json')).default as Calendrier
 
-/** Le Geste calculé à partir de son identifiant dans le catalogue. */
+/** Le Geste calculé à partir de son identifiant. */
 export function gesteCalcule(id: string): GesteCalcule {
-  const geste = GESTES.find((g) => g.id === id)
+  const geste = GESTES_CALCULES.find((g) => g.id === id)
   if (!geste) throw new Error(`Geste « ${id} » absent du catalogue.`)
-  return calculerGeste(geste, INSTANTANE)
+  return geste
 }

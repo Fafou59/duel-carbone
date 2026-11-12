@@ -8,6 +8,9 @@ affiché dans la page « En savoir plus ».
 > C'est du même ordre que regarder l'intégrale de Friends en streaming (7,9 kg CO2e selon l'ADEME), ou que manger
 > trois steaks de bœuf (3,4 kg chacun).
 
+Cette estimation est aussi **l'Easter Egg** du jeu : le Geste « Créer Duel Carbone, assisté par IA »
+(`src/donnees/geste-ia.ts`), qui vaut l'hypothèse centrale, caché dans deux Duels thématiques.
+
 Ce n'est **pas un chiffre de l'ADEME** : aucune source publique ne donne l'énergie consommée par ce modèle. C'est
 la seule exception à la règle « seule source : l'ADEME » ; voir [l'ADR 0004](adr/0004-empreinte-ia-hors-ademe.md).
 

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { GESTE_CREATION_IA } from '../donnees/geste-ia.ts'
 import { gesteCalcule } from '../donnees/index.ts'
 import { tableauComparatif } from './explication.ts'
 
@@ -70,5 +71,12 @@ describe("Tableau comparatif de l'explication", () => {
     expect(t.sansDetail.map((g) => g.id)).toEqual(['chauffage-gaz'])
     expect(t.lignes.every((l) => l.valeurs[0] === null)).toBe(true)
     expect(t.totaux[0]).toBe(chauffageGaz.empreinte)
+  })
+
+  it("met à part un Geste estimé hors ADEME : ce n'est pas que l'ADEME ne publie pas son détail", () => {
+    const t = tableauComparatif({ a: GESTE_CREATION_IA, b: steak })
+    expect(t.estimations.map((g) => g.id)).toEqual([GESTE_CREATION_IA.id])
+    expect(t.sansDetail).toEqual([])
+    expect(t.totaux[0]).toBe(GESTE_CREATION_IA.empreinte)
   })
 })
