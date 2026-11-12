@@ -19,5 +19,7 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["vite.config.ts", "playwright.config.ts", "scripts"]
+  "include": ["vite.config.ts", "playwright.config.ts", "scripts"],
+  // Le script des captures tourne dans un navigateur (types du DOM) : il relève de tsconfig.e2e.json.
+  "exclude": ["scripts/captures"]
 }
