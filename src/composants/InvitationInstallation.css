@@ -1,0 +1,25 @@
+/* L'invitation à installer le jeu (#68) : une carte discrète, comme « Envie de t'entraîner ? ». */
+.installation {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 14px;
+  border: 3px solid var(--ligne);
+  border-radius: 20px;
+  background: var(--carte);
+}
+
+.installation h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.installation p {
+  margin: 0;
+}
+
+.installation__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}

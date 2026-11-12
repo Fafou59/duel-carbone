@@ -188,8 +188,8 @@ export function EcranEnSavoirPlus() {
         <h3>Ta vie privée</h3>
         <p>
           Sans cookie, sans compte. Ton record, ta Partie du jour (pour la reprendre ou revoir ton résultat), ta
-          série et les derniers Duels joués (pour ne pas te reposer les mêmes) sont gardés dans ton navigateur, sur cet
-          appareil. Ils ne sont envoyés nulle part.
+          série, les derniers Duels joués (pour ne pas te reposer les mêmes) et ton éventuel « Non merci » à
+          l’invitation à installer le jeu sont gardés dans ton navigateur, sur cet appareil. Ils ne sont envoyés nulle part.
         </p>
         <p>
           Pour que le jeu marche sans réseau (et s'installe sur ton écran d'accueil), ton navigateur garde aussi une
@@ -207,7 +207,7 @@ export function EcranEnSavoirPlus() {
         </p>
         <p>
           Pour savoir si le jeu plaît, nous comptons les visites et quelques moments de jeu (une Partie lancée, terminée
-          et sa durée approximative, « Rejouer », un partage, et les plantages du jeu, sans leur détail) avec{' '}
+          et sa durée approximative, « Rejouer », un partage, l'invitation à installer le jeu et sa réponse, et les plantages du jeu, sans leur détail) avec{' '}
           <a href={GOATCOUNTER}>GoatCounter</a>, une mesure
           d'audience sans cookie ni identifiant. Elle ne donne que des chiffres agrégés : elle ne peut pas te suivre
           d'un site à l'autre, ne conserve pas ton adresse IP, et ni ton score ni tes réponses ne lui sont envoyés. Si

@@ -34,6 +34,7 @@ export type Evenement =
   | `duree_partie/${Tranche}`
   | 'partage'
   | `erreur/${Plantage}`
+  | `installation/${'proposee' | 'acceptee' | 'refusee'}`
 
 /** Les plantages comptés : une erreur de script, ou une promesse rejetée que personne n'a rattrapée. */
 export type Plantage = 'script' | 'promesse'
