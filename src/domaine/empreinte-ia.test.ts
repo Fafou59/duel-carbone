@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest'
 import { empreinteDeLaCreation, jetonsEquivalents } from './empreinte-ia.ts'
 
 describe('Empreinte de la création du jeu par IA', () => {
-  it('ramène chaque sorte de jeton à des « jetons lus » (relire le contexte en mémoire coûte 10 fois moins, écrire 5 fois plus)', () => {
+  it('ramène chaque sorte de jeton à des « jetons lus », comme les tarifs de Claude Opus 5.5 (relire le contexte en mémoire coûte 20 fois moins, écrire 5 fois plus)', () => {
     expect(jetonsEquivalents({ entree: 1000, ecritureCache: 0, lectureCache: 0, sortie: 0 })).toBe(1000)
     expect(jetonsEquivalents({ entree: 0, ecritureCache: 1000, lectureCache: 0, sortie: 0 })).toBe(1250)
-    expect(jetonsEquivalents({ entree: 0, ecritureCache: 0, lectureCache: 1000, sortie: 0 })).toBe(100)
+    expect(jetonsEquivalents({ entree: 0, ecritureCache: 0, lectureCache: 1000, sortie: 0 })).toBe(50)
     expect(jetonsEquivalents({ entree: 0, ecritureCache: 0, lectureCache: 0, sortie: 1000 })).toBe(5000)
   })
 

@@ -221,15 +221,16 @@ export function EcranEnSavoirPlus() {
           et l'explique. Cela consomme de l'électricité, dans les centres de données qui font tourner le modèle.
         </p>
         <p className="savoir__citation">
-          Première estimation, au {formaterDate(DATE_DU_DECOMPTE)} : environ {kgIa('centrale')} kg CO2e, entre{' '}
+          Estimation au {formaterDate(DATE_DU_DECOMPTE)} : environ {kgIa('centrale')} kg CO2e, entre{' '}
           {kgIa('basse')} et {kgIa('haute')} kg selon les hypothèses. Du même ordre que{' '}
           {enMinuscule(FRIENDS.titre)} ({FRIENDS.sousTitre}) : {formaterEmpreinte(FRIENDS.empreinte)} selon l'ADEME.
         </p>
         <p>
           Ce chiffre-là ne vient pas de l'ADEME : aucune source publique ne donne l'énergie consommée par ce modèle.
           Nous l'avons estimé à partir des {nombre(APPELS)} échanges avec le modèle depuis le{' '}
-          {formaterDate(DEBUT_DU_PROJET)} (le nombre de mots lus et écrits), de l'énergie mesurée par Epoch AI pour un
-          modèle comparable, et de l'électricité des États-Unis, où tournent ses serveurs. Il ne compte ni
+          {formaterDate(DEBUT_DU_PROJET)} (le nombre de mots lus et écrits), de l'énergie estimée pour des modèles
+          comparables (par Epoch AI, et par une étude universitaire sur Claude), et de l'électricité des centres de
+          données d'Amazon, où tournent ses serveurs. Il ne compte ni
           l'entraînement du modèle, ni la fabrication des serveurs : c'est un ordre de grandeur, qui grandira avec le
           projet. La <a href={METHODE_EMPREINTE_IA}>méthode détaillée</a> est sur GitHub.
         </p>

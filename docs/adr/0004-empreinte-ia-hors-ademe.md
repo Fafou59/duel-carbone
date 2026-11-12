@@ -12,7 +12,7 @@ estimée par Epoch AI pour un modèle comparable, et de l'électricité américa
 limites sont dans [docs/empreinte-ia.md](../empreinte-ia.md).
 
 C'est une **exception** à la règle qui fonde le jeu, « toutes les valeurs viennent de l'ADEME » (ADR 0001). Elle
-est présentée comme une estimation, avec sa fourchette (de 2 à 23 kg CO2e au 12 novembre 2026) et la mention
+est présentée comme une estimation, avec sa fourchette (de 2 à 9 kg CO2e au 12 novembre 2026, après une première estimation de 2 à 23 kg resserrée le même jour) et la mention
 explicite qu'elle ne vient pas de l'ADEME, à deux endroits seulement :
 
 - la page « En savoir plus » ;
@@ -27,15 +27,17 @@ explicite qu'elle ne vient pas de l'ADEME, à deux endroits seulement :
 - **Un Geste tiré comme les autres** : il serait sorti dans environ une Partie sur cinq, face à n'importe quel
   Geste, mêlant une estimation à la fourchette large aux valeurs de l'ADEME. Réservé à deux Duels, il reste un
   clin d'œil.
-- **Une valeur unique, sans fourchette** : plus lisible, mais trompeuse vu l'incertitude (un facteur 10 entre les
+- **Une valeur unique, sans fourchette** : plus lisible, mais trompeuse vu l'incertitude (un facteur 5 entre les
   hypothèses basse et haute).
 
 ## Conséquences
 
 - Les chiffres vivent dans `src/donnees/empreinte-ia.ts`, le calcul dans `src/domaine/empreinte-ia.ts` ; la page
   et le Geste de l'Easter Egg (`src/donnees/geste-ia.ts`) les lisent et suivent d'eux-mêmes une mise à jour. Le
-  Geste étant réservé, sa valeur n'entre ni dans l'équilibrage ni dans le calendrier : pas de `npm run calibrer` à
-  chaque décompte. Ses deux textes ne le chiffrent que par `{a}` ou `{b}` : pas de relecture non plus.
+  Geste étant réservé, sa valeur n'entre pas dans l'équilibrage : pas de `npm run calibrer` à chaque décompte.
+  Elle fixe en revanche la place de ses deux Duels dans la Partie : `npm run calendrier` les replace dans les
+  Parties du jour à venir (aucun test ne l'exige, les jours passés ne bougent pas). Ses deux textes ne le chiffrent
+  que par `{a}` ou `{b}` : pas de relecture.
 - `npm run empreinte-ia` recompte les jetons dans les journaux de session (sur l'ordinateur où le projet est
   développé) ; on reporte le résultat à la main, avec la date du décompte. Le décompte se refait au lancement
   officiel, puis à chaque PR une fois le jeu livré (environ 20 g CO2e par mise à jour) ; jamais automatiquement.

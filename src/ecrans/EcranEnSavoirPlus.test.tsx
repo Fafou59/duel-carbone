@@ -26,7 +26,7 @@ describe('Page En savoir plus', () => {
   it('estime l’empreinte de la création du jeu par IA, avec sa fourchette et sa méthode', () => {
     render(<EcranEnSavoirPlus />)
     expect(screen.getByRole('heading', { name: 'L’empreinte de ce jeu' })).toBeInTheDocument()
-    const estimation = screen.getByText(/Première estimation/)
+    const estimation = screen.getByText(/Estimation au/)
     // Les chiffres sont calculés depuis les données (donnees/empreinte-ia.ts), arrondis au kilo.
     const kg = (h: keyof typeof HYPOTHESES) => Math.round(empreinteDeLaCreation(JETONS, HYPOTHESES[h]).kgCo2e)
     expect(estimation).toHaveTextContent(new RegExp(`environ ${kg('centrale')} kg CO2e`))

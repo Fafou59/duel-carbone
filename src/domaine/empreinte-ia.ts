@@ -21,10 +21,10 @@ export type Jetons = {
 
 /**
  * Ce que coûte chaque sorte de jeton, comparée à un jeton lu. Hypothèse : le prix d'Anthropic suit le calcul
- * nécessaire. Relire un contexte en mémoire coûte 10 fois moins que le lire, le mettre en mémoire un quart de plus,
- * et écrire un jeton 5 fois plus (le modèle les produit un par un).
+ * nécessaire. Tarifs du modèle utilisé, Claude Opus 5.5 : relire un contexte en mémoire coûte 20 fois moins que le
+ * lire, le mettre en mémoire un quart de plus, et écrire un jeton 5 fois plus (le modèle les produit un par un).
  */
-export const PONDERATIONS: Jetons = { entree: 1, ecritureCache: 1.25, lectureCache: 0.1, sortie: 5 }
+export const PONDERATIONS: Jetons = { entree: 1, ecritureCache: 1.25, lectureCache: 0.05, sortie: 5 }
 
 /** Le nombre de « jetons lus » équivalents. */
 export const jetonsEquivalents = (j: Jetons): number =>

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { empreinteDeLaCreation } from '../domaine/empreinte-ia.ts'
+import { REGLES } from '../domaine/regles.ts'
 import { METHODE_EMPREINTE_IA } from '../liens.ts'
 import { DUELS_THEMATIQUES } from './duels-thematiques.ts'
 import { HYPOTHESES, JETONS } from './empreinte-ia.ts'
@@ -36,5 +37,9 @@ describe('L’Easter Egg : le Geste « Créer Duel Carbone (assisté par IA) »'
   it('a son icône (public/icones/<id>.svg, fabriquée par npm run icones)', () => {
     const fichiers = Object.keys(import.meta.glob('../../public/icones/*.svg'))
     expect(fichiers).toContain(`../../public/icones/${GESTE_CREATION_IA.id}.svg`)
+  })
+
+  it('reste au-dessus du plancher face au steak, son adversaire le plus proche', () => {
+    expect(GESTE_CREATION_IA.empreinte / gesteCalcule('steak-boeuf').empreinte).toBeGreaterThanOrEqual(REGLES.plancher)
   })
 })

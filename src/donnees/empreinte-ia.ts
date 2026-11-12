@@ -12,7 +12,7 @@ export const DATE_DU_DECOMPTE = '2026-11-12'
 /** Le premier jour de travail sur le projet. */
 export const DEBUT_DU_PROJET = '2026-11-08'
 
-/** Le nombre d'appels au modèle (Claude Opus) depuis le début du projet. */
+/** Le nombre d'appels au modèle (Claude Opus 5.5) depuis le début du projet. */
 export const APPELS = 1919
 
 /** Les jetons consommés depuis le début du projet. */
@@ -24,15 +24,16 @@ export const JETONS: Jetons = {
 }
 
 /**
- * Trois hypothèses, de la plus favorable à la plus défavorable.
- * - Énergie d'un jeton lu, centre de données compris : Epoch AI estime qu'une demande à GPT-4o avec 10 000 jetons
- *   lus consomme environ 2,5 Wh, et environ 40 Wh avec 100 000 jetons, soit 0,2 à 0,4 mWh par jeton. Claude Opus
- *   est sans doute plus gros que GPT-4o : de 0,1 à 0,6 mWh, 0,3 au centre.
- * - CO2e d'un kWh : les serveurs d'Anthropic sont surtout aux États-Unis, dont l'électricité émet en moyenne
- *   environ 0,37 kg CO2e par kWh (de 0,2 dans les régions les moins carbonées à 0,45).
+ * Trois hypothèses, de la plus favorable à la plus défavorable (sources et calculs : docs/empreinte-ia.md).
+ * - Énergie d'un jeton lu équivalent, centre de données compris. Deux estimations indépendantes, pour des demandes
+ *   longues comme les nôtres, tombent au même endroit : Epoch AI pour GPT-4o (0,2 à 0,4 mWh), Jegham et al. pour
+ *   Claude 3.7 Sonnet (0,32 mWh). Des mesures sur du matériel récent (ML.ENERGY) montrent qu'on peut faire bien
+ *   moins : de 0,15 à 0,45 mWh, 0,3 au centre.
+ * - CO2e d'un kWh : les centres de données d'AWS, principal hébergeur de Claude, selon leur répartition par région
+ *   (0,287 kg CO2e par kWh, Jegham et al.) : 0,3 au centre ; de 0,25 à 0,4 (la moyenne des États-Unis, 0,37).
  */
 export const HYPOTHESES: Record<'basse' | 'centrale' | 'haute', Hypothese> = {
-  basse: { whParJeton: 0.0001, kgCo2eParKwh: 0.2 },
-  centrale: { whParJeton: 0.0003, kgCo2eParKwh: 0.37 },
-  haute: { whParJeton: 0.0006, kgCo2eParKwh: 0.45 },
+  basse: { whParJeton: 0.00015, kgCo2eParKwh: 0.25 },
+  centrale: { whParJeton: 0.0003, kgCo2eParKwh: 0.3 },
+  haute: { whParJeton: 0.00045, kgCo2eParKwh: 0.4 },
 }
