@@ -1,7 +1,7 @@
 {
   "source": "ADEME — Impact CO2",
   "api": "https://impactco2.fr/api/v1",
-  "dateImport": "2026-11-12",
+  "dateImport": "2026-11-13",
   "equivalents": [
     {
       "slug": "alimentationordinateur",
