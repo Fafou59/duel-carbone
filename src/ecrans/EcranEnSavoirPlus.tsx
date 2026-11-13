@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
 import { GESTES_CALCULES, gesteCalcule, INSTANTANE } from '../donnees/index.ts'
 import { enMinuscule, formaterDate, formaterEmpreinte } from '../domaine/format.ts'
 import { REGLES } from '../domaine/regles.ts'
@@ -7,6 +7,8 @@ import { empreinteDeLaCreation } from '../domaine/empreinte-ia.ts'
 import { ADEME, CONTACT, DEPOT, FLUENT_EMOJI, GOATCOUNTER, IMPACT_CO2, MENTIONS_LEGALES_ADEME, METHODE_EMPREINTE_IA } from '../liens.ts'
 import { ADRESSES } from '../navigateur/adresse.ts'
 import { DefinitionCo2e } from '../composants/Co2e.tsx'
+import { GuideInstallation } from '../composants/InvitationInstallation.tsx'
+import { mouvementReduit } from '../navigateur/mouvement.ts'
 import './EcranEnSavoirPlus.css'
 
 /** Un nombre à la française, jusqu'à deux décimales : « 0,12 », « 1,25 », « 500 ». */
@@ -43,12 +45,74 @@ const FRIENDS = gesteCalcule('friends')
 const PREMIERE_TRANCHE = REGLES.tranchesParDuel[0]
 const DERNIERE_TRANCHE = REGLES.tranchesParDuel[REGLES.tranchesParDuel.length - 1]
 
+/**
+ * Les parties de la page, dans l'ordre : leur titre, et leur identifiant pour le sommaire.
+ * Le sommaire est construit à partir de cette liste : il suit toujours la page.
+ */
+const PARTIES = {
+  pourquoi: 'Pourquoi Duel Carbone ?',
+  chiffres: "D'où viennent les chiffres",
+  co2e: "L'unité : le CO2e",
+  calcul: 'Le calcul : Geste = Équivalent × Quantité',
+  objets: "Les objets : la durée d'utilisation retenue par l'ADEME",
+  reglages: "Les réglages : ceux de l'ADEME, par défaut",
+  regles: 'Les règles du jeu',
+  installer: 'Jouer hors ligne : installer le jeu',
+  'vie-privee': 'Ta vie privée',
+  empreinte: 'L’empreinte de ce jeu',
+  projet: 'Suivre le projet',
+  mentions: 'Mentions légales',
+} as const
+
+type IdPartie = keyof typeof PARTIES
+
+/** Descend jusqu'à un élément de la page, et y place le clavier et le lecteur d'écran. */
+function allerA(element: HTMLElement | null) {
+  if (!element) return
+  element.focus({ preventScroll: true })
+  element.scrollIntoView({ behavior: mouvementReduit() ? 'auto' : 'smooth', block: 'start' })
+}
+
+/** Une partie de la page, avec son titre (que le sommaire sait atteindre). */
+function Partie({ id, children }: { id: IdPartie; children: ReactNode }) {
+  return (
+    <section className="savoir__partie" aria-labelledby={`savoir-${id}`}>
+      <h3 id={`savoir-${id}`} tabIndex={-1}>
+        {PARTIES[id]}
+      </h3>
+      {children}
+    </section>
+  )
+}
+
 /** La page « En savoir plus » : le projet, puis les sources et la méthode, la vie privée, et l'empreinte du jeu. */
 export function EcranEnSavoirPlus() {
   const titre = useRef<HTMLHeadingElement>(null)
+  const sommaire = useRef<HTMLElement>(null)
+  const titreDuSommaire = useRef<HTMLParagraphElement>(null)
+  // Le bouton « ↑ » n'apparaît qu'une fois le sommaire sorti de l'écran (toujours, sans IntersectionObserver).
+  const [sommaireVisible, setSommaireVisible] = useState(true)
 
   // À l'ouverture de la page, le lecteur d'écran (et le clavier) partent de son titre.
   useEffect(() => titre.current?.focus(), [])
+
+  useEffect(() => {
+    const element = sommaire.current
+    if (!element || typeof IntersectionObserver === 'undefined') {
+      setSommaireVisible(false)
+      return
+    }
+    const observateur = new IntersectionObserver(([entree]) => setSommaireVisible(entree.isIntersecting))
+    observateur.observe(element)
+    return () => observateur.disconnect()
+  }, [])
+
+  // Les liens du sommaire font défiler la page sans toucher à l'adresse : l'ancre « # » y désigne la page
+  // affichée (navigateur/adresse.ts), et la changer ramènerait au jeu.
+  const versPartie = (id: IdPartie) => (evenement: MouseEvent<HTMLAnchorElement>) => {
+    evenement.preventDefault()
+    allerA(document.getElementById(`savoir-${id}`))
+  }
 
   const unite = STEAK.equivalent.unite ?? 'unité'
 
@@ -62,8 +126,22 @@ export function EcranEnSavoirPlus() {
         coûté.
       </p>
 
-      <section>
-        <h3>Pourquoi Duel Carbone ?</h3>
+      <nav ref={sommaire} className="savoir__sommaire" aria-labelledby="savoir-sommaire">
+        <p id="savoir-sommaire" ref={titreDuSommaire} className="savoir__sommaire-titre" tabIndex={-1}>
+          Sommaire
+        </p>
+        <ol>
+          {(Object.keys(PARTIES) as IdPartie[]).map((id) => (
+            <li key={id}>
+              <a href={`#savoir-${id}`} onClick={versPartie(id)}>
+                {PARTIES[id]}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+
+      <Partie id="pourquoi">
         <p>
           On estime très mal l'empreinte carbone de nos gestes du quotidien. On surestime ce qui se voit (un emballage,
           un mail) et on sous-estime ce qui ne se voit pas (la viande, la fabrication d'un smartphone, l'avion).
@@ -77,10 +155,9 @@ export function EcranEnSavoirPlus() {
           C'est un jeu gratuit, sans publicité, sans compte et sans cookie : un projet indépendant, pour que chacun
           sache où portent ses efforts.
         </p>
-      </section>
+      </Partie>
 
-      <section>
-        <h3>D'où viennent les chiffres</h3>
+      <Partie id="chiffres">
         <p>
           Toutes les empreintes carbone viennent de l'ADEME, l'Agence de la transition écologique. C'est un
           établissement public, placé sous la tutelle des ministères chargés de l'environnement, de l'énergie et de la
@@ -104,15 +181,13 @@ export function EcranEnSavoirPlus() {
           d'Impact CO2</a>). Les données restent la propriété de l'ADEME. Duel Carbone est un projet indépendant : il
           n'est pas édité par l'ADEME.
         </p>
-      </section>
+      </Partie>
 
-      <section>
-        <h3>L'unité : le CO2e</h3>
+      <Partie id="co2e">
         <DefinitionCo2e niveau="h4" />
-      </section>
+      </Partie>
 
-      <section>
-        <h3>Le calcul : Geste = Équivalent × Quantité</h3>
+      <Partie id="calcul">
         <p>
           L'ADEME donne une valeur par unité : par kg pour un aliment, par km et par passager pour un trajet, par
           objet pour un appareil. Pour comparer des choses parlantes, le jeu multiplie cette valeur par une quantité
@@ -127,20 +202,18 @@ export function EcranEnSavoirPlus() {
           chaque geste l'affiche sous son nom. Après chaque Duel, un lien mène à la fiche ADEME de chaque geste ; ici,
           la <a href={STEAK.equivalent.url}>fiche ADEME du bœuf</a>.
         </p>
-      </section>
+      </Partie>
 
-      <section>
-        <h3>Les objets : la durée d'utilisation retenue par l'ADEME</h3>
+      <Partie id="objets">
         <p>
           Pour un appareil ou un vêtement, l'empreinte compte sa fabrication, sa fin de vie et son usage pendant la
           durée d'utilisation retenue par l'ADEME
           {TELEVISION.usage && ` (par exemple ${TELEVISION.usage.dureeAns} ans pour une télévision)`}. Le jeu reprend
           ces durées telles quelles et les affiche sous le nom de l'objet.
         </p>
-      </section>
+      </Partie>
 
-      <section>
-        <h3>Les réglages : ceux de l'ADEME, par défaut</h3>
+      <Partie id="reglages">
         <p>
           Impact CO2 permet d'ajuster certains calculs, comme le nombre de passagers d'une voiture ou l'effet des
           traînées de condensation des avions. Le jeu garde toujours les réglages par défaut de l'ADEME : l'avion
@@ -153,10 +226,16 @@ export function EcranEnSavoirPlus() {
           la construction de l'écran, comme le permet le calculateur d'Impact CO2, car l'ADEME ne la compte pas non
           plus pour le téléchargement.
         </p>
-      </section>
+        <p>
+          L'électricité, enfin, est celle de la France. Pour tout ce qui en consomme pendant son usage (appareils,
+          numérique, chauffage électrique, train, voiture électrique…), l'ADEME compte le mix électrique moyen
+          français, l'un des moins carbonés d'Europe grâce au nucléaire et aux renouvelables. Dans un pays où
+          l'électricité vient davantage du charbon ou du gaz, les mêmes Gestes émettent plus, parfois plusieurs fois
+          plus : les chiffres du jeu valent pour la France.
+        </p>
+      </Partie>
 
-      <section>
-        <h3>Les règles du jeu</h3>
+      <Partie id="regles">
         <p>
           Chaque jour, le Duel Carbone du jour propose la même Partie à tous les joueurs : elle change à minuit, heure
           de Paris, et ne se joue qu'une fois. Ses Duels sont tirés à l'avance, selon les mêmes règles que la Partie
@@ -182,10 +261,19 @@ export function EcranEnSavoirPlus() {
           tous mesurés de la même façon : le numérique compte la fabrication des appareils, où qu'ils soient
           fabriqués, alors que les autres sont des inventaires des émissions en France.
         </p>
-      </section>
+      </Partie>
 
-      <section>
-        <h3>Ta vie privée</h3>
+      <Partie id="installer">
+        <p>
+          Pour ne manquer aucun Duel du jour, installe Duel Carbone sur l’écran d’accueil de ton téléphone : il
+          s’ouvre en un geste, en plein écran, comme une appli. Il fonctionne aussi hors ligne : une fois le jeu
+          ouvert, plus besoin de réseau pour jouer (dans le métro, en avion…). Rien à télécharger depuis un magasin
+          d’applications, et toujours ni compte ni cookie.
+        </p>
+        <GuideInstallation />
+      </Partie>
+
+      <Partie id="vie-privee">
         <p>
           Sans cookie, sans compte. Ton record, ta Partie du jour (pour la reprendre ou revoir ton résultat), ta
           série, les derniers Duels joués (pour ne pas te reposer les mêmes) et ton éventuel « Non merci » à
@@ -213,10 +301,9 @@ export function EcranEnSavoirPlus() {
           d'un site à l'autre, ne conserve pas ton adresse IP, et ni ton score ni tes réponses ne lui sont envoyés. Si
           ton navigateur la bloque, le jeu marche tout autant.
         </p>
-      </section>
+      </Partie>
 
-      <section>
-        <h3>L’empreinte de ce jeu</h3>
+      <Partie id="empreinte">
         <p>
           Ce jeu a été codé avec l'aide d'une IA, Claude (d'Anthropic) : un humain pilote et valide, l'IA écrit le code
           et l'explique. Cela consomme de l'électricité, dans les centres de données qui font tourner le modèle.
@@ -239,10 +326,9 @@ export function EcranEnSavoirPlus() {
           Cette estimation est aussi devenue un Geste du jeu, caché dans deux Duels ★. Ouvre l'œil : c'est le seul
           chiffre d'un Duel qui ne vient pas de l'ADEME.
         </p>
-      </section>
+      </Partie>
 
-      <section>
-        <h3>Suivre le projet</h3>
+      <Partie id="projet">
         <p>
           <a href={DEPOT}>Suivre le projet sur GitHub</a> : le <a href={DEPOT}>code source du jeu</a> est public, sous
           licence MIT. Une erreur, une idée ? Écris à <a href={`mailto:${CONTACT}`}>{CONTACT}</a>, ou{' '}
@@ -252,10 +338,9 @@ export function EcranEnSavoirPlus() {
           Les icônes viennent de <a href={FLUENT_EMOJI}>Fluent Emoji</a>, de Microsoft, sous licence MIT. Quand aucune
           ne parlait assez, nous avons dessiné la nôtre dans le même style (le micro-ondes, le lave-linge…).
         </p>
-      </section>
+      </Partie>
 
-      <section>
-        <h3>Mentions légales</h3>
+      <Partie id="mentions">
         <p>
           Éditeur et directeur de la publication : Fabien Lesage. Contact :{' '}
           <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.
@@ -265,7 +350,11 @@ export function EcranEnSavoirPlus() {
           Duel Carbone est un projet personnel, gratuit et sans publicité, sans lien avec l'ADEME, dont il réutilise
           les données en citant leur source.
         </p>
-      </section>
+        <p>
+          Les valeurs affichées sont celles de l'ADEME pour une consommation en France, avec notamment le mix
+          électrique français : les émissions d'un même Geste peuvent être différentes dans un autre pays.
+        </p>
+      </Partie>
 
       {/* « Retour au jeu » reste collé en bas de l'écran, comme « Duel suivant » : pas besoin de remonter. */}
       <div className="savoir__suite">
@@ -273,6 +362,16 @@ export function EcranEnSavoirPlus() {
           <a className="bouton" href={ADRESSES.jeu}>
             ← Retour au jeu
           </a>
+          {!sommaireVisible && (
+            <button
+              type="button"
+              className="bouton bouton--secondaire savoir__haut"
+              aria-label="Remonter au sommaire"
+              onClick={() => allerA(titreDuSommaire.current)}
+            >
+              <span aria-hidden="true">↑</span>
+            </button>
+          )}
         </div>
       </div>
     </article>

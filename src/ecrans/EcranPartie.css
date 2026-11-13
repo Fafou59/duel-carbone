@@ -20,13 +20,21 @@
   font-size: 14px;
 }
 
+/*
+ * L'anneau du Duel en cours déborde de 4 px autour de son segment. Sur Safari (iPhone), un anneau dessiné hors
+ * de son calque pouvait rester à l'écran après la Partie : un petit arc violet (le Duel 10, ultime) sur le bord
+ * droit de l'écran de fin. La barre garde donc 4 px de marge intérieure, où tient l'anneau, et forme son propre
+ * calque (will-change) : quand elle disparaît, tout ce qu'elle a dessiné disparaît avec elle.
+ * Les marges négatives compensent la marge intérieure : la barre ne bouge pas.
+ */
 .progression {
   display: grid;
   grid-template-columns: repeat(10, 1fr);
   gap: 4px;
-  margin: 8px 0 16px;
-  padding: 0;
+  margin: 4px -4px 12px;
+  padding: 4px;
   list-style: none;
+  will-change: transform;
 }
 
 .progression__segment {

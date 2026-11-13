@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { fireEvent, render, screen, within } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
 import { GESTES_CALCULES, gesteCalcule, INSTANTANE } from '../donnees/index.ts'
 import { formaterDate, formaterEmpreinte } from '../domaine/format.ts'
 import { REGLES } from '../domaine/regles.ts'
@@ -99,7 +99,7 @@ describe('Page En savoir plus', () => {
   it("renvoie vers Impact CO2 et vers ses conditions de réutilisation", () => {
     render(<EcranEnSavoirPlus />)
     expect(screen.getAllByRole('link', { name: /Impact CO2/ })[0]).toHaveAttribute('href', 'https://impactco2.fr')
-    expect(screen.getByRole('link', { name: /mentions légales/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /mentions légales d'Impact CO2/i })).toHaveAttribute(
       'href',
       'https://impactco2.fr/mentions-legales',
     )
@@ -116,7 +116,7 @@ describe('Page En savoir plus', () => {
   it('explique le calcul Geste = Équivalent × Quantité sur un exemple tiré du catalogue', () => {
     render(<EcranEnSavoirPlus />)
     const steak = gesteCalcule('steak-boeuf')
-    expect(screen.getByText(/Geste = Équivalent × Quantité/)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Geste = Équivalent × Quantité/ })).toBeInTheDocument()
     expect(screen.getByText(new RegExp(formaterEmpreinte(steak.empreinte)))).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /fiche ADEME du bœuf/i })).toHaveAttribute('href', steak.equivalent.url)
   })
@@ -186,5 +186,43 @@ describe('Page En savoir plus', () => {
       'https://github.com/microsoft/fluentui-emoji',
     )
     expect(screen.getByText(/Les icônes viennent de/)).toHaveTextContent(/de Microsoft, sous licence MIT/)
+  })
+
+  it('ouvre sur un sommaire qui mène à chaque partie, dans l’ordre de la page', () => {
+    render(<EcranEnSavoirPlus />)
+    const sommaire = screen.getByRole('navigation', { name: 'Sommaire' })
+    const liens = within(sommaire).getAllByRole('link')
+    const titres = screen.getAllByRole('heading', { level: 3 })
+    expect(liens.map((l) => l.textContent)).toEqual(titres.map((t) => t.textContent))
+    expect(liens.map((l) => l.getAttribute('href'))).toEqual(titres.map((t) => `#${t.id}`))
+  })
+
+  it('descend à la partie choisie sans changer l’adresse (l’ancre y désigne la page affichée)', () => {
+    const defiler = vi.fn()
+    Element.prototype.scrollIntoView = defiler
+    render(<EcranEnSavoirPlus />)
+    fireEvent.click(within(screen.getByRole('navigation', { name: 'Sommaire' })).getByRole('link', { name: 'Mentions légales' }))
+    expect(window.location.hash).toBe('')
+    expect(defiler).toHaveBeenCalledOnce()
+    expect(screen.getByRole('heading', { name: 'Mentions légales' })).toHaveFocus()
+  })
+
+  it('remonte au sommaire d’un bouton, à droite de « Retour au jeu »', () => {
+    Element.prototype.scrollIntoView = vi.fn()
+    render(<EcranEnSavoirPlus />)
+    fireEvent.click(screen.getByRole('button', { name: 'Remonter au sommaire' }))
+    expect(screen.getByText('Sommaire')).toHaveFocus()
+  })
+
+  it('explique comment installer le jeu et qu’il marche hors ligne, même après « Non merci »', () => {
+    render(<EcranEnSavoirPlus />)
+    expect(screen.getByRole('heading', { name: 'Jouer hors ligne : installer le jeu' })).toBeInTheDocument()
+    expect(screen.getByText(/Il fonctionne aussi hors ligne/)).toBeInTheDocument()
+  })
+
+  it('précise que les chiffres valent pour la France (mix électrique français)', () => {
+    render(<EcranEnSavoirPlus />)
+    expect(screen.getByText(/mix électrique moyen\s+français/)).toBeInTheDocument()
+    expect(screen.getByText(/émissions d'un même Geste peuvent être différentes dans un autre pays/)).toBeInTheDocument()
   })
 })

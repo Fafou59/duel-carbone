@@ -96,7 +96,7 @@ export function InvitationInstallationVue({ situation, installer, onEcarter, mes
   return (
     <section className="installation" aria-labelledby="installation-titre">
       <h3 id="installation-titre">Reviens demain en un geste</h3>
-      <p>Installe Duel Carbone sur ton écran d’accueil : le Duel du jour t’y attendra.</p>
+      <p>Installe Duel Carbone sur ton écran d’accueil : le Duel du jour t’y attendra, même hors ligne.</p>
       <div className="installation__actions">
         {etapes ? (
           <button
@@ -142,5 +142,42 @@ export function InvitationInstallation() {
       onEcarter={() => ecarterInvitation(stockage)}
       mesurer={mesurerPourDeVrai}
     />
+  )
+}
+
+/**
+ * Comment installer le jeu, pour la page En savoir plus : toujours disponible, même après « Non merci ».
+ * Un bouton quand le navigateur a sa fenêtre d'installation, sinon les étapes du navigateur du joueur.
+ */
+export function GuideInstallation() {
+  const { situation, installer } = useInstallation()
+  const [installe, setInstalle] = useState(false)
+  if (situation === 'installe' || installe) {
+    return <p>C’est déjà fait : tu joues dans le jeu installé. Merci !</p>
+  }
+  if (situation === 'ordinateur' || situation === 'mac') {
+    return (
+      <p>
+        Sur ordinateur, le plus simple est d’ajouter le jeu à tes favoris ({situation === 'mac' ? '⌘' : 'Ctrl'} + D).
+        Pour l’installer sur ton téléphone, ouvre cette page depuis celui-ci : les étapes de ton navigateur
+        s’afficheront ici.
+      </p>
+    )
+  }
+  if (situation === 'bouton') {
+    return (
+      <p>
+        <button type="button" className="bouton" onClick={() => void installer().then((ok) => ok && setInstalle(true))}>
+          Installer Duel Carbone
+        </button>
+      </p>
+    )
+  }
+  return (
+    <ol className="installation__etapes">
+      {ETAPES[situation].map((etape) => (
+        <li key={etape}>{etape}</li>
+      ))}
+    </ol>
   )
 }
