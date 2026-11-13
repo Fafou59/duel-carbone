@@ -12,7 +12,7 @@ estimée par Epoch AI pour un modèle comparable, et de l'électricité américa
 limites sont dans [docs/empreinte-ia.md](../empreinte-ia.md).
 
 C'est une **exception** à la règle qui fonde le jeu, « toutes les valeurs viennent de l'ADEME » (ADR 0001). Elle
-est présentée comme une estimation, avec sa fourchette (de 2 à 9 kg CO2e au 12 novembre 2026, après une première estimation de 2 à 23 kg resserrée le même jour) et la mention
+est présentée comme une estimation, avec sa fourchette (de 2 à 11 kg CO2e au décompte du lancement, le 13 novembre 2026, après une première estimation de 2 à 23 kg resserrée le 12) et la mention
 explicite qu'elle ne vient pas de l'ADEME, à deux endroits seulement :
 
 - la page « En savoir plus » ;
