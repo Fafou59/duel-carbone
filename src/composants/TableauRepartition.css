@@ -84,6 +84,13 @@
   font-size: 12px;
   font-weight: 600;
   line-height: 1.2;
+  /*
+   * La colonne d'un Geste est étroite (environ 60 px sur un téléphone de 320 px) : un mot long comme
+   * « cheeseburger » ou « réfrigérateur » n'y tient pas. Il se coupe avec un trait d'union si le navigateur
+   * sait le faire en français, sinon n'importe où : jamais il ne déborde de la colonne, ni de l'écran.
+   */
+  hyphens: auto;
+  overflow-wrap: anywhere;
 }
 
 .repartition__precision {
