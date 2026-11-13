@@ -56,6 +56,12 @@ a {
   padding: 16px;
 }
 
+/* Pendant les Duels, la page s'arrête sous « Duel suivant » (qui a déjà sa propre marge) : arrivée en bas,
+   la barre collée en bas de l'écran ne remonte pas. */
+.page--en-duel {
+  padding-bottom: 0;
+}
+
 .entete {
   margin-bottom: 12px;
 }

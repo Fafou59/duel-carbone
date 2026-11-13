@@ -79,12 +79,26 @@ describe('Application : accueil', () => {
     expect(screen.getByRole('button', { name: /Duel du jour n° / })).toBeInTheDocument()
   })
 
-  it('ouvre « Comment ça marche ? » depuis le pied de page, sur tous les écrans', () => {
+  it('ouvre « Comment ça marche ? » depuis le pied de page', () => {
     render(<App />)
-    fireEvent.click(screen.getByRole('button', { name: 'Partie libre' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Comment ça marche ?' }))
+    fireEvent.click(within(screen.getByRole('contentinfo')).getByRole('button', { name: 'Comment ça marche ?' }))
     const fenetre = screen.getByRole('dialog', { name: 'Comment ça marche ?' })
     expect(within(fenetre).getByRole('heading', { name: '1. Deux gestes s’affrontent' })).toBeInTheDocument()
+  })
+
+  it('masque le pied de page pendant les Duels (le pouce y tombait sous « Duel suivant »), et le rend à la fin', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'Partie libre' }))
+    for (let i = 0; i < 10; i++) {
+      expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument()
+      const auDuel = screen.queryByRole('button', { name: 'Au Duel !' })
+      if (auDuel) fireEvent.click(auDuel)
+      fireEvent.click(within(screen.getByRole('region', { name: 'Lequel émet le plus ?' })).getAllByRole('button')[0])
+      expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument()
+      fireEvent.click(screen.getByRole('button', { name: i === 9 ? 'Voir mon score' : 'Duel suivant →' }))
+    }
+    expect(screen.getByRole('heading', { name: 'Partie terminée !' })).toBeInTheDocument()
+    expect(within(screen.getByRole('contentinfo')).getByRole('link', { name: 'En savoir plus' })).toBeInTheDocument()
   })
 
   it('mène à la page En savoir plus', () => {
@@ -136,7 +150,11 @@ describe('Application : page En savoir plus', () => {
     // Le joueur répond au Duel 1 : la révélation s'affiche.
     fireEvent.click(within(screen.getByRole('region', { name: 'Lequel émet le plus ?' })).getAllByRole('button')[0])
     const suivant = screen.getByRole('button', { name: 'Duel suivant →' })
-    fireEvent.click(screen.getByRole('link', { name: 'En savoir plus' }))
+    // Le pied de page est masqué pendant les Duels : on y arrive par l'adresse (lien partagé, retour arrière…).
+    act(() => {
+      window.location.hash = '#en-savoir-plus'
+      window.dispatchEvent(new HashChangeEvent('hashchange'))
+    })
     await screen.findByRole('heading', { level: 2, name: 'En savoir plus' })
     expect(suivant).not.toBeVisible()
     fireEvent.click(screen.getByRole('link', { name: /Retour au jeu/ }))
