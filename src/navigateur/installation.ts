@@ -2,17 +2,24 @@
  * L'installation du jeu sur l'écran d'accueil (#68) : le meilleur rappel pour revenir au Duel du jour, sans serveur.
  *
  * Chaque navigateur s'y prend à sa façon :
- * - Chrome, Edge, Samsung Internet… proposent leur fenêtre d'installation (l'événement « beforeinstallprompt ») :
- *   on la met de côté au chargement, pour l'ouvrir d'un bouton au bon moment ;
- * - Safari, sur iPhone et iPad, n'a pas de fenêtre : il faut passer par « Partager », puis « Sur l'écran d'accueil » ;
- * - ailleurs, on suggère les favoris.
+ * - sur Android, Chrome, Edge, Samsung Internet… proposent leur fenêtre d'installation (l'événement
+ *   « beforeinstallprompt ») : on la met de côté au chargement, pour l'ouvrir d'un bouton au bon moment ;
+ * - Firefox sur Android, et tous les navigateurs d'iPhone et d'iPad, n'ont pas de fenêtre : on explique les
+ *   étapes, propres à chaque navigateur (on le reconnaît à son « agent utilisateur ») ;
+ * - sur ordinateur, le jeu installé sert peu : on suggère les favoris, ou de jouer sur son téléphone.
  * Le refus du joueur est gardé sur l'appareil, à part de la mémoire du jeu : on ne repropose plus.
  */
 import { useEffect, useState } from 'react'
 import type { Stockage } from './memoire.ts'
 
-/** Ce que le navigateur permet : rien (déjà installé), un bouton, une explication pour iPhone, ou les favoris. */
-export type Situation = 'installe' | 'bouton' | 'ios' | 'favori'
+/** Les mobiles sans fenêtre d'installation : on explique les étapes de leur navigateur. */
+export type Guide = 'firefox-android' | 'safari-ios' | 'ios-autre' | 'mobile-autre'
+
+/**
+ * Ce que le navigateur permet : rien (déjà installé), un bouton, les étapes d'un navigateur mobile, ou les favoris
+ * sur ordinateur (« mac » : le raccourci y est ⌘ + D, et non Ctrl + D).
+ */
+export type Situation = 'installe' | 'bouton' | Guide | 'ordinateur' | 'mac'
 
 /** L'événement « beforeinstallprompt » (pas dans les types du DOM : il n'est pas standard). */
 export type InvitationNative = Event & {
@@ -30,11 +37,22 @@ export type Appareil = {
 }
 
 export function situationInstallation(appareil: Appareil, invitation: InvitationNative | null): Situation {
-  if (appareil.standalone) return 'installe'
-  if (invitation) return 'bouton'
-  const ios =
-    /iPhone|iPad|iPod/.test(appareil.userAgent) || (/Macintosh/.test(appareil.userAgent) && appareil.pointsTactiles > 1)
-  return ios ? 'ios' : 'favori'
+  const { standalone, userAgent, pointsTactiles } = appareil
+  if (standalone) return 'installe'
+  const mac = /Macintosh/.test(userAgent)
+  // Un iPad se présente comme un Mac, mais il est tactile.
+  if (/iPhone|iPad|iPod/.test(userAgent) || (mac && pointsTactiles > 1)) {
+    // Chrome, Firefox et Edge sur iPhone gardent leur nom dans l'agent utilisateur ; les autres passent pour Safari.
+    return /CriOS|FxiOS|EdgiOS/.test(userAgent) ? 'ios-autre' : 'safari-ios'
+  }
+  if (/Android|Mobi/.test(userAgent)) {
+    if (invitation) return 'bouton'
+    return /Android/.test(userAgent) && /Firefox\//.test(userAgent) && !/KAIOS/.test(userAgent)
+      ? 'firefox-android'
+      : 'mobile-autre'
+  }
+  // Sur ordinateur, même si le navigateur propose sa fenêtre d'installation : le jeu se joue surtout sur téléphone.
+  return mac ? 'mac' : 'ordinateur'
 }
 
 function appareilReel(): Appareil {

@@ -174,7 +174,7 @@ Dans GoatCounter, `partie_lancee`, `partie_terminee` et `rejouer` portent le mod
 - `partie_lancee` part à l'affichage du premier Duel. Une Partie du jour reprise n'est pas comptée une seconde fois.
 - `partie_terminee` et `duree_partie` partent à l'écran de fin. Une Partie reprise n'envoie pas sa durée, qui serait incomplète ; une Partie du jour qu'on revoit n'envoie rien.
 - `rejouer` part du bouton de l'écran de fin (« Rejouer », ou « Partie libre » après la Partie du jour).
-- `installation/proposee`, `installation/acceptee` et `installation/refusee` suivent l'invitation à installer le jeu (#68), à la fin du Duel du jour.
+- `installation/proposee`, `installation/guide`, `installation/acceptee` et `installation/refusee` suivent l'invitation à installer le jeu (#68), à la fin du Duel du jour, sur téléphone ou tablette. `proposee` part à l'affichage de la carte ; `guide` quand le joueur déplie les étapes de son navigateur (« Comment l'installer ? »), une fois par affichage ; `acceptee` et `refusee` répondent au bouton d'installation ou à « Non merci ». Sur ordinateur, la ligne qui suggère les favoris n'envoie rien.
 - `erreur/script` et `erreur/promesse` comptent les plantages du jeu (une erreur de script, une promesse rejetée sans être rattrapée) : leur type seulement, jamais leur message, une fois par type et par visite.
 - `partage` part quand le score a bien été partagé ou copié, pas quand le joueur annule.
 

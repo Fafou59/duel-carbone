@@ -35,6 +35,10 @@ test('le Duel du jour se joue en entier au clavier', async ({ page }) => {
   const titre = page.getByRole('heading', { level: 2, name: `Duel Carbone du jour n° ${numero}` })
   await expect(titre).toBeFocused()
   await expect(page.locator('.fin__score')).toHaveText(`${bonnes}/10`)
+  // Sur ordinateur, pas de carte d'installation (#68) : une simple ligne pour les favoris, qui passe l'analyse.
+  await expect(page.getByText(/^Pour revenir demain : ajoute Duel Carbone à tes favoris \(Ctrl \+ D\)/)).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Reviens demain en un geste' })).toHaveCount(0)
+  await verifierAccessibilite(page, 'fin du Duel du jour, sur ordinateur')
 
   // Le Récapitulatif : le détail d'un Duel s'ouvre au clavier, Échap le ferme, et le focus revient sur sa case.
   await tabulerJusqua(page, /Duel 1 \((réussi|raté)\)/)
