@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { GESTES } from '../src/donnees/gestes.ts'
 import { attendreLesAnimations, jouerUnDuel, verifierAccessibilite } from './outils.ts'
 
 /**
@@ -92,6 +93,35 @@ test.describe('zoom à 200 %', () => {
     await sansDefilementHorizontal(page, 'fin de Partie')
     await page.goto('/#en-savoir-plus')
     await sansDefilementHorizontal(page, 'En savoir plus')
+  })
+
+  /*
+   * Les Duels de la Partie libre sont tirés au hasard : le test ci-dessus ne croise qu'une dizaine de Gestes.
+   * Ici, chaque titre du catalogue passe tour à tour dans l'en-tête du tableau « D'où viennent ces émissions ? »,
+   * dont les colonnes de chiffres sont étroites (environ 60 px à 320 px) : un mot long comme « cheeseburger »
+   * ne doit pas sortir de sa colonne. On le vérifie dans la dernière colonne, collée au bord de l'écran.
+   */
+  test('chaque titre de Geste tient dans sa colonne du tableau de répartition', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Partie libre' }).first().click()
+    await jouerUnDuel(page, 1)
+    await attendreLesAnimations(page)
+    const titres = GESTES.map((geste) => geste.titre)
+    const debordements = await page.evaluate((titres) => {
+      const colonne = [...document.querySelectorAll('.repartition__geste')].at(-1)
+      if (!colonne?.parentElement) return ['tableau de répartition introuvable']
+      const cellule = colonne.parentElement
+      const texte = document.createRange()
+      return titres.flatMap((titre) => {
+        colonne.textContent = titre
+        texte.selectNodeContents(colonne)
+        // Le bord droit de la zone de texte de la cellule (sans sa marge intérieure).
+        const limite = cellule.getBoundingClientRect().right - parseFloat(getComputedStyle(cellule).paddingRight)
+        const depassement = texte.getBoundingClientRect().right - limite
+        return depassement > 0.5 ? [`« ${titre} » dépasse de ${depassement.toFixed(1)} px`] : []
+      })
+    }, titres)
+    expect(debordements).toEqual([])
   })
 })
 
