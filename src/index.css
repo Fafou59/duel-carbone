@@ -197,6 +197,13 @@ a {
   background: rgb(0 0 0 / 55%);
 }
 
+/* Glisser une fenêtre vers le bas pour la fermer : elle suit le doigt (src/navigateur/glisser.ts). */
+.fenetre,
+.panneau,
+.annonce-thematique {
+  translate: 0 var(--glissement, 0px);
+}
+
 /* Un bouton qui a l'air d'un lien (« Comment ça marche ? », « une Partie libre »). */
 .lien-bouton {
   padding: 4px;
