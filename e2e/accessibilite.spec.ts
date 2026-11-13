@@ -62,6 +62,28 @@ for (const theme of ['light', 'dark'] as const) {
       await expect(page.getByRole('dialog', { name: 'Détail du Duel 1' })).toBeVisible()
       await verifierAccessibilite(page, 'détail d’un Duel')
     })
+
+    test.describe('sur un téléphone sans fenêtre d’installation (Firefox Android)', () => {
+      test.use({
+        userAgent: 'Mozilla/5.0 (Android 15; Mobile; rv:145.0) Gecko/145.0 Firefox/145.0',
+        viewport: { width: 390, height: 844 },
+      })
+
+      test('fin du Duel du jour : l’invitation à installer, étapes dépliées', async ({ page }) => {
+        await page.goto('/')
+        const jouer = page.getByRole('button', { name: /^Jouer le Duel du jour/ })
+        await expect(jouer).toBeEnabled()
+        await jouer.click()
+        for (let n = 1; n <= 10; n++) {
+          await jouerUnDuel(page, n)
+          await page.keyboard.press('Enter')
+        }
+        const invitation = page.getByRole('region', { name: 'Reviens demain en un geste' })
+        await invitation.getByRole('button', { name: 'Comment l’installer ?' }).click()
+        await expect(invitation.getByRole('listitem')).toHaveCount(3)
+        await verifierAccessibilite(page, 'fin du Duel du jour, étapes d’installation')
+      })
+    })
   })
 }
 

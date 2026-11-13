@@ -120,9 +120,9 @@ describe('Fin du Duel du jour : cap sur le partage', () => {
     expect(screen.queryByRole('button', { name: 'Rejouer' })).not.toBeInTheDocument()
   })
 
-  it('invite à installer le jeu pour revenir demain (#68)', () => {
+  it('invite à revenir demain (#68) : sur ordinateur, comme ici (jsdom), une ligne pour les favoris', () => {
     finDuJour()
-    expect(screen.getByRole('region', { name: 'Reviens demain en un geste' })).toBeInTheDocument()
+    expect(screen.getByText(/^Pour revenir demain : ajoute Duel Carbone à tes favoris/)).toBeInTheDocument()
   })
 })
 

@@ -11,7 +11,10 @@ import { expect, test } from '@playwright/test'
 const DOSSIER = 'docs/captures'
 const JOUR_DE_TEST = new Date('2026-11-12T10:00:00+01:00')
 
-test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true })
+// L'agent utilisateur d'un téléphone Android : sans lui, le jeu se croirait sur ordinateur (invitation à installer, #68).
+const TELEPHONE = 'Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Mobile Safari/537.36'
+
+test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, userAgent: TELEPHONE })
 
 for (const theme of ['clair', 'sombre'] as const) {
   test(`captures en thème ${theme}`, async ({ page }) => {
