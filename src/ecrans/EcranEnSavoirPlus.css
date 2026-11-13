@@ -69,15 +69,18 @@
 
 .savoir__sommaire ol {
   display: grid;
-  gap: 4px;
+  gap: 2px;
   margin: 0;
   padding-left: 1.6em;
+  font-size: 16px;
+  line-height: 1.35;
 }
 
-/* Une cible confortable au doigt (24 px au moins, WCAG 2.5.8). */
+/* Une cible confortable au doigt (24 px au moins, WCAG 2.5.8). En bloc : sur deux lignes,
+   le numéro reste en face de la première. */
 .savoir__sommaire a {
-  display: inline-block;
-  padding: 3px 0;
+  display: block;
+  padding: 4px 0;
 }
 
 /* Arrivé sur une partie depuis le sommaire : un peu d'air au-dessus de son titre. */
