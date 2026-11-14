@@ -56,6 +56,23 @@ a {
   padding: 16px;
 }
 
+/*
+ * Une fois le choix fait, « Duel suivant » est fixé en bas de l'écran (EcranDuel.css) et recouvre le bas de la
+ * page. La page garde donc sous elle la hauteur de la barre (--hauteur-suite, mesurée par EcranDuel), plus celle
+ * de la barre d'adresse quand elle est en bas de l'écran et vient s'y ajouter (Firefox sur Android, Safari) :
+ * l'écart entre la plus grande et la plus petite hauteur d'écran (lvh et svh), nul dans l'application installée.
+ * Ainsi la fin de l'explication et le pied de page peuvent toujours remonter au-dessus du bouton.
+ */
+.page:has(.duel__suite) {
+  padding-bottom: calc(16px + var(--hauteur-suite, 96px));
+  padding-bottom: calc(16px + var(--hauteur-suite, 96px) + 100lvh - 100svh);
+}
+
+/* Un élément atteint au clavier (ou par un défilement) n'est jamais caché derrière le bouton fixé. */
+html:has(.duel__suite) {
+  scroll-padding-bottom: calc(var(--hauteur-suite, 96px) + 8px);
+}
+
 .entete {
   margin-bottom: 12px;
 }
@@ -189,6 +206,13 @@ a {
 
 .fenetre::backdrop {
   background: rgb(0 0 0 / 55%);
+}
+
+/* Glisser une fenêtre vers le bas pour la fermer : elle suit le doigt (src/navigateur/glisser.ts). */
+.fenetre,
+.panneau,
+.annonce-thematique {
+  translate: 0 var(--glissement, 0px);
 }
 
 /* Un bouton qui a l'air d'un lien (« Comment ça marche ? », « une Partie libre »). */

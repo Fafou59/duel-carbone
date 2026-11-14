@@ -1,4 +1,5 @@
 import { useEffect, useRef, type MouseEvent, type RefObject } from 'react'
+import { useGlisserPourFermer } from '../navigateur/glisser.ts'
 import { Icone } from './Icone.tsx'
 import type { DuelDePartie } from '../domaine/partie.ts'
 import './AnnonceThematique.css'
@@ -41,6 +42,8 @@ export function AnnonceThematique({ duel, barre, onFermer }: Props) {
   }, [barre])
 
   const fermer = () => boite.current?.close()
+  // Tirer la carte vers le bas la ferme aussi, comme les autres fenêtres.
+  useGlisserPourFermer(boite, fermer)
 
   // Un clic dont la cible est la balise <dialog> elle-même (et non son contenu) est un clic sur le fond.
   // Pendant l'apparition de la carte, on l'ignore : sur téléphone, le joueur qui vient de toucher

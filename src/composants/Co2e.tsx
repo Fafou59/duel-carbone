@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import { createPortal } from 'react-dom'
+import { useGlisserPourFermer } from '../navigateur/glisser.ts'
 import './Co2e.css'
 
 /**
@@ -36,6 +37,8 @@ export function DefinitionCo2e({ niveau: Titre = 'h3' }: { niveau?: 'h3' | 'h4' 
  */
 export function Co2e() {
   const fenetre = useRef<HTMLDialogElement>(null)
+  // Tirer la fenêtre vers le bas la ferme aussi, comme « Compris ».
+  useGlisserPourFermer(fenetre, () => fenetre.current?.close())
   return (
     <>
       {/* « CO2e » et sa pastille restent sur la même ligne. */}

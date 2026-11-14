@@ -79,10 +79,12 @@ describe('Application : accueil', () => {
     expect(screen.getByRole('button', { name: /Duel du jour n° / })).toBeInTheDocument()
   })
 
-  it('ouvre « Comment ça marche ? » depuis le pied de page, sur tous les écrans', () => {
+  it('ouvre « Comment ça marche ? » depuis le pied de page, sur tous les écrans, même en pleine Partie', () => {
     render(<App />)
     fireEvent.click(screen.getByRole('button', { name: 'Partie libre' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Comment ça marche ?' }))
+    fireEvent.click(within(screen.getByRole('region', { name: 'Lequel émet le plus ?' })).getAllByRole('button')[0])
+    expect(screen.getByRole('button', { name: 'Duel suivant →' })).toBeInTheDocument()
+    fireEvent.click(within(screen.getByRole('contentinfo')).getByRole('button', { name: 'Comment ça marche ?' }))
     const fenetre = screen.getByRole('dialog', { name: 'Comment ça marche ?' })
     expect(within(fenetre).getByRole('heading', { name: '1. Deux gestes s’affrontent' })).toBeInTheDocument()
   })

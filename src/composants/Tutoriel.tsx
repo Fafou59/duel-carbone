@@ -4,6 +4,7 @@ import { moinsEmetteur, plusEmetteur, rapport, type Duel } from '../domaine/duel
 import { formaterMultiple, formaterRapport } from '../domaine/format.ts'
 import type { GesteCalcule } from '../domaine/geste.ts'
 import { ADRESSES } from '../navigateur/adresse.ts'
+import { useGlisserPourFermer } from '../navigateur/glisser.ts'
 import { CarteGeste, type EtatCarte } from './CarteGeste.tsx'
 import { Icone } from './Icone.tsx'
 import { TableauRepartition } from './TableauRepartition.tsx'
@@ -176,6 +177,8 @@ export function Tutoriel({ ouvert, onFermer, onJouer }: Props) {
     if (ouvert && !dialogue.open) dialogue.showModal()
     if (!ouvert && dialogue.open) dialogue.close()
   }, [ouvert])
+  // Tirer la fenêtre vers le bas (une fois son contenu tout en haut) la ferme aussi.
+  useGlisserPourFermer(fenetre, onFermer)
   const jouer = () => {
     onFermer()
     onJouer()

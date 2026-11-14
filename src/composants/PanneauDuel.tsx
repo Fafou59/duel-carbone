@@ -1,5 +1,6 @@
 import { useEffect, useRef, type MouseEvent } from 'react'
 import type { LigneRecapitulatif } from '../domaine/recapitulatif.ts'
+import { useGlisserPourFermer } from '../navigateur/glisser.ts'
 import { ExplicationDuel } from './ExplicationDuel.tsx'
 import './PanneauDuel.css'
 
@@ -27,6 +28,8 @@ export function PanneauDuel({ ligne, onFermer }: Props) {
   }, [])
 
   const fermer = () => boite.current?.close()
+  // Sur téléphone, tirer le panneau vers le bas (une fois son contenu tout en haut) le ferme aussi.
+  useGlisserPourFermer(boite, fermer)
 
   // Le fond sombre fait partie de la balise <dialog> : un clic dont la cible est la balise
   // elle-même (et non son contenu) est donc un clic sur le fond.
@@ -41,6 +44,8 @@ export function PanneauDuel({ ligne, onFermer }: Props) {
     // Échap ferme la boîte nativement : l'événement « close » nous prévient dans tous les cas.
     <dialog ref={boite} className="panneau" aria-label={`Détail du Duel ${numero}`} onClose={onFermer} onClick={surClic}>
       <div className="panneau__contenu">
+        {/* La poignée : sur téléphone, elle montre que le panneau se ferme en le tirant vers le bas. */}
+        <span className="panneau__poignee" aria-hidden="true" />
         <div className="panneau__entete">
           <p className="panneau__titre">
             Duel {numero} <span className={`difficulte difficulte--${difficulte}`}>{difficulte}</span>

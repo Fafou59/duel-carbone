@@ -60,6 +60,9 @@ test('le Duel du jour se joue en entier au clavier', async ({ page }) => {
 
 test('une Partie libre se lance et se joue au clavier', async ({ page }) => {
   await page.goto('/')
+  // Le jeu a remplacé la présentation sans JavaScript : sinon, le premier Tab pourrait tomber sur une page
+  // qui disparaît aussitôt, et le focus retomberait sur le document.
+  await expect(page.getByRole('button', { name: /^Partie libre$/ })).toBeVisible()
   await tabulerJusqua(page, /^Partie libre$/)
   await page.keyboard.press('Enter')
   for (let n = 1; n <= 10; n++) {

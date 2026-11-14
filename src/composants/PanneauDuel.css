@@ -35,6 +35,22 @@
   }
 }
 
+/* La poignée en haut du panneau, sur téléphone : il se ferme en le tirant vers le bas. */
+.panneau__poignee {
+  justify-self: center;
+  width: 40px;
+  height: 5px;
+  margin: -6px 0 -8px;
+  border-radius: 3px;
+  background: var(--ligne);
+}
+
+@media (min-width: 700px) {
+  .panneau__poignee {
+    display: none;
+  }
+}
+
 .panneau__entete {
   display: flex;
   align-items: center;

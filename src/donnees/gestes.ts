@@ -150,14 +150,16 @@ export const GESTES: Geste[] = [
 
   // ─── Repas : plats complets (par kg) et repas types de l'ADEME (sans Répartition) ───
   // Nature « repas » : jamais opposés à un aliment (REGLES.combinaisonsInterdites).
+  // Le cheeseburger seul n'est pas un repas complet : il est rangé avec les aliments, et n'affronte donc
+  // jamais un repas (« Repas avec du bœuf », kebab, pizza…), seulement d'autres aliments.
   {
     id: 'cheeseburger',
     titre: 'Manger un cheeseburger',
-    sousTitre: '120 g',
+    sousTitre: '200 g',
     equivalent: 'cheeseburger',
-    quantite: 0.12,
-    justification: "Poids moyen d'un cheeseburger de restauration rapide.",
-    nature: 'repas',
+    quantite: 0.2,
+    justification: 'Poids moyen d’un cheeseburger de restaurant (pain, steak, fromage et garniture).',
+    nature: 'aliment',
   },
   {
     id: 'kebab',

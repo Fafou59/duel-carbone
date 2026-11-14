@@ -33,9 +33,63 @@
 }
 
 .savoir__suite-barre {
-  display: grid;
+  display: flex;
+  gap: 10px;
+  align-items: center;
   padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
   background: var(--fond);
+}
+
+/* « ↑ » : un bouton rond, à droite de « Retour au jeu », qui remonte au sommaire. */
+.savoir__haut {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  margin-left: auto;
+  padding: 0;
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* Le sommaire : un encadré en tête de page, une partie par ligne. */
+.savoir__sommaire {
+  margin: 8px 0 4px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--carte);
+}
+
+.savoir__sommaire-titre {
+  font-weight: 800;
+}
+
+.savoir__sommaire-titre:focus {
+  outline: none;
+}
+
+.savoir__sommaire ol {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding-left: 1.6em;
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+/* Une cible confortable au doigt (24 px au moins, WCAG 2.5.8). En bloc : sur deux lignes,
+   le numéro reste en face de la première. */
+.savoir__sommaire a {
+  display: block;
+  padding: 4px 0;
+}
+
+/* Arrivé sur une partie depuis le sommaire : un peu d'air au-dessus de son titre. */
+.savoir h3 {
+  scroll-margin-top: 16px;
+}
+
+.savoir h3:focus {
+  outline: none;
 }
 
 .savoir__suite .bouton {
@@ -44,8 +98,8 @@
 
 /* Sur téléphone, un bouton large, facile à atteindre avec le pouce. */
 @media (max-width: 699px) {
-  .savoir__suite .bouton {
-    justify-self: stretch;
+  .savoir__suite .bouton:not(.savoir__haut) {
+    flex: 1;
     text-align: center;
   }
 }

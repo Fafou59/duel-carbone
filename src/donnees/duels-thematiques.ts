@@ -44,7 +44,7 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     titre: 'La pause boisson',
     accroche: 'Deux boissons chaudes du matin : laquelle pèse le plus ?',
     texte:
-      "La différence se joue dès la plantation : l'agriculture pèse 109 g pour un mug de café, contre 5,6 g pour un mug de thé. Même en comptant l'eau chauffée pour le thé (2,9 g), il reste {rapport} fois moins émetteur.",
+      "Chauffer l'eau pèse presque pareil pour les deux : moins de 3 g par mug. Tout l'écart vient d'avant : la plantation pèse 109 g pour un mug de café, contre 5,6 g pour un mug de thé, et l'emballage du café ajoute encore 32 g.",
   },
   {
     a: 'crevettes',
@@ -58,11 +58,12 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
   {
     a: 'cabillaud',
     b: 'porc',
-    relu: 'ee4b7a90',
+    relu: 'cc0bb8f5',
+    cites: ['steak-boeuf', 'poulet'],
     titre: 'Poisson ou viande ?',
     accroche: 'Un filet de cabillaud ou une côte de porc ?',
     texte:
-      "On imagine souvent le poisson plus léger que la viande. Pourtant, au kilo, le cabillaud émet 12,1 kg de CO2e, presque deux fois le porc (6,7 kg). L'essentiel vient de l'étape de production (85 %), loin devant le transport (11 %).",
+      "On imagine souvent le poisson plus léger que la viande. C'est vrai face au bœuf (28 kg de CO2e au kilo), mais pas toujours : au kilo, le cabillaud émet 12,1 kg, presque deux fois le porc (6,7 kg), et bien plus que le poulet (4,6 kg). L'essentiel vient de son étape de production (85 %). Tout dépend donc du poisson et de la viande qu'on compare.",
   },
   {
     a: 'pizza',
@@ -91,7 +92,7 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     titre: 'Croissant ou chocolatine ?',
     accroche: 'Même pâte feuilletée, même poids : croissant ou pain au chocolat ?',
     texte:
-      "À poids égal, le pain au chocolat émet {rapport} fois plus que le croissant : {a} contre {b}. La différence se joue à l'étape agricole, qui pèse 285 g pour le pain au chocolat, contre 121 g pour le croissant.",
+      "La transformation, l'emballage et le transport pèsent presque pareil pour les deux viennoiseries. Tout l'écart se joue à l'étape agricole, celle des ingrédients : 285 g pour le pain au chocolat, contre 121 g pour le croissant.",
   },
   {
     a: 'lait',
@@ -100,7 +101,7 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     titre: 'Vache ou soja ?',
     accroche: 'Au petit-déjeuner : un verre de lait de vache ou un verre de boisson au soja ?',
     texte:
-      "Pour le lait, l'étape agricole pèse 203 g, soit 71 % de son empreinte. Pour la boisson au soja, seulement 22 g : le reste se répartit entre la transformation, l'emballage et le transport. Au total, le verre de lait émet {rapport} fois plus.",
+      "Hors étape agricole, les deux verres pèsent presque pareil : environ 85 g chacun pour la transformation, l'emballage, le transport et la distribution. Tout l'écart se joue à la ferme : 203 g pour le lait de vache (71 % de son empreinte), 22 g pour le soja.",
   },
   {
     a: 'poulet',
@@ -109,7 +110,7 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     titre: 'Nuggets végétaux contre poulet',
     accroche: 'Une portion de poulet, ou la même quantité de nuggets végétaux ?',
     texte:
-      "Le poulet émet plus : {a} contre {b}. Mais l'écart n'est « que » de {rapport} : pour les nuggets végétaux, l'étape agricole ne pèse que 31 %, et la transformation, l'emballage et le transport font l'essentiel.",
+      "Les nuggets végétaux ne sont pas sans empreinte : leur étape agricole ne pèse que 31 %, mais la transformation, l'emballage et le transport ajoutent plus de 160 g. Pour le poulet, c'est l'étape agricole qui domine : 450 g, soit 66 % de son empreinte.",
   },
   {
     a: 'repas-boeuf',
@@ -119,7 +120,7 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     titre: 'Bœuf ou poulet ?',
     accroche: "Deux assiettes du midi : l'une avec du bœuf, l'autre avec du poulet.",
     texte:
-      'Un repas avec du bœuf émet 4,97 kg de CO2e, un repas avec du poulet 1,46 kg : {rapport} fois moins. Un repas végétarien descend encore, à 0,85 kg.',
+      "Changer de viande suffit déjà à alléger beaucoup une assiette. Et sans viande, on descend encore : le repas végétarien type de l'ADEME émet 0,85 kg, près de six fois moins qu'avec du bœuf.",
   },
   {
     a: 'repas-vegetarien',
@@ -129,18 +130,19 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     titre: 'Végétarien ou végétalien ?',
     accroche: 'Deux repas sans viande : végétarien ou végétalien ?',
     texte:
-      "Sans viande, l'empreinte d'un repas chute déjà : 0,85 kg pour un repas végétarien, contre 4,97 kg avec du bœuf. Sans aucun produit animal (ni œufs, ni produits laitiers), le repas végétalien descend à 0,54 kg, soit {rapport} fois moins.",
+      "Sans viande, l'empreinte d'un repas chute déjà : 0,85 kg pour un repas végétarien, contre 4,97 kg avec du bœuf. Retirer aussi les œufs et les produits laitiers fait encore gagner 0,31 kg : bien moins que de quitter le bœuf, mais plus du tiers du repas végétarien.",
   },
 
   // ─── Transports ───
   {
     a: 'paris-marseille-covoiturage',
     b: 'paris-marseille-tgv',
-    relu: 'e1fdcf39',
+    relu: '014852db',
+    cites: ['paris-marseille-voiture'],
     titre: "Covoit' ou TGV ?",
     accroche: 'À quatre dans la voiture, on partage les frais… et les émissions. Assez pour battre le train ?',
     texte:
-      'Le covoiturage divise bien l’empreinte de la voiture par quatre : ta part tombe à {a}. Mais le TGV part de beaucoup plus bas, avec {b} par passager, car il roule à l’électricité. Même à quatre, la voiture émet {rapport} fois plus que le train.',
+      'Le covoiturage divise bien l’empreinte de la voiture par quatre : ta part tombe à {a}. Mais le TGV part de beaucoup plus bas, car il roule à l’électricité : {b} par passager. Seul au volant, le trajet émet 110 kg : pour égaler le train, il faudrait partager la voiture à 50.',
   },
   {
     a: 'paris-marseille-avion',
@@ -150,7 +152,7 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     titre: 'Ciel ou autoroute ?',
     accroche: 'Paris–Marseille, aller simple : en avion, ou seul au volant de ta voiture ?',
     texte:
-      "L'avion reste devant, mais de peu : {a} contre {b}. Près de la moitié de son empreinte (45 %) vient des traînées de condensation, que l'ADEME compte en plus du carburant. À quatre en covoiturage, ta part tombe à 28 kg, et à 2,2 kg en TGV.",
+      "Près de la moitié de l'empreinte de l'avion (45 %) vient des traînées de condensation, que l'ADEME compte en plus du carburant. Sans elles, il passerait même derrière la voiture (82 kg). Mais les deux restent loin des autres options : à quatre en covoiturage, ta part tombe à 28 kg, et à 2,2 kg en TGV.",
   },
   {
     a: 'velo-electrique-10km',
@@ -179,7 +181,7 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     titre: 'Trottinette ou métro ?',
     accroche: '10 km en ville : en trottinette électrique, ou en métro ?',
     texte:
-      "La trottinette électrique émet surtout à sa fabrication : 92 % de son empreinte, soit 229 g pour 10 km. Le métro pèse {b} pour le même trajet, dont 95 % pour l'électricité qui le fait rouler : {rapport} fois moins.",
+      "La trottinette électrique émet surtout à sa fabrication : 92 % de son empreinte, soit 229 g pour 10 km. Pour le métro, c'est l'inverse : 95 % de son empreinte vient de l'électricité qui le fait rouler, et sa construction ne pèse que 2,4 g par passager.",
   },
   {
     a: 'bus-electrique-10km',
@@ -188,16 +190,17 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     titre: 'Bus électrique ou tramway ?',
     accroche: 'Deux transports en commun électriques, 10 km en ville. Lequel pèse le plus ?',
     texte:
-      'Tous deux roulent à l’électricité, mais le bus électrique émet {a} pour 10 km, contre {b} pour le tramway. Plus de la moitié de l’empreinte du bus vient de sa construction (56 %), contre 11 % pour le tramway.',
+      'Tous deux roulent à l’électricité, mais le bus en consomme plus par passager (95 g pour 10 km, contre 38 g pour le tramway). Et surtout, sa construction pèse lourd : 122 g, plus de la moitié de son empreinte (56 %), contre 4,8 g pour le tramway.',
   },
   {
     a: 'ter-100km',
     b: 'tgv-100km',
-    relu: '8900baab',
+    relu: 'a9dab441',
+    cites: ['voiture-10km'],
     titre: 'Train contre train',
     accroche: '100 km en train : en TER ou en TGV ?',
     texte:
-      "Tous les trains ne se valent pas : {a} pour 100 km en TER, contre {b} en TGV, {rapport} fois moins. Pour le TER, l'énergie qui le fait rouler pèse 2,3 kg (83 %).",
+      "Tous les trains ne se valent pas : pour 100 km, l'énergie qui fait rouler le TER pèse 2,3 kg (83 % de son empreinte), contre 230 g pour le TGV. Mais même le TER reste cinq fois moins émetteur que la voiture seul au volant (14,2 kg).",
   },
   {
     a: 'autocar-100km',
@@ -207,7 +210,7 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     titre: 'Car ou TER ?',
     accroche: '100 km : en autocar ou en TER ?',
     texte:
-      'Le TER garde l’avantage, mais de peu : {b} contre {a} pour l’autocar thermique. Les deux restent très loin de la voiture seul au volant (14,2 kg pour 100 km).',
+      'Car ou TER, l’écart est mince : l’essentiel, c’est de laisser la voiture. Seul au volant, les mêmes 100 km émettent 14,2 kg, près de quatre fois plus qu’en autocar thermique.',
   },
 
   // ─── Livraison ───
@@ -228,7 +231,7 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     titre: 'Le détour du point relais',
     accroche: 'Ton colis t’attend. Chez toi, ou au point relais, où tu passes le prendre en voiture ?',
     texte:
-      'Le point relais évite au livreur de passer chez chacun… mais si tu y vas en voiture, tes 7 km aller-retour pèsent 1 kg, soit 60 % de l’empreinte. Livré chez toi, le même colis émet {rapport} fois moins. À pied ou à vélo, il ne reste que 656 g : un peu moins qu’à domicile.',
+      'Le point relais évite au livreur de passer chez chacun… mais si tu y vas en voiture, tes 7 km aller-retour pèsent 1 kg, soit 60 % de l’empreinte. À pied ou à vélo, il ne reste que 656 g : un peu moins qu’à domicile.',
   },
 
   // ─── Objets, numérique et chauffage ───
@@ -239,7 +242,7 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     titre: 'Laine ou synthétique ?',
     accroche: "Deux pulls bien chauds, portés 5 ans. L'un est naturel, l'autre synthétique.",
     texte:
-      'Naturel ne veut pas dire peu émetteur : fabriquer un pull en laine émet 52,9 kg de CO2e, deux fois plus qu’un pull en acrylique (25,5 kg).',
+      'Naturel ne veut pas dire peu émetteur : les matières premières du pull en laine pèsent à elles seules 39,3 kg de CO2e (69 % de son empreinte), presque trois fois celles du pull en acrylique (13,9 kg). La mise en forme et l’assemblage, eux, pèsent à peu près pareil.',
   },
   {
     a: 'smartphone',
@@ -267,7 +270,7 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     titre: 'Une matinée de bureau',
     accroche: "Un mug de thé d'un côté, dix e-mails envoyés de l'autre.",
     texte:
-      "Un e-mail pèse surtout par la fabrication des appareils (52 %) et des data-centers (38 %) qui servent à l'écrire, l'envoyer et le stocker. L'électricité pour les faire fonctionner ne compte que pour 10 %. Dix e-mails pèsent ainsi 24,6 g, plus du double d'un mug de thé.",
+      "Un e-mail pèse surtout par la fabrication des appareils (52 %) et des data-centers (38 %) qui servent à l'écrire, l'envoyer et le stocker. L'électricité pour les faire fonctionner ne compte que pour 10 %. Pour alléger son numérique, garder plus longtemps son téléphone et son ordinateur compte donc bien plus que de trier ses e-mails.",
   },
   {
     a: 'streaming-film',
@@ -276,7 +279,7 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     titre: 'En direct ou en différé ?',
     accroche: 'Ce soir, un film de 2 h : en streaming, ou téléchargé avant de le regarder ?',
     texte:
-      "Regarder un film en streaming pendant 2 h émet {a}, contre {b} pour le télécharger (4 Go). Des deux côtés, la transmission des données fait l'essentiel. Pour regarder ensuite le film téléchargé, l'écran consommera environ 6 g d'électricité : le streaming reste devant.",
+      "Des deux côtés, la transmission des données fait l'essentiel : 89 % pour le streaming, 98 % pour le téléchargement (4 Go). Pour regarder ensuite le film téléchargé, l'écran consommera environ 6 g d'électricité : même en les comptant, le streaming reste devant.",
   },
 
   // ─── Les géants : une année d'émissions en France ───
@@ -287,7 +290,7 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     titre: 'Les géants : écrans contre avions',
     accroche: "À l'échelle de la France, sur un an : le numérique ou l'aviation civile ?",
     texte:
-      "Selon l'ADEME, le numérique émet chaque année {a} en France, fabrication des appareils comprise : {rapport} fois plus que l'aviation civile ({b}, vols au départ de la France).",
+      "Le chiffre surprend, mais les deux ne sont pas mesurés de la même façon : le numérique ({a} par an) compte la fabrication de nos appareils, où qu'ils soient fabriqués, alors que l'aviation civile ({b}) est un inventaire des émissions des vols au départ de la France.",
   },
   {
     a: 'bovins-france',
@@ -296,7 +299,7 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     titre: 'Les géants : vaches contre avions',
     accroche: "Sur un an en France : les émissions de tous les bovins, ou celles de l'aviation civile ?",
     texte:
-      "Le parc bovin français émet chaque année {a}, {rapport} fois plus que l'aviation civile ({b}, vols au départ de la France).",
+      "On voit passer les avions, pas les émissions des troupeaux. Pourtant, sur un an en France, le parc bovin émet {a}, bien plus que toute l'aviation civile au départ du pays ({b}).",
   },
   {
     a: 'voitures-france',
@@ -305,7 +308,7 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     titre: 'Les géants : voitures contre écrans',
     accroche: 'Sur un an en France : les voitures thermiques, ou le numérique, fabrication des appareils comprise ?',
     texte:
-      'Les voitures particulières thermiques émettent en moyenne {a} par an en France, {rapport} fois plus que le numérique ({b} en 2022, fabrication des appareils comprise).',
+      'On parle beaucoup de l’empreinte du numérique ({b} en 2022, fabrication des appareils comprise). Les voitures particulières thermiques pèsent pourtant bien plus lourd : {a} par an en moyenne en France.',
   },
   {
     a: 'voitures-france',
@@ -314,7 +317,7 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     titre: 'Les géants : routes contre radiateurs',
     accroche: 'Sur un an en France : les voitures thermiques, ou le chauffage des logements ?',
     texte:
-      'Les voitures thermiques émettent en moyenne {a} par an, {rapport} fois plus que le chauffage des logements, eau chaude et cuisson comprises ({b}).',
+      'Rouler et se chauffer : deux postes lourds du quotidien. Les voitures thermiques émettent en moyenne {a} par an en France, le chauffage des logements {b}, eau chaude et cuisson comprises.',
   },
   {
     a: 'bovins-france',
@@ -323,7 +326,7 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     titre: 'Les géants : vaches contre écrans',
     accroche: 'Sur un an en France : tous les bovins, ou tout le numérique ?',
     texte:
-      'Le parc bovin français émet {a} par an, {rapport} fois plus que le numérique, pourtant compté avec la fabrication de tous les appareils ({b}).',
+      'Le numérique est pourtant compté avec la fabrication de tous nos appareils ({b} par an) : le parc bovin français le dépasse encore, avec {a}.',
   },
   {
     a: 'trains-france',
@@ -343,7 +346,7 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     titre: 'Un jeu, combien de steaks ?',
     accroche: "Des milliers d'échanges avec une IA pour coder ce jeu, ou un seul steak ?",
     texte:
-      "D'après notre estimation (hors ADEME), coder Duel Carbone avec une IA a émis environ {a} : l'électricité des serveurs qui font tourner l'IA. C'est {rapport} fois un steak de bœuf de 120 g ({b} selon l'ADEME). Une estimation large : sa méthode et sa fourchette sont dans « En savoir plus ».",
+      "D'après notre estimation (hors ADEME), coder Duel Carbone avec une IA a émis environ {a} : l'électricité des serveurs qui font tourner l'IA, pendant des milliers d'échanges. Une estimation large : sa méthode et sa fourchette sont dans « En savoir plus ». Le steak, lui, est chiffré par l'ADEME.",
   },
   {
     a: 'jean',
@@ -352,6 +355,6 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     titre: "Le jean ou l'IA ?",
     accroche: 'Tout un jeu codé avec une IA, ou un seul jean porté 5 ans ?',
     texte:
-      "Le jean l'emporte : selon l'ADEME, l'acheter et le porter 5 ans émet {a}, {rapport} fois l'empreinte estimée de la création de ce jeu avec une IA ({b}, une estimation hors ADEME, détaillée dans « En savoir plus »).",
+      "Selon l'ADEME, un jean pèse surtout par sa fabrication : la mise en forme du tissu (9,9 kg) et les matières premières (6,7 kg). La création de ce jeu avec une IA ({b}) est, elle, une estimation hors ADEME, détaillée dans « En savoir plus ».",
   },
 ]

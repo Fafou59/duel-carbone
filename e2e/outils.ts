@@ -72,6 +72,9 @@ export async function jouerUnDuel(page: Page, numero: number, touche: '1' | '2' 
     await expect(focus(page)).toHaveText('Au Duel !')
     await page.keyboard.press('Enter')
     await expect(annonce).toBeHidden()
+    // Le jeu rend le focus à « Duel n/10 » : tant qu'il est encore dans l'annonce, les touches 1 et 2 lui
+    // reviennent (et sont ignorées). On attend donc qu'il soit revenu avant de choisir.
+    await expect(focus(page)).toHaveText(`Duel ${numero}/10`)
   }
   await page.keyboard.press(touche)
   const verdict = page.locator('.duel__verdict')

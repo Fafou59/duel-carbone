@@ -98,40 +98,68 @@
 }
 
 /*
- * « Duel suivant » collé en bas de l'écran (position: sticky).
- * Un élément sticky reste dans les limites de son parent : la barre est donc un enfant
- * direct de l'écran Duel (cartes + explication), pour rester collée en bas de l'écran
- * même quand le joueur remonte vers les cartes. Arrivée tout en bas, elle reprend
- * sa place normale, sous l'explication, et ne cache plus rien.
- * Les marges négatives l'étendent sur la marge de la page, d'un bord à l'autre.
+ * « Duel suivant » fixé en bas de l'écran (position: fixed), d'un bord à l'autre : il ne bouge jamais, quel que
+ * soit le défilement (automatique ou à la main), pour que le joueur rapide le retrouve toujours sous son pouce.
+ * Une barre « sticky » reprenait sa place sous l'explication en fin de page, et changeait donc de position selon
+ * ce qu'il y avait dessous (pied de page, marges) et selon les barres du navigateur.
+ * La page garde sous elle la place de la barre (index.css, --hauteur-suite) : rien n'est caché à la fin.
+ * Sur Firefox Android et Safari, le navigateur pose la barre au-dessus de sa propre barre d'adresse, qui
+ * apparaît et disparaît selon le défilement : la page n'y peut rien (rien de tel dans l'application installée).
  */
 .duel__suite {
-  container-type: scroll-state;
-  position: sticky;
+  position: fixed;
+  right: 0;
   bottom: 0;
-  margin: 0 -16px;
+  left: 0;
+  z-index: 5;
+  background: var(--fond);
+  box-shadow: 0 -8px 16px -8px rgb(0 0 0 / 30%);
 }
 
+/*
+ * Firefox (barre d'adresse en bas sur Android) fait monter et descendre avec sa barre d'adresse tout ce qui est
+ * accroché au bas de l'écran : « Duel suivant » changeait de place quand elle se masquait. Sur Firefox, la barre
+ * est donc accrochée par le haut, à la hauteur du bas de l'écran quand la barre d'adresse est affichée (100svh) :
+ * Firefox ne déplace pas ce qui est accroché en haut. Le bouton reste juste au-dessus de la barre d'adresse, et
+ * ne bouge plus quand elle se masque (une bande libre apparaît alors dessous). La page garde déjà sous elle la
+ * hauteur de la barre d'adresse (index.css) : rien n'est caché en fin de page.
+ * Vérifié sur Firefox Android 160 avec une page de test : cette façon de faire est la seule qui reste immobile
+ * sans script (le bas de l'écran « bottom: 0 » suit la barre d'adresse ; un placement recalculé au défilement saute).
+ * Sans barre d'adresse (application installée, ordinateur), 100svh est le bas de l'écran : rien ne change.
+ * @supports (-moz-appearance) : seul Firefox le reconnaît.
+ */
+@supports (-moz-appearance: none) {
+  .duel__suite {
+    top: 100svh;
+    bottom: auto;
+    translate: 0 -100%;
+  }
+
+  /* Sous le bouton, le fond de la barre continue sur la hauteur de la barre d'adresse : caché par elle quand elle
+     est affichée, il évite de voir la page défiler sous le bouton quand elle se masque. */
+  .duel__suite::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    height: calc(100lvh - 100svh);
+    background: var(--fond);
+  }
+}
+
+/* La barre suit la largeur de la page (920 px au plus), centrée. */
 .duel__suite-barre {
   display: grid;
+  max-width: 920px;
+  margin: 0 auto;
   padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
-  background: var(--fond);
 }
 
 /* Sur téléphone, un bouton large, facile à atteindre avec le pouce. */
 @media (max-width: 699px) {
   .duel__suite .bouton {
     justify-self: stretch;
-  }
-}
-
-/*
- * Une ombre seulement quand la barre est « décollée » de sa place (elle flotte sur le contenu).
- * Requête récente (Chrome 133+) : les autres navigateurs affichent la barre sans ombre.
- */
-@container scroll-state(stuck: bottom) {
-  .duel__suite-barre {
-    box-shadow: 0 -8px 16px -8px rgb(0 0 0 / 30%);
   }
 }
 
