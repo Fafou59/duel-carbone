@@ -12,7 +12,7 @@ estimée par Epoch AI pour un modèle comparable, et de l'électricité américa
 limites sont dans [docs/empreinte-ia.md](../empreinte-ia.md).
 
 C'est une **exception** à la règle qui fonde le jeu, « toutes les valeurs viennent de l'ADEME » (ADR 0001). Elle
-est présentée comme une estimation, avec sa fourchette (de 2 à 11 kg CO2e au décompte du lancement, le 13 novembre 2026, après une première estimation de 2 à 23 kg resserrée le 12) et la mention
+est présentée comme une estimation, avec sa fourchette (de 2,5 à 12 kg CO2e au décompte du lancement, le 14 novembre 2026, après une première estimation de 2 à 23 kg resserrée le 12) et la mention
 explicite qu'elle ne vient pas de l'ADEME, à deux endroits seulement :
 
 - la page « En savoir plus » ;
@@ -39,6 +39,6 @@ explicite qu'elle ne vient pas de l'ADEME, à deux endroits seulement :
   Parties du jour à venir (aucun test ne l'exige, les jours passés ne bougent pas). Ses deux textes ne le chiffrent
   que par `{a}` ou `{b}` : pas de relecture.
 - `npm run empreinte-ia` recompte les jetons dans les journaux de session (sur l'ordinateur où le projet est
-  développé) ; on reporte le résultat à la main, avec la date du décompte. Le décompte se refait au lancement
+  développé) ; une session cloud, dont le journal disparaît avec son conteneur, est relevée avant sa fin et ajoutée à la main ; on reporte le résultat à la main, avec la date du décompte. Le décompte se refait au lancement
   officiel, puis à chaque PR une fois le jeu livré (environ 20 g CO2e par mise à jour) ; jamais automatiquement.
 - Si Anthropic publie l'énergie de ses modèles, l'estimation est refaite avec cette source.
