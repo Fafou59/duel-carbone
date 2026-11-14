@@ -98,40 +98,36 @@
 }
 
 /*
- * « Duel suivant » collé en bas de l'écran (position: sticky).
- * Un élément sticky reste dans les limites de son parent : la barre est donc un enfant
- * direct de l'écran Duel (cartes + explication), pour rester collée en bas de l'écran
- * même quand le joueur remonte vers les cartes. Arrivée tout en bas, elle reprend
- * sa place normale, sous l'explication, et ne cache plus rien.
- * Les marges négatives l'étendent sur la marge de la page, d'un bord à l'autre.
+ * « Duel suivant » fixé en bas de l'écran (position: fixed), d'un bord à l'autre : il ne bouge jamais, quel que
+ * soit le défilement (automatique ou à la main), pour que le joueur rapide le retrouve toujours sous son pouce.
+ * Une barre « sticky » reprenait sa place sous l'explication en fin de page, et changeait donc de position selon
+ * ce qu'il y avait dessous (pied de page, marges) et selon les barres du navigateur.
+ * La page garde sous elle la place de la barre (index.css, --hauteur-suite) : rien n'est caché à la fin.
+ * Sur Firefox Android et Safari, le navigateur pose la barre au-dessus de sa propre barre d'adresse, qui
+ * apparaît et disparaît selon le défilement : la page n'y peut rien (rien de tel dans l'application installée).
  */
 .duel__suite {
-  container-type: scroll-state;
-  position: sticky;
+  position: fixed;
+  right: 0;
   bottom: 0;
-  margin: 0 -16px;
+  left: 0;
+  z-index: 5;
+  background: var(--fond);
+  box-shadow: 0 -8px 16px -8px rgb(0 0 0 / 30%);
 }
 
+/* La barre suit la largeur de la page (920 px au plus), centrée. */
 .duel__suite-barre {
   display: grid;
+  max-width: 920px;
+  margin: 0 auto;
   padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
-  background: var(--fond);
 }
 
 /* Sur téléphone, un bouton large, facile à atteindre avec le pouce. */
 @media (max-width: 699px) {
   .duel__suite .bouton {
     justify-self: stretch;
-  }
-}
-
-/*
- * Une ombre seulement quand la barre est « décollée » de sa place (elle flotte sur le contenu).
- * Requête récente (Chrome 133+) : les autres navigateurs affichent la barre sans ombre.
- */
-@container scroll-state(stuck: bottom) {
-  .duel__suite-barre {
-    box-shadow: 0 -8px 16px -8px rgb(0 0 0 / 30%);
   }
 }
 

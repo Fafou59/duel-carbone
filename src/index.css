@@ -57,17 +57,20 @@ a {
 }
 
 /*
- * Pendant les Duels, la page s'arrête sous « Duel suivant » (qui a déjà sa propre marge) : dans l'application
- * installée, arrivée en bas, la barre collée en bas de l'écran ne remonte pas.
- * Dans un navigateur dont la barre d'adresse est en bas (Firefox sur Android, Safari sur iPhone), cette barre
- * recouvre le bas de la page quand elle s'affiche : « Duel suivant », remonté d'autant, cachait alors la fin de
- * l'explication (les sources ADEME), sans que la page puisse défiler plus loin. On garde donc sous la page la
- * hauteur de cette barre : l'écart entre la plus grande et la plus petite hauteur d'écran (lvh et svh).
- * Il est nul dans l'application installée, sans barre d'adresse.
+ * Une fois le choix fait, « Duel suivant » est fixé en bas de l'écran (EcranDuel.css) et recouvre le bas de la
+ * page. La page garde donc sous elle la hauteur de la barre (--hauteur-suite, mesurée par EcranDuel), plus celle
+ * de la barre d'adresse quand elle est en bas de l'écran et vient s'y ajouter (Firefox sur Android, Safari) :
+ * l'écart entre la plus grande et la plus petite hauteur d'écran (lvh et svh), nul dans l'application installée.
+ * Ainsi la fin de l'explication et le pied de page peuvent toujours remonter au-dessus du bouton.
  */
-.page--en-duel {
-  padding-bottom: 0;
-  padding-bottom: calc(100lvh - 100svh);
+.page:has(.duel__suite) {
+  padding-bottom: calc(16px + var(--hauteur-suite, 96px));
+  padding-bottom: calc(16px + var(--hauteur-suite, 96px) + 100lvh - 100svh);
+}
+
+/* Un élément atteint au clavier (ou par un défilement) n'est jamais caché derrière le bouton fixé. */
+html:has(.duel__suite) {
+  scroll-padding-bottom: calc(var(--hauteur-suite, 96px) + 8px);
 }
 
 .entete {

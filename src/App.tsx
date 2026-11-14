@@ -146,12 +146,6 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
   // (elle détournait l'attention des cartes).
   const afficherFrise = page === 'enSavoirPlus' || (partie !== null && partieTerminee === numero)
 
-  // Pendant les Duels, ni pied de page ni marge du bas : « Duel suivant », collé en bas de l'écran, ne remonte
-  // plus en arrivant en bas de la page, et le pouce ne tombe plus sur « Comment ça marche ? » ou « En savoir plus ».
-  // Le souci se voyait surtout dans l'application installée, où aucune barre d'adresse ne recouvre le bas de l'écran.
-  // Les sources ADEME restent citées dans chaque explication ; le pied de page revient à la fin de la Partie.
-  const enDuel = page === 'jeu' && partie !== null && partieTerminee !== numero
-
   const revenirALAccueil = () => {
     setPartie(null)
     setTutoriel(false)
@@ -164,7 +158,7 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
   }
 
   return (
-    <div className={enDuel ? 'page page--en-duel' : 'page'}>
+    <div className="page">
       <header className="entete">
         {/* Le logo et le nom ramènent à l'accueil, d'où qu'on soit (une Partie du jour se reprendra là où elle en était). */}
         <h1>
@@ -235,17 +229,15 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
         </div>
       </main>
       {afficherFrise && <Frise />}
-      {!enDuel && (
-        <footer className="pied">
-          <p>
-            <button type="button" className="lien-bouton pied__lien-bouton" onClick={() => setTutoriel(true)}>
-              Comment ça marche ?
-            </button>{' '}
-            · <a href={ADRESSES.enSavoirPlus}>En savoir plus</a> · <a href={IMPACT_CO2_DOC}>Chiffres de l’ADEME</a>, sans
-            cookie ni compte
-          </p>
-        </footer>
-      )}
+      <footer className="pied">
+        <p>
+          <button type="button" className="lien-bouton pied__lien-bouton" onClick={() => setTutoriel(true)}>
+            Comment ça marche ?
+          </button>{' '}
+          · <a href={ADRESSES.enSavoirPlus}>En savoir plus</a> · <a href={IMPACT_CO2_DOC}>Chiffres de l’ADEME</a>, sans cookie
+          ni compte
+        </p>
+      </footer>
       <Tutoriel ouvert={tutoriel} onFermer={() => setTutoriel(false)} onJouer={lancerPartieDuJour} />
     </div>
   )

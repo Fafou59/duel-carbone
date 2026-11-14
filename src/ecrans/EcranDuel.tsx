@@ -55,6 +55,23 @@ export function EcranDuel({ duel, choix, onChoisir, suite }: Props) {
     return () => window.clearTimeout(minuteur)
   }, [revele, duel])
 
+  // « Duel suivant » est fixé en bas de l'écran : la page garde sous elle la place de la barre (index.css).
+  // Sa hauteur exacte (zoom, taille du texte, encoche de l'iPhone) est mesurée et donnée à la page.
+  const barreDeSuite = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const barre = barreDeSuite.current
+    if (!barre) return
+    const racine = document.documentElement
+    const mesurer = () => racine.style.setProperty('--hauteur-suite', `${barre.offsetHeight}px`)
+    mesurer()
+    const observateur = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(mesurer)
+    observateur?.observe(barre)
+    return () => {
+      observateur?.disconnect()
+      racine.style.removeProperty('--hauteur-suite')
+    }
+  }, [revele])
+
   // Raccourcis clavier : 1 choisit la première carte, 2 la seconde (tant que rien n'est choisi).
   useEffect(() => {
     if (revele) return
@@ -126,12 +143,11 @@ export function EcranDuel({ duel, choix, onChoisir, suite }: Props) {
         )}
       </div>
 
-      {/* La suite reste collée en bas de l'écran une fois le choix fait, que le joueur lise
-          l'explication ou remonte vers les cartes. Elle est placée directement dans l'écran Duel
-          (et non dans la carte d'explication) : un élément « sticky » ne peut pas sortir de son parent.
-          Elle vient après l'explication dans le code : l'ordre de lecture ne change pas. */}
+      {/* La suite est fixée en bas de l'écran une fois le choix fait, au même endroit que le joueur lise
+          l'explication ou remonte vers les cartes (EcranDuel.css). Elle vient après l'explication dans le code :
+          l'ordre de lecture et de tabulation ne change pas. */}
       {revele && suite && (
-        <div className="duel__suite">
+        <div ref={barreDeSuite} className="duel__suite">
           <div className="duel__suite-barre">{suite}</div>
         </div>
       )}
