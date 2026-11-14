@@ -4,8 +4,8 @@ Duel Carbone est codé avec l'aide d'une IA, **Claude Opus 5.5** (Anthropic), da
 et valide, l'IA écrit le code et l'explique. Ce document estime l'empreinte carbone de ce travail. Le résultat est
 affiché dans la page « En savoir plus ».
 
-> **Estimation au 13 novembre 2026, veille du lancement : environ 5,5 kg CO2e, entre 2 et 11 kg selon les hypothèses.**
-> C'est un peu plus qu'un steak et demi de bœuf (3,4 kg CO2e chacun selon l'ADEME), et moins que regarder l'intégrale de
+> **Estimation au 14 novembre 2026, jour du lancement : environ 6 kg CO2e, entre 2,5 et 12 kg selon les hypothèses.**
+> C'est un peu moins que deux steaks de bœuf (3,4 kg CO2e chacun selon l'ADEME), et moins que regarder l'intégrale de
 > Friends en streaming (7,9 kg).
 
 Cette estimation est aussi **l'Easter Egg** du jeu : le Geste « Créer Duel Carbone, assisté par IA »
@@ -19,18 +19,24 @@ la seule exception à la règle « seule source : l'ADEME » ; voir [l'ADR 0004]
 Un modèle de langage lit et écrit des **jetons** (des morceaux de mots, environ ¾ de mot en moyenne). Claude Code
 garde un journal de chaque session de travail, où chaque réponse du modèle note ses jetons, en quatre sortes :
 
-| Sorte | Ce que c'est | Nombre (au 13/11/2026) |
+| Sorte | Ce que c'est | Nombre (au 14/11/2026) |
 |---|---|---|
-| Lus | La demande, lue pour la première fois | 5 264 |
-| Mis en mémoire | Lus, puis gardés en mémoire pour les échanges suivants | 8 753 360 |
-| Relus depuis la mémoire | Le contexte de la conversation, relu à chaque échange | 784 011 822 |
-| Écrits | Les réponses du modèle : code, explications | 2 273 283 |
+| Lus | La demande, lue pour la première fois | 5 794 |
+| Mis en mémoire | Lus, puis gardés en mémoire pour les échanges suivants | 9 846 543 |
+| Relus depuis la mémoire | Le contexte de la conversation, relu à chaque échange | 850 347 760 |
+| Écrits | Les réponses du modèle : code, explications | 2 424 797 |
 
-Soit **2 401 appels au modèle** depuis le 8 novembre 2026, dans 8 journaux de session (le dépôt et ses worktrees),
-tous avec Claude Opus 5.5. Le décompte se refait avec `npm run empreinte-ia` (`scripts/empreinte-ia.ts`).
+Soit **2 637 appels au modèle** depuis le 8 novembre 2026, tous avec Claude Opus 5.5 : 2 418 dans les 8 journaux de
+session de l'ordinateur de travail (le dépôt et ses worktrees), et 219 dans une session lancée dans le cloud, depuis
+un téléphone, pour corriger les derniers défauts avant le lancement (#77). Le décompte se refait avec
+`npm run empreinte-ia` (`scripts/empreinte-ia.ts`).
+
+**Les sessions cloud** tournent dans un conteneur éphémère : leur journal disparaît avec lui, et le script ne peut
+pas les relire. Elles sont donc comptées à partir d'un relevé fait avec le même script, dans la session, avant la
+fin du conteneur, puis ajoutées à la main. Une session cloud qui n'a pas été relevée manquerait au décompte.
 
 L'énorme majorité des jetons est **relue depuis la mémoire** : à chaque échange, le modèle relit toute la
-conversation (en moyenne environ 330 000 jetons). C'est beaucoup moins coûteux que de la relire « à froid », mais
+conversation (en moyenne environ 320 000 jetons). C'est beaucoup moins coûteux que de la relire « à froid », mais
 pas gratuit.
 
 ## 2. De jetons à « jetons lus équivalents »
@@ -46,8 +52,8 @@ pondérations, comparées à un jeton lu :
 | Relu depuis la mémoire | 0,20 $ | × 0,05 | Rien à recalculer, seulement à relire |
 | Écrit | 20 $ | × 5 | Le modèle produit les jetons un par un |
 
-Résultat : **environ 62 millions de jetons lus équivalents**. Les jetons relus en pèsent les deux tiers
-(39 millions), les jetons écrits (11,4 millions) et mis en mémoire (10,9 millions) le reste.
+Résultat : **environ 67 millions de jetons lus équivalents**. Les jetons relus en pèsent les deux tiers
+(42,5 millions), les jetons mis en mémoire (12,3 millions) et écrits (12,1 millions) le reste.
 
 ## 3. De jetons à kWh
 
@@ -82,11 +88,11 @@ d'électricité renouvelable d'Amazon ne sont pas déduits.
 
 | Hypothèse | Énergie par jeton lu | CO2e par kWh | Énergie | Empreinte |
 |---|---|---|---|---|
-| Basse | 0,15 mWh | 0,25 kg | 9,2 kWh | **2,3 kg CO2e** |
-| Centrale | 0,3 mWh | 0,3 kg | 18,5 kWh | **5,5 kg CO2e** |
-| Haute | 0,45 mWh | 0,4 kg | 27,7 kWh | **11,1 kg CO2e** |
+| Basse | 0,15 mWh | 0,25 kg | 10,0 kWh | **2,5 kg CO2e** |
+| Centrale | 0,3 mWh | 0,3 kg | 20,1 kWh | **6,0 kg CO2e** |
+| Haute | 0,45 mWh | 0,4 kg | 30,1 kWh | **12,0 kg CO2e** |
 
-La page « En savoir plus » arrondit au kilo : environ 6 kg, entre 2 et 11 kg. Les calculs sont dans
+La page « En savoir plus » arrondit au kilo : environ 6 kg, entre 3 et 12 kg. Les calculs sont dans
 `src/domaine/empreinte-ia.ts`, les chiffres dans `src/donnees/empreinte-ia.ts` (la page les lit : elle suit
 d'elle-même une mise à jour).
 
@@ -119,9 +125,9 @@ L'écart entre les hypothèses basse et haute passe d'un facteur 10 à un facteu
 
 C'est un **ordre de grandeur**, pas une mesure. Trois hypothèses restent fragiles :
 
-- **Le prix suit le calcul.** Relire un très long contexte (330 000 jetons en moyenne) sollicite surtout la
+- **Le prix suit le calcul.** Relire un très long contexte (320 000 jetons en moyenne) sollicite surtout la
   mémoire des processeurs : son coût réel peut s'écarter du tarif. Avec l'ancienne pondération (un dixième),
-  l'estimation centrale serait de 9,1 kg.
+  l'estimation centrale serait de 9,9 kg.
 - **Claude Opus 5.5 ressemble aux modèles étudiés.** Sa taille et son matériel ne sont pas publics.
 - **Où tournent les demandes.** Par défaut, Anthropic peut servir une demande depuis plusieurs régions du monde, et
   pas seulement chez AWS.
@@ -132,4 +138,5 @@ Pour aller plus loin, il faudrait qu'Anthropic publie l'énergie de ses modèles
 **Mise à jour : au lancement officiel, puis à chaque PR une fois le jeu livré.** Rien ne se met à jour tout seul :
 le chiffre affiché reste celui du dernier décompte (sa date est écrite sur la page). Pour le refaire :
 `npm run empreinte-ia`, puis reporter les jetons et la date dans `src/donnees/empreinte-ia.ts`, et lancer
-`npm run calendrier` : la valeur de l'Easter Egg fixe la place de ses deux Duels dans les Parties du jour à venir.
+`npm run calendrier` : la valeur de l'Easter Egg fixe la place de ses deux Duels dans les Parties du jour à venir. Une session
+cloud se relève avec le même script avant la fin de son conteneur, et ses jetons s'ajoutent à la main.
