@@ -56,10 +56,18 @@ a {
   padding: 16px;
 }
 
-/* Pendant les Duels, la page s'arrête sous « Duel suivant » (qui a déjà sa propre marge) : arrivée en bas,
-   la barre collée en bas de l'écran ne remonte pas. */
+/*
+ * Pendant les Duels, la page s'arrête sous « Duel suivant » (qui a déjà sa propre marge) : dans l'application
+ * installée, arrivée en bas, la barre collée en bas de l'écran ne remonte pas.
+ * Dans un navigateur dont la barre d'adresse est en bas (Firefox sur Android, Safari sur iPhone), cette barre
+ * recouvre le bas de la page quand elle s'affiche : « Duel suivant », remonté d'autant, cachait alors la fin de
+ * l'explication (les sources ADEME), sans que la page puisse défiler plus loin. On garde donc sous la page la
+ * hauteur de cette barre : l'écart entre la plus grande et la plus petite hauteur d'écran (lvh et svh).
+ * Il est nul dans l'application installée, sans barre d'adresse.
+ */
 .page--en-duel {
   padding-bottom: 0;
+  padding-bottom: calc(100lvh - 100svh);
 }
 
 .entete {
