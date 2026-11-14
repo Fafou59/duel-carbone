@@ -33,6 +33,7 @@ export type Evenement =
   | `rejouer/${Mode}`
   | `duree_partie/${Tranche}`
   | 'partage'
+  | 'partage/image'
   | `erreur/${Plantage}`
   | `installation/${'proposee' | 'guide' | 'acceptee' | 'refusee'}`
 

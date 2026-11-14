@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { GESTES_CALCULES } from '../donnees/index.ts'
 import { plusEmetteur, moinsEmetteur } from '../domaine/duel.ts'
@@ -8,8 +8,8 @@ import { hasardReproductible } from '../domaine/hasard.ts'
 import { avancer, demarrerPartie, score } from '../domaine/partie.ts'
 import { texteDePartage, texteDePartageDuJour } from '../domaine/partage.ts'
 import { recapitulatif } from '../domaine/recapitulatif.ts'
-import type { ResultatPartage } from '../navigateur/partager.ts'
-import { EcranFin } from './EcranFin.tsx'
+import type { ResultatPartage, ResultatPartageImage } from '../navigateur/partager.ts'
+import { EcranFin, type PartageImage } from './EcranFin.tsx'
 
 // Une Partie reproductible, jouée d'avance : bonne réponse aux Duels 1 à 7, mauvaise aux Duels 8 à 10.
 const DUELS = genererPartie({ gestes: GESTES_CALCULES, hasard: hasardReproductible(3) })
@@ -25,6 +25,14 @@ const afficher = (
   onPartager: (texte: string) => Promise<ResultatPartage> = async () => 'copie',
 ) =>
   render(<EcranFin lignes={LIGNES} score={score(etat)} total={10} onRejouer={onRejouer} onPartager={onPartager} />)
+
+/** Un faux partage en image : un téléphone qui sait partager un fichier (sauf avis contraire). */
+const IMAGE = new Blob(['png'], { type: 'image/png' })
+const fauxPartageImage = (resultat: ResultatPartageImage = 'partage', fichierPartageable = true) => ({
+  fichierPartageable: () => fichierPartageable,
+  fabriquer: vi.fn<PartageImage['fabriquer']>(async () => IMAGE),
+  partager: vi.fn<PartageImage['partager']>(async () => resultat),
+})
 
 const caseDuel = (numero: number) => screen.getByRole('button', { name: new RegExp(`^Duel ${numero} ?\\(`) })
 
@@ -48,7 +56,14 @@ describe('Fin de Partie libre : cap sur le Duel du jour', () => {
     const onJouer = vi.fn()
     const onRejouer = vi.fn()
     render(
-      <EcranFin lignes={LIGNES} score={7} total={10} onRejouer={onRejouer} duJour={{ numero: 12, situation, onJouer }} />,
+      <EcranFin
+        lignes={LIGNES}
+        score={7}
+        total={10}
+        onRejouer={onRejouer}
+        duJour={{ numero: 12, situation, onJouer }}
+        partageImage={fauxPartageImage()}
+      />,
     )
     return { onJouer, onRejouer }
   }
@@ -62,7 +77,12 @@ describe('Fin de Partie libre : cap sur le Duel du jour', () => {
   it('propose d’abord le Duel du jour s’il n’est pas encore joué, puis « Rejouer »', () => {
     const { onJouer } = finLibre('aJouer')
     expect(screen.getByText('Échauffement terminé : place au Duel du jour !')).toBeInTheDocument()
-    expect(boutons().map((b) => b.textContent)).toEqual(['Jouer le Duel du jour n° 12', 'Rejouer', 'Partager mon score'])
+    expect(boutons().map((b) => b.textContent)).toEqual([
+      'Jouer le Duel du jour n° 12',
+      'Rejouer',
+      'Partager mon score',
+      '📸 Partager en image',
+    ])
     fireEvent.click(screen.getByRole('button', { name: 'Jouer le Duel du jour n° 12' }))
     expect(onJouer).toHaveBeenCalledOnce()
   })
@@ -74,7 +94,7 @@ describe('Fin de Partie libre : cap sur le Duel du jour', () => {
 
   it('garde « Rejouer » en premier si le Duel du jour est déjà joué, et annonce le prochain', () => {
     finLibre('joue')
-    expect(boutons().map((b) => b.textContent)).toEqual(['Rejouer', 'Partager mon score'])
+    expect(boutons().map((b) => b.textContent)).toEqual(['Rejouer', 'Partager mon score', '📸 Partager en image'])
     expect(screen.getByText(/Prochain Duel du jour dans/)).toBeInTheDocument()
   })
 })
@@ -174,6 +194,73 @@ describe('Partage du score', () => {
   it('montre le texte à copier à la main si la copie échoue', async () => {
     partagerAvec('echec')
     expect(await screen.findByText(texteDePartage(7, 10))).toBeInTheDocument()
+  })
+})
+
+describe('Partage du score en image, pour les Stories', () => {
+  const bonnes = LIGNES.map((l) => l.bonne)
+  const fin = ({ duJour = true, resultat = 'partage' as ResultatPartageImage, fichierPartageable = true } = {}) => {
+    const partageImage = fauxPartageImage(resultat, fichierPartageable)
+    render(
+      <EcranFin
+        lignes={LIGNES}
+        score={7}
+        total={10}
+        onRejouer={() => {}}
+        onPartager={async () => 'copie'}
+        partieDuJour={duJour ? { numero: 12, serie: 3 } : undefined}
+        partageImage={partageImage}
+      />,
+    )
+    return partageImage
+  }
+  const boutonImage = (nom = 'Partager en image') => screen.getByRole('button', { name: nom })
+
+  it('propose l’image juste après « Défier mes proches », qui reste le premier bouton', () => {
+    fin()
+    const boutons = within(screen.getByRole('group', { name: 'Et maintenant ?' })).getAllByRole('button')
+    expect(boutons.map((b) => b.textContent)).toEqual(['Défier mes proches', '📸 Partager en image'])
+  })
+
+  it('prépare l’image dès l’affichage (numéro, score, cases, série), puis la partage au toucher du bouton', async () => {
+    const { fabriquer, partager } = fin()
+    expect(fabriquer).toHaveBeenCalledWith({ numero: 12, score: 7, bonnes, serie: 3 })
+    fireEvent.click(boutonImage())
+    await waitFor(() => expect(partager).toHaveBeenCalledOnce())
+    expect(await partager.mock.calls[0][0]).toBe(IMAGE)
+    expect(partager.mock.calls[0][1]).toBe('duel-carbone-du-jour-12.png')
+  })
+
+  it('en Partie libre aussi, sans numéro ni série', async () => {
+    const { fabriquer, partager } = fin({ duJour: false })
+    expect(fabriquer).toHaveBeenCalledWith({ numero: undefined, score: 7, bonnes, serie: undefined })
+    fireEvent.click(boutonImage())
+    await waitFor(() => expect(partager).toHaveBeenCalledWith(expect.any(Promise), 'duel-carbone-partie-libre.png'))
+  })
+
+  it('devient « Enregistrer l’image » quand le navigateur ne sait pas partager un fichier', () => {
+    fin({ fichierPartageable: false })
+    expect(boutonImage('Enregistrer l’image')).toBeInTheDocument()
+  })
+
+  it('rappelle d’ajouter l’autocollant « Lien » après un partage ou un enregistrement', async () => {
+    fin({ resultat: 'enregistre' })
+    fireEvent.click(boutonImage())
+    expect(await screen.findByRole('status')).toHaveTextContent('Image enregistrée')
+    expect(screen.getByRole('status')).toHaveTextContent('autocollant « Lien »')
+  })
+
+  it('n’affiche rien si le joueur ferme le menu', async () => {
+    fin({ resultat: 'annule' })
+    fireEvent.click(boutonImage())
+    await act(async () => {})
+    expect(screen.getByRole('status')).toBeEmptyDOMElement()
+  })
+
+  it('renvoie vers le texte si l’image n’a pas pu être créée', async () => {
+    fin({ resultat: 'echec' })
+    fireEvent.click(boutonImage())
+    expect(await screen.findByRole('status')).toHaveTextContent('L’image n’a pas pu être créée')
   })
 })
 

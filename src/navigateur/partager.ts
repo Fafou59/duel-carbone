@@ -53,3 +53,94 @@ function environnementReel(): Environnement {
     writeText: navigator.clipboard ? (texte) => navigator.clipboard.writeText(texte) : undefined,
   }
 }
+
+/*
+ * Le partage en image (#79), pour les Stories : Instagram, Facebook, Snapchat et les statuts WhatsApp
+ * n'acceptent que des images. Sur téléphone, le menu de partage reçoit le fichier ; ailleurs, on l'enregistre
+ * (téléchargement) et le joueur l'ajoute à sa Story depuis sa galerie.
+ */
+
+export type EnvironnementImage = Omit<Environnement, 'writeText'> & {
+  /** Le menu de partage accepterait-il ces données ? (navigator.canShare, absent des vieux navigateurs.) */
+  canShare?: (donnees: ShareData) => boolean
+  /** Télécharge le fichier sur l'appareil. */
+  enregistrer?: (fichier: File) => void
+}
+
+export type ResultatPartageImage = 'partage' | 'annule' | 'enregistre' | 'echec'
+
+const fichierPng = (contenu: BlobPart[], nom: string) => new File(contenu, nom, { type: 'image/png' })
+
+/**
+ * Le menu de partage acceptera-t-il une image ? Sur téléphone seulement, comme pour le texte : sur ordinateur,
+ * le menu de Windows ou de macOS est peu pratique, on préfère enregistrer l'image.
+ */
+export function peutPartagerUnFichier(env: EnvironnementImage = environnementImageReel()): boolean {
+  if (!env.tactile || !env.share || !env.canShare) return false
+  try {
+    return env.canShare({ files: [fichierPng([], 'essai.png')] })
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Partage l'image (déjà en préparation : Safari n'ouvre le menu de partage que juste après le toucher du bouton,
+ * on ne peut pas attendre qu'elle soit dessinée) ou, à défaut, l'enregistre.
+ */
+export async function partagerImage(
+  image: Promise<Blob>,
+  nom: string,
+  env: EnvironnementImage = environnementImageReel(),
+): Promise<ResultatPartageImage> {
+  const resultat = await partagerOuEnregistrer(image, nom, env)
+  // Comme pour le texte : on compte un partage abouti (menu de partage ou enregistrement), pas une annulation.
+  if (resultat === 'partage' || resultat === 'enregistre') mesurer('partage/image')
+  return resultat
+}
+
+async function partagerOuEnregistrer(image: Promise<Blob>, nom: string, env: EnvironnementImage): Promise<ResultatPartageImage> {
+  let fichier: File
+  try {
+    fichier = fichierPng([await image], nom)
+  } catch {
+    return 'echec'
+  }
+  if (peutPartagerUnFichier(env) && env.canShare!({ files: [fichier] })) {
+    try {
+      // L'image seule, sans texte : dans une Story, le texte serait perdu (l'adresse du jeu est sur l'image),
+      // et certaines applications traiteraient alors le partage comme un texte, sans proposer la Story.
+      await env.share!({ files: [fichier] })
+      return 'partage'
+    } catch (erreur) {
+      if (erreur instanceof Error && erreur.name === 'AbortError') return 'annule'
+      // Toute autre panne : on se rabat sur l'enregistrement.
+    }
+  }
+  if (!env.enregistrer) return 'echec'
+  try {
+    env.enregistrer(fichier)
+    return 'enregistre'
+  } catch {
+    return 'echec'
+  }
+}
+
+/** Télécharge un fichier : un lien « download » vers son contenu, cliqué par le code, puis oublié. */
+function enregistrer(fichier: File): void {
+  const adresse = URL.createObjectURL(fichier)
+  const lien = Object.assign(document.createElement('a'), { href: adresse, download: fichier.name })
+  document.body.append(lien)
+  lien.click()
+  lien.remove()
+  // On laisse au navigateur le temps de lancer le téléchargement avant de libérer la mémoire.
+  setTimeout(() => URL.revokeObjectURL(adresse), 60_000)
+}
+
+function environnementImageReel(): EnvironnementImage {
+  return {
+    ...environnementReel(),
+    canShare: navigator.canShare ? (donnees) => navigator.canShare(donnees) : undefined,
+    enregistrer,
+  }
+}
