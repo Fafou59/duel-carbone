@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Diagnostic de la barre</title>
+<!--
+  Page de test temporaire (PR #77), à retirer avant la fusion : quatre façons de fixer un bouton en bas de
+  l'écran, côte à côte, pour voir laquelle reste immobile quand Firefox Android masque sa barre d'adresse.
+-->
+<style>
+  body { margin: 0; font: 15px/1.4 system-ui, sans-serif; background: #141816; color: #ecefe9; }
+  main { padding: 16px 16px 200px; }
+  h1 { font-size: 20px; margin: 0 0 8px; }
+  pre { white-space: pre-wrap; background: #1e2421; padding: 10px; border-radius: 10px; font-size: 13px; }
+  .bloc { height: 90px; margin: 8px 0; border-radius: 10px; background: #1e2421; display: grid; place-items: center; color: #a7b0a8; }
+  .barre { width: 24%; height: 56px; display: grid; place-items: center; border-radius: 12px; font-weight: 800; font-size: 22px; color: #0d1411; }
+  /* A : comme aujourd'hui sur Chrome et en application installée. */
+  #a { position: fixed; bottom: 0; left: 1%; background: #4fbf8c; }
+  /* B : la tentative précédente pour Firefox (accrochée par le haut, en unité svh). */
+  #b { position: fixed; top: 100svh; translate: 0 -100%; left: 26%; background: #e3b341; }
+  /* C : accrochée par le haut, position calculée en pixels par JavaScript, une fois pour toutes. */
+  #c { position: fixed; top: 0; left: 51%; background: #8db8ff; }
+  /* D : dans la page (position absolue), replacée à chaque défilement par JavaScript. */
+  #d { position: absolute; top: 0; left: 76%; background: #ff8a80; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Diagnostic : barre fixée en bas</h1>
+  <p>Fais défiler la page vers le bas pour que la barre d'adresse se masque, puis vers le haut pour qu'elle revienne. Fais une capture dans chaque état : on verra laquelle des quatre cases (A, B, C, D) ne bouge pas.</p>
+  <pre id="mesures">…</pre>
+  <div id="contenu"></div>
+</main>
+<div id="a" class="barre">A</div>
+<div id="b" class="barre">B</div>
+<div id="c" class="barre">C</div>
+<div id="d" class="barre">D</div>
+<script>
+  const contenu = document.getElementById('contenu')
+  for (let i = 1; i <= 30; i++) contenu.insertAdjacentHTML('beforeend', `<div class="bloc">Bloc ${i}</div>`)
+
+  // Mesure d'une hauteur en unités CSS (svh, lvh, dvh), en pixels.
+  const sonde = document.createElement('div')
+  sonde.style.cssText = 'position:absolute;visibility:hidden;width:1px'
+  document.body.append(sonde)
+  const hauteur = (valeur) => { sonde.style.height = valeur; return sonde.getBoundingClientRect().height }
+  const svh = hauteur('100svh')
+
+  // C : en haut, à svh − hauteur de la case, calculé une seule fois.
+  const c = document.getElementById('c')
+  c.style.top = `${svh - c.offsetHeight}px`
+
+  // D : dans la page, replacée à chaque défilement pour rester à svh − hauteur à l'écran.
+  const d = document.getElementById('d')
+  const placerD = () => { d.style.top = `${window.scrollY + svh - d.offsetHeight}px` }
+  placerD()
+  window.addEventListener('scroll', placerD, { passive: true })
+
+  const mesures = document.getElementById('mesures')
+  const ecrire = () => {
+    const vv = window.visualViewport
+    const haut = (id) => Math.round(document.getElementById(id).getBoundingClientRect().top)
+    mesures.textContent = [
+      `Navigateur : ${navigator.userAgent}`,
+      `Mode : ${matchMedia('(display-mode: standalone)').matches ? 'application installée' : 'navigateur'}`,
+      `@supports (-moz-appearance: none) : ${CSS.supports('-moz-appearance', 'none')}`,
+      `innerHeight : ${innerHeight} · visualViewport : ${vv ? Math.round(vv.height) + ' (décalage ' + Math.round(vv.offsetTop) + ')' : 'absent'}`,
+      `100svh : ${Math.round(svh)} · 100lvh : ${Math.round(hauteur('100lvh'))} · 100dvh : ${Math.round(hauteur('100dvh'))}`,
+      `Haut des cases à l'écran : A ${haut('a')} · B ${haut('b')} · C ${haut('c')} · D ${haut('d')}`,
+      `Défilement : ${Math.round(scrollY)}`,
+    ].join('\n')
+  }
+  ecrire()
+  window.addEventListener('scroll', ecrire, { passive: true })
+  window.addEventListener('resize', ecrire)
+  window.visualViewport?.addEventListener('resize', ecrire)
+</script>
+</body>
+</html>
