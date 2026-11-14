@@ -58,6 +58,14 @@ describe("L'image de partage, au format Story", () => {
     expect(lesTextes.join(' ')).not.toMatch(/Série|du jour/)
   })
 
+  it('resserre la carte sous les cases quand il n’y a pas de série', () => {
+    const carte = (donnees: DonneesImage) =>
+      miseEnPageDeLImage(donnees).find((e) => e.sorte === 'rectangle' && e.x === 90) as Extract<Element, { sorte: 'rectangle' }>
+    const basDesCases = (donnees: DonneesImage) => Math.max(...cases(miseEnPageDeLImage(donnees)).map((c) => c.y + c.cote))
+    expect(carte(LIBRE).y + carte(LIBRE).hauteur - basDesCases(LIBRE)).toBeLessThan(80)
+    expect(carte(DU_JOUR).hauteur).toBeGreaterThan(carte(LIBRE).hauteur)
+  })
+
   it('accorde la série, et ne la montre pas quand elle est nulle', () => {
     expect(textes(miseEnPageDeLImage({ ...DU_JOUR, serie: 1 }))).toContain('🔥 Série : 1 jour d’affilée')
     expect(textes(miseEnPageDeLImage({ ...DU_JOUR, serie: 0 })).join(' ')).not.toMatch(/Série/)

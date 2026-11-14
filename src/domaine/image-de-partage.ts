@@ -137,20 +137,22 @@ const texte = (
 export function miseEnPageDeLImage({ numero, score, bonnes, serie = 0 }: DonneesImage): Element[] {
   const c = COULEURS
   const duJour = numero !== undefined
+  const avecSerie = duJour && serie > 0
   return [
     { sorte: 'rectangle', x: 0, y: 0, largeur: L, hauteur: H, rayon: 0, couleur: c.fond },
     ...filigrane(),
     { sorte: 'logo', x: CENTRE - 100, y: 270, taille: 200 },
     texte('Duel Carbone', 580, 92, 800, c.encre),
     // La carte du score.
-    { sorte: 'rectangle', x: 90, y: 650, largeur: 900, hauteur: 740, rayon: 48, couleur: c.carte, bordure: c.ligne },
+    // Sans série (Partie libre, ou première fois), la carte s'arrête sous les cases, sans vide en bas.
+    { sorte: 'rectangle', x: 90, y: 650, largeur: 900, hauteur: avecSerie ? 740 : 660, rayon: 48, couleur: c.carte, bordure: c.ligne },
     texte(duJour ? `Duel du jour n° ${numero}` : 'Partie libre', 760, 54, 700, c.marque),
     // Le score en grand, puis « /10 » plus petit : les deux se touchent un peu à droite du centre.
     texte(String(score), 1010, 280, 900, c.encre, { x: CENTRE + 40, alignement: 'right' }),
     texte(`/${NOMBRE_DE_DUELS}`, 1010, 110, 800, c.encre, { x: CENTRE + 40, alignement: 'left' }),
     ...message(score),
     ...grille(bonnes, 1185),
-    ...(duJour && serie > 0
+    ...(avecSerie
       ? [texte(`🔥 Série : ${serie} jour${serie > 1 ? 's' : ''} d’affilée`, 1328, 42, 600, c.discret)]
       : []),
     // Sous la carte : l'invitation, et l'adresse du jeu dans une pastille (le lien n'est pas cliquable dans une Story).
