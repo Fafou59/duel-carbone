@@ -123,6 +123,8 @@
  * Firefox ne déplace pas ce qui est accroché en haut. Le bouton reste juste au-dessus de la barre d'adresse, et
  * ne bouge plus quand elle se masque (une bande libre apparaît alors dessous). La page garde déjà sous elle la
  * hauteur de la barre d'adresse (index.css) : rien n'est caché en fin de page.
+ * Vérifié sur Firefox Android 160 avec une page de test : cette façon de faire est la seule qui reste immobile
+ * sans script (le bas de l'écran « bottom: 0 » suit la barre d'adresse ; un placement recalculé au défilement saute).
  * Sans barre d'adresse (application installée, ordinateur), 100svh est le bas de l'écran : rien ne change.
  * @supports (-moz-appearance) : seul Firefox le reconnaît.
  */
@@ -131,6 +133,18 @@
     top: 100svh;
     bottom: auto;
     translate: 0 -100%;
+  }
+
+  /* Sous le bouton, le fond de la barre continue sur la hauteur de la barre d'adresse : caché par elle quand elle
+     est affichée, il évite de voir la page défiler sous le bouton quand elle se masque. */
+  .duel__suite::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    height: calc(100lvh - 100svh);
+    background: var(--fond);
   }
 }
 
