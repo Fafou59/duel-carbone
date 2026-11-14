@@ -116,6 +116,24 @@
   box-shadow: 0 -8px 16px -8px rgb(0 0 0 / 30%);
 }
 
+/*
+ * Firefox (barre d'adresse en bas sur Android) fait monter et descendre avec sa barre d'adresse tout ce qui est
+ * accroché au bas de l'écran : « Duel suivant » changeait de place quand elle se masquait. Sur Firefox, la barre
+ * est donc accrochée par le haut, à la hauteur du bas de l'écran quand la barre d'adresse est affichée (100svh) :
+ * Firefox ne déplace pas ce qui est accroché en haut. Le bouton reste juste au-dessus de la barre d'adresse, et
+ * ne bouge plus quand elle se masque (une bande libre apparaît alors dessous). La page garde déjà sous elle la
+ * hauteur de la barre d'adresse (index.css) : rien n'est caché en fin de page.
+ * Sans barre d'adresse (application installée, ordinateur), 100svh est le bas de l'écran : rien ne change.
+ * @supports (-moz-appearance) : seul Firefox le reconnaît.
+ */
+@supports (-moz-appearance: none) {
+  .duel__suite {
+    top: 100svh;
+    bottom: auto;
+    translate: 0 -100%;
+  }
+}
+
 /* La barre suit la largeur de la page (920 px au plus), centrée. */
 .duel__suite-barre {
   display: grid;
