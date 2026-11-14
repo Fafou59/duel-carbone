@@ -163,11 +163,12 @@ La référence visuelle est la variante **A2** du prototype ; le détail et les 
 7. **Stockage local** (dans le navigateur, format versionné) : le record de la Partie libre et ses paires vues récemment, la Partie du jour en cours ou terminée (ses Duels, les réponses, le score) et la série. Aucune donnée personnelle.
    **Calendrier des Parties du jour** (`src/domaine/calendrier.ts`, `src/donnees/calendrier.json`) : chargé à part, pour ne pas alourdir le démarrage du jeu.
 8. **Partage** : le menu de partage natif du téléphone, ou une copie dans le presse-papiers sur ordinateur. Le texte du Duel du jour suit le modèle de Wordle : l'accroche « C'est l'heure du Duel Carbone ! ⚔️ » (une accroche qui change chaque jour a été écartée pour l'instant : à revoir selon les retours des joueurs), « Duel Carbone du jour n° N : 8/10 », une case 🟩/🟥 par Duel et le lien ; aucun nom de Geste ni marque de Duel thématique. La Partie libre garde « J'ai fait 8/10 à Duel Carbone 🌍 Sauras-tu faire mieux ? ».
+   **Partage en image** (#79), pour les Stories (Instagram, Facebook, Snapchat, statuts WhatsApp), qui n'acceptent que des images : « 📸 Partager en image », juste après le bouton du texte, dessine sur l'appareil une image 1080 × 1920 en thème sombre (logo, « Duel du jour n° N » ou « Partie libre », score, message, cases ✓/✗, série, « duelcarbone.fr » ; les icônes de la vitrine en filigrane, jamais les Gestes de la Partie). Sur téléphone, le menu de partage reçoit l'image seule (sans texte : il serait perdu dans une Story) ; sur ordinateur ou sans partage de fichier, le bouton devient « Enregistrer l'image ». Le lien n'est pas cliquable dans une Story : un message rappelle l'autocollant « Lien ». L'éditeur de Story pré-rempli d'Instagram est réservé aux applications natives.
 9. **Mise en forme des nombres** : unité automatique (g, kg, t) et conventions françaises (virgule décimale).
 10. **Pages** : Accueil, Partie, Fin de Partie, En savoir plus.
 
 ### Événements de mesure d'audience
-`partie_lancee`, `partie_terminee`, `rejouer`, `partage`, `duree_partie/<tranche>`, `erreur/<type>`.
+`partie_lancee`, `partie_terminee`, `rejouer`, `partage`, `partage/image`, `duree_partie/<tranche>`, `erreur/<type>`.
 
 Dans GoatCounter, `partie_lancee`, `partie_terminee` et `rejouer` portent le mode de la Partie : `partie_lancee/jour` ou `partie_lancee/libre` (pour `rejouer`, le mode de la Partie qu'on vient de finir). Les tranches de durée font 30 secondes jusqu'à 10 minutes : `0m00-0m30`, `0m30-1m00`… `9m30-10m00`, puis `10m00-et-plus`.
 
@@ -177,6 +178,7 @@ Dans GoatCounter, `partie_lancee`, `partie_terminee` et `rejouer` portent le mod
 - `installation/proposee`, `installation/guide`, `installation/acceptee` et `installation/refusee` suivent l'invitation à installer le jeu (#68), à la fin du Duel du jour, sur téléphone ou tablette. `proposee` part à l'affichage de la carte ; `guide` quand le joueur déplie les étapes de son navigateur (« Comment l'installer ? »), une fois par affichage ; `acceptee` et `refusee` répondent au bouton d'installation ou à « Non merci ». Sur ordinateur, la ligne qui suggère les favoris n'envoie rien.
 - `erreur/script` et `erreur/promesse` comptent les plantages du jeu (une erreur de script, une promesse rejetée sans être rattrapée) : leur type seulement, jamais leur message, une fois par type et par visite.
 - `partage` part quand le score a bien été partagé ou copié, pas quand le joueur annule.
+- `partage/image` part quand l'image du score a été partagée (menu de partage) ou enregistrée, pas quand le joueur ferme le menu (#79).
 
 Le script de GoatCounter n'est chargé que sur l'adresse publique du jeu : ni en local, ni sur les aperçus des branches. Si un bloqueur l'empêche de se charger, le jeu fonctionne normalement.
 Le **taux de complétion** se calcule ainsi : `partie_terminee` / `partie_lancee`.

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { CompteARebours } from '../composants/CompteARebours.tsx'
 import { InvitationInstallation } from '../composants/InvitationInstallation.tsx'
 import { PanneauDuel } from '../composants/PanneauDuel.tsx'
@@ -6,7 +6,15 @@ import { Icone } from '../composants/Icone.tsx'
 import { formaterMultiple, queDevant } from '../domaine/format.ts'
 import { texteDePartage, texteDePartageDuJour } from '../domaine/partage.ts'
 import { messageDeScore, type LigneRecapitulatif } from '../domaine/recapitulatif.ts'
-import { partager, type ResultatPartage } from '../navigateur/partager.ts'
+import type { DonneesImage } from '../domaine/image-de-partage.ts'
+import { fabriquerImageDePartage } from '../navigateur/image-de-partage.ts'
+import {
+  partager,
+  partagerImage,
+  peutPartagerUnFichier,
+  type ResultatPartage,
+  type ResultatPartageImage,
+} from '../navigateur/partager.ts'
 import './EcranFin.css'
 
 export type PropsFin = {
@@ -25,6 +33,24 @@ export type PropsFin = {
   duJour?: { numero: number; situation: 'aJouer' | 'enCours' | 'joue'; onJouer: () => void }
   /** Comment partager (remplaçable dans les tests) : par défaut, avec les outils du navigateur. */
   onPartager?: (texte: string) => Promise<ResultatPartage>
+  /** Comment partager le score en image (remplaçable dans les tests) : par défaut, avec les outils du navigateur. */
+  partageImage?: PartageImage
+}
+
+/** Le partage en image, pour les Stories (#79). */
+export type PartageImage = {
+  /** Le menu de partage acceptera-t-il le fichier ? Sinon, le bouton enregistre l'image. */
+  fichierPartageable: () => boolean
+  /** Dessine l'image. */
+  fabriquer: (donnees: DonneesImage) => Promise<Blob>
+  /** Partage l'image, ou l'enregistre. */
+  partager: (image: Promise<Blob>, nom: string) => Promise<ResultatPartageImage>
+}
+
+const PARTAGE_IMAGE_DU_NAVIGATEUR: PartageImage = {
+  fichierPartageable: () => peutPartagerUnFichier(),
+  fabriquer: fabriquerImageDePartage,
+  partager: (image, nom) => partagerImage(image, nom),
 }
 
 const jours = (n: number) => `${n} jour${n > 1 ? 's' : ''}`
@@ -44,6 +70,7 @@ export function EcranFin({
   partieDuJour,
   duJour,
   onPartager = partager,
+  partageImage = PARTAGE_IMAGE_DU_NAVIGATEUR,
 }: PropsFin) {
   // Le texte partagé : celui du jour (accroche, score, grille) ou celui de la Partie libre.
   const texte = partieDuJour
@@ -57,8 +84,40 @@ export function EcranFin({
   const [partage, setPartage] = useState<ResultatPartage | null>(null)
   const partagerLeScore = async () => {
     setPartage(null)
+    setPartageImage(null)
     setPartage(await onPartager(texte))
   }
+
+  // L'image de partage, pour les Stories. Elle est dessinée dès l'affichage de l'écran : Safari n'ouvre le menu
+  // de partage que juste après le toucher du bouton, on ne peut pas attendre qu'elle soit prête à ce moment-là.
+  const donneesImage: DonneesImage = {
+    numero: partieDuJour?.numero,
+    score,
+    bonnes: lignes.map((ligne) => ligne.bonne),
+    serie: partieDuJour?.serie,
+  }
+  const nomImage = partieDuJour ? `duel-carbone-du-jour-${partieDuJour.numero}.png` : 'duel-carbone-partie-libre.png'
+  const cleImage = JSON.stringify(donneesImage)
+  const image = useRef<Promise<Blob> | null>(null)
+  useEffect(() => {
+    const promesse = partageImage.fabriquer(JSON.parse(cleImage) as DonneesImage)
+    // Une panne de dessin n'est signalée qu'au toucher du bouton (partagerImage la rattrape).
+    promesse.catch(() => {})
+    image.current = promesse
+  }, [cleImage, partageImage])
+  const [fichierPartageable] = useState(partageImage.fichierPartageable)
+  const [resultatImage, setPartageImage] = useState<ResultatPartageImage | null>(null)
+  const partagerEnImage = async () => {
+    setPartage(null)
+    setPartageImage(null)
+    setPartageImage(await partageImage.partager(image.current ?? partageImage.fabriquer(donneesImage), nomImage))
+  }
+  const boutonImage = (
+    <button type="button" className="bouton bouton--secondaire" onClick={partagerEnImage}>
+      <span aria-hidden="true">📸 </span>
+      {fichierPartageable ? 'Partager en image' : 'Enregistrer l’image'}
+    </button>
+  )
 
   // Position (0 à 9) du Duel dont le détail est ouvert, ou null si le panneau est fermé.
   const [ouvert, setOuvert] = useState<number | null>(null)
@@ -105,9 +164,12 @@ export function EcranFin({
 
       <div className="fin__actions" role="group" aria-label="Et maintenant ?">
         {partieDuJour ? (
-          <button type="button" className="bouton fin__gros" onClick={partagerLeScore}>
-            Défier mes proches
-          </button>
+          <>
+            <button type="button" className="bouton fin__gros" onClick={partagerLeScore}>
+              Défier mes proches
+            </button>
+            {boutonImage}
+          </>
         ) : (
           <>
             {inviterAuDuJour && (
@@ -121,6 +183,7 @@ export function EcranFin({
             <button type="button" className="bouton bouton--secondaire" onClick={partagerLeScore}>
               Partager mon score
             </button>
+            {boutonImage}
           </>
         )}
       </div>
@@ -132,6 +195,15 @@ export function EcranFin({
             <p>La copie automatique n'a pas fonctionné. Voici le texte à copier :</p>
             <p className="fin__texte-partage">{texte}</p>
           </>
+        )}
+        {(resultatImage === 'partage' || resultatImage === 'enregistre') && (
+          <p>
+            {resultatImage === 'enregistre' && '✓ Image enregistrée ! Ajoute-la à ta Story depuis ta galerie. '}
+            Astuce : dans ta Story, l’autocollant « Lien » rend duelcarbone.fr cliquable.
+          </p>
+        )}
+        {resultatImage === 'echec' && (
+          <p>L’image n’a pas pu être créée sur cet appareil : partage plutôt ton score en texte.</p>
         )}
       </div>
       {!partieDuJour && duJour?.situation === 'joue' && (
