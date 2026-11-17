@@ -182,10 +182,11 @@ export const GESTES: Geste[] = [
   {
     id: 'sushis',
     titre: 'Manger un plateau de sushis',
-    sousTitre: '200 g',
+    sousTitre: '350 g',
     equivalent: 'sushis',
-    quantite: 0.2,
-    justification: "Plateau individuel d'environ 8 pièces.",
+    quantite: 0.35,
+    justification:
+      "Plateau individuel servi en plat complet, d'environ 14 pièces (sushis, makis, california rolls) : du même ordre que le kebab (350 g) ou la pizza (400 g).",
     nature: 'repas',
   },
   {
