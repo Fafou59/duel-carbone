@@ -8,7 +8,7 @@ const ICONES_DE_LA_VITRINE = [
   'steak-boeuf', 'pates', 'avocat', 'vin', 'enceinte-connectee', 'chaussures-sport', 'paris-marseille-tgv',
   'colis-magasin-voiture', 'bus-electrique-10km', 'porc', 'croissant', 'fraises', 'smartphone', 'telecharger-film',
   'manteau', 'paris-marseille-avion', 'chauffage-fioul', 'ter-100km', 'crevettes', 'kebab', 'the', 'ecran',
-  'tshirt-coton', 'scooter-10km', 'colis-magasin-velo', 'nuit-hotel', 'autocar-100km', 'lentilles', 'sushis', 'biere',
+  'tshirt-coton', 'scooter-10km', 'colis-magasin-velo', 'nuit-hotel', 'autocar-100km', 'sushis', 'biere',
   'box', 'chemise-coton', 'voiture-10km', 'livraison-point-relais', 'streaming-film', 'poulet', 'fromage', 'banane',
   'eau-robinet', 'emails', 'jean', 'paris-marseille-voiture', 'chauffage-gaz', 'tramway-10km', 'canard',
   'cheeseburger', 'cafe', 'ordinateur-portable', 'chaise', 'metro-10km', 'paris-new-york', 'friends', 'tgv-100km',

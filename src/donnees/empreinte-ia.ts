@@ -13,18 +13,18 @@ export const DATE_DU_DECOMPTE = '2026-11-17'
 export const DEBUT_DU_PROJET = '2026-11-08'
 
 /** Le nombre d'appels au modèle (Claude Opus 5.5) depuis le début du projet. */
-export const APPELS = 2806
+export const APPELS = 2864
 
 /**
  * Les jetons consommés depuis le début du projet : les journaux de cet ordinateur (npm run empreinte-ia), plus ceux
- * des sessions cloud, relevés avant la fin de leur conteneur (leur journal disparaît avec lui). Au 17/11 : 2 587 appels
+ * des sessions cloud, relevés avant la fin de leur conteneur (leur journal disparaît avec lui). Au 17/11 : 2 645 appels
  * sur cet ordinateur, plus la session cloud des corrections d'avant le lancement (#77), 219 appels relevés le 14/11.
  */
 export const JETONS: Jetons = {
-  entree: 452_641,
-  ecritureCache: 10_711_804,
-  lectureCache: 882_577_539,
-  sortie: 2_574_511,
+  entree: 452_777,
+  ecritureCache: 10_763_833,
+  lectureCache: 891_666_250,
+  sortie: 2_605_792,
 }
 
 /**
