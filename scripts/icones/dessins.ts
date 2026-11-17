@@ -49,12 +49,35 @@ export function dessiner(interieur: (nomFluent: string) => string): Map<string, 
   <path d="M28 11.5L16 17V27.5L28 22Z" fill="#E6BE6A"/>
   <circle cx="13" cy="11" r="0.7" fill="#F3D58F"/><circle cx="17.5" cy="9.5" r="0.7" fill="#F3D58F"/><circle cx="19" cy="12.5" r="0.7" fill="#F3D58F"/>`)
 
+  // Penché à 45° et dans les couleurs du croissant officiel, son adversaire du Duel thématique.
+  // Un pavé feuilleté aux bouts plus cuits, d'où dépassent les deux barres de chocolat.
   ecrire('pain-au-chocolat', `
-  <rect x="3" y="9" width="26" height="15" rx="5" fill="#F3AD61"/>
-  <rect x="7" y="10.5" width="11" height="1.4" rx="0.7" fill="#FCD53F"/>
-  <path d="M6.5 14H25.5M6 18H26M6.5 21.5H25.5" stroke="#D3883E" stroke-linecap="round"/>
-  <rect x="1.5" y="12.5" width="4" height="2.6" rx="1" fill="#6D4534"/><rect x="1.5" y="17.5" width="4" height="2.6" rx="1" fill="#6D4534"/>
-  <rect x="26.5" y="12.5" width="4" height="2.6" rx="1" fill="#6D4534"/><rect x="26.5" y="17.5" width="4" height="2.6" rx="1" fill="#6D4534"/>`)
+  <g transform="rotate(-45 16 16)">
+  <rect x="2.4" y="12.4" width="2.6" height="2.4" rx="0.9" fill="#6D4534"/><rect x="27" y="12.4" width="2.6" height="2.4" rx="0.9" fill="#6D4534"/>
+  <rect x="2.4" y="17.2" width="2.6" height="2.4" rx="0.9" fill="#6D4534"/><rect x="27" y="17.2" width="2.6" height="2.4" rx="0.9" fill="#6D4534"/>
+  <rect x="4" y="10" width="24" height="12" rx="3.5" fill="#F3AD61"/>
+  <path d="M4 13.5C4 11.6 5.6 10 7.5 10H8V22H7.5C5.6 22 4 20.4 4 18.5Z" fill="#E19747"/>
+  <path d="M28 13.5C28 11.6 26.4 10 24.5 10H24V22H24.5C26.4 22 28 20.4 28 18.5Z" fill="#E19747"/>
+  <path d="M9.5 15H22.5M9.5 18.5H22.5" stroke="#E19747" stroke-width="0.9" stroke-linecap="round"/>
+  <path d="M9.5 12.2H22.5" stroke="#FEEFC2" stroke-width="1.3" stroke-linecap="round"/>
+  </g>`)
+
+  // Lentilles : Fluent n'en a pas (son « Beans » montre des haricots rouges). Un tas de petits disques plats,
+  // chacun avec sa tranche plus foncée, aux trois couleurs du Geste : vertes, blondes et corail.
+  const LENTILLES = { v: ['#8DA53B', '#5C7A26'], b: ['#F3C07B', '#D3883E'], c: ['#FF8257', '#E0572A'] } as const
+  const lentille = ([x, y, r, angle, couleur]: readonly [number, number, number, number, keyof typeof LENTILLES]) => {
+    const [face, tranche] = LENTILLES[couleur]
+    const n = (v: number) => Math.round(v * 100) / 100
+    return `<g transform="rotate(${angle} ${x} ${y})"><ellipse cx="${x}" cy="${n(y + r * 0.18)}" rx="${r}" ry="${n(r * 0.66)}" fill="${tranche}"/><ellipse cx="${n(x - r * 0.08)}" cy="${n(y - r * 0.08)}" rx="${n(r * 0.8)}" ry="${n(r * 0.5)}" fill="${face}"/></g>`
+  }
+  // [x, y, rayon, angle, couleur], du haut du tas vers le bas (les lentilles du devant recouvrent celles du fond).
+  const TAS_DE_LENTILLES = [
+    [11.1, 12.7, 3, 18, 'v'], [17, 12.9, 3.3, -11, 'b'], [10.6, 16, 3.2, 4, 'v'], [15.8, 15.9, 3.1, 12, 'c'],
+    [21.9, 16.4, 3.1, -10, 'b'], [4.6, 19.5, 3.4, 11, 'c'], [11, 20.4, 3.3, -20, 'v'], [17.7, 19.7, 3.6, -24, 'b'],
+    [23.3, 20.5, 3.2, -17, 'c'], [7.9, 23.7, 3.6, 15, 'c'], [12.5, 23.5, 3, 23, 'b'], [18.5, 23.9, 3, 8, 'c'],
+    [24.6, 23.6, 3.3, 18, 'c'], [4, 29, 2.6, 20, 'c'], [28, 29.5, 2.6, -15, 'b'],
+  ] as const
+  ecrire('lentilles', TAS_DE_LENTILLES.map(lentille).join('\n  '))
 
   ecrire('nuggets-vegetaux', `
   <path d="M3 17C3 13.5 6 12 9 12.5C12 13 14 14.5 13.5 18C13 21.5 10 23 7 22.5C4 22 3 20 3 17Z" fill="#F3AD61"/>

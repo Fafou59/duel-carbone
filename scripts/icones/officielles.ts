@@ -10,7 +10,6 @@ export const OFFICIELLES: Record<string, string> = {
   canard: 'Duck',
   crevettes: 'Shrimp',
   oeufs: 'Egg',
-  lentilles: 'Beans',
   pates: 'Spaghetti',
   fromage: 'Cheese wedge',
   croissant: 'Croissant',
