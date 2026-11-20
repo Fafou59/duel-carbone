@@ -21,7 +21,9 @@ const minutes = (n: number) => n * 60_000
 
 /** Joue un Duel comme un joueur : clique sur une carte, puis sur le bouton de suite. */
 const jouerDuel = (index: number) => {
-  fireEvent.click(screen.getByRole('button', { name: new RegExp(plusEmetteur(DUELS[index]).titre) }))
+  // Le titre est échappé : certains contiennent des parenthèses (« ordinateur fixe (sans écran) »).
+  const titre = plusEmetteur(DUELS[index]).titre.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  fireEvent.click(screen.getByRole('button', { name: new RegExp(titre) }))
   fireEvent.click(screen.getByRole('button', { name: index === 9 ? 'Voir mon score' : 'Duel suivant →' }))
 }
 const jouerDuels = (de: number, a: number) => {
