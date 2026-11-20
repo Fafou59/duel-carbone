@@ -4,7 +4,17 @@ import { enMinuscule, formaterDate, formaterEmpreinte } from '../domaine/format.
 import { REGLES } from '../domaine/regles.ts'
 import { APPELS, DATE_DU_DECOMPTE, DEBUT_DU_PROJET, HYPOTHESES, JETONS } from '../donnees/empreinte-ia.ts'
 import { empreinteDeLaCreation } from '../domaine/empreinte-ia.ts'
-import { ADEME, CONTACT, DEPOT, FLUENT_EMOJI, GOATCOUNTER, IMPACT_CO2, MENTIONS_LEGALES_ADEME, METHODE_EMPREINTE_IA } from '../liens.ts'
+import {
+  ADEME,
+  CONTACT,
+  DEPOT,
+  FLUENT_EMOJI,
+  GALERIE_IMPACT_CO2,
+  GOATCOUNTER,
+  IMPACT_CO2,
+  MENTIONS_LEGALES_ADEME,
+  METHODE_EMPREINTE_IA,
+} from '../liens.ts'
 import { ADRESSES } from '../navigateur/adresse.ts'
 import { DefinitionCo2e } from '../composants/Co2e.tsx'
 import { GuideInstallation } from '../composants/InvitationInstallation.tsx'
@@ -180,6 +190,11 @@ export function EcranEnSavoirPlus() {
           respecter le sens et d'en citer l'origine et la date (<a href={MENTIONS_LEGALES_ADEME}>mentions légales
           d'Impact CO2</a>). Les données restent la propriété de l'ADEME. Duel Carbone est un projet indépendant : il
           n'est pas édité par l'ADEME.
+        </p>
+        {/* En texte seul : les logos de l'ADEME et d'Impact CO2 ne se reproduisent pas sans son accord écrit. */}
+        <p>
+          Duel Carbone figure dans la <a href={GALERIE_IMPACT_CO2}>galerie des exemples d'Impact CO2</a> (ADEME),
+          catégorie Associations, parmi les sites qui utilisent ses données. Ce n'est pas un partenariat avec l'ADEME.
         </p>
       </Partie>
 
