@@ -72,10 +72,10 @@ describe('La mesure d’audience d’une Partie', () => {
     expect(recus()).toEqual(['partie_lancee/jour', 'serie/1', 'partie_terminee/jour', 'duree_partie/10m00-et-plus'])
   })
 
-  it('compte la série en cours au lancement du Duel du jour, en tranche', () => {
+  it('compte la série en cours au lancement du Duel du jour', () => {
     render(<EcranPartie mode="jour" serie={5} duels={DUELS} onRejouer={() => {}} />)
     jouerDuels(0, 10)
-    expect(recus()).toEqual(['partie_lancee/jour', 'serie/4-7', 'partie_terminee/jour', 'duree_partie/0m00-0m30'])
+    expect(recus()).toEqual(['partie_lancee/jour', 'serie/5', 'partie_terminee/jour', 'duree_partie/0m00-0m30'])
   })
 
   it('ne compte pas de série pour une Partie libre', () => {
@@ -137,7 +137,7 @@ describe('La mesure d’audience depuis l’accueil', () => {
     memoire.terminerPartieDuJour('2026-11-19', 7)
     render(<App memoire={memoire} aujourdhui="2026-11-20" />)
     await lancerLeDuelDuJour()
-    expect(recus()).toEqual(['partie_lancee/jour', 'serie/2-3'])
+    expect(recus()).toEqual(['partie_lancee/jour', 'serie/3'])
   })
 
   it('repart de 1 après un jour manqué', async () => {

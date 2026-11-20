@@ -296,7 +296,7 @@ export function EcranEnSavoirPlus() {
         </p>
         <p>
           Pour savoir si le jeu plaît, nous comptons les visites et quelques moments de jeu (une Partie lancée, terminée
-          et sa durée approximative, la longueur approximative de ta série quand tu lances le Duel du jour, « Rejouer », un partage en texte ou en image, l'invitation à installer le jeu et sa réponse, et les plantages du jeu, sans leur détail) avec{' '}
+          et sa durée approximative, la longueur de ta série quand tu lances le Duel du jour, « Rejouer », un partage en texte ou en image, l'invitation à installer le jeu et sa réponse, et les plantages du jeu, sans leur détail) avec{' '}
           <a href={GOATCOUNTER}>GoatCounter</a>, une mesure
           d'audience sans cookie ni identifiant. Elle ne donne que des chiffres agrégés : elle ne peut pas te suivre
           d'un site à l'autre, ne conserve pas ton adresse IP, et ni ton score ni tes réponses ne lui sont envoyés. Si

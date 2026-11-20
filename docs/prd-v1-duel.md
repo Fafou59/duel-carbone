@@ -168,12 +168,12 @@ La référence visuelle est la variante **A2** du prototype ; le détail et les 
 10. **Pages** : Accueil, Partie, Fin de Partie, En savoir plus.
 
 ### Événements de mesure d'audience
-`partie_lancee`, `partie_terminee`, `rejouer`, `partage`, `partage/image`, `duree_partie/<tranche>`, `serie/<tranche>`, `erreur/<type>`.
+`partie_lancee`, `partie_terminee`, `rejouer`, `partage`, `partage/image`, `duree_partie/<tranche>`, `serie/<jours>`, `erreur/<type>`.
 
 Dans GoatCounter, `partie_lancee`, `partie_terminee` et `rejouer` portent le mode de la Partie : `partie_lancee/jour` ou `partie_lancee/libre` (pour `rejouer`, le mode de la Partie qu'on vient de finir). Les tranches de durée font 30 secondes jusqu'à 10 minutes : `0m00-0m30`, `0m30-1m00`… `9m30-10m00`, puis `10m00-et-plus`.
 
 - `partie_lancee` part à l'affichage du premier Duel. Une Partie du jour reprise n'est pas comptée une seconde fois.
-- `serie/1`, `serie/2-3`, `serie/4-7` et `serie/8+` partent avec `partie_lancee/jour`, une fois par Duel du jour : la série en cours, en comptant le Duel qu'on lance (`serie/1` pour un premier jour ou un retour après un jour manqué). Ni une Partie du jour reprise, ni une Partie du jour qu'on revoit ne l'envoient (#84). La série est lue dans la mémoire du navigateur : un joueur qui change d'appareil ou efface ses données repart de 1.
+- `serie/1`, `serie/2`… `serie/29`, puis `serie/30+`, part avec `partie_lancee/jour`, une fois par Duel du jour : la série en cours, en comptant le Duel qu'on lance (`serie/1` pour un premier jour ou un retour après un jour manqué, `serie/2` pour un retour le lendemain). Elle est envoyée exacte, et non en tranches comme la durée : c'est déjà un petit entier, et on la regroupe comme on veut au moment de l'analyse. Ni une Partie du jour reprise, ni une Partie du jour qu'on revoit ne l'envoient (#84). La série est lue dans la mémoire du navigateur : un joueur qui change d'appareil ou efface ses données repart de 1.
 - `partie_terminee` et `duree_partie` partent à l'écran de fin. Une Partie reprise n'envoie pas sa durée, qui serait incomplète ; une Partie du jour qu'on revoit n'envoie rien.
 - `rejouer` part du bouton de l'écran de fin (« Rejouer », ou « Partie libre » après la Partie du jour).
 - `installation/proposee`, `installation/guide`, `installation/acceptee` et `installation/refusee` suivent l'invitation à installer le jeu (#68), à la fin du Duel du jour, sur téléphone ou tablette. `proposee` part à l'affichage de la carte ; `guide` quand le joueur déplie les étapes de son navigateur (« Comment l'installer ? »), une fois par affichage ; `acceptee` et `refusee` répondent au bouton d'installation ou à « Non merci ». Sur ordinateur, la ligne qui suggère les favoris n'envoie rien.
@@ -183,7 +183,7 @@ Dans GoatCounter, `partie_lancee`, `partie_terminee` et `rejouer` portent le mod
 
 Le script de GoatCounter n'est chargé que sur l'adresse publique du jeu : ni en local, ni sur les aperçus des branches. Si un bloqueur l'empêche de se charger, le jeu fonctionne normalement.
 Le **taux de complétion** se calcule ainsi : `partie_terminee` / `partie_lancee`.
-Le **taux de retour** se calcule ainsi : (`serie/2-3` + `serie/4-7` + `serie/8+`) / `partie_lancee/jour`, soit la part des Duels du jour lancés par un joueur qui avait joué la veille. La répartition des tranches montre jusqu'où vont les séries.
+Le **taux de retour** se calcule ainsi : (`partie_lancee/jour` − `serie/1`) / `partie_lancee/jour`, soit la part des Duels du jour lancés par un joueur qui avait joué la veille. La répartition des `serie/<jours>` montre jusqu'où vont les séries.
 Le **temps de jeu** est mesuré sur l'appareil, de l'affichage du premier Duel jusqu'à l'écran de fin de Partie. GoatCounter compte des événements mais ne sait pas calculer de moyenne. Le temps est donc envoyé sous forme de tranche de 30 secondes, avec l'événement `partie_terminee`, jusqu'à 10 minutes (au-delà : une seule tranche « 10 min et plus »). On obtient ainsi une distribution fine du temps de jeu.
 
 ## 7. Stratégie de test
