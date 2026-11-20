@@ -337,6 +337,64 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     texte:
       'Les trains (voyageurs et marchandises) émettent {a} par an. Les voitures thermiques émettent {b} en une seule journée : en {rapport} jours, elles dépassent une année entière de trains.',
   },
+  // ─── Élargissement du catalogue (issue 93) : textes à valider par Fabien ───
+  {
+    a: 'beurre',
+    b: 'pate-a-tartiner',
+    relu: '',
+    titre: 'La tartine du matin',
+    accroche: 'Sur ta tartine : 10 g de beurre, ou 20 g de pâte à tartiner ?',
+    texte:
+      "Au kilo, les deux se valent presque : 7,9 kg de CO2e pour le beurre, 9,1 kg pour la pâte à tartiner. Pour l'un comme pour l'autre, presque tout se joue à l'étape agricole (92 % et 88 %). Mais on étale deux fois plus de pâte à tartiner : sa tartine pèse {b}, contre {a} pour le beurre.",
+  },
+  {
+    a: 'soda',
+    b: 'eau-robinet',
+    relu: '',
+    titre: 'Soda ou robinet ?',
+    accroche: "Pour te désaltérer : une canette de soda, ou 1,5 L d'eau du robinet ?",
+    texte:
+      "Avec près de cinq fois moins de liquide, la canette pèse {a} : surtout par le transport (42 %) et l'emballage (28 %), puis par les ingrédients agricoles (18 %). L'eau du robinet arrive par des canalisations déjà en place : {b} pour 1,5 L. Le soda émet {rapport} fois plus.",
+  },
+  {
+    a: 'visioconference',
+    b: 'voiture-10km',
+    relu: '',
+    titre: 'Le télétravail',
+    accroche: "Une heure de réunion en visio depuis chez toi, ou 10 km en voiture jusqu'au bureau ?",
+    texte:
+      "Une heure de visioconférence pèse {a}, surtout par la fabrication de l'appareil (72 %) et la transmission des données (23 %). Les 10 km en voiture, seul au volant, émettent {b}. Un seul trajet évité pèse autant que {rapport} heures de visio.",
+  },
+  {
+    a: 'nuit-camping',
+    b: 'nuit-hotel',
+    relu: '',
+    cites: ['paris-marseille-voiture'],
+    titre: 'Tente ou chambre ?',
+    accroche: 'Pour les vacances : une nuit au camping, ou une nuit à l’hôtel ?',
+    texte:
+      "Une nuit à l'hôtel pèse {b} : près de la moitié vient de l'énergie qu'il consomme (2,1 kg), plus d'un tiers des services d'entretien (1,5 kg). Au camping, la nuit ne pèse que {a}. Mais le trajet compte souvent bien plus que l'hébergement : Paris–Marseille seul en voiture émet 110 kg, plus que 25 nuits à l'hôtel.",
+  },
+  {
+    a: 'recherches-web',
+    b: 'emails',
+    relu: '',
+    titre: 'Chercher ou écrire ?',
+    accroche: 'Dix recherches sur le web, ou dix e-mails envoyés ?',
+    texte:
+      "Dix recherches pèsent {a}, dix e-mails {b}. Pour l'un comme pour l'autre, l'essentiel ne vient pas de l'électricité, mais de la construction du matériel : les appareils, les data-centers et les réseaux font 60 % de l'empreinte des recherches, et 90 % de celle des e-mails.",
+  },
+  // Ce Duel compare une absorption à des émissions : le texte le dit dès sa première phrase.
+  {
+    a: 'agriculture-france-jour',
+    b: 'forets-france-jour',
+    relu: '',
+    titre: 'Les géants : champs contre forêts',
+    accroche: "En une journée en France : ce qu'émet toute l'agriculture, ou ce qu'absorbent les forêts et les prairies ?",
+    texte:
+      "Les forêts et les prairies n'émettent pas : elles absorbent. En un jour, elles retirent {b} de l'atmosphère en France. C'est énorme, mais moins que ce qu'émet l'agriculture dans la même journée ({a}) : à eux seuls, les puits naturels du pays ne compensent même pas ce secteur.",
+  },
+
   // ─── L'Easter Egg (#63) : la création de ce jeu avec une IA, estimée hors ADEME (ADR 0004) ───
   // Son empreinte n'est chiffrée que par {a} ou {b} : les textes suivent chaque nouveau décompte.
   {
