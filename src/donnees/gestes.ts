@@ -9,9 +9,37 @@
  * - un Geste concerne une seule personne (« ta part ») ;
  * - libellé sur deux lignes : le geste (titre), puis la quantité ou la durée d'utilisation (sousTitre) ;
  * - aucun agrégat national ; de préférence un Équivalent avec Répartition ;
- * - la justification explique d'où vient la Quantité.
+ * - la justification explique d'où vient la Quantité ;
+ * - la Quantité reste dans la fourchette de sa Nature (FOURCHETTES_DE_QUANTITE, issue 93).
  */
-import type { Geste } from '../domaine/geste.ts'
+import type { Geste, Nature } from '../domaine/geste.ts'
+
+/**
+ * Les Gestes d'une même Nature ont des Quantités comparables : un test le vérifie (issue 93, après le plateau
+ * de sushis de 200 g opposé à un repas végétarien complet). Fourchette [min, max] inclus, dans l'unité de
+ * référence de l'Équivalent. Sans fourchette : les trajets (leur Parcours fixe déjà la distance), les usages
+ * (unités trop différentes : heures, m², e-mails…) et les agrégats (toujours réservés).
+ */
+export const FOURCHETTES_DE_QUANTITE: Partial<Record<Nature, Record<string, [number, number]>>> = {
+  // Une portion individuelle : de la noisette de beurre d'une tartine (10 g) au fruit entier (300 g).
+  aliment: { kg: [0.01, 0.3] },
+  // Un plat complet, comme le kebab (350 g) ou la pizza (400 g) ; ou un repas type de l'ADEME.
+  repas: { kg: [0.3, 0.5], repas: [1, 1] },
+  // Un verre, une tasse, une canette ou une pinte : de 12,5 cl à 50 cl.
+  boisson: { litre: [0.125, 0.5] },
+  // Un objet, utilisé sur la durée retenue par l'ADEME.
+  objet: { unité: [1, 1] },
+  // Un colis de 1 kg, dans un scénario de l'ADEME.
+  livraison: { colis: [1, 1] },
+}
+
+/** Les Gestes hors de leur fourchette, à trancher par Fabien (issue 93) : la raison de chacun. */
+export const HORS_FOURCHETTE: Record<string, string> = {
+  'mangue-avion': 'Une mangue entière (400 g) : plus qu’une portion, à trancher.',
+  'mangue-bateau': 'Une mangue entière (400 g) : plus qu’une portion, à trancher.',
+  'eau-bouteille': 'Une bouteille de 1,5 L : plus qu’un verre, à trancher.',
+  'eau-robinet': 'Même volume que la bouteille (1,5 L), pour leur Duel thématique : à trancher.',
+}
 
 /** Durée d'utilisation retenue par l'ADEME : elle est incluse dans l'Équivalent, la Quantité vaut 1. */
 const UN_APPAREIL = "Un appareil ; durée d'utilisation retenue par l'ADEME."
