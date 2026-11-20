@@ -3,10 +3,12 @@
  * 1. Compte les paires de chaque tranche de la courbe de difficulté (et celles que le tirage écarte).
  * 2. Simule 1 000 Parties d'un joueur régulier pour voir combien de fois le générateur assouplit les règles.
  * 3. Mesure la diversité : à quelle fréquence chaque Geste apparaît, avec les Coefficients d'équilibrage.
+ * 4. Simule un an de Parties du jour : Gestes déjà vus dans la semaine, jours avec un Duel thématique, passages de chacun.
  * Outil d'aide pour enrichir le catalogue ou retoucher les règles.
  */
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
+import { prolongerCalendrier } from '../src/domaine/calendrier.ts'
 import { difficulteAttendue } from '../src/domaine/difficulte.ts'
 import { rapport } from '../src/domaine/duel.ts'
 import {
@@ -127,3 +129,45 @@ for (const [nom, coefficients] of [
       ` · plus vu : ${d.plusVu.id} ${pourcent(d.plusVu.frequence)} · moyenne ${pourcent(d.moyenne)} · écart-type ${(d.ecartType * 100).toFixed(1)}`,
   )
 }
+
+// 4. La Partie du jour : un an de calendrier tiré comme par npm run calendrier (sans jour figé)
+const JOURS = 365
+const calendrier = prolongerCalendrier(null, '2027-01-01', {
+  gestes,
+  thematiques: DUELS_THEMATIQUES,
+  coefficients: calibrage.coefficients,
+  empreinte: '',
+  horizon: JOURS - 1,
+})
+const parCle = new Map(DUELS_THEMATIQUES.map((t) => [cleDePaire(t.a, t.b), t]))
+const gestesDuJour = calendrier.jours.map((jour) => new Set(jour.flatMap((code) => code.split('>'))))
+const thematiqueDuJour = calendrier.jours.map((jour) =>
+  jour.map((code) => parCle.get(cleDePaire(...(code.split('>') as [string, string])))).find((t) => t !== undefined),
+)
+let dejaVus = 0
+let vus = 0
+for (let j = 6; j < JOURS; j++) {
+  const semaine = new Set(gestesDuJour.slice(j - 6, j).flatMap((s) => [...s]))
+  for (const id of gestesDuJour[j]) {
+    vus++
+    if (semaine.has(id)) dejaVus++
+  }
+}
+let sansThematique = 0
+let pireSerieDuJour = 0
+for (const t of thematiqueDuJour) {
+  sansThematique = t ? 0 : sansThematique + 1
+  pireSerieDuJour = Math.max(pireSerieDuJour, sansThematique)
+}
+const passages = new Map(DUELS_THEMATIQUES.map((t) => [t, 0]))
+for (const t of thematiqueDuJour) if (t) passages.set(t, passages.get(t)! + 1)
+const nombres = [...passages.values()]
+const joursAvec = thematiqueDuJour.filter(Boolean).length
+console.log(`\nPartie du jour (${JOURS} jours simulés) :`)
+console.log(`  Gestes d'une Partie déjà vus dans les 6 jours précédents : ${Math.round((dejaVus / vus) * 100)} %`)
+console.log(`  Gestes différents par jour : ${(vus / (JOURS - 6)).toFixed(1)} · Gestes tirables : ${tirables.length}`)
+console.log(`  Jours avec un Duel thématique : ${Math.round((joursAvec / JOURS) * 100)} % (${joursAvec} jours) · plus longue série sans : ${pireSerieDuJour} jours`)
+console.log(
+  `  Passages de chaque Duel thématique sur l'année : ${Math.min(...nombres)} à ${Math.max(...nombres)} (moyenne ${(joursAvec / DUELS_THEMATIQUES.length).toFixed(1)}), jamais : ${nombres.filter((n) => n === 0).length}`,
+)
+for (const [t, n] of [...passages].sort((x, y) => y[1] - x[1])) console.log(`    ${String(n).padStart(3)}  ${t.titre}`)
