@@ -354,7 +354,7 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     titre: 'Soda ou robinet ?',
     accroche: "Pour te désaltérer : une canette de soda, ou 1,5 L d'eau du robinet ?",
     texte:
-      "Avec près de cinq fois moins de liquide, la canette pèse {a} : surtout par le transport (42 %) et l'emballage (28 %), puis par les ingrédients agricoles (18 %). L'eau du robinet arrive par des canalisations déjà en place : {b} pour 1,5 L. Le soda émet {rapport} fois plus.",
+      "Avec près de cinq fois moins de liquide, la canette pèse {a} : surtout par le transport (42 %) et l'emballage (28 %), puis par les ingrédients agricoles (18 %). L'eau du robinet arrive par des canalisations déjà en place : 0,2 g pour 1,5 L, plus de 800 fois moins.",
   },
   {
     a: 'visioconference',
@@ -363,7 +363,7 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     titre: 'Le télétravail',
     accroche: "Une heure de réunion en visio depuis chez toi, ou 10 km en voiture jusqu'au bureau ?",
     texte:
-      "Une heure de visioconférence pèse {a}, surtout par la fabrication de l'appareil (72 %) et la transmission des données (23 %). Les 10 km en voiture, seul au volant, émettent {b}. Un seul trajet évité pèse autant que {rapport} heures de visio.",
+      "Une heure de visioconférence pèse {a}, surtout par la fabrication de l'appareil (72 %) et la transmission des données (23 %). Les 10 km en voiture, seul au volant, émettent {b}. Un seul trajet évité pèse autant que près de 25 heures de visio.",
   },
   {
     a: 'nuit-camping',
