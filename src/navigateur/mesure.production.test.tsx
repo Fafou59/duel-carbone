@@ -10,6 +10,7 @@ import { genererPartie } from '../domaine/generateur.ts'
 import { hasardReproductible } from '../domaine/hasard.ts'
 import App from '../App.tsx'
 import { EcranPartie } from '../ecrans/EcranPartie.tsx'
+import { creerMemoire, type Stockage } from './memoire.ts'
 import { partager } from './partager.ts'
 
 // Le navigateur simulé par Vitest (jsdom), qui permet de changer l'adresse de la page.
@@ -25,6 +26,12 @@ const jouerDuel = (index: number) => {
 }
 const jouerDuels = (de: number, a: number) => {
   for (let i = de; i < a; i++) jouerDuel(i)
+}
+
+/** Un faux localStorage, pour partir d'une série déjà commencée. */
+function stockage(): Stockage {
+  const donnees = new Map<string, string>()
+  return { getItem: (cle) => donnees.get(cle) ?? null, setItem: (cle, valeur) => void donnees.set(cle, valeur) }
 }
 
 const count = vi.fn()
@@ -62,19 +69,30 @@ describe('La mesure d’audience d’une Partie', () => {
     render(<EcranPartie mode="jour" duels={DUELS} onRejouer={() => {}} />)
     vi.setSystemTime(minutes(12))
     jouerDuels(0, 10)
-    expect(recus()).toEqual(['partie_lancee/jour', 'partie_terminee/jour', 'duree_partie/10m00-et-plus'])
+    expect(recus()).toEqual(['partie_lancee/jour', 'serie/1', 'partie_terminee/jour', 'duree_partie/10m00-et-plus'])
+  })
+
+  it('compte la série en cours au lancement du Duel du jour', () => {
+    render(<EcranPartie mode="jour" serie={5} duels={DUELS} onRejouer={() => {}} />)
+    jouerDuels(0, 10)
+    expect(recus()).toEqual(['partie_lancee/jour', 'serie/5', 'partie_terminee/jour', 'duree_partie/0m00-0m30'])
+  })
+
+  it('ne compte pas de série pour une Partie libre', () => {
+    render(<EcranPartie mode="libre" serie={5} duels={DUELS} onRejouer={() => {}} />)
+    expect(recus()).toEqual(['partie_lancee/libre'])
   })
 
   it('ne relance pas une Partie du jour reprise, et n’envoie pas sa durée (incomplète)', () => {
     const dejaDonnees = DUELS.slice(0, 4).map((duel) => moinsEmetteur(duel).id)
-    render(<EcranPartie mode="jour" duels={DUELS} reponsesInitiales={dejaDonnees} onRejouer={() => {}} />)
+    render(<EcranPartie mode="jour" serie={5} duels={DUELS} reponsesInitiales={dejaDonnees} onRejouer={() => {}} />)
     jouerDuels(4, 10)
     expect(recus()).toEqual(['partie_terminee/jour'])
   })
 
   it('n’envoie rien quand on revoit une Partie du jour déjà terminée', () => {
     const toutes = DUELS.map((duel) => plusEmetteur(duel).id)
-    render(<EcranPartie mode="jour" duels={DUELS} reponsesInitiales={toutes} onRejouer={() => {}} />)
+    render(<EcranPartie mode="jour" serie={5} duels={DUELS} reponsesInitiales={toutes} onRejouer={() => {}} />)
     expect(screen.getByRole('heading', { name: /Partie terminée|Duel Carbone du jour/ })).toBeInTheDocument()
     expect(recus()).toEqual([])
   })
@@ -100,12 +118,44 @@ describe('La mesure d’audience depuis l’accueil', () => {
     expect(recus()).toEqual(['partie_lancee/libre'])
   })
 
-  it('compte une Partie du jour lancée depuis l’accueil', async () => {
-    render(<App aujourdhui="2026-11-20" />)
+  /** Lance le Duel du jour depuis l'accueil, une fois le calendrier arrivé. */
+  const lancerLeDuelDuJour = async () => {
     const bouton = await screen.findByRole('button', { name: /Duel du jour n° 7/ })
     await waitFor(() => expect(bouton).toBeEnabled())
     fireEvent.click(bouton)
-    expect(recus()).toEqual(['partie_lancee/jour'])
+  }
+
+  it('compte une Partie du jour lancée depuis l’accueil, et le premier jour de la série', async () => {
+    render(<App aujourdhui="2026-11-20" />)
+    await lancerLeDuelDuJour()
+    expect(recus()).toEqual(['partie_lancee/jour', 'serie/1'])
+  })
+
+  it('compte la série en y ajoutant le Duel du jour qu’on lance', async () => {
+    const memoire = creerMemoire(stockage())
+    memoire.terminerPartieDuJour('2026-11-18', 6)
+    memoire.terminerPartieDuJour('2026-11-19', 7)
+    render(<App memoire={memoire} aujourdhui="2026-11-20" />)
+    await lancerLeDuelDuJour()
+    expect(recus()).toEqual(['partie_lancee/jour', 'serie/3'])
+  })
+
+  it('repart de 1 après un jour manqué', async () => {
+    const memoire = creerMemoire(stockage())
+    memoire.terminerPartieDuJour('2026-11-17', 6)
+    memoire.terminerPartieDuJour('2026-11-18', 7)
+    render(<App memoire={memoire} aujourdhui="2026-11-20" />)
+    await lancerLeDuelDuJour()
+    expect(recus()).toEqual(['partie_lancee/jour', 'serie/1'])
+  })
+
+  it('ne recompte pas la série quand on reprend un Duel du jour interrompu', async () => {
+    const memoire = creerMemoire(stockage())
+    memoire.terminerPartieDuJour('2026-11-19', 7)
+    memoire.enregistrerReponseDuJour('2026-11-20', 'inconnu')
+    render(<App memoire={memoire} aujourdhui="2026-11-20" />)
+    await lancerLeDuelDuJour()
+    expect(recus()).toEqual([])
   })
 })
 
