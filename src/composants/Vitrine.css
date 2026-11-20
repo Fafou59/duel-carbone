@@ -44,16 +44,19 @@
   margin-right: 18px;
 }
 
+/* La durée d'un tour suit le nombre d'icônes du ruban (--icones, posé par le composant) : un temps fixe par
+   icône. Les deux colonnes de la vitrine ont des icônes de même taille, elles vont donc à la même vitesse à
+   l'écran, même si l'une a une icône de plus que l'autre. 3 s par icône en colonne, 2 s dans la frise. */
 .ruban--haut .ruban__piste {
-  animation: ruban-vers-le-haut 90s linear infinite;
+  animation: ruban-vers-le-haut calc(var(--icones, 30) * 3s) linear infinite;
 }
 
 .ruban--bas .ruban__piste {
-  animation: ruban-vers-le-haut 90s linear infinite reverse;
+  animation: ruban-vers-le-haut calc(var(--icones, 30) * 3s) linear infinite reverse;
 }
 
 .ruban--gauche .ruban__piste {
-  animation: ruban-vers-la-gauche 120s linear infinite;
+  animation: ruban-vers-la-gauche calc(var(--icones, 60) * 2s) linear infinite;
 }
 
 @keyframes ruban-vers-le-haut {

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useState, type CSSProperties, type ReactNode } from 'react'
 import { COLONNE_DROITE, COLONNE_GAUCHE } from '../donnees/vitrine.ts'
 import { Icone } from './Icone.tsx'
 import './Vitrine.css'
@@ -7,10 +7,12 @@ import './Vitrine.css'
  * Un ruban d'icônes qui défile en boucle. La liste est écrite deux fois : quand la première moitié est sortie,
  * l'animation repart du début sans à-coup. Décoratif (aria-hidden), et arrêté si l'appareil demande moins d'animations.
  * Des <span> plutôt que des <div> : le ruban est placé dans un bouton (voir Defilement).
+ * Le nombre d'icônes est passé au CSS (--icones), qui en tire la durée d'un tour : chaque icône met le même
+ * temps à passer, et les deux colonnes de la vitrine vont à la même vitesse, quelle que soit leur longueur.
  */
 function Ruban({ ids, sens }: { ids: string[]; sens: 'haut' | 'bas' | 'gauche' }) {
   return (
-    <span className={`ruban ruban--${sens}`} aria-hidden="true">
+    <span className={`ruban ruban--${sens}`} aria-hidden="true" style={{ '--icones': ids.length } as CSSProperties}>
       <span className="ruban__piste">
         {[...ids, ...ids].map((id, i) => (
           <Icone key={i} id={id} />

@@ -24,3 +24,20 @@ describe.each([
     expect(commande).toHaveAttribute('aria-pressed', 'false')
   })
 })
+
+/**
+ * La durée d'un tour est tirée du nombre d'icônes de chaque ruban (Vitrine.css) : les deux colonnes vont à la
+ * même vitesse à l'écran même si elles n'ont pas le même nombre d'icônes.
+ */
+describe('la vitesse des rubans', () => {
+  it('donne à chaque ruban son nombre d’icônes, dont le CSS tire la durée du tour', () => {
+    const { container } = render(<Vitrine />)
+    const rubans = [...container.querySelectorAll<HTMLElement>('.ruban')]
+    expect(rubans).toHaveLength(2)
+    for (const ruban of rubans) {
+      // La piste écrit la liste deux fois, pour boucler sans à-coup.
+      const icones = ruban.querySelectorAll('.icone').length / 2
+      expect(ruban.style.getPropertyValue('--icones')).toBe(String(icones))
+    }
+  })
+})
