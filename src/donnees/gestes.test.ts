@@ -13,6 +13,10 @@ describe('Catalogue des Gestes face à l’Instantané actuel', () => {
     expect(() => validerCatalogue(GESTES, instantane)).not.toThrow()
   })
 
+  it('compte 120 Gestes tirés au hasard : les 81 du lancement et les 39 de l’issue 93', () => {
+    expect(GESTES.filter((g) => !g.seulementEnDuelThematique)).toHaveLength(120)
+  })
+
   it('a un titre, un sous-titre et une justification pour chaque Geste', () => {
     for (const g of GESTES) {
       expect(g.titre.trim(), g.id).not.toBe('')
