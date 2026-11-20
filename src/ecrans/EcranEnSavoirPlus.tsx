@@ -35,11 +35,16 @@ const NOMBRE_DE_GESTES = GESTES_ADEME.length
 const NOMBRE_DE_RESERVES = GESTES_ADEME.filter((g) => g.seulementEnDuelThematique).length
 const NOMBRE_DE_FICHES = new Set(GESTES_ADEME.map((g) => g.equivalent.slug)).size
 
-/** La fréquence des Duels ★, lue dans les règles : « Une Partie sur deux », « 30 % des Parties »… */
+/** La fréquence des Duels ★, lue dans les règles : « une Partie sur deux », « 30 % des Parties »… */
 const FREQUENCE_THEMATIQUE =
   REGLES.probabiliteDuelThematique === 0.5
-    ? 'Une Partie sur deux'
+    ? 'une Partie sur deux'
     : `${nombre(REGLES.probabiliteDuelThematique * 100)} % des Parties`
+/** Et dans le Duel du jour : « 2 jours sur 3 », « 70 % des jours »… */
+const FREQUENCE_THEMATIQUE_DU_JOUR =
+  Math.abs(REGLES.duelDuJour.probabiliteDuelThematique - 2 / 3) < 1e-9
+    ? '2 jours sur 3'
+    : `${nombre(REGLES.duelDuJour.probabiliteDuelThematique * 100)} % des jours`
 
 // Les exemples : un aliment (le calcul), un appareil (la durée d'utilisation), un vol (les traînées de condensation).
 const STEAK = gesteCalcule('steak-boeuf')
@@ -264,11 +269,13 @@ export function EcranEnSavoirPlus() {
           l'écart pourrait tenir dans la marge d'erreur des données.
         </p>
         <p>
-          {FREQUENCE_THEMATIQUE} contient un Duel ★, et jamais plus de {REGLES.partiesMaxSansDuelThematique}{' '}
-          Parties de suite sans : un piège choisi à la main pour ce qu'il nous apprend, annoncé quand tu arrives
-          dessus, et expliqué après ta réponse. Il prend la place que lui donne son écart : un piège
-          serré tombe en fin de Partie. Certains gestes, comme le pain au chocolat ou le TER, ne servent qu'à ces
-          Duels.
+          Le Duel du jour contient un Duel ★ {FREQUENCE_THEMATIQUE_DU_JOUR}, et jamais plus de{' '}
+          {REGLES.duelDuJour.joursMaxSansDuelThematique} jours de suite sans : un piège choisi à la main pour ce
+          qu'il nous apprend, annoncé quand tu arrives dessus, et expliqué après ta réponse. Et chacun revient à son
+          tour, une fois que tous les autres sont passés. En Partie libre, c'est {FREQUENCE_THEMATIQUE}, et jamais
+          plus de {REGLES.partiesMaxSansDuelThematique} Parties de suite sans. Un Duel ★ prend la place que lui
+          donne son écart : un piège serré tombe en fin de Partie. Certains gestes, comme l'eau du robinet ou les
+          recherches sur le web, ne servent qu'à ces Duels.
         </p>
         <p>
           Quelques Duels ★ comparent des secteurs entiers, sur un an en France : le numérique, les voitures, les
