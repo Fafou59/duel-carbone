@@ -59,7 +59,7 @@ Deux Natures qui ne s'affrontent jamais dans un Duel tiré au hasard, parce que 
 _À éviter_ : paire interdite, exclusion
 
 **Geste réservé** :
-Un Geste qui n'est jamais tiré au hasard et n'apparaît que dans un Duel thématique, avec un texte qui l'explique. C'est obligatoire pour un Geste dont l'Empreinte carbone est nulle ou quasi nulle (l'eau du robinet), car son Rapport avec presque tout le reste serait démesuré, et pour un agrégat national. Un Geste peut aussi être réservé parce qu'il a été ajouté pour un Duel thématique et que son Empreinte carbone serait démesurée face au reste du catalogue (10 recherches sur le web face à 10 e-mails). Un Geste réservé peut passer au tirage s'il trouve assez d'adversaires : il garde alors son Duel thématique (le pain au chocolat face au croissant).
+Un Geste qui n'est jamais tiré au hasard et n'apparaît que dans un Duel thématique, avec un texte qui l'explique. C'est obligatoire pour un Geste dont l'Empreinte carbone est nulle ou quasi nulle (l'eau du robinet), car son Rapport avec presque tout le reste serait démesuré, et pour un agrégat national. Un Geste peut aussi être réservé parce qu'il a été ajouté pour un Duel thématique (10 recherches sur le web face à 10 e-mails). Un Geste réservé peut passer au tirage s'il trouve assez d'adversaires : il garde alors son Duel thématique (le pain au chocolat face au croissant).
 _À éviter_ : Geste caché, Geste exclu
 
 **Duel thématique** :

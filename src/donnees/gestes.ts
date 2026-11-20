@@ -1228,7 +1228,7 @@ export const GESTES: Geste[] = [
     sousTitre: "10 recherches",
     equivalent: 'rechercheweb',
     quantite: 10,
-    justification: "Autant de recherches que d'e-mails dans le Geste d'en face (10), pour comparer à nombre égal. Réservé : à 12 g, face au reste du catalogue, le Rapport serait souvent démesuré.",
+    justification: "Autant de recherches que d'e-mails dans le Geste d'en face (10), pour comparer à nombre égal. Réservé à ce Duel thématique (issue 93).",
     nature: 'usage',
     seulementEnDuelThematique: true,
   },
