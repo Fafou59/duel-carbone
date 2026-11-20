@@ -106,6 +106,20 @@ describe('Page En savoir plus', () => {
     expect(screen.getByText(/non commerciale et pédagogique/)).toBeInTheDocument()
   })
 
+  it("mentionne la galerie des exemples d'Impact CO2, en texte seul et sans parler de partenariat", () => {
+    const { container } = render(<EcranEnSavoirPlus />)
+    // La vue filtrée sur les associations : la vue par défaut de la galerie ne montre pas Duel Carbone.
+    expect(screen.getByRole('link', { name: "galerie des exemples d'Impact CO2" })).toHaveAttribute(
+      'href',
+      'https://impactco2.fr/doc/exemples?activity=Association&tool=all',
+    )
+    const mention = screen.getByText(/Duel Carbone figure dans la/)
+    expect(mention).toHaveTextContent(/\(ADEME\), catégorie Associations/)
+    expect(mention).toHaveTextContent(/Ce n'est pas un partenariat/)
+    // Aucun logo de l'ADEME ni d'Impact CO2 : leur reproduction demande un accord écrit.
+    expect(container.querySelectorAll('img')).toHaveLength(0)
+  })
+
   it('définit le CO2e, comme la fenêtre de l’accueil', () => {
     render(<EcranEnSavoirPlus />)
     expect(screen.getByRole('heading', { name: "L'unité : le CO2e" })).toBeInTheDocument()

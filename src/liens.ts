@@ -12,6 +12,12 @@ export const IMPACT_CO2 = 'https://impactco2.fr'
 /** La documentation d'Impact CO2 : ses méthodes de calcul et ses sources (le lien « Chiffres de l'ADEME »). */
 export const IMPACT_CO2_DOC = 'https://impactco2.fr/doc'
 
+/**
+ * La galerie des exemples d'Impact CO2, filtrée sur les associations : Duel Carbone y figure (fiche du 18/11/2026).
+ * La vue par défaut n'en montre qu'une sélection, sans lui : d'où le filtre dans l'adresse.
+ */
+export const GALERIE_IMPACT_CO2 = 'https://impactco2.fr/doc/exemples?activity=Association&tool=all'
+
 /** La présentation de l'ADEME et de ses missions, sur son site. */
 export const ADEME = 'https://www.ademe.fr/lagence/'
 
