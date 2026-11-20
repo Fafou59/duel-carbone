@@ -44,16 +44,19 @@
   margin-right: 18px;
 }
 
+/* La durée d'un tour suit le nombre d'icônes du ruban (--icones, posé par le composant) : un temps fixe par
+   icône. Les deux colonnes de la vitrine ont des icônes de même taille, elles vont donc à la même vitesse à
+   l'écran, même si l'une a une icône de plus que l'autre. 3 s par icône en colonne, 2 s dans la frise. */
 .ruban--haut .ruban__piste {
-  animation: ruban-vers-le-haut 90s linear infinite;
+  animation: ruban-vers-le-haut calc(var(--icones, 30) * 3s) linear infinite;
 }
 
 .ruban--bas .ruban__piste {
-  animation: ruban-vers-le-haut 90s linear infinite reverse;
+  animation: ruban-vers-le-haut calc(var(--icones, 30) * 3s) linear infinite reverse;
 }
 
 .ruban--gauche .ruban__piste {
-  animation: ruban-vers-la-gauche 120s linear infinite;
+  animation: ruban-vers-la-gauche calc(var(--icones, 60) * 2s) linear infinite;
 }
 
 @keyframes ruban-vers-le-haut {
@@ -86,13 +89,23 @@
   grid-template-columns: 72px auto 72px;
   align-items: center;
   gap: 18px;
-  height: 128px;
+  --hauteur: 128px;
+  height: var(--hauteur);
 }
 
 .vitrine .ruban {
-  height: 128px;
+  height: var(--hauteur);
   font-size: 58px;
   mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent);
+}
+
+/* Les deux colonnes vont en sens inverse : une icône de gauche et une de droite se croisent tous les
+   demi-pas (une demi-icône plus la moitié de l'écart de 14 px). Sans réglage, ces croisements tombent là où
+   le hasard des tailles les met, à quelques pixels du « VS ». La piste remonte donc de quoi en placer un pile
+   au milieu de la colonne, devant le « VS » : la moitié de la hauteur, moins une icône (1.1em, voir Icone.css)
+   et un demi-écart. Le décalage est négatif à toutes les tailles : la colonne n'a jamais de vide en haut. */
+.vitrine .ruban__piste {
+  margin-top: calc(var(--hauteur) / 2 - 1.1em - 7px);
 }
 
 .vitrine__vs {
@@ -109,11 +122,10 @@
 .vitrine--mini {
   grid-template-columns: 40px auto 40px;
   gap: 8px;
-  height: 64px;
+  --hauteur: 64px;
 }
 
 .vitrine--mini .ruban {
-  height: 64px;
   font-size: 34px;
 }
 
@@ -137,11 +149,10 @@
 /* Petit téléphone : la vitrine se resserre, pour que tout le premier écran tienne sans défiler. */
 @media (max-height: 700px), (max-width: 360px) {
   .vitrine:not(.vitrine--mini) {
-    height: 104px;
+    --hauteur: 104px;
   }
 
   .vitrine:not(.vitrine--mini) .ruban {
-    height: 104px;
     font-size: 48px;
   }
 }
