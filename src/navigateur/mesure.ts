@@ -4,8 +4,9 @@
  * - On ne compte que sur l'adresse publique du jeu (duelcarbone.fr) : ni en local, ni depuis l'aperçu d'une branche
  *   (« <branche>-duel-carbone.fabien-lesage.workers.dev »). Ailleurs, le script n'est même pas chargé.
  * - Le jeu ne dépend jamais de la mesure : si GoatCounter est bloqué, lent ou en panne, rien ne se passe.
- * - GoatCounter compte des événements mais ne calcule pas de moyenne : la durée d'une Partie
- *   est envoyée sous forme de tranche (voir docs/prd-v1-duel.md, « Événements de mesure d'audience »).
+ * - GoatCounter compte des événements mais ne calcule pas de moyenne : la durée d'une Partie, et la série en cours
+ *   au lancement du Duel du jour, sont envoyées sous forme de tranche
+ *   (voir docs/prd-v1-duel.md, « Événements de mesure d'audience »).
  */
 import { useEffect, useRef } from 'react'
 import { ADRESSE_DU_JEU } from '../domaine/partage.ts'
@@ -27,11 +28,14 @@ const ADRESSES_MESUREES = new Set([
 export type Mode = 'jour' | 'libre'
 /** Une tranche de durée de 30 secondes : « 2m30-3m00 », ou « 10m00-et-plus » au-delà de 10 minutes. */
 export type Tranche = `${number}m${number}-${number}m${number}` | `${number}m${number}-et-plus`
+/** Une tranche de série : le nombre de jours d'affilée, en comptant le Duel du jour qu'on lance. */
+export type TrancheDeSerie = '1' | '2-3' | '4-7' | '8+'
 export type Evenement =
   | `partie_lancee/${Mode}`
   | `partie_terminee/${Mode}`
   | `rejouer/${Mode}`
   | `duree_partie/${Tranche}`
+  | `serie/${TrancheDeSerie}`
   | 'partage'
   | 'partage/image'
   | `erreur/${Plantage}`
@@ -77,6 +81,17 @@ export function trancheDeDuree(duree: number): Tranche {
   if (secondes >= MAXIMUM) return `${minutesSecondes(MAXIMUM)}-et-plus` as Tranche
   const debut = Math.floor(secondes / PAS) * PAS
   return `${minutesSecondes(debut)}-${minutesSecondes(debut + PAS)}` as Tranche
+}
+
+/**
+ * La tranche de la série au lancement du Duel du jour, en comptant ce Duel-là : « 1 » pour un premier jour
+ * (ou un retour après un jour manqué), puis « 2-3 », « 4-7 » (une semaine) et « 8+ ». C'est le taux de retour.
+ */
+export function trancheDeSerie(jours: number): TrancheDeSerie {
+  if (jours >= 8) return '8+'
+  if (jours >= 4) return '4-7'
+  if (jours >= 2) return '2-3'
+  return '1'
 }
 
 /** Envoie un événement à GoatCounter, sur l'adresse publique seulement. Ne lève jamais d'erreur. */
@@ -128,12 +143,24 @@ function environnementReel(): Environnement {
 
 /**
  * Les événements d'une Partie : lancée (à l'affichage du premier Duel), terminée (à l'écran de fin), et sa durée.
+ * Au lancement du Duel du jour, aussi la tranche de la série en cours (`serie` : les jours d'affilée en comptant
+ * celui-ci), pour mesurer le retour des joueurs.
  *
  * - Une Partie reprise (Partie du jour interrompue) a déjà été comptée au lancement : on ne compte que sa fin,
- *   sans sa durée, qui ne serait que celle de la fin de Partie.
+ *   sans sa durée, qui ne serait que celle de la fin de Partie. Sa série non plus n'est pas recomptée.
  * - Une Partie déjà terminée qu'on revoit n'envoie rien.
  */
-export function useMesureDePartie({ mode, reprise, terminee }: { mode: Mode; reprise: boolean; terminee: boolean }) {
+export function useMesureDePartie({
+  mode,
+  reprise,
+  terminee,
+  serie = 1,
+}: {
+  mode: Mode
+  reprise: boolean
+  terminee: boolean
+  serie?: number
+}) {
   // Ce qu'on savait au premier affichage : une Partie déjà finie (qu'on revoit) n'envoie rien.
   const dejaTerminee = useRef(terminee)
   const debut = useRef<number | null>(null)
@@ -144,7 +171,8 @@ export function useMesureDePartie({ mode, reprise, terminee }: { mode: Mode; rep
     if (reprise || debut.current !== null) return
     debut.current = Date.now()
     mesurer(`partie_lancee/${mode}`)
-  }, [mode, reprise])
+    if (mode === 'jour') mesurer(`serie/${trancheDeSerie(serie)}`)
+  }, [mode, reprise, serie])
 
   useEffect(() => {
     if (!terminee || dejaTerminee.current || comptee.current) return

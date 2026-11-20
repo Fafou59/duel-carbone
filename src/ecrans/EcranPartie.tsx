@@ -14,6 +14,8 @@ type Props = {
   duels: DuelDePartie[]
   /** Partie libre (par défaut) ou Partie du jour : pour la mesure d'audience. */
   mode?: Mode
+  /** Partie du jour : la série en comptant celle-ci (1 le premier jour), lue au lancement pour la mesure d'audience. */
+  serie?: number
   onRejouer: () => void
   /** Le record d'avant cette Partie, affiché à la fin. */
   ancienRecord?: number | null
@@ -30,6 +32,7 @@ type Props = {
 export function EcranPartie({
   duels,
   mode = 'libre',
+  serie,
   onRejouer: relancer,
   ancienRecord = null,
   onTerminee,
@@ -43,8 +46,9 @@ export function EcranPartie({
   const [etat, envoyer] = useReducer(avancer, undefined, () => reprendrePartie(duels, reponsesInitiales))
   const choisir = useCallback((idGeste: string) => envoyer({ type: 'choisir', idGeste }), [])
 
-  // Mesure d'audience (navigateur/mesure.ts) : Partie lancée, terminée, sa durée, et « Rejouer ».
-  useMesureDePartie({ mode, reprise: reponsesInitiales.length > 0, terminee: etat.phase === 'fin' })
+  // Mesure d'audience (navigateur/mesure.ts) : Partie lancée (et la série, pour le Duel du jour), terminée,
+  // sa durée, et « Rejouer ».
+  useMesureDePartie({ mode, reprise: reponsesInitiales.length > 0, terminee: etat.phase === 'fin', serie })
   const onRejouer = () => {
     mesurer(`rejouer/${mode}`)
     relancer()

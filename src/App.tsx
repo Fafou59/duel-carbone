@@ -27,7 +27,10 @@ type Props = {
 }
 
 /** La Partie en cours : la Partie du jour (avec son jour et ses réponses déjà données) ou une Partie libre. */
-type Partie = { mode: 'libre'; duels: DuelDePartie[] } | { mode: 'jour'; jour: string; duels: DuelDePartie[]; reponses: string[] }
+/** La Partie affichée. Pour celle du jour, `serie` est la série en la comptant, figée au lancement (mesure d'audience). */
+type Partie =
+  | { mode: 'libre'; duels: DuelDePartie[] }
+  | { mode: 'jour'; jour: string; duels: DuelDePartie[]; reponses: string[]; serie: number }
 
 export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }: Props) {
   // useState(() => …) : la mémoire est créée une seule fois, au premier affichage.
@@ -129,7 +132,7 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
     const duels = duelsDuJour()
     if (!duels) return
     memoire.commencerPartieDuJour(aujourdhui, duels.map((duel) => `${duel.a.id}>${duel.b.id}`))
-    setPartie({ mode: 'jour', jour: aujourdhui, duels, reponses: duJour?.reponses ?? [] })
+    setPartie({ mode: 'jour', jour: aujourdhui, duels, reponses: duJour?.reponses ?? [], serie: serie.actuelle + 1 })
     setNumero((n) => n + 1)
   }
 
@@ -214,6 +217,7 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
             <EcranPartie
               key={numero}
               mode="jour"
+              serie={partie.serie}
               duels={partie.duels}
               reponsesInitiales={partie.reponses}
               onReponse={(idChoisi) => memoire.enregistrerReponseDuJour(partie.jour, idChoisi)}

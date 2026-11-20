@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { chargerMesure, ecouterLesPlantages, estAdresseMesuree, mesurer, trancheDeDuree, type Environnement } from './mesure.ts'
+import { chargerMesure, ecouterLesPlantages, estAdresseMesuree, mesurer, trancheDeDuree, trancheDeSerie, type Environnement } from './mesure.ts'
 
 const PRODUCTION = 'duelcarbone.fr'
 /** L'ancienne adresse publique chez Cloudflare, et la base des aperçus des branches. */
@@ -48,6 +48,24 @@ describe('La durée d’une Partie, en tranches de 30 secondes', () => {
     [minutes(90), '10m00-et-plus'],
   ])('%i ms → %s', (duree, tranche) => {
     expect(trancheDeDuree(duree)).toBe(tranche)
+  })
+})
+
+describe('La série en cours, en tranches', () => {
+  it.each([
+    [1, '1'],
+    [2, '2-3'],
+    [3, '2-3'],
+    [4, '4-7'],
+    [7, '4-7'],
+    [8, '8+'],
+    [100, '8+'],
+  ])('%i jour(s) d’affilée → %s', (jours, tranche) => {
+    expect(trancheDeSerie(jours)).toBe(tranche)
+  })
+
+  it('compte au moins le Duel du jour qu’on lance', () => {
+    expect(trancheDeSerie(0)).toBe('1')
   })
 })
 
