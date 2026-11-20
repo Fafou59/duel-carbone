@@ -14,7 +14,8 @@ import { fnv1a } from './hachage.ts'
 import { hasardReproductible } from './hasard.ts'
 import { decalerJour, joursEntre } from './jour.ts'
 import type { DuelDePartie } from './partie.ts'
-import { doitForcerUnDuelThematique, redigerTexte, type DuelThematique } from './thematiques.ts'
+import { REGLES } from './regles.ts'
+import { doitForcerUnDuelThematique, redigerTexte, thematiquesDuCycle, type DuelThematique } from './thematiques.ts'
 
 /**
  * Le fichier du calendrier. Chaque jour est une liste de 10 Duels écrits « idA>idB »
@@ -37,7 +38,11 @@ type Sources = {
   horizon?: number
 }
 
-/** Les jours récents dont on tient compte : pas deux fois le même Duel, et la garantie des Duels thématiques. */
+/**
+ * Les jours récents dont on tient compte : pas deux fois le même Duel, et la garantie des Duels thématiques.
+ * Les Duels thématiques, eux, se lisent sur tout le calendrier : chacun passe une fois avant qu'un autre ne revienne
+ * (REGLES.duelDuJour).
+ */
 const MEMOIRE_DU_CALENDRIER = 3
 
 /**
@@ -51,13 +56,16 @@ export function prolongerCalendrier(existant: Calendrier | null, aujourdhui: str
   const jours = [...figes]
   const dernier = decalerJour(aujourdhui, sources.horizon ?? 365)
   for (let jour = decalerJour(debut, jours.length); joursEntre(jour, dernier) >= 0; jour = decalerJour(jour, 1)) {
-    const recentes = jours.slice(-MEMOIRE_DU_CALENDRIER).map(cles)
+    const precedents = jours.map(cles)
+    const recentes = precedents.slice(-MEMOIRE_DU_CALENDRIER)
     const duels = genererPartie({
       gestes: sources.gestes,
       thematiques: sources.thematiques,
+      parmiThematiques: thematiquesDuCycle(precedents, sources.thematiques),
+      probabiliteThematique: REGLES.duelDuJour.probabiliteDuelThematique,
       coefficients: sources.coefficients,
       pairesRecentes: new Set(recentes.flat()),
-      forcerThematique: doitForcerUnDuelThematique(recentes, sources.thematiques),
+      forcerThematique: doitForcerUnDuelThematique(recentes, sources.thematiques, REGLES.duelDuJour.joursMaxSansDuelThematique),
       hasard: hasardReproductible(Number.parseInt(fnv1a(jour), 16)),
     })
     jours.push(duels.map((d) => `${d.a.id}>${d.b.id}`))

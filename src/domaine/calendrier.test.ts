@@ -4,6 +4,7 @@ import { DUELS_THEMATIQUES } from '../donnees/duels-thematiques.ts'
 import { duelsDepuisCodes, joursRestants, partieDuJour, prolongerCalendrier, type Calendrier } from './calendrier.ts'
 import { cleDePaire } from './duel.ts'
 import { decalerJour } from './jour.ts'
+import { REGLES } from './regles.ts'
 
 const sources = { gestes: GESTES_CALCULES, thematiques: DUELS_THEMATIQUES, coefficients: CALIBRAGE.coefficients, empreinte: 'test' }
 const AUJOURDHUI = '2026-11-12'
@@ -65,5 +66,40 @@ describe('Le calendrier des Parties du jour', () => {
   it('refuse un calendrier qui cite un Geste absent du catalogue', () => {
     const casse: Calendrier = { ...cal, jours: [['licorne>steak-boeuf', ...cal.jours[0].slice(1)]] }
     expect(() => partieDuJour(casse, AUJOURDHUI, GESTES_CALCULES, DUELS_THEMATIQUES)).toThrow(/licorne/)
+  })
+})
+
+describe('Les Duels thématiques de la Partie du jour', () => {
+  // Un an de calendrier : assez pour que chaque Duel thématique passe plusieurs fois.
+  const annee = prolongerCalendrier(null, '2027-01-01', { ...sources, horizon: 364 })
+  const parCle = new Map(DUELS_THEMATIQUES.map((t) => [cleDePaire(t.a, t.b), t]))
+  const thematiqueDuJour = annee.jours.map((jour) => cles(jour).find((c) => parCle.has(c)))
+  const passages = thematiqueDuJour.filter((c): c is string => c !== undefined)
+
+  it(`en place un environ 2 jours sur 3 (${Math.round(REGLES.duelDuJour.probabiliteDuelThematique * 100)} % de chances, 9/13 ≈ 69 % avec la garantie)`, () => {
+    const part = passages.length / annee.jours.length
+    expect(part).toBeGreaterThan(0.63)
+    expect(part).toBeLessThan(0.76)
+  })
+
+  it(`ne laisse jamais passer plus de ${REGLES.duelDuJour.joursMaxSansDuelThematique} jours de suite sans`, () => {
+    let sans = 0
+    for (const c of thematiqueDuJour) {
+      sans = c ? 0 : sans + 1
+      expect(sans).toBeLessThanOrEqual(REGLES.duelDuJour.joursMaxSansDuelThematique)
+    }
+  })
+
+  it('fait passer chaque Duel thématique une fois avant qu’un autre ne revienne', () => {
+    const n = DUELS_THEMATIQUES.length
+    expect(passages.length).toBeGreaterThan(2 * n)
+    for (let debut = 0; debut + n <= passages.length; debut += n) {
+      expect(new Set(passages.slice(debut, debut + n)).size, `cycle n° ${debut / n + 1}`).toBe(n)
+    }
+  })
+
+  it('dans un ordre tiré au hasard, différent d’un cycle à l’autre', () => {
+    const n = DUELS_THEMATIQUES.length
+    expect(passages.slice(n, 2 * n)).not.toEqual(passages.slice(0, n))
   })
 })

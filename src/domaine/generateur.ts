@@ -13,8 +13,8 @@
  * dans une Partie. Le tirage écarte aussi les paires exclues (Combinaisons interdites, trajets de Parcours
  * différents), les Gestes réservés et les paires des Duels thématiques.
  *
- * Duel thématique : une Partie sur deux (tirage indépendant), un Duel thématique pas vu récemment
- * prend la place que lui donne son Rapport (positionDuDuelThematique). Il échappe au plafond, aux
+ * Duel thématique : une Partie sur deux (tirage indépendant ; 2 jours sur 3 pour la Partie du jour), un Duel
+ * thématique pas vu récemment prend la place que lui donne son Rapport (positionDuDuelThematique). Il échappe au plafond, aux
  * tranches et au Coefficient d'équilibrage ; sa paire ne sort jamais au hasard, sans son texte.
  */
 import { difficulteAttendue, type Difficulte } from './difficulte.ts'
@@ -51,6 +51,7 @@ export function genererPartie({
   coefficients = {},
   probabiliteThematique = REGLES.probabiliteDuelThematique,
   forcerThematique = false,
+  parmiThematiques = thematiques,
   hasard = Math.random,
 }: {
   gestes: GesteCalcule[]
@@ -61,6 +62,12 @@ export function genererPartie({
   probabiliteThematique?: number
   /** La garantie contre les longues séries (doitForcerUnDuelThematique) : un Duel thématique à coup sûr. */
   forcerThematique?: boolean
+  /**
+   * Les Duels thématiques parmi lesquels choisir celui de la Partie (par défaut : tous). La Partie du jour
+   * n'y met que ceux qui ne sont pas encore passés dans le cycle en cours (thematiquesDuCycle). Les paires
+   * de tous les Duels thématiques restent écartées du tirage au hasard.
+   */
+  parmiThematiques?: DuelThematique[]
   hasard?: SourceDeHasard
 }): DuelTire[] {
   const { paires, parDuel } = pairesTirables(gestes)
@@ -76,7 +83,7 @@ export function genererPartie({
   // Le tirage a toujours lieu (même quand la garantie force) : la suite du hasard reste la même.
   const special =
     thematiques.length > 0 && (hasard() < probabiliteThematique || forcerThematique)
-      ? choisirThematique(thematiques, gestes, pairesRecentes, hasard)
+      ? choisirThematique(parmiThematiques.length > 0 ? parmiThematiques : thematiques, gestes, pairesRecentes, hasard)
       : null
 
   const partie: DuelTire[] = []

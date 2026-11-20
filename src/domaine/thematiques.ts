@@ -79,18 +79,42 @@ export function positionDuDuelThematique(r: number): number {
 
 /**
  * Garantie contre les longues séries : faut-il forcer un Duel thématique dans la prochaine Partie ?
- * Oui si les dernières Parties (REGLES.partiesMaxSansDuelThematique) n'en avaient aucun.
+ * Oui si les `n` dernières Parties n'en avaient aucun (REGLES.partiesMaxSansDuelThematique pour la Partie libre,
+ * REGLES.duelDuJour.joursMaxSansDuelThematique pour la Partie du jour).
  * Un nouveau joueur, qui n'a pas encore joué autant de Parties, laisse faire le hasard.
  * `partiesRecentes` : les paires (cleDePaire) de chaque Partie récente, de la plus ancienne à la plus récente.
  */
 export function doitForcerUnDuelThematique(
   partiesRecentes: readonly (readonly string[])[],
   thematiques: DuelThematique[],
+  n: number = REGLES.partiesMaxSansDuelThematique,
 ): boolean {
-  const n = REGLES.partiesMaxSansDuelThematique
   if (thematiques.length === 0 || partiesRecentes.length < n) return false
   const cles = new Set(thematiques.map((t) => cleDePaire(t.a, t.b)))
   return partiesRecentes.slice(-n).every((paires) => !paires.some((cle) => cles.has(cle)))
+}
+
+/**
+ * Partie du jour : les Duels thématiques qui ne sont pas encore passés dans le cycle en cours.
+ * Chacun passe une fois avant qu'un autre ne revienne ; le générateur tire au hasard parmi ceux qui restent,
+ * d'où un ordre différent à chaque cycle. Quand tous sont passés, un nouveau cycle commence, sans reprendre
+ * aussitôt le dernier. Le cycle se lit dans le calendrier lui-même : rien d'autre à enregistrer.
+ * `jours` : les paires (cleDePaire) de chaque jour depuis le début du calendrier, du plus ancien au plus récent.
+ */
+export function thematiquesDuCycle(jours: readonly (readonly string[])[], thematiques: DuelThematique[]): DuelThematique[] {
+  const cles = thematiques.map((t) => cleDePaire(t.a, t.b))
+  const auCatalogue = new Set(cles)
+  let passes = new Set<string>()
+  let dernier: string | undefined
+  for (const paires of jours) {
+    const cle = paires.find((c) => auCatalogue.has(c))
+    if (cle === undefined) continue
+    if (passes.size === auCatalogue.size) passes = new Set()
+    passes.add(cle)
+    dernier = cle
+  }
+  if (passes.size === auCatalogue.size) return thematiques.filter((_, i) => cles[i] !== dernier)
+  return thematiques.filter((_, i) => !passes.has(cles[i]))
 }
 
 /** Vérifie les Duels thématiques face au catalogue. Liste tous les problèmes à la fois. */
