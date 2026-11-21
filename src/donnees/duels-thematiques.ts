@@ -384,16 +384,6 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     texte:
       "Dix recherches pèsent {a}, dix e-mails {b}. Pour l'un comme pour l'autre, l'essentiel ne vient pas de l'électricité, mais de la construction du matériel : les appareils, les data-centers et les réseaux font 60 % de l'empreinte des recherches, et 90 % de celle des e-mails.",
   },
-  // Ce Duel compare une absorption à des émissions : le texte le dit dès sa première phrase.
-  {
-    a: 'agriculture-france-jour',
-    b: 'forets-france-jour',
-    relu: '',
-    titre: 'Les géants : champs contre forêts',
-    accroche: "En une journée en France : ce qu'émet toute l'agriculture, ou ce qu'absorbent les forêts et les prairies ?",
-    texte:
-      "Les forêts et les prairies n'émettent pas : elles absorbent. En un jour, elles retirent {b} de l'atmosphère en France. C'est énorme, mais moins que ce qu'émet l'agriculture dans la même journée ({a}) : à eux seuls, les puits naturels du pays ne compensent même pas ce secteur.",
-  },
 
   // ─── L'Easter Egg (#63) : la création de ce jeu avec une IA, estimée hors ADEME (ADR 0004) ───
   // Son empreinte n'est chiffrée que par {a} ou {b} : les textes suivent chaque nouveau décompte.

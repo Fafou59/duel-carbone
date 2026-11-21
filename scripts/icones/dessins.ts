@@ -262,8 +262,6 @@ export function dessiner(interieur: (nomFluent: string) => string): Map<string, 
   agregat('voitures-france-jour', 'Automobile')
   agregat('chauffage-france', 'House')
   agregat('trains-france', 'Light rail')
-  agregat('agriculture-france-jour', 'Tractor')
-  agregat('forets-france-jour', 'Deciduous tree')
 
   // ─── Élargissement du catalogue (issue 93) ─────────────────────────────────────────────
   // Deux moules : l'une fermée, l'autre ouverte sur sa chair orangée (l'huître officielle a une perle).

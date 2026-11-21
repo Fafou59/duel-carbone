@@ -278,12 +278,10 @@ export function EcranEnSavoirPlus() {
           recherches sur le web, ne servent qu'à ces Duels.
         </p>
         <p>
-          Quelques Duels ★ comparent des secteurs entiers, sur un an ou sur un jour en France : le numérique, les
-          voitures, les bovins, l'agriculture… Ce sont des cas pratiques de l'ADEME, dont le périmètre est rappelé
-          sous leur nom. Ils ne sont pas tous mesurés de la même façon : le numérique compte la fabrication des
-          appareils, où qu'ils soient fabriqués, alors que les autres sont des inventaires des émissions en France.
-          L'un d'eux oppose même une absorption à des émissions : le CO2 que retirent de l'air les forêts et les
-          prairies en un jour, face à ce qu'émet l'agriculture.
+          Quelques Duels ★ comparent des secteurs entiers, sur un an en France : le numérique, les voitures, les
+          bovins… Ce sont des cas pratiques de l'ADEME, dont le périmètre est rappelé sous leur nom. Ils ne sont pas
+          tous mesurés de la même façon : le numérique compte la fabrication des appareils, où qu'ils soient
+          fabriqués, alors que les autres sont des inventaires des émissions en France.
         </p>
       </Partie>
 
