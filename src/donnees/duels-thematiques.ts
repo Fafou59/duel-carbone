@@ -377,6 +377,16 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     texte:
       "À volume égal, le soda pèse {a}, l'eau en bouteille {b}. Pour l'eau, presque tout vient de la bouteille (58 %) et du transport (36 %). Le soda pèse aussi par son transport (42 %) et son emballage (28 %), mais ses ingrédients agricoles ajoutent 30 g. Et côté santé, l'eau l'emporte encore : les recommandations nutritionnelles conseillent de limiter les boissons sucrées.",
   },
+  // Texte à valider par Fabien (relu vide).
+  {
+    a: 'cheeseburger',
+    b: 'burger-vegetarien',
+    relu: '',
+    titre: 'Le match des burgers',
+    accroche: 'Deux burgers de 200 g : un cheeseburger, ou un burger végétarien ?',
+    texte:
+      "Après la ferme, les deux burgers pèsent presque pareil : transformation, emballage et transport font environ 290 g chacun. Tout l'écart se joue à l'étape agricole, celle des ingrédients : 3,5 kg pour le cheeseburger (92 % de son empreinte), contre 246 g pour le burger végétarien. Au total, {a} contre {b}.",
+  },
 
   // ─── L'Easter Egg (#63) : la création de ce jeu avec une IA, estimée hors ADEME (ADR 0004) ───
   // Son empreinte n'est chiffrée que par {a} ou {b} : les textes suivent chaque nouveau décompte.

@@ -50,7 +50,7 @@ export const REGLES = {
    * La Partie du jour a ses propres réglages : c'est le Duel dont les joueurs parlent entre eux (bilan J+7, issue 93).
    * Un Duel thématique 2 jours sur 3, forcé si les 2 jours précédents n'en avaient pas : 9/13 ≈ 69 % des jours.
    * Et chaque Duel thématique passe une fois avant qu'un autre ne revienne, dans un ordre tiré au hasard
-   * (thematiquesDuCycle) : avec 39 Duels, chacun revient 6 ou 7 fois par an.
+   * (thematiquesDuCycle) : avec 40 Duels, chacun revient 6 ou 7 fois par an.
    * La Partie libre garde les deux réglages ci-dessus.
    */
   duelDuJour: {
