@@ -377,11 +377,10 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     texte:
       "À volume égal, le soda pèse {a}, l'eau en bouteille {b}. Pour l'eau, presque tout vient de la bouteille (58 %) et du transport (36 %). Le soda pèse aussi par son transport (42 %) et son emballage (28 %), mais ses ingrédients agricoles ajoutent 30 g. Et côté santé, l'eau l'emporte encore : les recommandations nutritionnelles conseillent de limiter les boissons sucrées.",
   },
-  // Texte à valider par Fabien (relu vide).
   {
     a: 'cheeseburger',
     b: 'burger-vegetarien',
-    relu: '',
+    relu: 'bdba4bcf',
     titre: 'Le match des burgers',
     accroche: 'Deux burgers de 200 g : un cheeseburger, ou un burger végétarien ?',
     texte:
