@@ -21,7 +21,7 @@ Une entrée du Référentiel : un objet ou un geste, son Empreinte carbone pour 
 _À éviter_ : item, produit, facteur
 
 **Geste** :
-Ce que le joueur voit et compare : un Équivalent multiplié par une quantité réaliste qui figure dans son libellé (« Manger un steak de bœuf (120 g) »). Un Geste concerne toujours une seule personne : pour un trajet, c'est la part d'un passager (« Paris–Marseille en covoiturage à 4 (ta part) »). Voir l'ADR 0001.
+Ce que le joueur voit et compare : un Équivalent multiplié par une quantité réaliste qui figure dans son libellé (« Manger un steak de bœuf (150 g) »). Un Geste concerne toujours une seule personne : pour un trajet, c'est la part d'un passager (« Paris–Marseille en covoiturage à 4 (ta part) »). Voir l'ADR 0001.
 _À éviter_ : action, activité, item
 
 **Nature** :
@@ -29,7 +29,7 @@ Ce qu'est un Geste pour le joueur : un aliment, un repas, une boisson, un objet,
 _À éviter_ : type, famille, catégorie
 
 **Quantité** :
-Le multiplicateur appliqué à l'unité de référence d'un Équivalent pour obtenir un Geste (0,12 kg pour un steak ; 1 pour un objet ou un repas). Elle reste dans la fourchette de sa Nature : un repas est un plat complet, un aliment une portion individuelle, une boisson un verre.
+Le multiplicateur appliqué à l'unité de référence d'un Équivalent pour obtenir un Geste (0,15 kg pour un steak ; 1 pour un objet ou un repas). Elle reste dans la fourchette de sa Nature : un repas est un plat complet, un aliment une portion individuelle, une boisson un verre.
 _À éviter_ : portion, coefficient
 
 **Thématique** :
@@ -55,7 +55,7 @@ Le chemin effectué par un trajet (« 10 km du quotidien », « Paris–Marseill
 _À éviter_ : itinéraire, distance, trajet (le trajet est le Geste, le Parcours est son chemin)
 
 **Combinaison interdite** :
-Deux Natures qui ne s'affrontent jamais dans un Duel tiré au hasard, parce que la comparaison n'aurait pas de sens : un repas face à un aliment (« Repas avec du bœuf » contre « 120 g de bœuf »). Un Duel thématique, écrit à la main, n'est pas concerné.
+Deux Natures qui ne s'affrontent jamais dans un Duel tiré au hasard, parce que la comparaison n'aurait pas de sens : un repas face à un aliment (« Repas avec du bœuf » contre « 150 g de bœuf »). Un Duel thématique, écrit à la main, n'est pas concerné.
 _À éviter_ : paire interdite, exclusion
 
 **Geste réservé** :

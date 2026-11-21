@@ -38,7 +38,7 @@ describe("Tableau comparatif de l'explication", () => {
 
   it('donne le total de chaque Geste', () => {
     const t = tableauComparatif({ a: steak, b: avocat })
-    expect(t.totaux[0]).toBeCloseTo(3.361, 3)
+    expect(t.totaux[0]).toBeCloseTo(4.201, 3)
     expect(t.totaux[1]).toBeCloseTo(0.3105, 4)
   })
 

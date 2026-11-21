@@ -31,7 +31,7 @@ describe('Page En savoir plus', () => {
     const kg = (h: keyof typeof HYPOTHESES) => Math.round(empreinteDeLaCreation(JETONS, HYPOTHESES[h]).kgCo2e)
     expect(estimation).toHaveTextContent(new RegExp(`environ ${kg('centrale')} kg CO2e`))
     expect(estimation).toHaveTextContent(new RegExp(`entre ${kg('basse')} et ${kg('haute')} kg`))
-    expect(estimation).toHaveTextContent(/regarder l'intégrale de Friends \(en streaming\)/)
+    expect(estimation).toHaveTextContent(/regarder l'intégrale de Friends en streaming \(236 épisodes de 20 min\)/)
     expect(screen.getByRole('link', { name: /méthode détaillée/ })).toHaveAttribute(
       'href',
       'https://github.com/Fafou59/duel-carbone/blob/main/docs/empreinte-ia.md',

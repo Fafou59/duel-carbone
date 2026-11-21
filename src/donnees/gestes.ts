@@ -23,7 +23,7 @@ import type { Geste, Nature } from '../domaine/geste.ts'
 export const FOURCHETTES_DE_QUANTITE: Partial<Record<Nature, Record<string, [number, number]>>> = {
   // Une portion individuelle : de la noisette de beurre d'une tartine (10 g) au fruit entier (300 g).
   aliment: { kg: [0.01, 0.3] },
-  // Un plat complet, comme le kebab (350 g) ou la pizza (400 g) ; ou un repas type de l'ADEME.
+  // Un plat complet, comme le kebab ou la pizza (500 g) ; ou un repas type de l'ADEME.
   repas: { kg: [0.3, 0.5], repas: [1, 1] },
   // Un verre, une tasse, une canette ou une pinte : de 12,5 cl à 50 cl.
   boisson: { litre: [0.125, 0.5] },
@@ -51,10 +51,11 @@ export const GESTES: Geste[] = [
   {
     id: 'steak-boeuf',
     titre: 'Manger un steak de bœuf',
-    sousTitre: '120 g',
+    sousTitre: '150 g',
     equivalent: 'boeuf',
-    quantite: 0.12,
-    justification: 'Portion individuelle courante de viande de bœuf.',
+    quantite: 0.15,
+    justification:
+      'Portion de protéines alignée à 150 g pour la viande, le poisson, les crevettes et le tofu (issue 93).',
     nature: 'aliment',
   },
   {
@@ -87,28 +88,31 @@ export const GESTES: Geste[] = [
   {
     id: 'saumon',
     titre: "Manger un pavé de saumon d'élevage",
-    sousTitre: '125 g',
+    sousTitre: '150 g',
     equivalent: 'saumon',
-    quantite: 0.125,
-    justification: 'Pavé de poisson vendu en portion individuelle.',
+    quantite: 0.15,
+    justification:
+      'Portion de protéines alignée à 150 g pour la viande, le poisson, les crevettes et le tofu (issue 93).',
     nature: 'aliment',
   },
   {
     id: 'cabillaud',
     titre: 'Manger un filet de cabillaud',
-    sousTitre: '125 g',
+    sousTitre: '150 g',
     equivalent: 'cabillaud',
-    quantite: 0.125,
-    justification: 'Filet de poisson vendu en portion individuelle.',
+    quantite: 0.15,
+    justification:
+      'Portion de protéines alignée à 150 g pour la viande, le poisson, les crevettes et le tofu (issue 93).',
     nature: 'aliment',
   },
   {
     id: 'crevettes',
     titre: 'Manger des crevettes',
-    sousTitre: '100 g',
+    sousTitre: '150 g',
     equivalent: 'crevettes',
-    quantite: 0.1,
-    justification: 'Portion individuelle en plat principal.',
+    quantite: 0.15,
+    justification:
+      'Portion de protéines alignée à 150 g pour la viande, le poisson, les crevettes et le tofu (issue 93).',
     nature: 'aliment',
   },
   {
@@ -123,10 +127,11 @@ export const GESTES: Geste[] = [
   {
     id: 'tofu',
     titre: 'Manger du tofu',
-    sousTitre: '125 g',
+    sousTitre: '150 g',
     equivalent: 'tofu',
-    quantite: 0.125,
-    justification: 'Portion individuelle en plat principal (un demi-bloc de 250 g).',
+    quantite: 0.15,
+    justification:
+      'Portion de protéines alignée à 150 g pour la viande, le poisson, les crevettes et le tofu (issue 93).',
     nature: 'aliment',
   },
   {
@@ -152,10 +157,10 @@ export const GESTES: Geste[] = [
   {
     id: 'fromage',
     titre: 'Manger du fromage à pâte dure',
-    sousTitre: '30 g',
+    sousTitre: '50 g',
     equivalent: 'fromagedure',
-    quantite: 0.03,
-    justification: 'Portion individuelle courante de fromage (un morceau sur un plateau).',
+    quantite: 0.05,
+    justification: 'Un beau morceau de fromage, en fin de repas (issue 93).',
     nature: 'aliment',
   },
   {
@@ -170,10 +175,10 @@ export const GESTES: Geste[] = [
   {
     id: 'croissant',
     titre: 'Manger un croissant au beurre',
-    sousTitre: '60 g',
+    sousTitre: '80 g',
     equivalent: 'croissant',
-    quantite: 0.06,
-    justification: "Poids moyen d'un croissant de boulangerie.",
+    quantite: 0.08,
+    justification: 'Un croissant de boulangerie généreux ; même poids que le pain au chocolat (issue 93).',
     nature: 'aliment',
   },
 
@@ -189,19 +194,19 @@ export const GESTES: Geste[] = [
   {
     id: 'beurre',
     titre: 'Mettre du beurre sur une tartine',
-    sousTitre: '10 g',
+    sousTitre: '15 g',
     equivalent: 'beurre',
-    quantite: 0.01,
-    justification: 'Une noisette de beurre, de quoi couvrir une tartine.',
+    quantite: 0.015,
+    justification: 'Une noisette de beurre, de quoi couvrir une tartine (même portion que la pâte à tartiner).',
     nature: 'aliment',
   },
   {
     id: 'pate-a-tartiner',
     titre: 'Mettre de la pâte à tartiner sur une tartine',
-    sousTitre: '20 g',
+    sousTitre: '15 g',
     equivalent: 'pateatartiner',
-    quantite: 0.02,
-    justification: 'Une cuillère bien remplie : la portion indiquée sur les pots de pâte à tartiner (15 à 20 g).',
+    quantite: 0.015,
+    justification: 'La portion indiquée sur les pots de pâte à tartiner (15 g).',
     nature: 'aliment',
   },
   {
@@ -253,9 +258,9 @@ export const GESTES: Geste[] = [
   {
     id: 'pain-au-chocolat',
     titre: 'Manger un pain au chocolat',
-    sousTitre: '60 g',
+    sousTitre: '80 g',
     equivalent: 'painauchocolat',
-    quantite: 0.06,
+    quantite: 0.08,
     justification: 'Même poids que le croissant du catalogue, pour comparer à portion égale (leur Duel thématique).',
     nature: 'aliment',
   },
@@ -285,29 +290,31 @@ export const GESTES: Geste[] = [
   {
     id: 'kebab',
     titre: 'Manger un kebab',
-    sousTitre: '350 g',
+    sousTitre: '500 g',
     equivalent: 'kebab',
-    quantite: 0.35,
-    justification: "Poids moyen d'un sandwich kebab complet.",
+    quantite: 0.5,
+    justification:
+      "Un kebab complet. Plat complet de 500 g, aligné sur les repas types de l'ADEME, qui comptent aussi le pain et le dessert (issue 93).",
     nature: 'repas',
   },
   {
     id: 'pizza',
     titre: 'Manger une pizza quatre fromages',
-    sousTitre: '400 g',
+    sousTitre: '500 g',
     equivalent: 'pizza',
-    quantite: 0.4,
-    justification: "Poids moyen d'une pizza individuelle.",
+    quantite: 0.5,
+    justification:
+      "Une pizza individuelle. Plat complet de 500 g, aligné sur les repas types de l'ADEME, qui comptent aussi le pain et le dessert (issue 93).",
     nature: 'repas',
   },
   {
     id: 'sushis',
     titre: 'Manger un plateau de sushis',
-    sousTitre: '350 g',
+    sousTitre: '500 g',
     equivalent: 'sushis',
-    quantite: 0.35,
+    quantite: 0.5,
     justification:
-      "Plateau individuel servi en plat complet, d'environ 14 pièces (sushis, makis, california rolls) : du même ordre que le kebab (350 g) ou la pizza (400 g).",
+      "Un plateau d'une vingtaine de pièces (sushis, makis, california rolls). Plat complet de 500 g, aligné sur les repas types de l'ADEME, qui comptent aussi le pain et le dessert (issue 93).",
     nature: 'repas',
   },
   {
@@ -515,11 +522,11 @@ export const GESTES: Geste[] = [
   },
   {
     id: 'biere',
-    titre: 'Boire une pinte de bière',
-    sousTitre: '50 cl',
+    titre: 'Boire un demi de bière',
+    sousTitre: '25 cl',
     equivalent: 'biere',
-    quantite: 0.5,
-    justification: 'Une pinte servie en France contient 50 cl.',
+    quantite: 0.25,
+    justification: 'Un demi servi en France contient 25 cl : deux fois un verre de vin standard (12,5 cl).',
     nature: 'boisson',
   },
   {
@@ -1089,17 +1096,17 @@ export const GESTES: Geste[] = [
   // ─── Livraison : scénarios ADEME pour un colis de 1 kg ──────────────────────────────
   {
     id: 'colis-magasin-velo',
-    titre: 'Aller chercher un colis de 1 kg en magasin',
-    sousTitre: 'à pied ou à vélo',
+    titre: 'Aller chercher un colis de 1 kg en magasin à pied',
+    sousTitre: 'à proximité',
     equivalent: 'magasindouce',
     quantite: 1,
-    justification: "Scénario de l'ADEME : achat en magasin, déplacement en mobilité douce, colis de 1 kg.",
+    justification: "Scénario de l'ADEME : achat en magasin à proximité, déplacement à pied, colis de 1 kg.",
     nature: 'livraison',
   },
   {
     id: 'livraison-domicile',
-    titre: 'Se faire livrer un colis de 1 kg',
-    sousTitre: 'à domicile',
+    titre: 'Se faire livrer un colis de 1 kg à domicile',
+    sousTitre: 'par un transporteur',
     equivalent: 'livraisondomicile',
     quantite: 1,
     justification: "Scénario de l'ADEME : un colis de 1 kg livré à domicile.",
@@ -1107,8 +1114,8 @@ export const GESTES: Geste[] = [
   },
   {
     id: 'livraison-point-relais',
-    titre: 'Se faire livrer un colis de 1 kg',
-    sousTitre: 'en point relais, en voiture',
+    titre: 'Se faire livrer un colis de 1 kg en point relais',
+    sousTitre: 'et aller le chercher en voiture, 7 km aller-retour',
     equivalent: 'pointrelais',
     quantite: 1,
     justification: "Scénario de l'ADEME : colis de 1 kg livré en point relais, retiré en voiture (7 km aller-retour).",
@@ -1116,11 +1123,11 @@ export const GESTES: Geste[] = [
   },
   {
     id: 'colis-magasin-voiture',
-    titre: 'Aller chercher un colis de 1 kg en magasin',
-    sousTitre: 'en voiture, 15 km aller',
+    titre: 'Aller chercher un colis de 1 kg en magasin en voiture',
+    sousTitre: '30 km aller-retour',
     equivalent: 'magasin',
     quantite: 1,
-    justification: "Scénario de l'ADEME : achat en magasin à 15 km, aller-retour en voiture, colis de 1 kg.",
+    justification: "Scénario de l'ADEME : achat en magasin à 15 km, aller-retour en voiture (30 km), colis de 1 kg.",
     nature: 'livraison',
   },
 
@@ -1156,11 +1163,12 @@ export const GESTES: Geste[] = [
   // ─── Loisirs : cas pratiques ADEME ──────────────────────────────────────────────────
   {
     id: 'friends',
-    titre: "Regarder l'intégrale de Friends",
-    sousTitre: 'en streaming',
+    titre: "Regarder l'intégrale de Friends en streaming",
+    sousTitre: '236 épisodes de 20 min',
     equivalent: 'friends',
     quantite: 1,
-    justification: "Cas pratique de l'ADEME : l'intégrale de la série regardée en streaming.",
+    justification:
+      "Cas pratique de l'ADEME : les 236 épisodes d'environ 20 min, regardés en haute définition sur une télévision, en Wi-Fi.",
     nature: 'usage',
   },
   {

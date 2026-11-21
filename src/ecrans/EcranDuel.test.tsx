@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { gesteCalcule } from '../donnees/index.ts'
 import { DuelDeTest } from '../test/DuelDeTest.tsx'
 
-// Un vrai Duel, calculé depuis le catalogue et l'Instantané : steak (≈ 3,4 kg) contre avocat (≈ 311 g).
+// Un vrai Duel, calculé depuis le catalogue et l'Instantané : steak (≈ 4,2 kg) contre avocat (≈ 311 g).
 const duel = { a: gesteCalcule('steak-boeuf'), b: gesteCalcule('avocat') }
 const carte = (nom: RegExp) => screen.getByRole('button', { name: nom })
 
@@ -11,7 +11,7 @@ describe('Écran Duel', () => {
   it('présente les deux Gestes avec leur quantité, sans révéler les chiffres', () => {
     render(<DuelDeTest duel={duel} />)
     expect(screen.getByRole('heading', { name: 'Lequel émet le plus ?' })).toBeInTheDocument()
-    expect(carte(/Manger un steak de bœuf.*120 g/)).toBeEnabled()
+    expect(carte(/Manger un steak de bœuf.*150 g/)).toBeEnabled()
     expect(carte(/Manger un avocat.*200 g/)).toBeEnabled()
     expect(screen.queryByText(/CO2e/)).not.toBeInTheDocument()
   })
@@ -20,9 +20,9 @@ describe('Écran Duel', () => {
     render(<DuelDeTest duel={duel} />)
     fireEvent.click(carte(/steak/))
     expect(screen.getByText('✓ Bonne réponse !')).toBeInTheDocument()
-    expect(screen.getByText('3,4 kg CO2e')).toBeInTheDocument()
+    expect(screen.getByText('4,2 kg CO2e')).toBeInTheDocument()
     expect(screen.getByText('311 g CO2e')).toBeInTheDocument()
-    expect(screen.getByText('×11')).toBeInTheDocument()
+    expect(screen.getByText('×14')).toBeInTheDocument()
     expect(within(carte(/steak/)).getByText(/Ton choix · émet le plus/)).toBeInTheDocument()
   })
 
@@ -49,7 +49,7 @@ describe('Écran Duel', () => {
     render(<DuelDeTest duel={duel} />)
     fireEvent.click(carte(/steak/))
     expect(
-      screen.getByText('Manger un steak de bœuf (120 g) émet 10,8 fois plus que manger un avocat (200 g).'),
+      screen.getByText('Manger un steak de bœuf (150 g) émet 13,5 fois plus que manger un avocat (200 g).'),
     ).toBeInTheDocument()
   })
 
