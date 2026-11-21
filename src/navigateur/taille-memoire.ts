@@ -6,7 +6,7 @@
  * Dans un fichier à part (sans rien du navigateur) pour que les scripts de simulation
  * (npm run calibrer, npm run analyse:paires) puissent l'utiliser.
  *
- * 10 depuis l'élargissement du catalogue (issue 93, 120 Gestes tirables) : sur 2 000 Parties libres simulées,
+ * 10 depuis l'élargissement du catalogue (issue 93, 119 Gestes tirables) : sur 2 000 Parties libres simulées,
  * plus aucun Duel ni Duel thématique ne revient dans les 10 Parties suivantes (2,8 % et 10 % avec 3 Parties),
  * sans aucun assouplissement, pour quelques Ko de stockage.
  */

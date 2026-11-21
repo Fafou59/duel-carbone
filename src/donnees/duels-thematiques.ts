@@ -337,29 +337,11 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     texte:
       'Les trains (voyageurs et marchandises) émettent {a} par an. Les voitures thermiques émettent {b} en une seule journée : en {rapport} jours, elles dépassent une année entière de trains.',
   },
-  // ─── Élargissement du catalogue (issue 93) : textes à valider par Fabien ───
-  {
-    a: 'beurre',
-    b: 'pate-a-tartiner',
-    relu: '',
-    titre: 'La tartine du matin',
-    accroche: 'Sur ta tartine : 10 g de beurre, ou 20 g de pâte à tartiner ?',
-    texte:
-      "Au kilo, les deux se valent presque : 7,9 kg de CO2e pour le beurre, 9,1 kg pour la pâte à tartiner. Pour l'un comme pour l'autre, presque tout se joue à l'étape agricole (92 % et 88 %). Mais on étale deux fois plus de pâte à tartiner : sa tartine pèse {b}, contre {a} pour le beurre.",
-  },
-  {
-    a: 'soda',
-    b: 'eau-robinet',
-    relu: '',
-    titre: 'Soda ou robinet ?',
-    accroche: "Pour te désaltérer : une canette de soda, ou 1,5 L d'eau du robinet ?",
-    texte:
-      "Avec près de cinq fois moins de liquide, la canette pèse {a} : surtout par le transport (42 %) et l'emballage (28 %), puis par les ingrédients agricoles (18 %). L'eau du robinet arrive par des canalisations déjà en place : 0,2 g pour 1,5 L, plus de 800 fois moins.",
-  },
+  // ─── Élargissement du catalogue (issue 93), validés par Fabien le 21/11 ───
   {
     a: 'visioconference',
     b: 'voiture-10km',
-    relu: '',
+    relu: 'f05c8b96',
     titre: 'Le télétravail',
     accroche: "Une heure de réunion en visio depuis chez toi, ou 10 km en voiture jusqu'au bureau ?",
     texte:
@@ -368,7 +350,7 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
   {
     a: 'nuit-camping',
     b: 'nuit-hotel',
-    relu: '',
+    relu: 'a468315c',
     cites: ['paris-marseille-voiture'],
     titre: 'Tente ou chambre ?',
     accroche: 'Pour les vacances : une nuit au camping, ou une nuit à l’hôtel ?',
@@ -378,7 +360,7 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
   {
     a: 'recherches-web',
     b: 'emails',
-    relu: '',
+    relu: '20cf9ab3',
     titre: 'Chercher ou écrire ?',
     accroche: 'Dix recherches sur le web, ou dix e-mails envoyés ?',
     texte:

@@ -264,12 +264,6 @@ export function dessiner(interieur: (nomFluent: string) => string): Map<string, 
   agregat('trains-france', 'Light rail')
 
   // ─── Élargissement du catalogue (issue 93) ─────────────────────────────────────────────
-  // Deux moules : l'une fermée, l'autre ouverte sur sa chair orangée (l'huître officielle a une perle).
-  const moule = `<path d="M3.5 27.5C1.5 25 3 18 8.5 12C13 7 19.5 4.5 22.5 6C24 8.5 20.5 15.5 15 21C10.5 25.5 5.5 29.5 3.5 27.5Z"/>`
-  ecrire('moules', `
-  <g fill="#321B41">${moule}</g>
-  <g transform="translate(8 -1)"><g fill="#533566">${moule}</g><path d="M6 25.5C5 23.5 7 18.5 11 14C14.5 10 18.5 8 20 8.5C20.5 10.5 18 15 14 19C10.5 22.5 7 26.5 6 25.5Z" fill="#FF8257"/></g>`)
-
   ecrire('mozzarella', `${assiette}
   <circle cx="15" cy="15" r="8" fill="#FFFFFF" stroke="#E6E6E6"/>
   <ellipse cx="12.5" cy="12" rx="2.5" ry="1.5" fill="#F4F4F4"/>

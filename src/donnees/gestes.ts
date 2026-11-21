@@ -35,11 +35,10 @@ export const FOURCHETTES_DE_QUANTITE: Partial<Record<Nature, Record<string, [num
 
 /** Les Gestes hors de leur fourchette, à trancher par Fabien (issue 93) : la raison de chacun. */
 export const HORS_FOURCHETTE: Record<string, string> = {
-  'mangue-avion': 'Une mangue entière (400 g) : plus qu’une portion, à trancher.',
-  'mangue-bateau': 'Une mangue entière (400 g) : plus qu’une portion, à trancher.',
+  'mangue-avion': 'Une mangue entière (400 g) : validé par Fabien (issue 93).',
+  'mangue-bateau': 'Une mangue entière (400 g) : validé par Fabien (issue 93).',
   'eau-bouteille': 'Une bouteille de 1,5 L : plus qu’un verre, à trancher.',
   'eau-robinet': 'Même volume que la bouteille (1,5 L), pour leur Duel thématique : à trancher.',
-  moules: 'Pesées avec les coquilles, comme à l’achat (1 kg, environ 250 g de chair) : choix de Fabien.',
 }
 
 /** Durée d'utilisation retenue par l'ADEME : elle est incluse dans l'Équivalent, la Quantité vaut 1. */
@@ -133,20 +132,21 @@ export const GESTES: Geste[] = [
   {
     id: 'lentilles',
     titre: 'Manger des lentilles',
-    sousTitre: '150 g',
+    sousTitre: '100 g (sèches)',
     equivalent: 'lentilles',
-    quantite: 0.15,
+    quantite: 0.1,
     justification:
-      "Portion individuelle en plat principal (validée à la relecture du ticket #12). L'ADEME ne précise pas si le poids s'entend sec ou cuit.",
+      'Portion individuelle en plat principal, poids sec : la même pour les pâtes, le riz et les lentilles (issue 93).',
     nature: 'aliment',
   },
   {
     id: 'pates',
     titre: 'Manger des pâtes',
-    sousTitre: '80 g (poids sec)',
+    sousTitre: '100 g (sèches)',
     equivalent: 'pates',
-    quantite: 0.08,
-    justification: "Portion individuelle conseillée de pâtes sèches ; l'Équivalent ADEME est « Pâtes (sèches) ».",
+    quantite: 0.1,
+    justification:
+      "Portion individuelle en plat principal, poids sec : la même pour les pâtes, le riz et les lentilles (issue 93). L'Équivalent ADEME est « Pâtes (sèches) ».",
     nature: 'aliment',
   },
   {
@@ -214,22 +214,13 @@ export const GESTES: Geste[] = [
     nature: 'aliment',
   },
   {
-    id: 'moules',
-    titre: 'Manger des moules',
-    sousTitre: '1 kg avec les coquilles',
-    equivalent: 'moules',
-    quantite: 1,
-    justification:
-      "Une portion de moules-frites, pesée avec les coquilles comme à l'achat (environ 250 g de chair). L'ADEME ne précise pas si son poids compte les coquilles : Fabien a retenu le poids avec les coquilles.",
-    nature: 'aliment',
-  },
-  {
     id: 'riz',
     titre: 'Manger du riz',
-    sousTitre: '150 g',
+    sousTitre: '100 g (sec)',
     equivalent: 'riz',
-    quantite: 0.15,
-    justification: 'Portion individuelle en plat principal, comme les lentilles (150 g).',
+    quantite: 0.1,
+    justification:
+      'Portion individuelle en plat principal, poids sec : la même pour les pâtes, le riz et les lentilles (issue 93).',
     nature: 'aliment',
   },
   {
