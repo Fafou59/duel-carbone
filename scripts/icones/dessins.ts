@@ -114,6 +114,13 @@ export function dessiner(interieur: (nomFluent: string) => string): Map<string, 
   <rect x="12.2" y="10.5" width="1.4" height="16" rx="0.7" fill="#FFFFFF" fill-opacity="0.7"/>
   <path d="M10.5 24H21.5" stroke="#83CBFF"/>`)
 
+  // La même bouteille, en plus courte : la petite bouteille de 33 cl des menus (issue 93).
+  ecrire('eau-bouteille-33cl', `
+  <rect x="13" y="9" width="6" height="3" rx="1" fill="#00A6ED"/>
+  <path d="M13.5 12H18.5V13.5C18.5 14.5 21.5 15.5 21.5 17.5V27C21.5 28.1 20.6 29 19.5 29H12.5C11.4 29 10.5 28.1 10.5 27V17.5C10.5 15.5 13.5 14.5 13.5 13.5Z" fill="#AEDDFF"/>
+  <rect x="10.5" y="19.5" width="11" height="5" fill="#00A6ED"/>
+  <rect x="12.2" y="16" width="1.4" height="11" rx="0.7" fill="#FFFFFF" fill-opacity="0.7"/>`)
+
   ecrire('boisson-soja', `${placer(interieur('Beverage box'), 0, 0, 0.9)}${badge(interieur('Pea pod'), 24.5, 24.5, 6.5)}`)
 
   // ─── Numérique ─────────────────────────────────────────────────────────────────────────
@@ -262,6 +269,73 @@ export function dessiner(interieur: (nomFluent: string) => string): Map<string, 
   agregat('voitures-france-jour', 'Automobile')
   agregat('chauffage-france', 'House')
   agregat('trains-france', 'Light rail')
+
+  // ─── Élargissement du catalogue (issue 93) ─────────────────────────────────────────────
+  ecrire('mozzarella', `${assiette}
+  <circle cx="15" cy="15" r="8" fill="#FFFFFF" stroke="#E6E6E6"/>
+  <ellipse cx="12.5" cy="12" rx="2.5" ry="1.5" fill="#F4F4F4"/>
+  <path d="M21 9C24 8 27 9.5 27.5 12C25 13 22 12 21 9Z" fill="#00D26A"/><path d="M21 9L27.5 12" stroke="#008463" stroke-width="0.6"/>`)
+
+  // Un pot brun (la pâte aux noisettes), à côté d'une noisette ; le beurre, lui, garde l'icône officielle.
+  ecrire('pate-a-tartiner', `
+  <rect x="7" y="4" width="16" height="5" rx="1.5" fill="#F92F60"/>
+  <rect x="7" y="7.5" width="16" height="2" fill="#CA0B4A"/>
+  <path d="M6 12C6 10.3 7.3 9 9 9H21C22.7 9 24 10.3 24 12V26C24 27.7 22.7 29 21 29H9C7.3 29 6 27.7 6 26Z" fill="#6D4534"/>
+  <rect x="8" y="14" width="14" height="9" rx="1.5" fill="#FFFFFF"/>
+  <ellipse cx="15" cy="19" rx="3" ry="2.6" fill="#B4876B"/><path d="M12.5 17.5C13.5 16.3 16.5 16.3 17.5 17.5" stroke="#6D4534" stroke-width="0.8"/>
+  <ellipse cx="27" cy="26.5" rx="3" ry="2.8" fill="#B4876B"/><path d="M24.3 25.3C25.5 23.8 28.5 23.8 29.7 25.3Z" fill="#6D4534"/>`)
+
+  // Le hamburger officiel (celui du cheeseburger), avec une galette verte.
+  ecrire('burger-vegetarien', recolorer(interieur('Hamburger'), { '#6D4534': '#86B33D' }))
+
+  ecrire('repas-saumon', `${assiette}${placer(recolorer(interieur('Fish'), { '#00A6ED': '#FF8257', '#0074BA': '#F8312F' }), 4, 6, 0.6)}${placer(interieur('Lemon'), 18.5, 11.5, 0.33)}`)
+
+  ecrire('cle-usb', `
+  <g transform="rotate(-45 16 16)">
+  <rect x="12" y="2" width="8" height="8" rx="0.8" fill="#D3D3D3"/>
+  <rect x="13.8" y="4" width="1.6" height="1.6" fill="#636363"/><rect x="16.6" y="4" width="1.6" height="1.6" fill="#636363"/>
+  <rect x="10.5" y="9" width="11" height="20" rx="2.5" fill="#00A6ED"/>
+  <rect x="10.5" y="20" width="11" height="9" rx="2.5" fill="#0074BA"/>
+  <circle cx="16" cy="25.5" r="1.5" fill="#FFFFFF"/>
+  </g>`)
+
+  // Une cafetière filtre : réservoir noir et verseuse en verre, à distinguer de la cafetière à dosettes.
+  ecrire('cafetiere-filtre', `
+  <rect x="6" y="2.5" width="20" height="7" rx="2" fill="#321B41"/>
+  <rect x="21" y="7" width="5" height="19" rx="1.5" fill="#321B41"/>
+  <rect x="22.2" y="10" width="2.6" height="11" rx="1" fill="#83CBFF"/>
+  <path d="M9.5 9.5H18L16.5 12.5H11Z" fill="#636363"/>
+  <path d="M8 14H19.5L20 25C20 26.1 19.1 27 18 27H9.5C8.4 27 7.5 26.1 7.5 25Z" fill="#E1F4FF" stroke="#83CBFF"/>
+  <path d="M8 19H19.7L20 25C20 26.1 19.1 27 18 27H9.5C8.4 27 7.5 26.1 7.5 25Z" fill="#6D4534"/>
+  <rect x="7" y="13" width="13.5" height="2" rx="0.8" fill="#321B41"/>
+  <circle cx="23.5" cy="23.5" r="1" fill="#F92F60"/>
+  <rect x="5" y="26.5" width="22" height="3" rx="1" fill="#321B41"/>`)
+
+  ecrire('four-electrique', `
+  <rect x="3" y="3" width="26" height="26" rx="2.5" fill="#636363"/>
+  <rect x="3" y="3" width="26" height="6" rx="2.5" fill="#321B41"/>
+  <circle cx="8" cy="6" r="1.5" fill="#D3D3D3"/><circle cx="13" cy="6" r="1.5" fill="#D3D3D3"/>
+  <rect x="18" y="4.8" width="8" height="2.4" rx="0.6" fill="#00D26A"/>
+  <rect x="7" y="11" width="18" height="1.6" rx="0.8" fill="#D3D3D3"/>
+  <rect x="6" y="14" width="20" height="12" rx="1.5" fill="#FFB02E"/>
+  <rect x="8" y="16" width="16" height="8" rx="1" fill="#FF8257"/>
+  <path d="M8 21H24" stroke="#CA0B4A" stroke-width="0.8"/>`)
+
+  ecrire('climatiseur', `
+  <rect x="2" y="5" width="28" height="11" rx="3" fill="#F4F4F4" stroke="#D3D3D3"/>
+  <rect x="4.5" y="12.5" width="23" height="1.6" rx="0.8" fill="#9B9B9B"/>
+  <circle cx="26" cy="8.5" r="0.9" fill="#00D26A"/>
+  <g stroke="#00A6ED" stroke-width="1.8" stroke-linecap="round" fill="none">
+  <path d="M8 18.5C7 20.5 9 22 8 24"/><path d="M16 18.5C15 20.5 17 22 16 24"/><path d="M24 18.5C23 20.5 25 22 24 24"/></g>
+  ${placer(interieur('Snowflake'), 12.5, 24.5, 0.22)}`)
+
+  ecrire('canape', `
+  <rect x="5" y="8" width="22" height="11" rx="3" fill="#0074BA"/>
+  <rect x="2" y="13" width="6" height="12" rx="2.5" fill="#00A6ED"/>
+  <rect x="24" y="13" width="6" height="12" rx="2.5" fill="#00A6ED"/>
+  <rect x="7" y="16" width="9" height="6" rx="1.5" fill="#26C9FC"/><rect x="16" y="16" width="9" height="6" rx="1.5" fill="#26C9FC"/>
+  <rect x="7" y="21" width="18" height="4" fill="#0074BA"/>
+  <rect x="4" y="25" width="2" height="3" rx="0.5" fill="#6D4534"/><rect x="26" y="25" width="2" height="3" rx="0.5" fill="#6D4534"/>`)
 
   return icones
 }

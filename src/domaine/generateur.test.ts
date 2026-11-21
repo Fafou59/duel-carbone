@@ -249,6 +249,16 @@ describe('Générateur de Partie : les Duels thématiques', () => {
     }
   })
 
+  it('ne choisit son Duel thématique que parmi ceux qu’on lui propose (le cycle de la Partie du jour)', () => {
+    const [, seul] = THEMATIQUES
+    for (const duels of parties({ probabiliteThematique: 1, parmiThematiques: [seul] })) {
+      const [duel] = thematiquesDe(duels)
+      expect(cleDePaire(duel.a.id, duel.b.id)).toBe(cleDePaire(seul.a, seul.b))
+      // Les paires des autres ne sortent toujours pas au hasard, sans leur texte.
+      for (const d of duels) if (cles.has(cleDePaire(d.a.id, d.b.id))) expect(d.thematique).toBeDefined()
+    }
+  })
+
   it('accepte un Geste réservé dans un Duel thématique, et ouvre la Partie au-delà du plafond', () => {
     const catalogue = [...RICHE, geste('robinet', 0.0002, { seulementEnDuelThematique: true })]
     const duels = genererPartie({

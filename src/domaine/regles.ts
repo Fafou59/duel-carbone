@@ -47,6 +47,18 @@ export const REGLES = {
   partiesMaxSansDuelThematique: 3,
 
   /**
+   * La Partie du jour a ses propres réglages : c'est le Duel dont les joueurs parlent entre eux (bilan J+7, issue 93).
+   * Un Duel thématique 2 jours sur 3, forcé si les 2 jours précédents n'en avaient pas : 9/13 ≈ 69 % des jours.
+   * Et chaque Duel thématique passe une fois avant qu'un autre ne revienne, dans un ordre tiré au hasard
+   * (thematiquesDuCycle) : avec 39 Duels, chacun revient 6 ou 7 fois par an.
+   * La Partie libre garde les deux réglages ci-dessus.
+   */
+  duelDuJour: {
+    probabiliteDuelThematique: 2 / 3,
+    joursMaxSansDuelThematique: 2,
+  },
+
+  /**
    * La courbe de difficulté : une tranche de Rapport par Duel, du Duel 1 au Duel 10.
    * Elle part du plafond (un premier Duel d'échauffement) et se resserre vite.
    * Les étiquettes facile (1-3), moyen (4-6), difficile (7-9) et ultime (10) regroupent ces tranches.

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { cleDePaire } from './duel.ts'
 import type { GesteCalcule } from './geste.ts'
 import { REGLES } from './regles.ts'
 import {
@@ -6,6 +7,7 @@ import {
   empreinteDesChiffres,
   positionDuDuelThematique,
   redigerTexte,
+  thematiquesDuCycle,
   validerDuelsThematiques,
   type DuelThematique,
 } from './thematiques.ts'
@@ -97,6 +99,41 @@ describe('Garantie : jamais plus de quelques Parties de suite sans Duel thémati
 
   it('ne force rien sans Duel thématique au catalogue', () => {
     expect(doitForcerUnDuelThematique(Array(n).fill(sans), [])).toBe(false)
+  })
+
+  it('accepte un autre seuil : la Partie du jour force dès 2 jours sans', () => {
+    const jours = REGLES.duelDuJour.joursMaxSansDuelThematique
+    expect(jours).toBe(2)
+    expect(doitForcerUnDuelThematique([avec, sans, sans], THEMATIQUES, jours)).toBe(true)
+    expect(doitForcerUnDuelThematique([sans, avec, sans], THEMATIQUES, jours)).toBe(false)
+  })
+})
+
+describe('Partie du jour : chaque Duel thématique passe une fois avant qu’un autre ne revienne', () => {
+  const [A, B, C] = [thematique('a', 'b'), thematique('c', 'd'), thematique('e', 'f')]
+  const TOUS = [A, B, C]
+  const jour = (t?: DuelThematique) => (t ? ['x|y', cleDePaire(t.a, t.b)] : ['x|y', 'y|z'])
+
+  it('propose tous les Duels thématiques au début du calendrier', () => {
+    expect(thematiquesDuCycle([], TOUS)).toEqual(TOUS)
+  })
+
+  it('écarte ceux déjà passés dans le cycle en cours, même les jours sans Duel thématique entre deux', () => {
+    expect(thematiquesDuCycle([jour(A), jour(), jour(C)], TOUS)).toEqual([B])
+  })
+
+  it('recommence un cycle quand tous sont passés, sans reprendre aussitôt le dernier', () => {
+    expect(thematiquesDuCycle([jour(A), jour(B), jour(C)], TOUS)).toEqual([A, B])
+    expect(thematiquesDuCycle([jour(A), jour(B), jour(C), jour(B)], TOUS)).toEqual([A, C])
+  })
+
+  it('ajoute au cycle en cours un Duel thématique entré au catalogue, et oublie ceux qui en sont sortis', () => {
+    const ancien = thematique('g', 'h')
+    expect(thematiquesDuCycle([jour(ancien), jour(A)], TOUS)).toEqual([B, C])
+  })
+
+  it('ne propose rien sans Duel thématique au catalogue', () => {
+    expect(thematiquesDuCycle([jour(A)], [])).toEqual([])
   })
 })
 

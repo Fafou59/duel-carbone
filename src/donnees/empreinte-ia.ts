@@ -7,24 +7,26 @@ import type { Hypothese, Jetons } from '../domaine/empreinte-ia.ts'
  */
 
 /** Le jour du dernier décompte des jetons. */
-export const DATE_DU_DECOMPTE = '2026-11-17'
+export const DATE_DU_DECOMPTE = '2026-11-20'
 
 /** Le premier jour de travail sur le projet. */
 export const DEBUT_DU_PROJET = '2026-11-08'
 
 /** Le nombre d'appels au modèle (Claude Opus 5.5) depuis le début du projet. */
-export const APPELS = 2864
+export const APPELS = 3295
 
 /**
  * Les jetons consommés depuis le début du projet : les journaux de cet ordinateur (npm run empreinte-ia), plus ceux
- * des sessions cloud, relevés avant la fin de leur conteneur (leur journal disparaît avec lui). Au 17/11 : 2 645 appels
- * sur cet ordinateur, plus la session cloud des corrections d'avant le lancement (#77), 219 appels relevés le 14/11.
+ * des sessions cloud, relevés avant la fin de leur conteneur (leur journal disparaît avec lui). Au 20/11 : 3 076 appels
+ * sur cet ordinateur, plus la session cloud des corrections d'avant le lancement (#77), 219 appels relevés le 14/11 :
+ * 492 jetons lus, 651 563 mis en mémoire, 59 098 955 relus et 139 689 écrits (retrouvés par différence avec le
+ * décompte du 17/11, qui s'arrêtait au 2 645e appel de cet ordinateur).
  */
 export const JETONS: Jetons = {
-  entree: 452_777,
-  ecritureCache: 10_763_833,
-  lectureCache: 891_666_250,
-  sortie: 2_605_792,
+  entree: 453_747,
+  ecritureCache: 11_867_934,
+  lectureCache: 964_473_061,
+  sortie: 2_984_810,
 }
 
 /**

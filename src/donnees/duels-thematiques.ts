@@ -337,6 +337,47 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     texte:
       'Les trains (voyageurs et marchandises) émettent {a} par an. Les voitures thermiques émettent {b} en une seule journée : en {rapport} jours, elles dépassent une année entière de trains.',
   },
+  // ─── Élargissement du catalogue (issue 93), validés par Fabien le 21/11 ───
+  {
+    a: 'visioconference',
+    b: 'voiture-10km',
+    relu: 'f05c8b96',
+    titre: 'Le télétravail',
+    accroche: "Une heure de réunion en visio depuis chez toi, ou 10 km en voiture jusqu'au bureau ?",
+    texte:
+      "Une heure de visioconférence pèse {a}, surtout par la fabrication de l'appareil (72 %) et la transmission des données (23 %). Les 10 km en voiture, seul au volant, émettent {b}. Un seul trajet évité pèse autant que près de 25 heures de visio.",
+  },
+  {
+    a: 'nuit-camping',
+    b: 'nuit-hotel',
+    relu: 'a468315c',
+    cites: ['paris-marseille-voiture'],
+    titre: 'Tente ou chambre ?',
+    accroche: 'Pour les vacances : une nuit au camping, ou une nuit à l’hôtel ?',
+    texte:
+      "Une nuit à l'hôtel pèse {b} : près de la moitié vient de l'énergie qu'il consomme (2,1 kg), plus d'un tiers des services d'entretien (1,5 kg). Au camping, la nuit ne pèse que {a}. Mais le trajet compte souvent bien plus que l'hébergement : Paris–Marseille seul en voiture émet 110 kg, plus que 25 nuits à l'hôtel.",
+  },
+  {
+    a: 'recherches-web',
+    b: 'emails',
+    relu: '20cf9ab3',
+    titre: 'Chercher ou écrire ?',
+    accroche: 'Dix recherches sur le web, ou dix e-mails envoyés ?',
+    texte:
+      "Dix recherches pèsent {a}, dix e-mails {b}. Pour l'un comme pour l'autre, l'essentiel ne vient pas de l'électricité, mais de la construction du matériel : les appareils, les data-centers et les réseaux font 60 % de l'empreinte des recherches, et 90 % de celle des e-mails.",
+  },
+  // Texte à valider par Fabien (relu vide). Sa dernière phrase, sur la santé, sort des données ADEME à sa demande :
+  // elle ne donne aucun chiffre et renvoie aux recommandations de santé publique.
+  {
+    a: 'soda',
+    b: 'eau-bouteille-33cl',
+    relu: '',
+    titre: 'Le menu fast-food',
+    accroche: "Dans ton menu, une canette de soda ou une petite bouteille d'eau ?",
+    texte:
+      "À volume égal, le soda pèse {a}, l'eau en bouteille {b}. Pour l'eau, presque tout vient de la bouteille (58 %) et du transport (36 %). Le soda pèse aussi par son transport (42 %) et son emballage (28 %), mais ses ingrédients agricoles ajoutent 30 g. Et côté santé, l'eau l'emporte encore : les recommandations nutritionnelles conseillent de limiter les boissons sucrées.",
+  },
+
   // ─── L'Easter Egg (#63) : la création de ce jeu avec une IA, estimée hors ADEME (ADR 0004) ───
   // Son empreinte n'est chiffrée que par {a} ou {b} : les textes suivent chaque nouveau décompte.
   {

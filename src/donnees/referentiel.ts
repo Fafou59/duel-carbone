@@ -97,10 +97,12 @@ export const UNITES_PARTICULIERES: Record<string, string> = {
   // Vérifié le 2026-11-10 sur le calculateur d'Impact CO2 (« Heures de streaming ») : sans la construction,
   // 7 h de streaming (télévision, haute définition, wifi) = 222 g, soit 31,7 g/h ; l'Instantané donne 31 g/h.
   streamingvideo: 'heure',
+  // Vérifié le 2026-11-20 sur la page d'Impact CO2 : « 57,1 g CO₂e » pour « 1 heure de visioconférence » (issue 93).
+  visioconference: 'heure',
 }
 
 /** Équivalents dont l'unité n'est pas documentée clairement par l'ADEME : à vérifier avant usage. */
-export const UNITES_A_VERIFIER = new Set(['visioconference'])
+export const UNITES_A_VERIFIER = new Set<string>()
 
 /** Libellés des étapes de la Répartition, repris de l'ADEME (src/data/ecv.ts d'Impact CO2). */
 export const ETAPES: Record<number, string> = {

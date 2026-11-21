@@ -6,6 +6,7 @@ import { hasardReproductible } from '../domaine/hasard.ts'
 import { genererPartie } from '../domaine/generateur.ts'
 import { PROTECTION_DU_FOND_MS } from '../composants/AnnonceThematique.tsx'
 import { EcranPartie } from './EcranPartie.tsx'
+import { contenant } from '../test/texte.ts'
 
 // Une Partie reproductible : toujours les mêmes 10 Duels, tirés avec la graine 3.
 const DUELS = genererPartie({ gestes: GESTES_CALCULES, hasard: hasardReproductible(3) })
@@ -14,7 +15,7 @@ const DUELS = genererPartie({ gestes: GESTES_CALCULES, hasard: hasardReproductib
 const jouerDuel = (index: number, bien: boolean) => {
   const duel = DUELS[index]
   const cible = bien ? plusEmetteur(duel) : moinsEmetteur(duel)
-  fireEvent.click(screen.getByRole('button', { name: new RegExp(cible.titre) }))
+  fireEvent.click(screen.getByRole('button', { name: contenant(cible.titre) }))
   fireEvent.click(screen.getByRole('button', { name: index === 9 ? 'Voir mon score' : 'Duel suivant →' }))
 }
 
@@ -29,7 +30,7 @@ describe('Une Partie de 10 Duels', () => {
   it('propose « Duel suivant » seulement après le choix', () => {
     render(<EcranPartie duels={DUELS} onRejouer={() => {}} />)
     expect(screen.queryByRole('button', { name: 'Duel suivant →' })).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: new RegExp(DUELS[0].a.titre) }))
+    fireEvent.click(screen.getByRole('button', { name: contenant(DUELS[0].a.titre) }))
     expect(screen.getByRole('button', { name: 'Duel suivant →' })).toBeInTheDocument()
   })
 
@@ -38,7 +39,7 @@ describe('Une Partie de 10 Duels', () => {
     jouerDuel(0, true)
     expect(screen.getByText('Duel 2/10')).toBeInTheDocument()
     expect(screen.getByText('Score : 1')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: new RegExp(DUELS[1].a.titre) })).toBeEnabled()
+    expect(screen.getByRole('button', { name: contenant(DUELS[1].a.titre) })).toBeEnabled()
   })
 
   it('suit la difficulté attendue : moyen au Duel 4, ultime au Duel 10', () => {
@@ -77,7 +78,7 @@ describe('Une Partie de 10 Duels', () => {
     render(<EcranPartie duels={DUELS} onRejouer={() => {}} />)
     fireEvent.keyDown(document.body, { key: 'Enter' })
     expect(screen.getByText('Duel 1/10')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: new RegExp(DUELS[0].a.titre) }))
+    fireEvent.click(screen.getByRole('button', { name: contenant(DUELS[0].a.titre) }))
     fireEvent.keyDown(document.body, { key: 'Enter' })
     expect(screen.getByText('Duel 2/10')).toBeInTheDocument()
   })
@@ -86,7 +87,7 @@ describe('Une Partie de 10 Duels', () => {
     // Firefox active un bouton avec Entrée un instant après l'appui (événement « keypress ») :
     // sans cela, l'Entrée qui ouvre un Duel thématique « cliquait » aussitôt « Au Duel ! » et fermait l'annonce.
     render(<EcranPartie duels={DUELS} onRejouer={() => {}} />)
-    fireEvent.click(screen.getByRole('button', { name: new RegExp(DUELS[0].a.titre) }))
+    fireEvent.click(screen.getByRole('button', { name: contenant(DUELS[0].a.titre) }))
     const nonAnnulee = fireEvent.keyDown(document.body, { key: 'Enter' })
     expect(screen.getByText('Duel 2/10')).toBeInTheDocument()
     expect(nonAnnulee).toBe(false)
@@ -95,14 +96,14 @@ describe('Une Partie de 10 Duels', () => {
   it('mène au score avec Entrée après le dernier Duel', () => {
     render(<EcranPartie duels={DUELS} onRejouer={() => {}} />)
     for (let i = 0; i < 9; i++) jouerDuel(i, true)
-    fireEvent.click(screen.getByRole('button', { name: new RegExp(DUELS[9].a.titre) }))
+    fireEvent.click(screen.getByRole('button', { name: contenant(DUELS[9].a.titre) }))
     fireEvent.keyDown(document.body, { key: 'Enter' })
     expect(screen.getByRole('heading', { name: 'Partie terminée !' })).toBeInTheDocument()
   })
 
   it('laisse Entrée à son rôle habituel sur un lien, et ignore une touche maintenue', () => {
     render(<EcranPartie duels={DUELS} onRejouer={() => {}} />)
-    fireEvent.click(screen.getByRole('button', { name: new RegExp(DUELS[0].a.titre) }))
+    fireEvent.click(screen.getByRole('button', { name: contenant(DUELS[0].a.titre) }))
     fireEvent.keyDown(screen.getAllByRole('link')[0], { key: 'Enter' })
     fireEvent.keyDown(document.body, { key: 'Enter', repeat: true })
     expect(screen.getByText('Duel 1/10')).toBeInTheDocument()
@@ -192,7 +193,7 @@ describe('Un Duel thématique dans la Partie', () => {
     jouerDuel(1, true)
     fireEvent.click(screen.getByRole('button', { name: 'Au Duel !' }))
     expect(screen.queryByText(TEXTES.texte)).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: new RegExp(plusEmetteur(DUELS[2]).titre) }))
+    fireEvent.click(screen.getByRole('button', { name: contenant(plusEmetteur(DUELS[2]).titre) }))
     expect(within(screen.getByRole('region', { name: 'Explication' })).getByText(TEXTES.texte)).toBeInTheDocument()
   })
 
