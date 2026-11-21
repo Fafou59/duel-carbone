@@ -49,7 +49,7 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
   {
     a: 'crevettes',
     b: 'canard',
-    relu: '',
+    relu: '6dff5647',
     titre: 'Fruits de mer contre volaille',
     accroche: 'Même portion de 150 g : des crevettes ou un demi-magret de canard ?',
     texte:
@@ -376,20 +376,20 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     texte:
       "Après la ferme, les deux burgers pèsent presque pareil : transformation, emballage et transport font environ 290 g chacun. Tout l'écart se joue à l'étape agricole, celle des ingrédients : 3,5 kg pour le cheeseburger (92 % de son empreinte), contre 246 g pour le burger végétarien. Au total, {a} contre {b}.",
   },
-  // Textes à valider par Fabien (relu vide).
+  // La dernière phrase, sur l'alcool, sort des données ADEME à la demande de Fabien (aucun chiffre).
   {
     a: 'biere',
     b: 'vin',
-    relu: '',
+    relu: 'a53e14a2',
     titre: 'Un demi ou un verre de vin ?',
     accroche: "À l'apéro : un demi de bière, ou un verre de vin ?",
     texte:
-      "Au litre, la bière et le vin se valent presque : 1,35 kg de CO2e pour la bière, 1,27 kg pour le vin. Tout est une histoire de quantité : un demi (25 cl), c'est deux fois un verre de vin standard (12,5 cl). Pour l'un comme pour l'autre, c'est l'emballage qui pèse le plus : 46 % pour la bière, 54 % pour le vin.",
+      "Au litre, la bière et le vin se valent presque : 1,35 kg de CO2e pour la bière, 1,27 kg pour le vin. Tout est une histoire de quantité : un demi (25 cl), c'est deux fois un verre de vin standard (12,5 cl). Quoi qu'il en soit, n'oublie pas : l'abus d'alcool est dangereux pour la santé.",
   },
   {
     a: 'paris-marseille-avion',
     b: 'paris-marseille-camping-car',
-    relu: '',
+    relu: '2b533ab3',
     cites: ['paris-marseille-tgv'],
     titre: 'Les vacances dans le Sud',
     accroche: 'Paris–Marseille, aller simple : en avion, ou à deux en camping-car ?',
