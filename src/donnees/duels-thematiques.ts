@@ -366,12 +366,12 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     texte:
       "Dix recherches pèsent {a}, dix e-mails {b}. Pour l'un comme pour l'autre, l'essentiel ne vient pas de l'électricité, mais de la construction du matériel : les appareils, les data-centers et les réseaux font 60 % de l'empreinte des recherches, et 90 % de celle des e-mails.",
   },
-  // Texte à valider par Fabien (relu vide). Sa dernière phrase, sur la santé, sort des données ADEME à sa demande :
+  // Sa dernière phrase, sur la santé, sort des données ADEME à la demande de Fabien :
   // elle ne donne aucun chiffre et renvoie aux recommandations de santé publique.
   {
     a: 'soda',
     b: 'eau-bouteille-33cl',
-    relu: '',
+    relu: '705e8dce',
     titre: 'Le menu fast-food',
     accroche: "Dans ton menu, une canette de soda ou une petite bouteille d'eau ?",
     texte:
