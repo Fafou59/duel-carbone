@@ -14,8 +14,8 @@ describe('Catalogue des Duels thématiques', () => {
     expect(() => validerDuelsThematiques(DUELS_THEMATIQUES, GESTES_CALCULES)).not.toThrow()
   })
 
-  it('compte 38 Duels : les 35 du lancement (dont les 2 de l’Easter Egg) et 3 de l’issue 93', () => {
-    expect(DUELS_THEMATIQUES).toHaveLength(38)
+  it('compte 39 Duels : les 35 du lancement (dont les 2 de l’Easter Egg) et 4 de l’issue 93', () => {
+    expect(DUELS_THEMATIQUES).toHaveLength(39)
   })
 
   it('utilise chaque Geste réservé dans au moins un Duel thématique (sinon il ne sortirait jamais)', () => {

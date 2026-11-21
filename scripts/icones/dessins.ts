@@ -114,6 +114,13 @@ export function dessiner(interieur: (nomFluent: string) => string): Map<string, 
   <rect x="12.2" y="10.5" width="1.4" height="16" rx="0.7" fill="#FFFFFF" fill-opacity="0.7"/>
   <path d="M10.5 24H21.5" stroke="#83CBFF"/>`)
 
+  // La même bouteille, en plus courte : la petite bouteille de 33 cl des menus (issue 93).
+  ecrire('eau-bouteille-33cl', `
+  <rect x="13" y="9" width="6" height="3" rx="1" fill="#00A6ED"/>
+  <path d="M13.5 12H18.5V13.5C18.5 14.5 21.5 15.5 21.5 17.5V27C21.5 28.1 20.6 29 19.5 29H12.5C11.4 29 10.5 28.1 10.5 27V17.5C10.5 15.5 13.5 14.5 13.5 13.5Z" fill="#AEDDFF"/>
+  <rect x="10.5" y="19.5" width="11" height="5" fill="#00A6ED"/>
+  <rect x="12.2" y="16" width="1.4" height="11" rx="0.7" fill="#FFFFFF" fill-opacity="0.7"/>`)
+
   ecrire('boisson-soja', `${placer(interieur('Beverage box'), 0, 0, 0.9)}${badge(interieur('Pea pod'), 24.5, 24.5, 6.5)}`)
 
   // ─── Numérique ─────────────────────────────────────────────────────────────────────────

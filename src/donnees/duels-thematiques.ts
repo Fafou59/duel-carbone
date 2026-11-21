@@ -366,6 +366,17 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     texte:
       "Dix recherches pèsent {a}, dix e-mails {b}. Pour l'un comme pour l'autre, l'essentiel ne vient pas de l'électricité, mais de la construction du matériel : les appareils, les data-centers et les réseaux font 60 % de l'empreinte des recherches, et 90 % de celle des e-mails.",
   },
+  // Texte à valider par Fabien (relu vide). Sa dernière phrase, sur la santé, sort des données ADEME à sa demande :
+  // elle ne donne aucun chiffre et renvoie aux recommandations de santé publique.
+  {
+    a: 'soda',
+    b: 'eau-bouteille-33cl',
+    relu: '',
+    titre: 'Le menu fast-food',
+    accroche: "Dans ton menu, une canette de soda ou une petite bouteille d'eau ?",
+    texte:
+      "À volume égal, le soda pèse {a}, l'eau en bouteille {b}. Pour l'eau, presque tout vient de la bouteille (58 %) et du transport (36 %). Le soda pèse aussi par son transport (42 %) et son emballage (28 %), mais ses ingrédients agricoles ajoutent 30 g. Et côté santé, l'eau l'emporte encore : les recommandations nutritionnelles conseillent de limiter les boissons sucrées.",
+  },
 
   // ─── L'Easter Egg (#63) : la création de ce jeu avec une IA, estimée hors ADEME (ADR 0004) ───
   // Son empreinte n'est chiffrée que par {a} ou {b} : les textes suivent chaque nouveau décompte.

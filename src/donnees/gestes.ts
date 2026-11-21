@@ -1230,6 +1230,17 @@ export const GESTES: Geste[] = [
     nature: 'usage',
     seulementEnDuelThematique: true,
   },
+  {
+    id: 'eau-bouteille-33cl',
+    titre: "Boire une petite bouteille d'eau",
+    sousTitre: '33 cl',
+    equivalent: 'eauenbouteille',
+    quantite: 0.33,
+    justification:
+      "Même volume que la canette de soda d'en face, l'autre choix des menus de fast-food. Réservée : elle ne se distinguerait de la bouteille de 1,5 L que par sa taille.",
+    nature: 'boisson',
+    seulementEnDuelThematique: true,
+  },
   // Agrégats nationaux : pas des gestes du quotidien, mais des ordres de grandeur qui éclairent les autres.
   // Leur périmètre, vérifié sur Impact CO2 le 2026-11-10, est rappelé dans le sous-titre.
   {
