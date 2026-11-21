@@ -24,7 +24,7 @@ describe("Explication après un Duel : le tableau comparatif", () => {
     expect(within(tableau()).getByRole('columnheader', { name: /Manger un steak de bœuf/ })).toBeInTheDocument()
     expect(within(tableau()).getByRole('columnheader', { name: /Manger un avocat/ })).toBeInTheDocument()
     const agriculture = within(tableau()).getByRole('row', { name: /Agriculture/ })
-    expect(within(agriculture).getByText('3,3 kg')).toBeInTheDocument()
+    expect(within(agriculture).getByText('4,1 kg')).toBeInTheDocument()
     expect(within(agriculture).getByText('176 g')).toBeInTheDocument()
   })
 
@@ -32,7 +32,7 @@ describe("Explication après un Duel : le tableau comparatif", () => {
     render(<DuelDeTest duel={duel('steak-boeuf', 'avocat')} />)
     choisir(/steak/)
     const total = within(tableau()).getByRole('row', { name: /Total/ })
-    expect(within(total).getByText('3,4 kg')).toBeInTheDocument()
+    expect(within(total).getByText('4,2 kg')).toBeInTheDocument()
     expect(within(total).getByText('311 g')).toBeInTheDocument()
   })
 

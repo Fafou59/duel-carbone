@@ -23,7 +23,7 @@ export const REGLES = {
 
   /**
    * Natures qui ne s'affrontent jamais dans un Duel tiré au hasard : la comparaison n'aurait pas de sens
-   * (« un repas avec du bœuf » contre « 120 g de bœuf »). Les Duels thématiques, écrits à la main, ne sont pas concernés.
+   * (« un repas avec du bœuf » contre « 150 g de bœuf »). Les Duels thématiques, écrits à la main, ne sont pas concernés.
    */
   combinaisonsInterdites: [['repas', 'aliment']] as [Nature, Nature][],
 
@@ -45,6 +45,18 @@ export const REGLES = {
    * Duel thématique, la suivante en a un. Le hasard seul laissait parfois passer 5 ou 6 Parties sans.
    */
   partiesMaxSansDuelThematique: 3,
+
+  /**
+   * La Partie du jour a ses propres réglages : c'est le Duel dont les joueurs parlent entre eux (bilan J+7, issue 93).
+   * Un Duel thématique 2 jours sur 3, forcé si les 2 jours précédents n'en avaient pas : 9/13 ≈ 69 % des jours.
+   * Et chaque Duel thématique passe une fois avant qu'un autre ne revienne, dans un ordre tiré au hasard
+   * (thematiquesDuCycle) : avec 41 Duels, chacun revient 6 ou 7 fois par an.
+   * La Partie libre garde les deux réglages ci-dessus.
+   */
+  duelDuJour: {
+    probabiliteDuelThematique: 2 / 3,
+    joursMaxSansDuelThematique: 2,
+  },
 
   /**
    * La courbe de difficulté : une tranche de Rapport par Duel, du Duel 1 au Duel 10.

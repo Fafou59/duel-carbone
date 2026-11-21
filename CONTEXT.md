@@ -21,7 +21,7 @@ Une entrée du Référentiel : un objet ou un geste, son Empreinte carbone pour 
 _À éviter_ : item, produit, facteur
 
 **Geste** :
-Ce que le joueur voit et compare : un Équivalent multiplié par une quantité réaliste qui figure dans son libellé (« Manger un steak de bœuf (120 g) »). Un Geste concerne toujours une seule personne : pour un trajet, c'est la part d'un passager (« Paris–Marseille en covoiturage à 4 (ta part) »). Voir l'ADR 0001.
+Ce que le joueur voit et compare : un Équivalent multiplié par une quantité réaliste qui figure dans son libellé (« Manger un steak de bœuf (150 g) »). Un Geste concerne toujours une seule personne : pour un trajet, c'est la part d'un passager (« Paris–Marseille en covoiturage à 4 (ta part) »). Voir l'ADR 0001.
 _À éviter_ : action, activité, item
 
 **Nature** :
@@ -29,7 +29,7 @@ Ce qu'est un Geste pour le joueur : un aliment, un repas, une boisson, un objet,
 _À éviter_ : type, famille, catégorie
 
 **Quantité** :
-Le multiplicateur appliqué à l'unité de référence d'un Équivalent pour obtenir un Geste (0,12 kg pour un steak ; 1 pour un objet ou un repas).
+Le multiplicateur appliqué à l'unité de référence d'un Équivalent pour obtenir un Geste (0,15 kg pour un steak ; 1 pour un objet ou un repas). Elle reste dans la fourchette de sa Nature : un repas est un plat complet, un aliment une portion individuelle, une boisson un verre.
 _À éviter_ : portion, coefficient
 
 **Thématique** :
@@ -55,15 +55,15 @@ Le chemin effectué par un trajet (« 10 km du quotidien », « Paris–Marseill
 _À éviter_ : itinéraire, distance, trajet (le trajet est le Geste, le Parcours est son chemin)
 
 **Combinaison interdite** :
-Deux Natures qui ne s'affrontent jamais dans un Duel tiré au hasard, parce que la comparaison n'aurait pas de sens : un repas face à un aliment (« Repas avec du bœuf » contre « 120 g de bœuf »). Un Duel thématique, écrit à la main, n'est pas concerné.
+Deux Natures qui ne s'affrontent jamais dans un Duel tiré au hasard, parce que la comparaison n'aurait pas de sens : un repas face à un aliment (« Repas avec du bœuf » contre « 150 g de bœuf »). Un Duel thématique, écrit à la main, n'est pas concerné.
 _À éviter_ : paire interdite, exclusion
 
 **Geste réservé** :
-Un Geste qui n'est jamais tiré au hasard et n'apparaît que dans un Duel thématique, avec un texte qui l'explique. C'est obligatoire pour un Geste dont l'Empreinte carbone est nulle ou quasi nulle (l'eau du robinet), car son Rapport avec presque tout le reste serait démesuré, et pour un agrégat national. Un Geste peut aussi être réservé parce qu'il a été ajouté pour un Duel thématique (le pain au chocolat face au croissant).
+Un Geste qui n'est jamais tiré au hasard et n'apparaît que dans un Duel thématique, avec un texte qui l'explique. C'est obligatoire pour un Geste dont l'Empreinte carbone est nulle ou quasi nulle (l'eau du robinet), car son Rapport avec presque tout le reste serait démesuré, et pour un agrégat national. Un Geste peut aussi être réservé parce qu'il a été ajouté pour un Duel thématique (10 recherches sur le web face à 10 e-mails). Un Geste réservé peut passer au tirage s'il trouve assez d'adversaires : il garde alors son Duel thématique (le pain au chocolat face au croissant).
 _À éviter_ : Geste caché, Geste exclu
 
 **Duel thématique** :
-Un Duel choisi et rédigé à la main pour son intérêt pédagogique : un titre et une accroche pour son annonce, un texte explicatif après la réponse. Une Partie sur deux en contient un, et jamais plus de 3 Parties de suite sans ; il est placé au Duel dont la tranche contient son Rapport : c'est sa Difficulté. Il échappe au plafond, aux tranches et au Coefficient d'équilibrage, pas au plancher.
+Un Duel choisi et rédigé à la main pour son intérêt pédagogique : un titre et une accroche pour son annonce, un texte explicatif après la réponse. Une Partie libre sur deux en contient un, et jamais plus de 3 Parties de suite sans. La Partie du jour en contient un 2 jours sur 3, jamais plus de 2 jours de suite sans, et chacun passe une fois avant qu'un autre ne revienne ; il est placé au Duel dont la tranche contient son Rapport : c'est sa Difficulté. Il échappe au plafond, aux tranches et au Coefficient d'équilibrage, pas au plancher.
 _À éviter_ : duel spécial, duel custom
 
 **Coefficient d'équilibrage** :

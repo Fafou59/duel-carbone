@@ -49,16 +49,16 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
   {
     a: 'crevettes',
     b: 'canard',
-    relu: '6227d1c1',
+    relu: '6dff5647',
     titre: 'Fruits de mer contre volaille',
-    accroche: 'Une petite portion de crevettes (100 g) ou un demi-magret de canard (150 g) ?',
+    accroche: 'Même portion de 150 g : des crevettes ou un demi-magret de canard ?',
     texte:
-      "Au kilo, les crevettes émettent 20,3 kg de CO2e, plus de deux fois le canard (8,1 kg). L'étape agricole pèse à elle seule 1,8 kg, soit 88 % de leur empreinte. Même en portion plus petite, elles l'emportent.",
+      "Au kilo, les crevettes émettent 20,3 kg de CO2e, plus de deux fois le canard (8,1 kg). L'essentiel se joue à l'étape agricole : 2,7 kg pour la portion de crevettes, soit 88 % de leur empreinte, contre 908 g pour le demi-magret.",
   },
   {
     a: 'cabillaud',
     b: 'porc',
-    relu: 'cc0bb8f5',
+    relu: '6c38da57',
     cites: ['steak-boeuf', 'poulet'],
     titre: 'Poisson ou viande ?',
     accroche: 'Un filet de cabillaud ou une côte de porc ?',
@@ -68,31 +68,21 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
   {
     a: 'pizza',
     b: 'repas-vegetarien',
-    relu: '87b4a42e',
+    relu: '0800d149',
     cites: ['repas-poulet'],
     titre: 'Deux assiettes sans viande',
     accroche: 'Deux repas végétariens : une pizza quatre fromages, ou un repas type avec légumes, pain et dessert ?',
     texte:
-      "Le repas végétarien type de l'ADEME (légumes, 120 g de protéines animales hors viande, pain et dessert) émet 0,85 kg. La pizza quatre fromages, végétarienne elle aussi, émet 1,44 kg : presque autant qu'un repas avec du poulet (1,46 kg).",
-  },
-  {
-    a: 'mangue-avion',
-    b: 'steak-boeuf',
-    relu: '7a73e20e',
-    cites: ['mangue-bateau'],
-    titre: 'Fruit exotique contre viande rouge',
-    accroche: 'Un steak de bœuf ou une mangue importée par avion ?',
-    texte:
-      "Le bœuf a la réputation d'être très émetteur, à juste titre : 28 kg de CO2e au kilo. Mais une mangue arrivée par avion fait plus encore : 4,66 kg pour un fruit de 400 g, dont 98 % pour le transport. Par bateau, la même mangue ne pèse que 291 g, plus de dix fois moins que le steak.",
+      "Le repas végétarien type de l'ADEME (légumes, 120 g de protéines animales hors viande, pain et dessert) émet 0,85 kg. La pizza quatre fromages, végétarienne elle aussi, émet {a} : plus qu'un repas avec du poulet (1,46 kg).",
   },
   {
     a: 'pain-au-chocolat',
     b: 'croissant',
-    relu: '85c8e253',
+    relu: '8a1a7616',
     titre: 'Croissant ou chocolatine ?',
     accroche: 'Même pâte feuilletée, même poids : croissant ou pain au chocolat ?',
     texte:
-      "La transformation, l'emballage et le transport pèsent presque pareil pour les deux viennoiseries. Tout l'écart se joue à l'étape agricole, celle des ingrédients : 285 g pour le pain au chocolat, contre 121 g pour le croissant.",
+      "La transformation, l'emballage et le transport pèsent presque pareil pour les deux viennoiseries. Tout l'écart se joue à l'étape agricole, celle des ingrédients : 380 g pour le pain au chocolat, contre 162 g pour le croissant.",
   },
   {
     a: 'lait',
@@ -222,7 +212,7 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     titre: 'Le colis du jour',
     accroche: 'Un colis de 1 kg : on se le fait livrer, ou on va le chercher en voiture au magasin, à 15 km ?',
     texte:
-      "La livraison a mauvaise réputation, mais ici, c'est ton trajet qui pèse : 30 km aller-retour en voiture, soit 89 % de l'empreinte de l'achat en magasin. Le livreur, lui, répartit sa tournée entre de nombreux colis. Et à pied ou à vélo, le magasin reprend l'avantage (545 g).",
+      "La livraison a mauvaise réputation, mais ici, c'est ton trajet qui pèse : 30 km aller-retour en voiture, soit 89 % de l'empreinte de l'achat en magasin. Le livreur, lui, répartit sa tournée entre de nombreux colis. Et à pied, le magasin reprend l'avantage (545 g).",
   },
   {
     a: 'livraison-point-relais',
@@ -337,12 +327,82 @@ export const DUELS_THEMATIQUES: DuelThematique[] = [
     texte:
       'Les trains (voyageurs et marchandises) émettent {a} par an. Les voitures thermiques émettent {b} en une seule journée : en {rapport} jours, elles dépassent une année entière de trains.',
   },
+  // ─── Élargissement du catalogue (issue 93), validés par Fabien le 21/11 ───
+  {
+    a: 'visioconference',
+    b: 'voiture-10km',
+    relu: 'f05c8b96',
+    titre: 'Le télétravail',
+    accroche: "Une heure de réunion en visio depuis chez toi, ou 10 km en voiture jusqu'au bureau ?",
+    texte:
+      "Une heure de visioconférence pèse {a}, surtout par la fabrication de l'appareil (72 %) et la transmission des données (23 %). Les 10 km en voiture, seul au volant, émettent {b}. Un seul trajet évité pèse autant que près de 25 heures de visio.",
+  },
+  {
+    a: 'nuit-camping',
+    b: 'nuit-hotel',
+    relu: 'a468315c',
+    cites: ['paris-marseille-voiture'],
+    titre: 'Tente ou chambre ?',
+    accroche: 'Pour les vacances : une nuit au camping, ou une nuit à l’hôtel ?',
+    texte:
+      "Une nuit à l'hôtel pèse {b} : près de la moitié vient de l'énergie qu'il consomme (2,1 kg), plus d'un tiers des services d'entretien (1,5 kg). Au camping, la nuit ne pèse que {a}. Mais le trajet compte souvent bien plus que l'hébergement : Paris–Marseille seul en voiture émet 110 kg, plus que 25 nuits à l'hôtel.",
+  },
+  {
+    a: 'recherches-web',
+    b: 'emails',
+    relu: '20cf9ab3',
+    titre: 'Chercher ou écrire ?',
+    accroche: 'Dix recherches sur le web, ou dix e-mails envoyés ?',
+    texte:
+      "Dix recherches pèsent {a}, dix e-mails {b}. Pour l'un comme pour l'autre, l'essentiel ne vient pas de l'électricité, mais de la construction du matériel : les appareils, les data-centers et les réseaux font 60 % de l'empreinte des recherches, et 90 % de celle des e-mails.",
+  },
+  // Sa dernière phrase, sur la santé, sort des données ADEME à la demande de Fabien :
+  // elle ne donne aucun chiffre et renvoie aux recommandations de santé publique.
+  {
+    a: 'soda',
+    b: 'eau-bouteille-33cl',
+    relu: '705e8dce',
+    titre: 'Le menu fast-food',
+    accroche: "Dans ton menu, une canette de soda ou une petite bouteille d'eau ?",
+    texte:
+      "À volume égal, le soda pèse {a}, l'eau en bouteille {b}. Pour l'eau, presque tout vient de la bouteille (58 %) et du transport (36 %). Le soda pèse aussi par son transport (42 %) et son emballage (28 %), mais ses ingrédients agricoles ajoutent 30 g. Et côté santé, l'eau l'emporte encore : les recommandations nutritionnelles conseillent de limiter les boissons sucrées.",
+  },
+  {
+    a: 'cheeseburger',
+    b: 'burger-vegetarien',
+    relu: 'bdba4bcf',
+    titre: 'Le match des burgers',
+    accroche: 'Deux burgers de 200 g : un cheeseburger, ou un burger végétarien ?',
+    texte:
+      "Après la ferme, les deux burgers pèsent presque pareil : transformation, emballage et transport font environ 290 g chacun. Tout l'écart se joue à l'étape agricole, celle des ingrédients : 3,5 kg pour le cheeseburger (92 % de son empreinte), contre 246 g pour le burger végétarien. Au total, {a} contre {b}.",
+  },
+  // La dernière phrase, sur l'alcool, sort des données ADEME à la demande de Fabien (aucun chiffre).
+  {
+    a: 'biere',
+    b: 'vin',
+    relu: 'a53e14a2',
+    titre: 'Un demi ou un verre de vin ?',
+    accroche: "À l'apéro : un demi de bière, ou un verre de vin ?",
+    texte:
+      "Au litre, la bière et le vin se valent presque : 1,35 kg de CO2e pour la bière, 1,27 kg pour le vin. Tout est une histoire de quantité : un demi (25 cl), c'est deux fois un verre de vin standard (12,5 cl). Quoi qu'il en soit, n'oublie pas : l'abus d'alcool est dangereux pour la santé.",
+  },
+  {
+    a: 'paris-marseille-avion',
+    b: 'paris-marseille-camping-car',
+    relu: '2b533ab3',
+    cites: ['paris-marseille-tgv'],
+    titre: 'Les vacances dans le Sud',
+    accroche: 'Paris–Marseille, aller simple : en avion, ou à deux en camping-car ?',
+    texte:
+      "Le camping-car émet 494 g de CO2e par kilomètre, dont 76 % pour le carburant. Même partagé à deux, ta part ({b}) dépasse l'avion ({a}), pourtant alourdi par ses traînées de condensation (45 %). En TGV, le même trajet ne pèse que 2,2 kg.",
+  },
+
   // ─── L'Easter Egg (#63) : la création de ce jeu avec une IA, estimée hors ADEME (ADR 0004) ───
   // Son empreinte n'est chiffrée que par {a} ou {b} : les textes suivent chaque nouveau décompte.
   {
     a: 'creer-duel-carbone',
     b: 'steak-boeuf',
-    relu: 'f5d479b5',
+    relu: 'b9badd38',
     titre: 'Un jeu, combien de steaks ?',
     accroche: "Des milliers d'échanges avec une IA pour coder ce jeu, ou un seul steak ?",
     texte:

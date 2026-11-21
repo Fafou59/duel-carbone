@@ -9,9 +9,37 @@
  * - un Geste concerne une seule personne (« ta part ») ;
  * - libellé sur deux lignes : le geste (titre), puis la quantité ou la durée d'utilisation (sousTitre) ;
  * - aucun agrégat national ; de préférence un Équivalent avec Répartition ;
- * - la justification explique d'où vient la Quantité.
+ * - la justification explique d'où vient la Quantité ;
+ * - la Quantité reste dans la fourchette de sa Nature (FOURCHETTES_DE_QUANTITE, issue 93).
  */
-import type { Geste } from '../domaine/geste.ts'
+import type { Geste, Nature } from '../domaine/geste.ts'
+
+/**
+ * Les Gestes d'une même Nature ont des Quantités comparables : un test le vérifie (issue 93, après le plateau
+ * de sushis de 200 g opposé à un repas végétarien complet). Fourchette [min, max] inclus, dans l'unité de
+ * référence de l'Équivalent. Sans fourchette : les trajets (leur Parcours fixe déjà la distance), les usages
+ * (unités trop différentes : heures, m², e-mails…) et les agrégats (toujours réservés).
+ */
+export const FOURCHETTES_DE_QUANTITE: Partial<Record<Nature, Record<string, [number, number]>>> = {
+  // Une portion individuelle : de la noisette de beurre d'une tartine (10 g) au fruit entier (300 g).
+  aliment: { kg: [0.01, 0.3] },
+  // Un plat complet, comme le kebab ou la pizza (500 g) ; ou un repas type de l'ADEME.
+  repas: { kg: [0.3, 0.5], repas: [1, 1] },
+  // Un verre, une tasse, une canette ou une pinte : de 12,5 cl à 50 cl.
+  boisson: { litre: [0.125, 0.5] },
+  // Un objet, utilisé sur la durée retenue par l'ADEME.
+  objet: { unité: [1, 1] },
+  // Un colis de 1 kg, dans un scénario de l'ADEME.
+  livraison: { colis: [1, 1] },
+}
+
+/** Les Gestes hors de leur fourchette, à trancher par Fabien (issue 93) : la raison de chacun. */
+export const HORS_FOURCHETTE: Record<string, string> = {
+  'mangue-avion': 'Une mangue entière (400 g) : validé par Fabien (issue 93).',
+  'mangue-bateau': 'Une mangue entière (400 g) : validé par Fabien (issue 93).',
+  'eau-bouteille': 'Une bouteille de 1,5 L : plus qu’un verre, à trancher.',
+  'eau-robinet': 'Même volume que la bouteille (1,5 L), pour leur Duel thématique : à trancher.',
+}
 
 /** Durée d'utilisation retenue par l'ADEME : elle est incluse dans l'Équivalent, la Quantité vaut 1. */
 const UN_APPAREIL = "Un appareil ; durée d'utilisation retenue par l'ADEME."
@@ -23,10 +51,11 @@ export const GESTES: Geste[] = [
   {
     id: 'steak-boeuf',
     titre: 'Manger un steak de bœuf',
-    sousTitre: '120 g',
+    sousTitre: '150 g',
     equivalent: 'boeuf',
-    quantite: 0.12,
-    justification: 'Portion individuelle courante de viande de bœuf.',
+    quantite: 0.15,
+    justification:
+      'Portion de protéines alignée à 150 g pour la viande, le poisson, les crevettes et le tofu (issue 93).',
     nature: 'aliment',
   },
   {
@@ -59,28 +88,31 @@ export const GESTES: Geste[] = [
   {
     id: 'saumon',
     titre: "Manger un pavé de saumon d'élevage",
-    sousTitre: '125 g',
+    sousTitre: '150 g',
     equivalent: 'saumon',
-    quantite: 0.125,
-    justification: 'Pavé de poisson vendu en portion individuelle.',
+    quantite: 0.15,
+    justification:
+      'Portion de protéines alignée à 150 g pour la viande, le poisson, les crevettes et le tofu (issue 93).',
     nature: 'aliment',
   },
   {
     id: 'cabillaud',
     titre: 'Manger un filet de cabillaud',
-    sousTitre: '125 g',
+    sousTitre: '150 g',
     equivalent: 'cabillaud',
-    quantite: 0.125,
-    justification: 'Filet de poisson vendu en portion individuelle.',
+    quantite: 0.15,
+    justification:
+      'Portion de protéines alignée à 150 g pour la viande, le poisson, les crevettes et le tofu (issue 93).',
     nature: 'aliment',
   },
   {
     id: 'crevettes',
     titre: 'Manger des crevettes',
-    sousTitre: '100 g',
+    sousTitre: '150 g',
     equivalent: 'crevettes',
-    quantite: 0.1,
-    justification: 'Portion individuelle en plat principal.',
+    quantite: 0.15,
+    justification:
+      'Portion de protéines alignée à 150 g pour la viande, le poisson, les crevettes et le tofu (issue 93).',
     nature: 'aliment',
   },
   {
@@ -89,44 +121,46 @@ export const GESTES: Geste[] = [
     sousTitre: '120 g',
     equivalent: 'oeuf',
     quantite: 0.12,
-    justification: "Un œuf moyen pèse environ 60 g (calibre M).",
+    justification: 'Un œuf moyen pèse environ 60 g (calibre M).',
     nature: 'aliment',
   },
   {
     id: 'tofu',
     titre: 'Manger du tofu',
-    sousTitre: '125 g',
+    sousTitre: '150 g',
     equivalent: 'tofu',
-    quantite: 0.125,
-    justification: 'Portion individuelle en plat principal (un demi-bloc de 250 g).',
+    quantite: 0.15,
+    justification:
+      'Portion de protéines alignée à 150 g pour la viande, le poisson, les crevettes et le tofu (issue 93).',
     nature: 'aliment',
   },
   {
     id: 'lentilles',
     titre: 'Manger des lentilles',
-    sousTitre: '150 g',
+    sousTitre: '100 g (sèches)',
     equivalent: 'lentilles',
-    quantite: 0.15,
+    quantite: 0.1,
     justification:
-      "Portion individuelle en plat principal (validée à la relecture du ticket #12). L'ADEME ne précise pas si le poids s'entend sec ou cuit.",
+      'Portion individuelle en plat principal, poids sec : la même pour les pâtes, le riz et les lentilles (issue 93).',
     nature: 'aliment',
   },
   {
     id: 'pates',
     titre: 'Manger des pâtes',
-    sousTitre: '80 g (poids sec)',
+    sousTitre: '100 g (sèches)',
     equivalent: 'pates',
-    quantite: 0.08,
-    justification: "Portion individuelle conseillée de pâtes sèches ; l'Équivalent ADEME est « Pâtes (sèches) ».",
+    quantite: 0.1,
+    justification:
+      "Portion individuelle en plat principal, poids sec : la même pour les pâtes, le riz et les lentilles (issue 93). L'Équivalent ADEME est « Pâtes (sèches) ».",
     nature: 'aliment',
   },
   {
     id: 'fromage',
     titre: 'Manger du fromage à pâte dure',
-    sousTitre: '30 g',
+    sousTitre: '50 g',
     equivalent: 'fromagedure',
-    quantite: 0.03,
-    justification: 'Portion individuelle courante de fromage (un morceau sur un plateau).',
+    quantite: 0.05,
+    justification: 'Un beau morceau de fromage, en fin de repas (issue 93).',
     nature: 'aliment',
   },
   {
@@ -141,10 +175,102 @@ export const GESTES: Geste[] = [
   {
     id: 'croissant',
     titre: 'Manger un croissant au beurre',
-    sousTitre: '60 g',
+    sousTitre: '80 g',
     equivalent: 'croissant',
-    quantite: 0.06,
-    justification: "Poids moyen d'un croissant de boulangerie.",
+    quantite: 0.08,
+    justification: 'Un croissant de boulangerie généreux ; même poids que le pain au chocolat (issue 93).',
+    nature: 'aliment',
+  },
+
+  {
+    id: 'baguette',
+    titre: 'Manger une demi-baguette',
+    sousTitre: '125 g',
+    equivalent: 'baguette',
+    quantite: 0.125,
+    justification: "Une baguette tradition pèse environ 250 g : la moitié, c'est le pain d'un sandwich.",
+    nature: 'aliment',
+  },
+  {
+    id: 'beurre',
+    titre: 'Mettre du beurre sur une tartine',
+    sousTitre: '15 g',
+    equivalent: 'beurre',
+    quantite: 0.015,
+    justification: 'Une noisette de beurre, de quoi couvrir une tartine (même portion que la pâte à tartiner).',
+    nature: 'aliment',
+  },
+  {
+    id: 'pate-a-tartiner',
+    titre: 'Mettre de la pâte à tartiner sur une tartine',
+    sousTitre: '15 g',
+    equivalent: 'pateatartiner',
+    quantite: 0.015,
+    justification: 'La portion indiquée sur les pots de pâte à tartiner (15 g).',
+    nature: 'aliment',
+  },
+  {
+    id: 'mozzarella',
+    titre: 'Manger une boule de mozzarella',
+    sousTitre: '125 g',
+    equivalent: 'mozarella',
+    quantite: 0.125,
+    justification: 'Une boule vendue en portion individuelle (125 g égouttée).',
+    nature: 'aliment',
+  },
+  {
+    id: 'riz',
+    titre: 'Manger du riz',
+    sousTitre: '100 g (sec)',
+    equivalent: 'riz',
+    quantite: 0.1,
+    justification:
+      'Portion individuelle en plat principal, poids sec : la même pour les pâtes, le riz et les lentilles (issue 93).',
+    nature: 'aliment',
+  },
+  {
+    id: 'frites',
+    titre: 'Manger une portion de frites',
+    sousTitre: '150 g',
+    equivalent: 'frites',
+    quantite: 0.15,
+    justification: "Un cornet moyen de frites ; l'Équivalent ADEME est « Frites (friteuse) ».",
+    nature: 'aliment',
+  },
+  {
+    id: 'bonbons',
+    titre: 'Manger des bonbons gélifiés',
+    sousTitre: '50 g',
+    equivalent: 'bonbons',
+    quantite: 0.05,
+    justification: 'Un petit sachet individuel de bonbons.',
+    nature: 'aliment',
+  },
+  {
+    id: 'burger-vegetarien',
+    titre: 'Manger un burger végétarien',
+    sousTitre: '200 g',
+    equivalent: 'burgervegetarien',
+    quantite: 0.2,
+    justification: 'Même poids que le cheeseburger du catalogue (pain, galette végétale et garniture).',
+    nature: 'aliment',
+  },
+  {
+    id: 'pain-au-chocolat',
+    titre: 'Manger un pain au chocolat',
+    sousTitre: '80 g',
+    equivalent: 'painauchocolat',
+    quantite: 0.08,
+    justification: 'Même poids que le croissant du catalogue, pour comparer à portion égale (leur Duel thématique).',
+    nature: 'aliment',
+  },
+  {
+    id: 'nuggets-vegetaux',
+    titre: 'Manger des nuggets végétaux',
+    sousTitre: '150 g',
+    equivalent: 'nuggetsvegetaux',
+    quantite: 0.15,
+    justification: "Même poids que la portion de poulet (l'ADEME ne publie pas de nuggets de poulet).",
     nature: 'aliment',
   },
 
@@ -164,29 +290,31 @@ export const GESTES: Geste[] = [
   {
     id: 'kebab',
     titre: 'Manger un kebab',
-    sousTitre: '350 g',
+    sousTitre: '500 g',
     equivalent: 'kebab',
-    quantite: 0.35,
-    justification: "Poids moyen d'un sandwich kebab complet.",
+    quantite: 0.5,
+    justification:
+      "Un kebab complet. Plat complet de 500 g, aligné sur les repas types de l'ADEME, qui comptent aussi le pain et le dessert (issue 93).",
     nature: 'repas',
   },
   {
     id: 'pizza',
     titre: 'Manger une pizza quatre fromages',
-    sousTitre: '400 g',
+    sousTitre: '500 g',
     equivalent: 'pizza',
-    quantite: 0.4,
-    justification: "Poids moyen d'une pizza individuelle.",
+    quantite: 0.5,
+    justification:
+      "Une pizza individuelle. Plat complet de 500 g, aligné sur les repas types de l'ADEME, qui comptent aussi le pain et le dessert (issue 93).",
     nature: 'repas',
   },
   {
     id: 'sushis',
     titre: 'Manger un plateau de sushis',
-    sousTitre: '350 g',
+    sousTitre: '500 g',
     equivalent: 'sushis',
-    quantite: 0.35,
+    quantite: 0.5,
     justification:
-      "Plateau individuel servi en plat complet, d'environ 14 pièces (sushis, makis, california rolls) : du même ordre que le kebab (350 g) ou la pizza (400 g).",
+      "Un plateau d'une vingtaine de pièces (sushis, makis, california rolls). Plat complet de 500 g, aligné sur les repas types de l'ADEME, qui comptent aussi le pain et le dessert (issue 93).",
     nature: 'repas',
   },
   {
@@ -205,6 +333,33 @@ export const GESTES: Geste[] = [
     equivalent: 'repasavecduboeuf',
     quantite: 1,
     justification: "Repas type défini par l'ADEME.",
+    nature: 'repas',
+  },
+  {
+    id: 'repas-poulet',
+    titre: 'Manger un repas avec du poulet',
+    sousTitre: '1 repas',
+    equivalent: 'repasavecdupoulet',
+    quantite: 1,
+    justification: "Repas type de l'ADEME.",
+    nature: 'repas',
+  },
+  {
+    id: 'repas-vegetalien',
+    titre: 'Manger un repas végétalien',
+    sousTitre: '1 repas',
+    equivalent: 'repasvegetalien',
+    quantite: 1,
+    justification: "Repas type de l'ADEME, sans aucun produit animal.",
+    nature: 'repas',
+  },
+  {
+    id: 'repas-saumon',
+    titre: 'Manger un repas avec du saumon',
+    sousTitre: '1 repas',
+    equivalent: 'repasavecdupoissongras',
+    quantite: 1,
+    justification: "Repas type de l'ADEME (« Repas avec du saumon »).",
     nature: 'repas',
   },
 
@@ -255,6 +410,88 @@ export const GESTES: Geste[] = [
     nature: 'aliment',
   },
 
+  {
+    id: 'pomme',
+    titre: 'Manger une pomme',
+    sousTitre: '150 g',
+    equivalent: 'pomme',
+    quantite: 0.15,
+    justification: "Poids moyen d'une pomme.",
+    nature: 'aliment',
+  },
+  {
+    id: 'orange',
+    titre: 'Manger une orange',
+    sousTitre: '200 g',
+    equivalent: 'orange',
+    quantite: 0.2,
+    justification: "Poids moyen d'une orange entière.",
+    nature: 'aliment',
+  },
+  {
+    id: 'kiwi',
+    titre: 'Manger un kiwi',
+    sousTitre: '80 g',
+    equivalent: 'kiwi',
+    quantite: 0.08,
+    justification: "Poids moyen d'un kiwi.",
+    nature: 'aliment',
+  },
+  {
+    id: 'cerises',
+    titre: 'Manger un bol de cerises',
+    sousTitre: '150 g',
+    equivalent: 'cerise',
+    quantite: 0.15,
+    justification: 'Un bol, une portion de dessert (une vingtaine de cerises).',
+    nature: 'aliment',
+  },
+  {
+    id: 'ananas',
+    titre: "Manger une portion d'ananas",
+    sousTitre: '200 g',
+    equivalent: 'ananas',
+    quantite: 0.2,
+    justification: "Un ananas entier pèse 1 à 2 kg ; 200 g, c'est une portion de dessert.",
+    nature: 'aliment',
+  },
+  {
+    id: 'pasteque',
+    titre: 'Manger une tranche de pastèque',
+    sousTitre: '300 g',
+    equivalent: 'pasteque',
+    quantite: 0.3,
+    justification: 'Une belle tranche, une portion de dessert (une pastèque entière pèse plusieurs kilos).',
+    nature: 'aliment',
+  },
+  {
+    id: 'tomate',
+    titre: 'Manger une tomate',
+    sousTitre: '120 g',
+    equivalent: 'tomate',
+    quantite: 0.12,
+    justification: "Poids moyen d'une tomate ronde.",
+    nature: 'aliment',
+  },
+  {
+    id: 'carotte',
+    titre: 'Manger une carotte',
+    sousTitre: '100 g',
+    equivalent: 'carotte',
+    quantite: 0.1,
+    justification: "Poids moyen d'une carotte.",
+    nature: 'aliment',
+  },
+  {
+    id: 'laitue',
+    titre: 'Manger une salade verte',
+    sousTitre: '80 g de laitue',
+    equivalent: 'laitue',
+    quantite: 0.08,
+    justification: 'Une portion de salade en accompagnement (une laitue entière pèse environ 400 g).',
+    nature: 'aliment',
+  },
+
   // ─── Boissons : Équivalents ADEME exprimés par litre ────────────────────────────────
   {
     id: 'cafe',
@@ -285,11 +522,11 @@ export const GESTES: Geste[] = [
   },
   {
     id: 'biere',
-    titre: 'Boire une pinte de bière',
-    sousTitre: '50 cl',
+    titre: 'Boire un demi de bière',
+    sousTitre: '25 cl',
     equivalent: 'biere',
-    quantite: 0.5,
-    justification: 'Une pinte servie en France contient 50 cl.',
+    quantite: 0.25,
+    justification: 'Un demi servi en France contient 25 cl : deux fois un verre de vin standard (12,5 cl).',
     nature: 'boisson',
   },
   {
@@ -299,6 +536,24 @@ export const GESTES: Geste[] = [
     equivalent: 'vin',
     quantite: 0.125,
     justification: 'Verre de vin standard (une bouteille de 75 cl = 6 verres).',
+    nature: 'boisson',
+  },
+  {
+    id: 'boisson-soja',
+    titre: 'Boire un verre de boisson au soja',
+    sousTitre: '25 cl',
+    equivalent: 'soja',
+    quantite: 0.25,
+    justification: 'Même volume que le verre de lait de vache (leur Duel thématique).',
+    nature: 'boisson',
+  },
+  {
+    id: 'soda',
+    titre: 'Boire une canette de soda',
+    sousTitre: '33 cl',
+    equivalent: 'soda',
+    quantite: 0.33,
+    justification: "Contenance d'une canette standard.",
     nature: 'boisson',
   },
   {
@@ -396,6 +651,16 @@ export const GESTES: Geste[] = [
     nature: 'objet',
   },
 
+  {
+    id: 'cle-usb',
+    titre: 'Acheter une clé USB',
+    sousTitre: "et l'utiliser 5 ans",
+    equivalent: 'clefusb',
+    quantite: 1,
+    justification: UN_APPAREIL,
+    nature: 'objet',
+  },
+
   // ─── Usages numériques ──────────────────────────────────────────────────────────────
   {
     id: 'emails',
@@ -413,6 +678,28 @@ export const GESTES: Geste[] = [
     equivalent: 'telechargement',
     quantite: 4,
     justification: "Taille courante d'un film en haute définition.",
+    nature: 'usage',
+  },
+
+  {
+    id: 'streaming-film',
+    titre: 'Regarder un film en streaming',
+    sousTitre: '2 h',
+    equivalent: 'streamingvideo',
+    quantite: 2,
+    justification:
+      "Durée d'un film. Sans la construction de l'écran, comme le permet le calculateur d'Impact CO2 : on compare la diffusion du film, pas l'appareil (le téléchargement ne compte pas l'écran non plus).",
+    nature: 'usage',
+    etapesExclues: ['Construction des terminaux'],
+  },
+  {
+    id: 'visioconference',
+    titre: 'Faire une visioconférence',
+    sousTitre: '1 h',
+    equivalent: 'visioconference',
+    quantite: 1,
+    justification:
+      "Une réunion d'une heure, avec les réglages par défaut d'Impact CO2 (construction de l'appareil comprise).",
     nature: 'usage',
   },
 
@@ -481,6 +768,34 @@ export const GESTES: Geste[] = [
     nature: 'objet',
   },
 
+  {
+    id: 'cafetiere-filtre',
+    titre: 'Acheter une cafetière filtre',
+    sousTitre: "et l'utiliser 5 ans",
+    equivalent: 'cafetierefiltre',
+    quantite: 1,
+    justification: UN_APPAREIL,
+    nature: 'objet',
+  },
+  {
+    id: 'four-electrique',
+    titre: 'Acheter un four électrique',
+    sousTitre: "et l'utiliser 12 ans",
+    equivalent: 'fourelectrique',
+    quantite: 1,
+    justification: UN_APPAREIL,
+    nature: 'objet',
+  },
+  {
+    id: 'climatiseur',
+    titre: 'Acheter un climatiseur',
+    sousTitre: "et l'utiliser 6 ans",
+    equivalent: 'climatiseur',
+    quantite: 1,
+    justification: UN_APPAREIL,
+    nature: 'objet',
+  },
+
   // ─── Mobilier : Équivalents « par unité » ───────────────────────────────────────────
   {
     id: 'chaise',
@@ -505,6 +820,25 @@ export const GESTES: Geste[] = [
     titre: 'Acheter une armoire',
     sousTitre: '1 armoire',
     equivalent: 'armoire',
+    quantite: 1,
+    justification: UN_MEUBLE,
+    nature: 'objet',
+  },
+
+  {
+    id: 'canape',
+    titre: 'Acheter un canapé en tissu',
+    sousTitre: '1 canapé',
+    equivalent: 'canapetextile',
+    quantite: 1,
+    justification: UN_MEUBLE,
+    nature: 'objet',
+  },
+  {
+    id: 'lit',
+    titre: 'Acheter un lit',
+    sousTitre: '1 lit',
+    equivalent: 'lit',
     quantite: 1,
     justification: UN_MEUBLE,
     nature: 'objet',
@@ -655,12 +989,43 @@ export const GESTES: Geste[] = [
     parcours: 'quotidien-10km',
   },
   {
+    id: 'trottinette-10km',
+    titre: 'Faire 10 km en trottinette électrique',
+    sousTitre: '1 personne',
+    equivalent: 'trottinette',
+    quantite: 10,
+    justification: 'Trajet du quotidien type (10 km) ; facteur ADEME de la trottinette à assistance électrique.',
+    nature: 'trajet',
+    parcours: 'quotidien-10km',
+  },
+  {
+    id: 'bus-electrique-10km',
+    titre: 'Faire 10 km en bus électrique',
+    sousTitre: '1 passager',
+    equivalent: 'buselectrique',
+    quantite: 10,
+    justification: 'Trajet du quotidien type (10 km) ; facteur ADEME par passager.',
+    nature: 'trajet',
+    parcours: 'quotidien-10km',
+  },
+  {
+    id: 'tramway-10km',
+    titre: 'Faire 10 km en tramway',
+    sousTitre: '1 passager',
+    equivalent: 'tramway',
+    quantite: 10,
+    justification: 'Trajet du quotidien type (10 km) ; facteur ADEME par passager.',
+    nature: 'trajet',
+    parcours: 'quotidien-10km',
+  },
+  {
     id: 'paris-marseille-tgv',
     titre: 'Faire Paris–Marseille en TGV',
     sousTitre: 'aller simple, 1 passager',
     equivalent: 'tgv',
     quantite: 750,
-    justification: "Environ 750 km de voie ferrée ; c'est la distance qui retrouve l'aller-retour Paris–Marseille de l'ADEME (4,4 kg).",
+    justification:
+      "Environ 750 km de voie ferrée ; c'est la distance qui retrouve l'aller-retour Paris–Marseille de l'ADEME (4,4 kg).",
     nature: 'trajet',
     parcours: 'paris-marseille',
   },
@@ -695,6 +1060,28 @@ export const GESTES: Geste[] = [
     parcours: 'paris-marseille',
   },
   {
+    id: 'paris-marseille-camping-car',
+    titre: 'Faire Paris–Marseille en camping-car',
+    sousTitre: 'aller simple, 2 passagers (ta part)',
+    equivalent: 'campingcar',
+    quantite: 775 / 2,
+    justification:
+      "Environ 775 km de route, avec 2 passagers. L'ADEME compte le camping-car par véhicule : chacun des deux compte la moitié du trajet.",
+    nature: 'trajet',
+    parcours: 'paris-marseille',
+  },
+  {
+    id: 'ter-100km',
+    titre: 'Faire 100 km en TER',
+    sousTitre: '1 passager',
+    equivalent: 'ter',
+    quantite: 100,
+    justification:
+      "Distance ronde, la même pour les trains et le car de ses Duels thématiques ; facteur ADEME par passager. Tiré au hasard, il n'affronte aucun autre trajet : aucun autre Parcours de 100 km n'est tirable.",
+    nature: 'trajet',
+    parcours: '100km',
+  },
+  {
     id: 'paris-new-york',
     titre: 'Faire Paris–New York en avion',
     sousTitre: 'aller simple, 1 passager',
@@ -709,17 +1096,17 @@ export const GESTES: Geste[] = [
   // ─── Livraison : scénarios ADEME pour un colis de 1 kg ──────────────────────────────
   {
     id: 'colis-magasin-velo',
-    titre: 'Aller chercher un colis de 1 kg en magasin',
-    sousTitre: 'à pied ou à vélo',
+    titre: 'Aller chercher un colis de 1 kg en magasin à pied',
+    sousTitre: 'à proximité',
     equivalent: 'magasindouce',
     quantite: 1,
-    justification: "Scénario de l'ADEME : achat en magasin, déplacement en mobilité douce, colis de 1 kg.",
+    justification: "Scénario de l'ADEME : achat en magasin à proximité, déplacement à pied, colis de 1 kg.",
     nature: 'livraison',
   },
   {
     id: 'livraison-domicile',
-    titre: 'Se faire livrer un colis de 1 kg',
-    sousTitre: 'à domicile',
+    titre: 'Se faire livrer un colis de 1 kg à domicile',
+    sousTitre: 'par un transporteur',
     equivalent: 'livraisondomicile',
     quantite: 1,
     justification: "Scénario de l'ADEME : un colis de 1 kg livré à domicile.",
@@ -727,8 +1114,8 @@ export const GESTES: Geste[] = [
   },
   {
     id: 'livraison-point-relais',
-    titre: 'Se faire livrer un colis de 1 kg',
-    sousTitre: 'en point relais, en voiture',
+    titre: 'Se faire livrer un colis de 1 kg en point relais',
+    sousTitre: 'et aller le chercher en voiture, 7 km aller-retour',
     equivalent: 'pointrelais',
     quantite: 1,
     justification: "Scénario de l'ADEME : colis de 1 kg livré en point relais, retiré en voiture (7 km aller-retour).",
@@ -736,11 +1123,11 @@ export const GESTES: Geste[] = [
   },
   {
     id: 'colis-magasin-voiture',
-    titre: 'Aller chercher un colis de 1 kg en magasin',
-    sousTitre: 'en voiture, 15 km aller',
+    titre: 'Aller chercher un colis de 1 kg en magasin en voiture',
+    sousTitre: '30 km aller-retour',
     equivalent: 'magasin',
     quantite: 1,
-    justification: "Scénario de l'ADEME : achat en magasin à 15 km, aller-retour en voiture, colis de 1 kg.",
+    justification: "Scénario de l'ADEME : achat en magasin à 15 km, aller-retour en voiture (30 km), colis de 1 kg.",
     nature: 'livraison',
   },
 
@@ -776,11 +1163,12 @@ export const GESTES: Geste[] = [
   // ─── Loisirs : cas pratiques ADEME ──────────────────────────────────────────────────
   {
     id: 'friends',
-    titre: "Regarder l'intégrale de Friends",
-    sousTitre: 'en streaming',
+    titre: "Regarder l'intégrale de Friends en streaming",
+    sousTitre: '236 épisodes de 20 min',
     equivalent: 'friends',
     quantite: 1,
-    justification: "Cas pratique de l'ADEME : l'intégrale de la série regardée en streaming.",
+    justification:
+      "Cas pratique de l'ADEME : les 236 épisodes d'environ 20 min, regardés en haute définition sur une télévision, en Wi-Fi.",
     nature: 'usage',
   },
   {
@@ -803,115 +1191,19 @@ export const GESTES: Geste[] = [
     nature: 'usage',
   },
 
-  // ─── Gestes réservés aux Duels thématiques (ticket #13) ───────────────────────────────────────
-  // Jamais tirés au hasard : le catalogue tirable reste à 81 Gestes jusqu'à la mise en production
-  // (l'enrichir viendra ensuite). Même quantité que le Geste d'en face, pour comparer à portion égale.
   {
-    id: 'pain-au-chocolat',
-    titre: 'Manger un pain au chocolat',
-    sousTitre: '60 g',
-    equivalent: 'painauchocolat',
-    quantite: 0.06,
-    justification: 'Même poids que le croissant du catalogue, pour comparer à portion égale.',
-    nature: 'aliment',
-    seulementEnDuelThematique: true,
-  },
-  {
-    id: 'boisson-soja',
-    titre: 'Boire un verre de boisson au soja',
-    sousTitre: '25 cl',
-    equivalent: 'soja',
-    quantite: 0.25,
-    justification: 'Même volume que le verre de lait de vache.',
-    nature: 'boisson',
-    seulementEnDuelThematique: true,
-  },
-  {
-    id: 'nuggets-vegetaux',
-    titre: 'Manger des nuggets végétaux',
-    sousTitre: '150 g',
-    equivalent: 'nuggetsvegetaux',
-    quantite: 0.15,
-    justification: "Même poids que la portion de poulet (l'ADEME ne publie pas de nuggets de poulet).",
-    nature: 'aliment',
-    seulementEnDuelThematique: true,
-  },
-  {
-    id: 'repas-poulet',
-    titre: 'Manger un repas avec du poulet',
-    sousTitre: '1 repas',
-    equivalent: 'repasavecdupoulet',
+    id: 'nuit-camping',
+    titre: 'Passer une nuit au camping',
+    sousTitre: '1 nuit',
+    equivalent: 'camping',
     quantite: 1,
-    justification: "Repas type de l'ADEME.",
-    nature: 'repas',
-    seulementEnDuelThematique: true,
-  },
-  {
-    id: 'repas-vegetalien',
-    titre: 'Manger un repas végétalien',
-    sousTitre: '1 repas',
-    equivalent: 'repasvegetalien',
-    quantite: 1,
-    justification: "Repas type de l'ADEME, sans aucun produit animal.",
-    nature: 'repas',
-    seulementEnDuelThematique: true,
-  },
-  {
-    id: 'streaming-film',
-    titre: 'Regarder un film en streaming',
-    sousTitre: '2 h',
-    equivalent: 'streamingvideo',
-    quantite: 2,
-    justification:
-      "Durée d'un film. Sans la construction de l'écran, comme le permet le calculateur d'Impact CO2 : on compare la diffusion du film, pas l'appareil (le téléchargement ne compte pas l'écran non plus).",
+    justification: "Cas pratique de l'ADEME : une nuit dans un camping.",
     nature: 'usage',
-    etapesExclues: ['Construction des terminaux'],
-    seulementEnDuelThematique: true,
   },
-  {
-    id: 'trottinette-10km',
-    titre: 'Faire 10 km en trottinette électrique',
-    sousTitre: '1 personne',
-    equivalent: 'trottinette',
-    quantite: 10,
-    justification: 'Même trajet du quotidien que les autres (10 km) ; facteur ADEME de la trottinette à assistance électrique.',
-    nature: 'trajet',
-    parcours: 'quotidien-10km',
-    seulementEnDuelThematique: true,
-  },
-  {
-    id: 'bus-electrique-10km',
-    titre: 'Faire 10 km en bus électrique',
-    sousTitre: '1 passager',
-    equivalent: 'buselectrique',
-    quantite: 10,
-    justification: 'Même trajet du quotidien que les autres (10 km) ; facteur ADEME par passager.',
-    nature: 'trajet',
-    parcours: 'quotidien-10km',
-    seulementEnDuelThematique: true,
-  },
-  {
-    id: 'tramway-10km',
-    titre: 'Faire 10 km en tramway',
-    sousTitre: '1 passager',
-    equivalent: 'tramway',
-    quantite: 10,
-    justification: 'Même trajet du quotidien que les autres (10 km) ; facteur ADEME par passager.',
-    nature: 'trajet',
-    parcours: 'quotidien-10km',
-    seulementEnDuelThematique: true,
-  },
-  {
-    id: 'ter-100km',
-    titre: 'Faire 100 km en TER',
-    sousTitre: '1 passager',
-    equivalent: 'ter',
-    quantite: 100,
-    justification: 'Distance ronde, la même pour les trains et le car comparés ; facteur ADEME par passager.',
-    nature: 'trajet',
-    parcours: '100km',
-    seulementEnDuelThematique: true,
-  },
+
+  // ─── Gestes réservés aux Duels thématiques (ticket #13) ───────────────────────────────────────
+  // Jamais tirés au hasard. Dix d'entre eux sont passés au tirage avec l'élargissement du catalogue (issue 93),
+  // en gardant leur Duel thématique. Même quantité que le Geste d'en face, pour comparer à portion égale.
   {
     id: 'tgv-100km',
     titre: 'Faire 100 km en TGV',
@@ -929,9 +1221,32 @@ export const GESTES: Geste[] = [
     sousTitre: '1 passager',
     equivalent: 'autocar',
     quantite: 100,
-    justification: "Distance ronde, la même pour les trains et le car comparés ; facteur ADEME de l'autocar thermique par passager.",
+    justification:
+      "Distance ronde, la même pour les trains et le car comparés ; facteur ADEME de l'autocar thermique par passager.",
     nature: 'trajet',
     parcours: '100km',
+    seulementEnDuelThematique: true,
+  },
+  {
+    id: 'recherches-web',
+    titre: 'Faire des recherches sur le web',
+    sousTitre: '10 recherches',
+    equivalent: 'rechercheweb',
+    quantite: 10,
+    justification:
+      "Autant de recherches que d'e-mails dans le Geste d'en face (10), pour comparer à nombre égal. Réservé à ce Duel thématique (issue 93).",
+    nature: 'usage',
+    seulementEnDuelThematique: true,
+  },
+  {
+    id: 'eau-bouteille-33cl',
+    titre: "Boire une petite bouteille d'eau",
+    sousTitre: '33 cl',
+    equivalent: 'eauenbouteille',
+    quantite: 0.33,
+    justification:
+      "Même volume que la canette de soda d'en face, l'autre choix des menus de fast-food. Réservée : elle ne se distinguerait de la bouteille de 1,5 L que par sa taille.",
+    nature: 'boisson',
     seulementEnDuelThematique: true,
   },
   // Agrégats nationaux : pas des gestes du quotidien, mais des ordres de grandeur qui éclairent les autres.
@@ -974,7 +1289,8 @@ export const GESTES: Geste[] = [
     sousTitre: 'moyenne 2013-2024',
     equivalent: 'voiturefrancaisean',
     quantite: 1,
-    justification: "Cas pratique de l'ADEME (source Citepa) : moyenne annuelle 2013-2024 des voitures particulières thermiques.",
+    justification:
+      "Cas pratique de l'ADEME (source Citepa) : moyenne annuelle 2013-2024 des voitures particulières thermiques.",
     nature: 'agregat',
     seulementEnDuelThematique: true,
   },
@@ -984,7 +1300,8 @@ export const GESTES: Geste[] = [
     sousTitre: 'moyenne 2013-2024',
     equivalent: 'voiturefrancaisejour',
     quantite: 1,
-    justification: "Cas pratique de l'ADEME (source Citepa) : un jour de circulation des voitures particulières thermiques.",
+    justification:
+      "Cas pratique de l'ADEME (source Citepa) : un jour de circulation des voitures particulières thermiques.",
     nature: 'agregat',
     seulementEnDuelThematique: true,
   },
@@ -1005,7 +1322,8 @@ export const GESTES: Geste[] = [
     sousTitre: 'voyageurs et marchandises',
     equivalent: 'trainenfrancejour',
     quantite: 365,
-    justification: "Cas pratique de l'ADEME (source Citepa) : un jour de circulation des trains (moyenne 2013-2024), × 365 jours.",
+    justification:
+      "Cas pratique de l'ADEME (source Citepa) : un jour de circulation des trains (moyenne 2013-2024), × 365 jours.",
     nature: 'agregat',
     seulementEnDuelThematique: true,
   },

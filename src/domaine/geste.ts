@@ -18,11 +18,11 @@ export type Geste = {
   id: string
   /** Première ligne du libellé : le geste (« Manger un steak de bœuf »). */
   titre: string
-  /** Seconde ligne : la quantité ou la durée d'utilisation (« 120 g », « et l'utiliser 8 ans »). */
+  /** Seconde ligne : la quantité ou la durée d'utilisation (« 150 g », « et l'utiliser 8 ans »). */
   sousTitre: string
   /** Slug de l'Équivalent ADEME dans l'Instantané. */
   equivalent: string
-  /** Nombre d'unités de référence de l'Équivalent (0,12 pour 120 g d'un Équivalent « par kg »). */
+  /** Nombre d'unités de référence de l'Équivalent (0,15 pour 150 g d'un Équivalent « par kg »). */
   quantite: number
   /** Pourquoi cette Quantité : la source de crédibilité du Geste. */
   justification: string

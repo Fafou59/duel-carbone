@@ -31,7 +31,7 @@ describe('Page En savoir plus', () => {
     const kg = (h: keyof typeof HYPOTHESES) => Math.round(empreinteDeLaCreation(JETONS, HYPOTHESES[h]).kgCo2e)
     expect(estimation).toHaveTextContent(new RegExp(`environ ${kg('centrale')} kg CO2e`))
     expect(estimation).toHaveTextContent(new RegExp(`entre ${kg('basse')} et ${kg('haute')} kg`))
-    expect(estimation).toHaveTextContent(/regarder l'intégrale de Friends \(en streaming\)/)
+    expect(estimation).toHaveTextContent(/regarder l'intégrale de Friends en streaming \(236 épisodes de 20 min\)/)
     expect(screen.getByRole('link', { name: /méthode détaillée/ })).toHaveAttribute(
       'href',
       'https://github.com/Fafou59/duel-carbone/blob/main/docs/empreinte-ia.md',
@@ -143,8 +143,14 @@ describe('Page En savoir plus', () => {
 
   it('explique les Duels ★ : leur fréquence (lue dans les règles) et les gestes qui leur sont réservés', () => {
     render(<EcranEnSavoirPlus />)
-    expect(screen.getByText(/Une Partie sur deux contient un Duel ★/)).toBeInTheDocument()
-    expect(screen.getByText(new RegExp(`jamais plus de ${REGLES.partiesMaxSansDuelThematique} Parties de suite sans`))).toBeInTheDocument()
+    const paragraphe = screen.getByText(/Le Duel du jour contient un Duel ★ 2 jours sur 3/)
+    expect(paragraphe).toHaveTextContent(`jamais plus de ${REGLES.duelDuJour.joursMaxSansDuelThematique} jours de suite sans`)
+    expect(paragraphe).toHaveTextContent('chacun revient à son tour')
+    expect(paragraphe).toHaveTextContent(
+      `En Partie libre, c'est une Partie sur deux, et jamais plus de ${REGLES.partiesMaxSansDuelThematique} Parties de suite sans`,
+    )
+    // Les exemples de Gestes réservés en sont vraiment.
+    expect(paragraphe).toHaveTextContent("comme l'eau du robinet ou les recherches sur le web")
     // Le décompte des Gestes réservés : voir « ne compte que les Gestes construits à partir des fiches de l’ADEME ».
     expect(screen.getByText(/réservés aux Duels ★/)).toBeInTheDocument()
   })
