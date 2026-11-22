@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { REGLES } from '../domaine/regles.ts'
+import { CONSEILS_RECENTS } from '../domaine/conseils.ts'
 import { CLE_MEMOIRE, creerMemoire, PARTIES_MEMORISEES, type Stockage } from './memoire.ts'
 
 /** Un faux stockage, en mémoire vive : on peut l'inspecter, le pré-remplir ou le faire tomber en panne. */
@@ -109,6 +110,7 @@ describe('Mémoire locale : robustesse', () => {
       duJour: { jour: '2026-11-20', reponses: ['steak-boeuf'], score: null },
       serie: null,
       meilleureSerie: 0,
+      conseilsRecents: [],
     })
   })
 
@@ -206,5 +208,55 @@ describe('Mémoire locale : la Partie du jour', () => {
     memoire.terminerPartieDuJour(JOUR, 8)
     expect(memoire.partieDuJour(JOUR)).toBeNull()
     expect(memoire.serie(JOUR)).toEqual({ actuelle: 0, meilleure: 0 })
+  })
+})
+
+describe('Mémoire locale : les Conseils vus', () => {
+  const JOUR = '2026-11-20'
+
+  it('retient les Conseils des dernières Parties, pour ne pas les remontrer trop tôt', () => {
+    const contenu = stockage()
+    const memoire = creerMemoire(contenu)
+    expect(memoire.conseilsRecents()).toEqual([])
+    for (let i = 1; i <= CONSEILS_RECENTS + 2; i++) memoire.noterConseil(`conseil-${i}`)
+    expect(memoire.conseilsRecents()).toEqual(['conseil-3', 'conseil-4', 'conseil-5', 'conseil-6', 'conseil-7'])
+    expect(creerMemoire(contenu).conseilsRecents()).toHaveLength(CONSEILS_RECENTS)
+  })
+
+  it('ne compte pas deux fois un Conseil revu sur le même écran (le Duel du jour qu’on revoit)', () => {
+    const memoire = creerMemoire(stockage())
+    memoire.noterConseil('repas-vegetarien')
+    memoire.noterConseil('repas-vegetarien')
+    expect(memoire.conseilsRecents()).toEqual(['repas-vegetarien'])
+  })
+
+  it('retient le Conseil du Duel du jour, pour remontrer le même quand on revoit son résultat', () => {
+    const memoire = creerMemoire(stockage())
+    memoire.commencerPartieDuJour(JOUR, ['steak-boeuf>avocat'])
+    memoire.terminerPartieDuJour(JOUR, 8)
+    memoire.noterConseil('repas-vegetarien', JOUR)
+    expect(memoire.partieDuJour(JOUR)?.conseil).toBe('repas-vegetarien')
+    // Un autre jour n'est pas touché.
+    memoire.noterConseil('teletravail', '2026-11-21')
+    expect(memoire.partieDuJour(JOUR)?.conseil).toBe('repas-vegetarien')
+  })
+
+  it('garde le Conseil du jour noté juste avant le score (l’écran de fin s’affiche en même temps)', () => {
+    const memoire = creerMemoire(stockage())
+    memoire.commencerPartieDuJour(JOUR, ['steak-boeuf>avocat'])
+    memoire.noterConseil('repas-vegetarien', JOUR)
+    memoire.terminerPartieDuJour(JOUR, 8)
+    expect(memoire.partieDuJour(JOUR)).toMatchObject({ score: 8, conseil: 'repas-vegetarien' })
+  })
+
+  it('ignore des Conseils récents mal formés (modification à la main)', () => {
+    const brut = JSON.stringify({ version: 2, conseilsRecents: 'repas-vegetarien' })
+    expect(creerMemoire(stockage({ [CLE_MEMOIRE]: brut })).conseilsRecents()).toEqual([])
+  })
+
+  it('reste jouable sans stockage', () => {
+    const memoire = creerMemoire(enPanne)
+    memoire.noterConseil('repas-vegetarien')
+    expect(memoire.conseilsRecents()).toEqual([])
   })
 })
