@@ -97,6 +97,8 @@
 /* Noir sur blanc dans les deux thèmes : le fichier a son propre fond blanc (et sa marge). */
 .qr-code__image {
   display: block;
+  max-width: 100%;
+  height: auto;
   margin: 0 auto 12px;
   border-radius: 12px;
 }

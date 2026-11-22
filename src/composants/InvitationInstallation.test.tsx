@@ -84,7 +84,7 @@ describe('L’invitation à installer le jeu, à la fin du Duel du jour', () => 
 
     const fenetre = screen.getByRole('dialog', { name: 'Joue sur ton téléphone' })
     const qr = within(fenetre).getByRole('img', { name: 'QR code vers duelcarbone.fr' })
-    expect(qr).toHaveAttribute('src', '/qr-code.svg')
+    expect(qr).toHaveAttribute('src', '/qr-code-pc.svg')
     expect(fenetre).toHaveTextContent('duelcarbone.fr')
     expect(within(fenetre).getByRole('button', { name: 'Fermer' })).toHaveFocus()
     expect(p.mesurer).toHaveBeenCalledWith('installation/qr')

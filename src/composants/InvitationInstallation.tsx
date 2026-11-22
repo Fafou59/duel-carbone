@@ -153,7 +153,7 @@ export function InvitationInstallationVue({ situation, installer, onEcarter, mes
 
 /**
  * Le QR code du jeu, à scanner avec l'appareil photo du téléphone (#98). L'image est fabriquée d'avance par
- * npm run qr-code (public/qr-code.svg) ; l'adresse est écrite en clair dessous, pour qui ne peut pas scanner.
+ * npm run qr-code (public/qr-code-pc.svg) ; l'adresse est écrite en clair dessous, pour qui ne peut pas scanner.
  *
  * Comme le détail d'un Duel du Récapitulatif, c'est une balise <dialog> ouverte avec showModal() : le navigateur
  * fournit le fond sombre et la touche Échap, et rend le reste de la page inaccessible tant qu'elle est ouverte.
@@ -190,8 +190,8 @@ function FenetreQrCode({ onFermer }: { onFermer: () => void }) {
         </button>
       </div>
       <p>Scanne ce code avec l’appareil photo de ton téléphone : le jeu s’ouvre, et tu pourras l’installer sur ton écran d’accueil.</p>
-      {/* 37 carrés de 6 px : des carrés entiers restent nets. */}
-      <img className="qr-code__image" src="/qr-code.svg" alt="QR code vers duelcarbone.fr" width={222} height={222} />
+      {/* 45 cases de 6 px (marge comprise) : des carrés entiers restent nets. */}
+      <img className="qr-code__image" src="/qr-code-pc.svg" alt="QR code vers duelcarbone.fr" width={270} height={270} />
       <p className="qr-code__adresse">
         Ou tape l’adresse : <strong>{new URL(ADRESSE_DU_JEU).hostname}</strong>
       </p>

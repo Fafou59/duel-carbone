@@ -6,7 +6,7 @@
  * - Le jeu ne dépend jamais de la mesure : si GoatCounter est bloqué, lent ou en panne, rien ne se passe.
  * - GoatCounter compte des événements mais ne calcule pas de moyenne : la durée d'une Partie
  *   est envoyée sous forme de tranche (voir docs/prd-v1-duel.md, « Événements de mesure d'audience »).
- * - L'arrivée par le QR code (?ref=qr-code, #98) est comptée avec la visite, puis effacée de l'adresse.
+ * - L'arrivée par le QR code (?ref=qr-code-pc, #98) est comptée avec la visite, puis effacée de l'adresse.
  */
 import { useEffect, useRef } from 'react'
 import { ADRESSE_DU_JEU } from '../domaine/partage.ts'
@@ -129,8 +129,8 @@ export function chargerMesure(hote: string = window.location.hostname): void {
 }
 
 /**
- * Le paramètre de provenance de l'adresse : le QR code mène à « https://duelcarbone.fr/?ref=qr-code » (#98).
- * GoatCounter le lit au moment de compter la visite et range ces arrivées sous la provenance « qr-code ».
+ * Le paramètre de provenance de l'adresse : le QR code mène à « https://duelcarbone.fr/?ref=qr-code-pc » (#98).
+ * GoatCounter le lit au moment de compter la visite et range ces arrivées sous la provenance « qr-code-pc ».
  */
 const PROVENANCE = 'ref'
 
