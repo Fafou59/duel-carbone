@@ -63,7 +63,7 @@ describe('Page En savoir plus', () => {
   it('dit ce que l’invitation à installer garde et compte', () => {
     render(<EcranEnSavoirPlus />)
     expect(screen.getByText(/Sans cookie, sans compte/)).toHaveTextContent(/« Non merci » à l’invitation à installer le jeu/)
-    expect(screen.getByText(/Pour savoir si le jeu plaît/)).toHaveTextContent(/l'invitation à installer le jeu et sa réponse/)
+    expect(screen.getByText(/Pour savoir si le jeu plaît/)).toHaveTextContent(/l'invitation à installer le jeu et sa réponse, l'ouverture du QR code sur ordinateur,/)
   })
 
   it('dit que les plantages du jeu sont comptés, sans leur détail', () => {
