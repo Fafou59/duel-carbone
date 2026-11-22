@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react'
+import { CONSEILS } from './donnees/conseils.ts'
 import { DUELS_THEMATIQUES } from './donnees/duels-thematiques.ts'
-import { CALIBRAGE, chargerCalendrier, GESTES_CALCULES } from './donnees/index.ts'
+import { CALIBRAGE, chargerCalendrier, GESTES_CALCULES, INSTANTANE } from './donnees/index.ts'
 import { Tutoriel } from './composants/Tutoriel.tsx'
 import { Frise } from './composants/Vitrine.tsx'
 import { duelsDepuisCodes, partieDuJour, type Calendrier } from './domaine/calendrier.ts'
+import { choisirConseil, conseilAffiche, valeursDe } from './domaine/conseils.ts'
 import { estBonChoix } from './domaine/duel.ts'
 import { cleDePaire, genererPartie } from './domaine/generateur.ts'
 import { decalerJour, jourDeParis, numeroDuJour, secondesAvantMinuitAParis } from './domaine/jour.ts'
 import { NOMBRE_DE_DUELS, type DuelDePartie } from './domaine/partie.ts'
 import { rangDuJour, type Effectifs } from './domaine/rang-du-jour.ts'
+import type { LigneRecapitulatif } from './domaine/recapitulatif.ts'
 import { doitForcerUnDuelThematique } from './domaine/thematiques.ts'
 import { Accueil, type Situation } from './ecrans/Accueil.tsx'
 import { EcranPartie } from './ecrans/EcranPartie.tsx'
@@ -29,6 +32,9 @@ type Props = {
   /** Le serveur du Rang du jour (remplaçable dans les tests) : par défaut, /api/rang-du-jour. */
   serveur?: ServeurDuRang
 }
+
+/** Les valeurs de l'Instantané d'où sont calculés les chiffres des Conseils. */
+const VALEURS = valeursDe(INSTANTANE)
 
 /** La Partie en cours : la Partie du jour (avec son jour et ses réponses déjà données) ou une Partie libre. */
 /** La Partie affichée. Pour celle du jour, `serie` est la série en la comptant, figée au lancement (mesure d'audience). */
@@ -173,6 +179,30 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
     setNumero((n) => n + 1)
   }
 
+  /**
+   * Le Conseil de fin de Partie (issue 88) : pour un Duel du jour qu'on revoit, celui qui a déjà été montré ;
+   * sinon un nouveau, choisi d'après les Duels de la Partie (domaine/conseils.ts), jamais l'un des derniers vus.
+   */
+  const conseilDeFin = (jourDuDuel?: string) => ({
+    choisir: (lignes: LigneRecapitulatif[]) => {
+      const dejaMontre = jourDuDuel && memoire.partieDuJour(jourDuDuel)?.conseil
+      const conseil =
+        CONSEILS.find((c) => c.id === dejaMontre) ??
+        choisirConseil({
+          conseils: CONSEILS,
+          gestesDeLaPartie: lignes.flatMap((l) => [l.plus.id, l.moins.id]),
+          gestesRates: lignes.filter((l) => !l.bonne).flatMap((l) => [l.plus.id, l.moins.id]),
+          recents: memoire.conseilsRecents(),
+          hasard: Math.random,
+        })
+      return conseilAffiche(conseil, VALEURS)
+    },
+    // Un Conseil revu avec son Duel du jour n'est pas noté une seconde fois.
+    onVu: (id: string) => {
+      if (!jourDuDuel || memoire.partieDuJour(jourDuDuel)?.conseil !== id) memoire.noterConseil(id, jourDuDuel)
+    },
+  })
+
   // Le résultat du Duel du jour, Duel par Duel (la grille de l'accueil).
   const resultat = (() => {
     if (duJour?.score == null) return undefined
@@ -241,6 +271,7 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
               onRejouer={lancerPartie}
               // Le Duel du jour, proposé en premier à la fin s'il reste à jouer (une fois le calendrier arrivé).
               fin={{
+                conseil: conseilDeFin(),
                 duJour: calendrier
                   ? {
                       numero: numeroDuJourAffiche,
@@ -274,7 +305,10 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
                 })
               }}
               onRejouer={lancerPartie}
-              fin={{ partieDuJour: { numero: numeroDuJour(partie.jour), serie: serie.actuelle, rang: rangDu(partie.jour) } }}
+              fin={{
+                partieDuJour: { numero: numeroDuJour(partie.jour), serie: serie.actuelle, rang: rangDu(partie.jour) },
+                conseil: conseilDeFin(partie.jour),
+              }}
             />
           )}
         </div>
