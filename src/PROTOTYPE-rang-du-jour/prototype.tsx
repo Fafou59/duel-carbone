@@ -8,6 +8,10 @@
  * un Duel du jour déjà joué avec le score de son choix (pour voir toutes les phrases sur l'accueil).
  */
 import { useEffect, useState } from 'react'
+import { DUELS_THEMATIQUES } from '../donnees/duels-thematiques.ts'
+import { chargerCalendrier, GESTES_CALCULES } from '../donnees/index.ts'
+import { partieDuJour } from '../domaine/calendrier.ts'
+import { plusEmetteur } from '../domaine/duel.ts'
 import { jourDeParis } from '../domaine/jour.ts'
 import { phraseDuRang, type Effectifs, type RangDuJour } from '../domaine/rang-du-jour.ts'
 import { CLE_MEMOIRE, creerMemoire } from '../navigateur/memoire.ts'
@@ -120,11 +124,19 @@ export function BasculePrototype() {
     window.addEventListener('keydown', surTouche)
     return () => window.removeEventListener('keydown', surTouche)
   })
-  const simuler = (score: number | null) => {
+  // Fabrique une vraie Partie du jour terminée avec ce score : les bonnes réponses d'abord, puis les mauvaises.
+  // L'accueil et « Revoir mon Récapitulatif » (l'écran de fin) montrent alors tous deux ce score et son Rang.
+  const simuler = async (score: number | null) => {
     const jour = jourDeParis(new Date())
-    if (score === null) localStorage.removeItem(CLE_MEMOIRE)
-    else {
+    localStorage.removeItem(CLE_MEMOIRE)
+    if (score !== null) {
+      const duels = partieDuJour(await chargerCalendrier(), jour, GESTES_CALCULES, DUELS_THEMATIQUES)
       const memoire = creerMemoire()
+      memoire.commencerPartieDuJour(jour, duels.map((d) => `${d.a.id}>${d.b.id}`))
+      duels.forEach((duel, i) => {
+        const bon = plusEmetteur(duel).id
+        memoire.enregistrerReponseDuJour(jour, i < score ? bon : bon === duel.a.id ? duel.b.id : duel.a.id)
+      })
       memoire.terminerPartieDuJour(jour, score)
       memoire.noterScoreCompte(jour)
     }
@@ -145,12 +157,12 @@ export function BasculePrototype() {
       <select
         aria-label="Simuler un Duel du jour joué"
         value=""
-        onChange={(e) => simuler(e.target.value === 'effacer' ? null : Number(e.target.value))}
+        onChange={(e) => void simuler(e.target.value === 'effacer' ? null : Number(e.target.value))}
       >
         <option value="">Simuler…</option>
         {Array.from({ length: 11 }, (_, s) => (
           <option key={s} value={s}>
-            Accueil, joué {s}/10
+            Joué {s}/10
           </option>
         ))}
         <option value="effacer">Effacer (rejouer le Duel du jour)</option>
