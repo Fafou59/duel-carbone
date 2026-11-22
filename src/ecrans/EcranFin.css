@@ -169,18 +169,3 @@
   margin: 0;
   font-weight: 800;
 }
-
-/* PROTOTYPE (issue 88, à retirer) : variante C, le Rang et le Conseil dans un même bloc. */
-.fin__prototype-c {
-  display: grid;
-  gap: 6px;
-  margin-top: 8px;
-  padding: 14px;
-  border-left: 6px solid var(--marque);
-  background: var(--carte);
-}
-
-.fin__prototype-c h3,
-.fin__prototype-c p {
-  margin: 0;
-}

@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { CompteARebours } from '../composants/CompteARebours.tsx'
 import { Conseil } from '../composants/Conseil.tsx'
-import { PrototypeSwitcher, variantePrototype } from '../composants/PrototypeSwitcher.tsx'
 import { InvitationInstallation } from '../composants/InvitationInstallation.tsx'
 import { PanneauDuel } from '../composants/PanneauDuel.tsx'
 import { RangDuJour } from '../composants/RangDuJour.tsx'
@@ -141,11 +140,6 @@ export function EcranFin({
     if (conseilAffiche) onConseilVu.current?.(conseilAffiche.id)
   }, [conseilAffiche])
 
-  // PROTOTYPE (issue 88, à retirer) : la place du Conseil à côté du Rang du jour, en développement seulement.
-  const [variante, setVariante] = useState(variantePrototype)
-  const rang = partieDuJour ? (partieDuJour.rang ?? (variante ? { type: 'pourcentage' as const, pourcentage: 72 } : null)) : null
-  const blocConseil = conseilAffiche && <Conseil conseil={conseilAffiche} />
-
   // Position (0 à 9) du Duel dont le détail est ouvert, ou null si le panneau est fermé.
   const [ouvert, setOuvert] = useState<number | null>(null)
   // Les 10 cases, pour rendre le focus à celle qu'on vient de consulter.
@@ -170,8 +164,7 @@ export function EcranFin({
         <span>/{total}</span>
       </p>
       <p className="fin__message">{messageDeScore(score, total)}</p>
-      {partieDuJour && variante !== 'C' && <RangDuJour rang={rang} />}
-      {variante === 'B' && blocConseil}
+      {partieDuJour && <RangDuJour rang={partieDuJour.rang ?? null} />}
       {partieDuJour && (
         <p className="fin__complement">
           {partieDuJour.serie > 0 && <>🔥 Série : {jours(partieDuJour.serie)} d'affilée · </>}
@@ -235,21 +228,9 @@ export function EcranFin({
           <p>L’image n’a pas pu être créée sur cet appareil : partage plutôt ton score en texte.</p>
         )}
       </div>
-      {(variante === null || variante === 'A') && blocConseil}
-      {variante === 'C' && (
-        <div className="fin__prototype-c">
-          <h3>Et toi, dans tout ça ?</h3>
-          {partieDuJour && <RangDuJour rang={rang} />}
-          {conseilAffiche && <p>{conseilAffiche.texte}</p>}
-          {conseilAffiche && (
-            <p>
-              <a href={conseilAffiche.lien.url} target="_blank" rel="noopener noreferrer">
-                En savoir plus
-              </a>
-            </p>
-          )}
-        </div>
-      )}
+      {/* Le Conseil, sous les boutons de partage (prototype du 22/11, variante A : le Rang reste sous le score,
+          le partage à portée de pouce). */}
+      {conseilAffiche && <Conseil conseil={conseilAffiche} />}
       {!partieDuJour && duJour?.situation === 'joue' && (
         <p className="fin__complement">
           Prochain Duel du jour dans <CompteARebours />
@@ -301,17 +282,6 @@ export function EcranFin({
       </ul>
 
       {ouvert !== null && <PanneauDuel key={ouvert} ligne={lignes[ouvert]} onFermer={fermer} />}
-      {variante && (
-        <PrototypeSwitcher
-          variantes={{
-            A: 'Rang en haut, Conseil sous le partage',
-            B: 'Rang et Conseil ensemble, sous le score',
-            C: 'Rang descend avec le Conseil, sous le partage',
-          }}
-          courante={variante}
-          onChange={setVariante}
-        />
-      )}
     </section>
   )
 }

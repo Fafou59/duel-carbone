@@ -333,3 +333,45 @@ describe('Récapitulatif', () => {
     expect(caseDuel(2)).toHaveFocus()
   })
 })
+
+describe('Fin de Partie : le Conseil', () => {
+  const CONSEIL = {
+    id: 'teletravail',
+    texte: 'Un jour de télétravail par semaine… environ 130 kg de trajets en moins par an.',
+    lien: { url: 'https://impactco2.fr/doc/questions-frequentes', titre: 'Le télétravail ?' },
+  }
+
+  it('n’en montre aucun sans Conseil fourni', () => {
+    afficher()
+    expect(screen.queryByRole('complementary', { name: 'Un conseil' })).not.toBeInTheDocument()
+  })
+
+  it('le choisit une seule fois, d’après les Duels de la Partie, et le note comme vu une seule fois', () => {
+    const choisir = vi.fn(() => CONSEIL)
+    const onVu = vi.fn()
+    const props = { lignes: LIGNES, score: score(etat), total: 10, onRejouer: () => {}, conseil: { choisir, onVu } }
+    const { rerender } = render(<EcranFin {...props} />)
+    rerender(<EcranFin {...props} conseil={{ choisir, onVu: vi.fn() }} />)
+    expect(choisir).toHaveBeenCalledOnce()
+    expect(choisir).toHaveBeenCalledWith(LIGNES)
+    expect(onVu).toHaveBeenCalledOnce()
+    expect(onVu).toHaveBeenCalledWith('teletravail')
+    expect(screen.getByRole('complementary', { name: 'Un conseil' })).toHaveTextContent(CONSEIL.texte)
+  })
+
+  it('arrive sous les boutons de partage (prototype du 22/11, variante A)', () => {
+    render(
+      <EcranFin
+        lignes={LIGNES}
+        score={score(etat)}
+        total={10}
+        onRejouer={() => {}}
+        partieDuJour={{ numero: 7, serie: 1 }}
+        conseil={{ choisir: () => CONSEIL, onVu: () => {} }}
+      />,
+    )
+    const partage = screen.getByRole('button', { name: 'Défier mes proches' })
+    const conseil = screen.getByRole('complementary', { name: 'Un conseil' })
+    expect(partage.compareDocumentPosition(conseil) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+})

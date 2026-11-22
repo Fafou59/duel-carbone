@@ -1,6 +1,9 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
+import { redigerConseil, valeursDe } from './domaine/conseils.ts'
+import { CONSEILS } from './donnees/conseils.ts'
+import { INSTANTANE } from './donnees/index.ts'
 import { creerMemoire, type Stockage } from './navigateur/memoire.ts'
 import { signalerNouvelleVersion } from './navigateur/mise-a-jour.ts'
 import { TITRE_ACCUEIL, TITRE_EN_SAVOIR_PLUS } from './referencement.ts'
@@ -439,5 +442,55 @@ describe('Application : mise à jour silencieuse (application installée)', () =
     expect(appliquer).not.toHaveBeenCalled()
     fireEvent.click(screen.getByRole('link', { name: 'Duel Carbone' }))
     expect(appliquer).toHaveBeenCalledOnce()
+  })
+})
+
+describe('Application : le Conseil de fin de Partie', () => {
+  const JOUR = '2026-11-20'
+  const jouerDixDuels = () => {
+    for (let i = 0; i < 10; i++) {
+      const auDuel = screen.queryByRole('button', { name: 'Au Duel !' })
+      if (auDuel) fireEvent.click(auDuel)
+      fireEvent.click(within(screen.getByRole('region', { name: 'Lequel émet le plus ?' })).getAllByRole('button')[0])
+      fireEvent.click(screen.getByRole('button', { name: i === 9 ? 'Voir mon score' : 'Duel suivant →' }))
+    }
+  }
+  // Comme toHaveTextContent, les espaces (dont l'espace fine des milliers, « 1 350 ») deviennent de simples espaces.
+  const texteDu = (id: string) =>
+    redigerConseil(CONSEILS.find((c) => c.id === id)!, valeursDe(INSTANTANE)).replace(/\s+/g, ' ')
+  const conseilAffiche = () => screen.getByRole('complementary', { name: 'Un conseil' })
+
+  it('en montre un à la fin du Duel du jour, et le même quand on revoit son Récapitulatif', async () => {
+    const s = stockage()
+    const premier = render(<App memoire={creerMemoire(s)} aujourdhui={JOUR} />)
+    const bouton = await screen.findByRole('button', { name: /Jouer le Duel du jour/ })
+    await waitFor(() => expect(bouton).toBeEnabled())
+    fireEvent.click(bouton)
+    jouerDixDuels()
+    const memoire = creerMemoire(s)
+    const id = memoire.partieDuJour(JOUR)?.conseil
+    expect(id).toBeDefined()
+    expect(memoire.conseilsRecents()).toEqual([id])
+    expect(conseilAffiche()).toHaveTextContent(texteDu(id!))
+    premier.unmount()
+
+    render(<App memoire={creerMemoire(s)} aujourdhui={JOUR} />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Revoir mon Récapitulatif' }))
+    expect(conseilAffiche()).toHaveTextContent(texteDu(id!))
+    // Revu, il n'est pas compté une seconde fois.
+    expect(creerMemoire(s).conseilsRecents()).toEqual([id])
+  })
+
+  it('en montre un à la fin d’une Partie libre, jamais l’un des 5 derniers vus', async () => {
+    const s = stockage()
+    const memoire = creerMemoire(s)
+    const dejaVus = CONSEILS.slice(0, 5).map((c) => c.id)
+    for (const id of dejaVus) memoire.noterConseil(id)
+    render(<App memoire={creerMemoire(s)} aujourdhui={JOUR} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Partie libre' }))
+    jouerDixDuels()
+    const nouveau = creerMemoire(s).conseilsRecents().at(-1)!
+    expect(dejaVus).not.toContain(nouveau)
+    expect(conseilAffiche()).toHaveTextContent(texteDu(nouveau))
   })
 })
