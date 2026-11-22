@@ -1,7 +1,8 @@
 /**
  * La mémoire du jeu, sur l'appareil du joueur (localStorage) : son meilleur score et les paires
  * de ses dernières Parties libres, sa Partie du jour (pour la reprendre ou revoir son résultat)
- * et sa série. Pas de compte, pas de cookie, aucune donnée personnelle, et rien ne quitte l'appareil.
+ * et sa série. Pas de compte, pas de cookie, aucune donnée personnelle. Seuls les choix de la Partie du jour partent,
+ * une fois, au serveur du Rang du jour (rang-du-jour.ts), qui n'en garde que le score.
  *
  * Le stockage peut manquer (navigation privée stricte), refuser d'écrire (mémoire pleine)
  * ou contenir n'importe quoi (version ancienne, modification à la main) :
@@ -22,8 +23,10 @@ export const CLE_MEMOIRE = 'duel-carbone/memoire'
  * et le score final. Les Duels sont retenus tels que joués : si une nouvelle version du jeu change le calendrier
  * (#16), la reprise, la grille et le Récapitulatif restent ceux de la Partie réellement jouée.
  * Absents d'une Partie commencée avant cette règle : on se rabat alors sur le calendrier.
+ * `compte` : le serveur du Rang du jour a compté ce score (on le retire alors des Effectifs, pour ne comparer
+ * le joueur qu'aux autres). Absent si l'envoi a échoué ou n'a pas eu lieu.
  */
-type DuJour = { jour: string; duels?: string[]; reponses: string[]; score: number | null }
+type DuJour = { jour: string; duels?: string[]; reponses: string[]; score: number | null; compte?: true }
 
 /** La série : combien de jours de suite la Partie du jour a été terminée, et le dernier de ces jours. */
 type Serie = { longueur: number; dernierJour: string }
@@ -53,13 +56,15 @@ export type Memoire = {
   /** Retient les paires (cleDePaire) d'une Partie libre qui commence. */
   enregistrerPartie: (paires: string[]) => void
   /** La Partie du jour de ce jour-là, en cours ou terminée (null si elle n'a pas commencé). */
-  partieDuJour: (jour: string) => { duels?: string[]; reponses: string[]; score: number | null } | null
+  partieDuJour: (jour: string) => { duels?: string[]; reponses: string[]; score: number | null; compte?: true } | null
   /** Retient les Duels de la Partie du jour qui commence (sans remplacer ceux d'une Partie déjà commencée). */
   commencerPartieDuJour: (jour: string, duels: string[]) => void
   /** Retient une réponse de la Partie du jour, dès qu'elle est donnée (une Partie de la veille est oubliée). */
   enregistrerReponseDuJour: (jour: string, idChoisi: string) => void
   /** La Partie du jour est terminée : son score, et la série qui avance d'un jour. */
   terminerPartieDuJour: (jour: string, score: number) => void
+  /** Le serveur du Rang du jour a compté le score de la Partie du jour de ce jour-là. */
+  noterScoreCompte: (jour: string) => void
   /** La série actuelle (0 après un jour manqué) et la meilleure série. */
   serie: (aujourdhui: string) => { actuelle: number; meilleure: number }
 }
@@ -96,7 +101,12 @@ export function creerMemoire(stockage: Stockage | null = stockageDuNavigateur())
     partieDuJour: (jour) => {
       const { duJour } = lire()
       if (duJour?.jour !== jour) return null
-      return { ...(duJour.duels && { duels: duJour.duels }), reponses: duJour.reponses, score: duJour.score }
+      return {
+        ...(duJour.duels && { duels: duJour.duels }),
+        reponses: duJour.reponses,
+        score: duJour.score,
+        ...(duJour.compte && { compte: true }),
+      }
     },
     commencerPartieDuJour: (jour, duels) => {
       const contenu = lire()
@@ -124,6 +134,10 @@ export function creerMemoire(stockage: Stockage | null = stockageDuNavigateur())
         meilleureSerie: Math.max(contenu.meilleureSerie, longueur),
       })
     },
+    noterScoreCompte: (jour) => {
+      const contenu = lire()
+      if (contenu.duJour?.jour === jour) ecrire({ ...contenu, duJour: { ...contenu.duJour, compte: true } })
+    },
     serie: (aujourdhui) => {
       const { serie, meilleureSerie } = lire()
       const enCours = serie && (serie.dernierJour === aujourdhui || serie.dernierJour === decalerJour(aujourdhui, -1))
@@ -150,7 +164,13 @@ function valider(brut: unknown): Contenu {
     partiesRecentes: partiesValides ? (partiesRecentes as string[][]) : [],
     duJour:
       j && jour(j.jour) && textes(j.reponses) && (j.score === null || nombre(j.score))
-        ? { jour: j.jour, ...(textes(j.duels) && { duels: j.duels }), reponses: j.reponses, score: j.score as number | null }
+        ? {
+            jour: j.jour,
+            ...(textes(j.duels) && { duels: j.duels }),
+            reponses: j.reponses,
+            score: j.score as number | null,
+            ...(j.compte === true && { compte: true as const }),
+          }
         : null,
     serie: s && nombre(s.longueur) && jour(s.dernierJour) ? { longueur: s.longueur, dernierJour: s.dernierJour } : null,
     meilleureSerie: nombre(meilleureSerie) ? meilleureSerie : 0,

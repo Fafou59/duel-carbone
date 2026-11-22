@@ -1,0 +1,25 @@
+{
+  // Le serveur (dossier serveur/) : le code qui tourne chez Cloudflare, dans le Worker qui sert le jeu.
+  // Wrangler le rassemble en un seul fichier, comme Vite pour le jeu (d'où le mode « bundler »).
+  // Les types de Node fournissent Request, Response et URL (les mêmes que dans un Worker), et node:sqlite
+  // pour les tests, qui remplacent la base D1 par une base SQLite en mémoire.
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.serveur.tsbuildinfo",
+    "target": "es2023",
+    "lib": ["ES2023"],
+    "types": ["node"],
+    "skipLibCheck": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["serveur"]
+}

@@ -59,11 +59,16 @@ describe('Une Partie de 10 Duels', () => {
     expect(screen.queryByText(/Duel \d+\/10/)).not.toBeInTheDocument()
   })
 
-  it('signale la fin de la Partie avec le score, une seule fois', () => {
+  it('signale la fin de la Partie avec le score et les Gestes choisis, une seule fois', () => {
     const onTerminee = vi.fn()
     render(<EcranPartie duels={DUELS} onRejouer={() => {}} onTerminee={onTerminee} />)
     for (let i = 0; i < 10; i++) jouerDuel(i, i < 6)
-    expect(onTerminee).toHaveBeenCalledExactlyOnceWith(6)
+    expect(onTerminee).toHaveBeenCalledOnce()
+    const [score, choix] = onTerminee.mock.calls[0]
+    expect(score).toBe(6)
+    // Un Geste choisi par Duel, dans l'ordre : c'est ce que le jeu envoie au serveur du Rang du jour.
+    expect(choix).toHaveLength(10)
+    choix.forEach((id: string, i: number) => expect([DUELS[i].a.id, DUELS[i].b.id]).toContain(id))
   })
 
   it('propose de rejouer à la fin', () => {

@@ -32,7 +32,10 @@ export function empreinteDuTirage(gestes: GesteCalcule[], thematiques: DuelThema
     .map((g) => [g.id, g.empreinte, g.nature, g.parcours ?? null] as const)
     .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
   const paires = thematiques.map((t) => cleDePaire(t.a, t.b)).sort()
-  return fnv1a(JSON.stringify({ regles: REGLES, gestes: donnees, ...(paires.length ? { thematiques: paires } : {}) }))
+  // Le seuil du Rang du jour ne change rien au tirage : il reste hors de l'empreinte (sinon, le modifier forcerait
+  // à recalibrer, et donc à tirer à nouveau les Parties du jour à venir).
+  const { rangDuJour: _horsTirage, ...reglesDuTirage } = REGLES
+  return fnv1a(JSON.stringify({ regles: reglesDuTirage, gestes: donnees, ...(paires.length ? { thematiques: paires } : {}) }))
 }
 
 /**

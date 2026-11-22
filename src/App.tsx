@@ -7,7 +7,8 @@ import { duelsDepuisCodes, partieDuJour, type Calendrier } from './domaine/calen
 import { estBonChoix } from './domaine/duel.ts'
 import { cleDePaire, genererPartie } from './domaine/generateur.ts'
 import { decalerJour, jourDeParis, numeroDuJour, secondesAvantMinuitAParis } from './domaine/jour.ts'
-import type { DuelDePartie } from './domaine/partie.ts'
+import { NOMBRE_DE_DUELS, type DuelDePartie } from './domaine/partie.ts'
+import { rangDuJour, type Effectifs } from './domaine/rang-du-jour.ts'
 import { doitForcerUnDuelThematique } from './domaine/thematiques.ts'
 import { Accueil, type Situation } from './ecrans/Accueil.tsx'
 import { EcranPartie } from './ecrans/EcranPartie.tsx'
@@ -15,6 +16,7 @@ import { EcranEnSavoirPlus } from './ecrans/EcranEnSavoirPlus.tsx'
 import { ADRESSES, usePage } from './navigateur/adresse.ts'
 import { creerMemoire, type Memoire } from './navigateur/memoire.ts'
 import { appliquerNouvelleVersion, useNouvelleVersion } from './navigateur/mise-a-jour.ts'
+import { serveurDuRang, type ServeurDuRang } from './navigateur/rang-du-jour.ts'
 
 import { IMPACT_CO2_DOC } from './liens.ts'
 import { TITRE_ACCUEIL, TITRE_EN_SAVOIR_PLUS } from './referencement.ts'
@@ -24,6 +26,8 @@ type Props = {
   memoire?: Memoire
   /** Le jour (AAAA-MM-JJ), remplaçable dans les tests : par défaut, celui qu'il est à Paris. */
   aujourdhui?: string
+  /** Le serveur du Rang du jour (remplaçable dans les tests) : par défaut, /api/rang-du-jour. */
+  serveur?: ServeurDuRang
 }
 
 /** La Partie en cours : la Partie du jour (avec son jour et ses réponses déjà données) ou une Partie libre. */
@@ -32,9 +36,13 @@ type Partie =
   | { mode: 'libre'; duels: DuelDePartie[] }
   | { mode: 'jour'; jour: string; duels: DuelDePartie[]; reponses: string[]; serie: number }
 
-export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }: Props) {
+export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, serveur: serveurFourni }: Props) {
   // useState(() => …) : la mémoire est créée une seule fois, au premier affichage.
   const [memoire] = useState(() => memoireFournie ?? creerMemoire())
+  const [serveur] = useState(() => serveurFourni ?? serveurDuRang())
+  // Les derniers Effectifs reçus du serveur du Rang du jour, et le jour auquel ils se rapportent.
+  // `score` : présent quand ils répondent à l'envoi du score (le joueur y est donc compté, même sans mémoire locale).
+  const [effectifs, setEffectifs] = useState<{ jour: string; effectifs: Effectifs; score?: number } | null>(null)
   // null : on est sur l'accueil ; sinon, la Partie en cours.
   const [partie, setPartie] = useState<Partie | null>(null)
   // Numéro de Partie : change à chaque nouvelle Partie, pour repartir d'un écran neuf.
@@ -73,6 +81,35 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
   const situation: Situation =
     duJour?.score != null ? 'aujourdhui' : duJour ? 'enCours' : serie.actuelle > 0 ? 'hier' : 'nouveau'
   const scoreHier = memoire.partieDuJour(decalerJour(aujourdhui, -1))?.score ?? undefined
+
+  /**
+   * Le Rang du jour du joueur pour ce jour-là, ou null (rien reçu du serveur, moins de 5 joueurs…).
+   * Les Effectifs reçus à l'envoi du score le comptent déjà ; ceux qu'on relit aussi, si la mémoire dit que
+   * l'envoi a réussi. Dans ces deux cas, on le retire de sa case pour ne le comparer qu'aux autres.
+   */
+  const rangDu = (jour: string) => {
+    if (effectifs?.jour !== jour) return null
+    const memorise = memoire.partieDuJour(jour)
+    const score = effectifs.score ?? memorise?.score
+    if (score == null) return null
+    return rangDuJour({ effectifs: effectifs.effectifs, score, compte: effectifs.score !== undefined || memorise?.compte === true })
+  }
+
+  // Le Rang du jour se relit à chaque affichage (le chiffre bouge au fil de la journée) : sur l'accueil une fois le
+  // Duel du jour joué, et quand le joueur revoit son Récapitulatif. Pas à la première fin : c'est l'envoi du score
+  // qui rapporte alors les Effectifs (une lecture en même temps pourrait arriver avant que le joueur soit compté).
+  const revoitLeDuelDuJour = partie?.mode === 'jour' && partie.reponses.length === NOMBRE_DE_DUELS
+  const relireLeRang = (!partie && situation === 'aujourdhui') || revoitLeDuelDuJour
+  useEffect(() => {
+    if (!relireLeRang) return
+    let actif = true
+    serveur.lire(numeroDuJour(aujourdhui)).then((recus) => {
+      if (actif && recus) setEffectifs({ jour: aujourdhui, effectifs: recus })
+    })
+    return () => {
+      actif = false
+    }
+  }, [relireLeRang, numero, aujourdhui, serveur])
 
   // Une nouvelle version du jeu est prête (application installée) : on l'applique en silence dès que le joueur
   // est sur l'accueil, jamais en pleine Partie ni pendant une lecture (tutoriel, En savoir plus).
@@ -181,6 +218,7 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
               numero={numeroDuJourAffiche}
               situation={situation}
               resultat={resultat}
+              rang={rangDu(aujourdhui)}
               scoreHier={scoreHier}
               serie={serie.actuelle}
               record={record}
@@ -221,13 +259,22 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni }:
               duels={partie.duels}
               reponsesInitiales={partie.reponses}
               onReponse={(idChoisi) => memoire.enregistrerReponseDuJour(partie.jour, idChoisi)}
-              onTerminee={(score) => {
+              onTerminee={(score, choix) => {
+                // La première fin de la Partie du jour (pas quand on la revoit), et le jour même : le score part au
+                // serveur du Rang du jour, une seule fois, sans nouvel essai. S'il ne répond pas, rien ne s'affiche.
+                const premiereFin = memoire.partieDuJour(partie.jour)?.score == null
                 memoire.terminerPartieDuJour(partie.jour, score)
                 setActualisation((n) => n + 1)
                 setPartieTerminee(numero)
+                if (!premiereFin || partie.jour !== aujourdhui) return
+                serveur.envoyer(numeroDuJour(partie.jour), choix).then((recus) => {
+                  if (!recus) return
+                  memoire.noterScoreCompte(partie.jour)
+                  setEffectifs({ jour: partie.jour, effectifs: recus, score })
+                })
               }}
               onRejouer={lancerPartie}
-              fin={{ partieDuJour: { numero: numeroDuJour(partie.jour), serie: serie.actuelle } }}
+              fin={{ partieDuJour: { numero: numeroDuJour(partie.jour), serie: serie.actuelle, rang: rangDu(partie.jour) } }}
             />
           )}
         </div>

@@ -19,8 +19,8 @@ type Props = {
   onRejouer: () => void
   /** Le record d'avant cette Partie, affiché à la fin. */
   ancienRecord?: number | null
-  /** Appelé une fois, à la fin de la Partie, avec le score (pour l'enregistrer). */
-  onTerminee?: (score: number) => void
+  /** Appelé une fois, à la fin de la Partie, avec le score et les Gestes choisis, dans l'ordre (pour l'enregistrer). */
+  onTerminee?: (score: number, choix: string[]) => void
   /** Les réponses déjà données d'une Partie interrompue (Partie du jour) : on reprend au Duel suivant. */
   reponsesInitiales?: string[]
   /** Appelé à chaque nouvelle réponse, pour la retenir aussitôt (et pouvoir reprendre la Partie). */
@@ -76,7 +76,7 @@ export function EcranPartie({
   useEffect(() => {
     if (etat.phase !== 'fin' || prevenue.current) return
     prevenue.current = true
-    onTerminee?.(score(etat))
+    onTerminee?.(score(etat), etat.reponses.map((r) => r.idChoisi))
   }, [etat, onTerminee])
 
   // À chaque nouveau Duel (et à la fin), on remonte en haut de page et on place le focus
