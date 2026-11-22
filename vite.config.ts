@@ -39,8 +39,9 @@ export default defineConfig({
         // Sauf l'image des aperçus de lien (50 Ko) : elle ne sert qu'aux réseaux sociaux, jamais pendant le jeu.
         globIgnores: ['**/apercu-partage.png'],
         // Hors ligne, toute adresse ouverte dans le navigateur affiche le jeu (index.html)… sauf les fichiers
-        // (un nom avec une extension : robots.txt, sitemap.xml, l'image de partage), qui restent eux-mêmes.
-        navigateFallbackDenylist: [/\/[^/]+\.[^/]+$/],
+        // (un nom avec une extension : robots.txt, sitemap.xml, l'image de partage), qui restent eux-mêmes,
+        // ni les adresses du serveur (/api/…, le Rang du jour).
+        navigateFallbackDenylist: [/\/[^/]+\.[^/]+$/, /^\/api\//],
         // Les copies d'une ancienne version sont effacées dès que la nouvelle prend la main.
         cleanupOutdatedCaches: true,
       },

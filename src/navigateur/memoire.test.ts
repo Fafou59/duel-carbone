@@ -185,6 +185,20 @@ describe('Mémoire locale : la Partie du jour', () => {
     expect(memoire.partieDuJour(JOUR)?.duels).toEqual(['steak-boeuf>avocat'])
   })
 
+  it('retient que le serveur a compté le score du jour (Rang du jour), pour ne comparer le joueur qu’aux autres', () => {
+    const contenu = stockage()
+    const memoire = creerMemoire(contenu)
+    memoire.commencerPartieDuJour(JOUR, ['steak-boeuf>avocat'])
+    memoire.terminerPartieDuJour(JOUR, 8)
+    expect(memoire.partieDuJour(JOUR)?.compte).toBeUndefined()
+    memoire.noterScoreCompte(JOUR)
+    expect(memoire.partieDuJour(JOUR)).toEqual({ duels: ['steak-boeuf>avocat'], reponses: [], score: 8, compte: true })
+    // Toujours là après un rechargement, et seulement pour ce jour-là.
+    expect(creerMemoire(contenu).partieDuJour(JOUR)?.compte).toBe(true)
+    memoire.noterScoreCompte('2026-11-21')
+    expect(memoire.partieDuJour('2026-11-21')).toBeNull()
+  })
+
   it('reste jouable sans stockage : rien n’est retenu, rien ne plante', () => {
     const memoire = creerMemoire(null)
     memoire.commencerPartieDuJour(JOUR, ['steak-boeuf>avocat'])

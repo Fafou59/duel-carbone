@@ -303,6 +303,126 @@ describe('Application : le Duel Carbone du jour', () => {
   })
 })
 
+describe('Application : le Rang du jour', () => {
+  const JOUR = '2026-11-20'
+  const NUMERO = 7
+  /** Un faux serveur du Rang du jour : il répond les Effectifs donnés, ou rien (null : hors ligne, en panne). */
+  const fauxServeur = (effectifs: number[] | null) => ({
+    envoyer: vi.fn(async (_numero: number, _choix: string[]) => effectifs),
+    lire: vi.fn(async (_numero: number) => effectifs),
+  })
+  const lancerLeDuelDuJour = async () => {
+    const bouton = await screen.findByRole('button', { name: /Jouer le Duel du jour/ })
+    await waitFor(() => expect(bouton).toBeEnabled())
+    fireEvent.click(bouton)
+  }
+  /** Joue les 10 Duels de la Partie en cours en touchant toujours la première carte ; rend le score. */
+  const jouerDixDuels = () => {
+    for (let i = 0; i < 10; i++) {
+      const auDuel = screen.queryByRole('button', { name: 'Au Duel !' })
+      if (auDuel) fireEvent.click(auDuel)
+      fireEvent.click(within(screen.getByRole('region', { name: 'Lequel émet le plus ?' })).getAllByRole('button')[0])
+      fireEvent.click(screen.getByRole('button', { name: i === 9 ? 'Voir mon score' : 'Duel suivant →' }))
+    }
+    return Number(screen.getByText('/10').parentElement?.firstChild?.textContent)
+  }
+  /** Des Effectifs qui comptent le joueur (case `score`), 3 joueurs en dessous et 1 au-dessus. */
+  const effectifsAutourDe = (score: number) => {
+    const effectifs = Array<number>(11).fill(0)
+    effectifs[score] += 1
+    effectifs[Math.max(0, score - 1)] += 3
+    effectifs[Math.min(10, score + 1)] += 1
+    return effectifs
+  }
+
+  it('envoie le score une seule fois, à la première fin, et affiche le Rang sous le score', async () => {
+    const memoire = creerMemoire(stockage())
+    const serveur = fauxServeur(null)
+    // Le serveur répond les Effectifs qui suivent l'ajout du joueur, quel que soit son score.
+    serveur.envoyer.mockImplementation(async () => effectifsAutourDe(memoire.partieDuJour(JOUR)?.score ?? 0))
+    render(<App memoire={memoire} aujourdhui={JOUR} serveur={serveur} />)
+    await lancerLeDuelDuJour()
+    const score = jouerDixDuels()
+    expect(serveur.envoyer).toHaveBeenCalledTimes(1)
+    expect(serveur.envoyer).toHaveBeenCalledWith(NUMERO, memoire.partieDuJour(JOUR)?.reponses)
+    // Pas de lecture à la première fin : c'est l'envoi qui rapporte les Effectifs.
+    expect(serveur.lire).not.toHaveBeenCalled()
+    const attendu =
+      score === 0 ? /Revanche demain/ : score === 10 ? /Sans-faute/ : /mieux ou autant que 75 % des joueurs du jour/
+    expect(await screen.findByText(attendu)).toBeInTheDocument()
+    expect(memoire.partieDuJour(JOUR)?.compte).toBe(true)
+  })
+
+  it('ne renvoie rien quand on revoit le Récapitulatif : il relit les Effectifs', async () => {
+    const s = stockage()
+    const premier = render(<App memoire={creerMemoire(s)} aujourdhui={JOUR} serveur={fauxServeur(null)} />)
+    await lancerLeDuelDuJour()
+    const score = jouerDixDuels()
+    premier.unmount()
+    const ensuite = fauxServeur(effectifsAutourDe(score))
+    render(<App memoire={creerMemoire(s)} aujourdhui={JOUR} serveur={ensuite} />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Revoir mon Récapitulatif' }))
+    expect(await screen.findByRole('heading', { name: 'Duel Carbone du jour n° 7' })).toBeInTheDocument()
+    await waitFor(() => expect(ensuite.lire).toHaveBeenCalledTimes(2))
+    expect(ensuite.lire).toHaveBeenCalledWith(NUMERO)
+    expect(ensuite.envoyer).not.toHaveBeenCalled()
+  })
+
+  it('affiche le Rang sur l’accueil une fois le Duel du jour joué, sans compter deux fois le joueur', async () => {
+    const memoire = creerMemoire(stockage())
+    memoire.terminerPartieDuJour(JOUR, 6)
+    memoire.noterScoreCompte(JOUR)
+    // Avec le joueur : 2 × 3, 1 × 5, 2 × 6, 1 × 9. Les 5 autres : 4 ont fait moins ou autant que 6.
+    const serveur = fauxServeur([0, 0, 0, 2, 0, 1, 2, 0, 0, 1, 0])
+    render(<App memoire={memoire} aujourdhui={JOUR} serveur={serveur} />)
+    // (Testing Library lit l'espace insécable comme une espace ordinaire.)
+    expect(await screen.findByText('Tu as fait mieux ou autant que 80 % des joueurs du jour jusqu’ici.')).toBeInTheDocument()
+    expect(serveur.lire).toHaveBeenCalledWith(NUMERO)
+  })
+
+  it('n’affiche rien sous 5 joueurs', async () => {
+    const memoire = creerMemoire(stockage())
+    memoire.terminerPartieDuJour(JOUR, 6)
+    memoire.noterScoreCompte(JOUR)
+    const serveur = fauxServeur([0, 0, 0, 2, 0, 0, 1, 0, 0, 1, 0])
+    render(<App memoire={memoire} aujourdhui={JOUR} serveur={serveur} />)
+    await waitFor(() => expect(serveur.lire).toHaveBeenCalled())
+    expect(screen.queryByText(/des joueurs du jour/)).not.toBeInTheDocument()
+  })
+
+  it('se joue normalement sans serveur (hors ligne, en panne) : le Rang ne s’affiche pas, c’est tout', async () => {
+    const serveur = fauxServeur(null)
+    render(<App memoire={creerMemoire(stockage())} aujourdhui={JOUR} serveur={serveur} />)
+    await lancerLeDuelDuJour()
+    jouerDixDuels()
+    expect(screen.getByRole('heading', { name: 'Duel Carbone du jour n° 7' })).toBeInTheDocument()
+    await waitFor(() => expect(serveur.envoyer).toHaveBeenCalled())
+    expect(screen.queryByText(/des joueurs du jour|Sans-faute|Revanche demain/)).not.toBeInTheDocument()
+  })
+
+  it('n’envoie ni ne lit rien pour la Partie libre', async () => {
+    const serveur = fauxServeur(effectifsAutourDe(5))
+    render(<App memoire={creerMemoire(stockage())} aujourdhui={JOUR} serveur={serveur} />)
+    await screen.findByRole('button', { name: /Jouer le Duel du jour/ })
+    fireEvent.click(screen.getByRole('button', { name: 'Partie libre' }))
+    jouerDixDuels()
+    expect(screen.getByRole('heading', { name: 'Partie terminée !' })).toBeInTheDocument()
+    expect(serveur.envoyer).not.toHaveBeenCalled()
+    expect(serveur.lire).not.toHaveBeenCalled()
+  })
+
+  it('n’envoie pas une Partie du jour finie après minuit : ce n’est plus le Duel du jour', async () => {
+    const serveur = fauxServeur(null)
+    const memoire = creerMemoire(stockage())
+    const { rerender } = render(<App memoire={memoire} aujourdhui={JOUR} serveur={serveur} />)
+    await lancerLeDuelDuJour()
+    // Minuit passe pendant la Partie.
+    rerender(<App memoire={memoire} aujourdhui="2026-11-21" serveur={serveur} />)
+    jouerDixDuels()
+    expect(serveur.envoyer).not.toHaveBeenCalled()
+  })
+})
+
 describe('Application : mise à jour silencieuse (application installée)', () => {
   it('applique une nouvelle version dès qu’elle est prête, si le joueur est sur l’accueil', () => {
     render(<App />)

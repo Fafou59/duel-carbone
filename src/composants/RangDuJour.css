@@ -1,0 +1,10 @@
+/* Vide tant que le serveur n'a pas répondu : la zone ne prend alors aucune place. */
+.rang-du-jour:empty {
+  display: none;
+}
+
+.rang-du-jour__phrase {
+  margin: 0;
+  font-weight: 700;
+  color: var(--marque);
+}

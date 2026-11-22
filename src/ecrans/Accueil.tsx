@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { Co2e } from '../composants/Co2e.tsx'
+import { RangDuJour } from '../composants/RangDuJour.tsx'
 import { CompteARebours } from '../composants/CompteARebours.tsx'
 import { Vitrine } from '../composants/Vitrine.tsx'
 import { REPERES_CLIMAT } from '../donnees/index.ts'
 import { formaterEmpreinte } from '../domaine/format.ts'
 import { texteDePartageDuJour } from '../domaine/partage.ts'
 import { NOMBRE_DE_DUELS } from '../domaine/partie.ts'
+import type { RangDuJour as Rang } from '../domaine/rang-du-jour.ts'
 import { partager, type ResultatPartage } from '../navigateur/partager.ts'
 import './Accueil.css'
 
@@ -25,6 +27,8 @@ export type PropsAccueil = {
   situation: Situation
   /** Le résultat du Duel du jour, une fois joué : le score, et pour chaque Duel, bonne réponse ou non. */
   resultat?: { score: number; bonnes: boolean[] }
+  /** Le Rang du jour, une fois le Duel du jour joué (null tant que le serveur n'a pas répondu, ou s'il ne répond pas). */
+  rang?: Rang | null
   /** Le score du Duel d'hier, s'il est connu. */
   scoreHier?: number
   /** La série en cours (en jours d'affilée). */
@@ -120,7 +124,7 @@ function AccueilNouveau(props: PropsAccueil) {
 
 /** L'accueil d'un joueur qui revient : le tableau de bord du jour, sur un seul écran. */
 function TableauDeBord(props: PropsAccueil) {
-  const { jour, numero, situation, resultat, scoreHier, serie, record, calendrierPret } = props
+  const { jour, numero, situation, resultat, rang = null, scoreHier, serie, record, calendrierPret } = props
   const { onJouerDuJour, onPartieLibre, onRevoir, onPartager = partager } = props
   // Résultat du dernier partage, pour afficher une confirmation (ou le texte, si la copie a échoué).
   const [partage, setPartage] = useState<ResultatPartage | null>(null)
@@ -156,6 +160,7 @@ function TableauDeBord(props: PropsAccueil) {
               </p>
               <Grille {...resultat} />
             </div>
+            <RangDuJour rang={rang} />
             <div className="accueil__actions">
               <button type="button" className="bouton" onClick={defier}>
                 Défier mes proches

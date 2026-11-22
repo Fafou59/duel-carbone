@@ -2,11 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import { CompteARebours } from '../composants/CompteARebours.tsx'
 import { InvitationInstallation } from '../composants/InvitationInstallation.tsx'
 import { PanneauDuel } from '../composants/PanneauDuel.tsx'
+import { RangDuJour } from '../composants/RangDuJour.tsx'
 import { Icone } from '../composants/Icone.tsx'
 import { formaterMultiple, queDevant } from '../domaine/format.ts'
 import { texteDePartage, texteDePartageDuJour } from '../domaine/partage.ts'
 import { messageDeScore, type LigneRecapitulatif } from '../domaine/recapitulatif.ts'
 import type { DonneesImage } from '../domaine/image-de-partage.ts'
+import type { RangDuJour as Rang } from '../domaine/rang-du-jour.ts'
 import { fabriquerImageDePartage } from '../navigateur/image-de-partage.ts'
 import {
   partager,
@@ -27,8 +29,11 @@ export type PropsFin = {
   ancienRecord?: number | null
   /** « Rejouer » (Partie libre), ou « Partie libre » après le Duel du jour. */
   onRejouer: () => void
-  /** La fin du Duel du jour : son numéro et la série. Sans elle, c'est la fin d'une Partie libre. */
-  partieDuJour?: { numero: number; serie: number }
+  /**
+   * La fin du Duel du jour : son numéro, la série et le Rang du jour (null tant que le serveur n'a pas répondu,
+   * ou s'il ne répond pas). Sans elle, c'est la fin d'une Partie libre, qui n'a pas de Rang.
+   */
+  partieDuJour?: { numero: number; serie: number; rang?: Rang | null }
   /** À la fin d'une Partie libre : où en est le Duel du jour, pour y inviter s'il n'est pas encore joué. */
   duJour?: { numero: number; situation: 'aJouer' | 'enCours' | 'joue'; onJouer: () => void }
   /** Comment partager (remplaçable dans les tests) : par défaut, avec les outils du navigateur. */
@@ -143,6 +148,7 @@ export function EcranFin({
         <span>/{total}</span>
       </p>
       <p className="fin__message">{messageDeScore(score, total)}</p>
+      {partieDuJour && <RangDuJour rang={partieDuJour.rang ?? null} />}
       {partieDuJour && (
         <p className="fin__complement">
           {partieDuJour.serie > 0 && <>🔥 Série : {jours(partieDuJour.serie)} d'affilée · </>}
