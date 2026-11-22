@@ -96,7 +96,8 @@ export const CONSEILS: Conseil[] = [
   },
   {
     id: 'produits-de-la-mer',
-    texte: '100 g de crevettes émettent {fois} fois plus que 100 g de sardines ({crevettes} kg contre {sardines} kg).',
+    texte:
+      '100 g de crevettes émettent {fois} fois plus que 100 g de sardines ({crevettes} kg contre {sardines} kg). Et si les petits poissons, comme la sardine, remplaçaient de temps en temps les crevettes ?',
     chiffres: {
       fois: { calcul: (v) => v.valeur('crevettes') / v.valeur('sardines'), arrondi: 1 },
       crevettes: { calcul: (v) => 0.1 * v.valeur('crevettes'), arrondi: 0.1 },
@@ -111,13 +112,15 @@ export const CONSEILS: Conseil[] = [
   },
   {
     id: 'legumineuses',
-    texte: 'Un steak de bœuf de 150 g émet {fois} fois plus que 100 g de lentilles ({steak} kg contre {lentilles} kg).',
+    // Au kilo, pour comparer à poids égal (choix de Fabien, 22/11) ; les lentilles sont comptées sèches.
+    texte:
+      '1 kg de bœuf émet {fois} fois plus qu’1 kg de lentilles ({boeuf} kg contre {lentilles} kg). Et si les légumineuses (lentilles, pois chiches, haricots) remplaçaient la viande dans un repas par semaine ?',
     chiffres: {
-      fois: { calcul: (v) => (0.15 * v.valeur('boeuf')) / (0.1 * v.valeur('lentilles')), arrondi: 10 },
-      steak: { calcul: (v) => 0.15 * v.valeur('boeuf'), arrondi: 0.1 },
-      lentilles: { calcul: (v) => 0.1 * v.valeur('lentilles'), arrondi: 0.01 },
+      fois: { calcul: (v) => v.valeur('boeuf') / v.valeur('lentilles'), arrondi: 1 },
+      boeuf: { calcul: (v) => v.valeur('boeuf'), arrondi: 1 },
+      lentilles: { calcul: (v) => v.valeur('lentilles'), arrondi: 0.1 },
     },
-    relu: { fois: '70', steak: '4,2', lentilles: '0,06' },
+    relu: { fois: '48', boeuf: '28', lentilles: '0,6' },
     lien: {
       url: `${NGC}/alimentation/cuisiner-plus-de-legumineuses`,
       titre: 'Pourquoi et comment cuisiner des légumineuses ?',
@@ -219,7 +222,8 @@ export const CONSEILS: Conseil[] = [
   },
   {
     id: 'cent-kilometres',
-    texte: '100 km seul en voiture, c’est {voiture} kg ; en TER, {ter} kg ; en TGV, {tgv} kg.',
+    texte:
+      '100 km seul en voiture, c’est {voiture} kg ; en TER, {ter} kg ; en TGV, {tgv} kg. Pour ton prochain trajet, et si tu prenais le train ?',
     chiffres: {
       voiture: { calcul: (v) => 100 * v.valeur('voiturethermique'), arrondi: 1 },
       ter: { calcul: (v) => 100 * v.valeur('ter'), arrondi: 0.1 },
