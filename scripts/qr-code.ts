@@ -20,7 +20,8 @@ import { ADRESSE_DU_JEU } from '../src/domaine/partage.ts'
 /**
  * L'adresse porte une provenance, « ?ref=qr-code » : GoatCounter la lit comme un site d'origine et range ces
  * arrivées sous « qr-code » dans ses provenances (Referrers). La page comptée reste « / », grâce au lien canonique
- * d'index.html. Une seule étiquette pour tout le monde : elle dit d'où l'on vient, jamais qui l'on est.
+ * d'index.html. Une seule étiquette pour tout le monde : elle dit d'où l'on vient, jamais qui l'on est. Le jeu
+ * l'efface de la barre d'adresse une fois la visite comptée (src/navigateur/mesure.ts, effacerProvenance).
  */
 const ADRESSE_DU_QR_CODE = `${ADRESSE_DU_JEU}/?ref=qr-code`
 

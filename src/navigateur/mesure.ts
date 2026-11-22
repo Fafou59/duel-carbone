@@ -6,6 +6,7 @@
  * - Le jeu ne dépend jamais de la mesure : si GoatCounter est bloqué, lent ou en panne, rien ne se passe.
  * - GoatCounter compte des événements mais ne calcule pas de moyenne : la durée d'une Partie
  *   est envoyée sous forme de tranche (voir docs/prd-v1-duel.md, « Événements de mesure d'audience »).
+ * - L'arrivée par le QR code (?ref=qr-code, #98) est comptée avec la visite, puis effacée de l'adresse.
  */
 import { useEffect, useRef } from 'react'
 import { ADRESSE_DU_JEU } from '../domaine/partage.ts'
@@ -44,7 +45,7 @@ export type Evenement =
 export type Plantage = 'script' | 'promesse'
 
 /** Le strict nécessaire de GoatCounter : sa fonction count(), qu'il ajoute à la page une fois chargé. */
-type GoatCounter = { count: (vars: { path: string; title?: string; event?: boolean }) => void }
+type GoatCounter = { count: (vars?: { path: string; title?: string; event?: boolean }) => void }
 
 declare global {
   interface Window {
@@ -108,15 +109,70 @@ export function mesurer(evenement: Evenement, env: Environnement = environnement
 /**
  * Charge le script de GoatCounter, sur l'adresse publique seulement.
  * Chargé par le code (et non écrit dans index.html) : en local et sur les aperçus, aucune demande ne part.
- * Une fois chargé, GoatCounter compte aussi la visite de la page.
+ *
+ * GoatCounter ne compte pas la visite tout seul (no_onload) : le jeu la compte une fois le script chargé, puis
+ * efface la provenance de l'adresse (compterLaVisite). Si le script est bloqué, l'adresse est nettoyée quand même.
  */
 export function chargerMesure(hote: string = window.location.hostname): void {
-  if (!estAdresseMesuree(hote)) return
+  if (!estAdresseMesuree(hote)) {
+    effacerProvenance()
+    return
+  }
   const script = document.createElement('script')
   script.dataset.goatcounter = COMPTEUR
+  script.dataset.goatcounterSettings = JSON.stringify({ no_onload: true })
   script.async = true
   script.src = SCRIPT
+  script.addEventListener('load', () => compterLaVisite())
+  script.addEventListener('error', () => effacerProvenance())
   document.head.append(script)
+}
+
+/**
+ * Le paramètre de provenance de l'adresse : le QR code mène à « https://duelcarbone.fr/?ref=qr-code » (#98).
+ * GoatCounter le lit au moment de compter la visite et range ces arrivées sous la provenance « qr-code ».
+ */
+const PROVENANCE = 'ref'
+
+/** La page, pour savoir si elle est visible (passée en paramètre pour que les tests puissent la simuler). */
+type Page = {
+  visibilityState: DocumentVisibilityState
+  addEventListener: (type: 'visibilitychange', ecouteur: () => void) => void
+  removeEventListener: (type: 'visibilitychange', ecouteur: () => void) => void
+}
+
+/**
+ * Compte la visite de la page, puis efface sa provenance de l'adresse. Comme GoatCounter le ferait tout seul,
+ * on attend que la page soit visible : un navigateur peut préparer une page en arrière-plan sans qu'on l'ouvre.
+ */
+export function compterLaVisite(page: Page = document, env: () => Environnement = environnementReel): void {
+  const compter = () => {
+    try {
+      env().goatcounter?.count()
+    } catch {
+      // La mesure est secondaire : une panne de GoatCounter ne doit pas gêner le joueur.
+    }
+    effacerProvenance()
+  }
+  if (page.visibilityState === 'visible') return compter()
+  const quandVisible = () => {
+    if (page.visibilityState !== 'visible') return
+    page.removeEventListener('visibilitychange', quandVisible)
+    compter()
+  }
+  page.addEventListener('visibilitychange', quandVisible)
+}
+
+/**
+ * Efface « ?ref=… » de la barre d'adresse, sans recharger la page ni ajouter d'étape à l'historique : un favori,
+ * un copier-coller ou l'écran d'accueil reprennent l'adresse propre, et le retour suivant ne compte plus comme
+ * une arrivée par le QR code. Le reste de l'adresse (la page demandée, après #) ne bouge pas.
+ */
+export function effacerProvenance(): void {
+  const adresse = new URL(window.location.href)
+  if (!adresse.searchParams.has(PROVENANCE)) return
+  adresse.searchParams.delete(PROVENANCE)
+  window.history.replaceState(window.history.state, '', `${adresse.pathname}${adresse.search}${adresse.hash}`)
 }
 
 /**

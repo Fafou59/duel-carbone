@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { chargerMesure, ecouterLesPlantages, estAdresseMesuree, mesurer, serieMesuree, trancheDeDuree, type Environnement } from './mesure.ts'
+import { chargerMesure, compterLaVisite, ecouterLesPlantages, effacerProvenance, estAdresseMesuree, mesurer, serieMesuree, trancheDeDuree, type Environnement } from './mesure.ts'
 
 const PRODUCTION = 'duelcarbone.fr'
 /** L'ancienne adresse publique chez Cloudflare, et la base des aperçus des branches. */
@@ -146,5 +146,103 @@ describe('Charger GoatCounter', () => {
     chargerMesure('localhost')
     chargerMesure(`feat-17-goatcounter-${WORKERS}`)
     expect(script()).toBeNull()
+  })
+
+  it('lui demande de ne pas compter la visite tout seul : c’est le jeu qui la compte, puis nettoie l’adresse', () => {
+    chargerMesure(PRODUCTION)
+    expect(JSON.parse(script()?.getAttribute('data-goatcounter-settings') ?? '{}')).toEqual({ no_onload: true })
+  })
+})
+
+describe('L’arrivée par le QR code (?ref=qr-code), comptée une fois puis effacée de l’adresse', () => {
+  afterEach(() => {
+    window.history.replaceState(null, '', '/')
+    delete window.goatcounter
+    document.head.querySelector('script[data-goatcounter]')?.remove()
+  })
+
+  /** Une fausse page, visible ou non, qui retient qui attend qu'elle devienne visible. */
+  function page(visibilityState: DocumentVisibilityState) {
+    const ecouteurs = new Set<() => void>()
+    return {
+      visibilityState,
+      addEventListener: (_: string, f: () => void) => ecouteurs.add(f),
+      removeEventListener: (_: string, f: () => void) => ecouteurs.delete(f),
+      devenirVisible() {
+        this.visibilityState = 'visible'
+        for (const f of [...ecouteurs]) f()
+      },
+      ecouteurs,
+    }
+  }
+
+  it('GoatCounter compte la visite avec sa provenance, puis l’adresse redevient propre (sans recharger)', () => {
+    window.history.replaceState(null, '', '/?ref=qr-code')
+    const adresseLueParGoatCounter: string[] = []
+    const env = environnement({ goatcounter: { count: vi.fn(() => adresseLueParGoatCounter.push(window.location.search)) } })
+
+    compterLaVisite(page('visible'), () => env)
+
+    expect(env.goatcounter?.count).toHaveBeenCalledTimes(1)
+    expect(adresseLueParGoatCounter).toEqual(['?ref=qr-code'])
+    expect(window.location.pathname + window.location.search).toBe('/')
+  })
+
+  it('attend que la page soit visible pour compter (une page préparée en arrière-plan n’est pas une visite)', () => {
+    window.history.replaceState(null, '', '/?ref=qr-code')
+    const env = environnement()
+    const cachee = page('hidden')
+
+    compterLaVisite(cachee, () => env)
+    expect(env.goatcounter?.count).not.toHaveBeenCalled()
+    expect(window.location.search).toBe('?ref=qr-code')
+
+    cachee.devenirVisible()
+    expect(env.goatcounter?.count).toHaveBeenCalledTimes(1)
+    expect(window.location.search).toBe('')
+    expect(cachee.ecouteurs.size).toBe(0)
+  })
+
+  it('nettoie l’adresse même si GoatCounter plante', () => {
+    window.history.replaceState(null, '', '/?ref=qr-code')
+    const env = environnement({ goatcounter: { count: vi.fn(() => { throw new Error('panne') }) } })
+    compterLaVisite(page('visible'), () => env)
+    expect(window.location.search).toBe('')
+  })
+
+  it('le script chargé, compte la visite ; bloqué, nettoie quand même l’adresse', () => {
+    window.history.replaceState(null, '', '/?ref=qr-code')
+    const count = vi.fn()
+    window.goatcounter = { count }
+    chargerMesure(PRODUCTION)
+    document.head.querySelector('script[data-goatcounter]')?.dispatchEvent(new Event('load'))
+    // jsdom fait comme si la page était visible ou non selon sa version : seule l'adresse finale compte ici.
+    if (document.visibilityState === 'visible') expect(count).toHaveBeenCalledTimes(1)
+
+    document.head.querySelector('script[data-goatcounter]')?.remove()
+    window.history.replaceState(null, '', '/?ref=qr-code')
+    chargerMesure(PRODUCTION)
+    document.head.querySelector('script[data-goatcounter]')?.dispatchEvent(new Event('error'))
+    expect(window.location.search).toBe('')
+  })
+
+  it('en local ou sur un aperçu, rien n’est compté : l’adresse est nettoyée tout de suite', () => {
+    window.history.replaceState(null, '', '/?ref=qr-code')
+    chargerMesure('localhost')
+    expect(window.location.search).toBe('')
+  })
+
+  it('garde le reste de l’adresse : la page demandée et ses autres réglages', () => {
+    window.history.replaceState(null, '', '/?ref=qr-code&autre=1#en-savoir-plus')
+    effacerProvenance()
+    expect(window.location.pathname + window.location.search + window.location.hash).toBe('/?autre=1#en-savoir-plus')
+  })
+
+  it('ne touche pas une adresse sans provenance', () => {
+    window.history.replaceState({ garde: true }, '', '/#en-savoir-plus')
+    const remplacer = vi.spyOn(window.history, 'replaceState')
+    effacerProvenance()
+    expect(remplacer).not.toHaveBeenCalled()
+    remplacer.mockRestore()
   })
 })
