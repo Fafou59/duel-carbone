@@ -88,6 +88,8 @@ Grand public francophone, à partir d'environ 15 ans, majoritairement sur smartp
 | Calendrier | les Parties du jour des 365 prochains jours sont tirées à l'avance (`npm run calendrier`, lancé après `npm run calibrer`) ; le jour en cours et les jours passés ne changent jamais ; s'il est épuisé, il reboucle sur son premier jour. La CI échoue s'il couvre moins de 30 jours ou s'il ne correspond plus au catalogue |
 | Série | jours consécutifs où la Partie du jour est terminée ; retombe à zéro après un jour manqué |
 | Partie libre | rejouable à volonté, présentée comme un entraînement ; son record est à part |
+| Rang du jour | la part des **autres** joueurs du jour dont le score au Duel du jour est inférieur ou égal au tien : (inférieurs + égaux − 1) ÷ (joueurs − 1), calculé par le jeu à partir des 11 Effectifs du jour (combien de joueurs ont fait 0, 1… 10) que renvoie le serveur (issue 87, ADR 0005). « Tu as fait mieux ou autant que x % des joueurs du jour jusqu'ici » ; 10/10 : « Sans-faute, comme x % des joueurs du jour jusqu'ici » (la part des autres qui ont aussi fait 10/10 ; personne : « Sans-faute ! Personne d'autre n'y est arrivé aujourd'hui, pour l'instant. ») ; 0/10, ou personne d'autre n'a fait moins ou autant : une phrase encourageante, sans chiffre. Tout ce qui est entre 0 et 1 % s'affiche 1 %, et 100 % seulement si personne n'a fait mieux. **Rien sous 5 joueurs** ce jour-là, le joueur compris (`REGLES.rangDuJour`, à relever avec l'audience). Affiché sous le score, à la fin du Duel du jour et sur le tableau de bord de l'accueil, relu à chaque affichage ; ni dans la Partie libre, ni dans le texte ou l'image de partage (le chiffre bouge dans la journée : à revoir après quelques semaines) |
+| Scores comptés | seulement la première fin de la Partie du jour sur un appareil, et seulement si elle arrive le jour même (heure de Paris). Le jeu envoie une seule fois le numéro du Duel du jour et les 10 Gestes choisis, sans file d'attente ni nouvel essai ; le serveur vérifie le numéro, recalcule le score à partir du calendrier (il ne croit jamais un score annoncé) et ajoute 1 au bon effectif. Les rares doublons (un joueur qui vide son navigateur et rejoue) sont acceptés. **Le jeu ne dépend jamais du serveur** : hors ligne, serveur lent (5 s) ou en panne, la Partie se joue normalement et le Rang ne s'affiche pas |
 | Ton | tutoiement, ludique mais rigoureux, jamais moralisateur |
 
 > **Pourquoi le catalogue et le Duel du jour ont changé (bilan J+7, 20 novembre 2026, issue 93).** Les Gestes revenaient trop souvent : avec 81 Gestes tirables, 76 % des Gestes d'une Partie du jour avaient déjà été vus dans les 6 jours précédents. Le catalogue passe à 119 Gestes tirables (62 %), et la Partie libre mémorise 10 Parties au lieu de 3 (plus aucun Duel ne revient dans les 10 Parties suivantes). Le Duel thématique est celui dont les joueurs parlent : il passe de 59 % à environ 69 % des Parties du jour, et chacun revient à son tour (il y avait de 1 à 12 passages par an selon les Duels). Les Quantités sont aussi verrouillées par une fourchette par Nature (un repas est un plat complet, un aliment une portion), après un plateau de sushis de 200 g opposé à un repas végétarien complet.
@@ -134,7 +136,11 @@ La référence visuelle est la variante **A2** du prototype ; le détail et les 
 ## 6. Décisions d'implémentation
 
 ### Pile technique
-- **React + TypeScript + Vite**, site 100 % statique, sans serveur.
+- **React + TypeScript + Vite**, un site statique, plus un petit serveur pour le Rang du jour (ADR 0005, novembre 2026) :
+  - le code (`serveur/`) tourne dans le Worker Cloudflare qui sert déjà le jeu (`main` dans `wrangler.jsonc`). Seules les adresses `/api/…` l'appellent (`run_worker_first`) ; les fichiers restent servis directement, gratuitement et sans limite. Plan gratuit (100 000 appels par jour) ;
+  - une base **D1** (SQLite chez Cloudflare) créée dans la juridiction `eu`, avec une seule table, `effectifs` : pour chaque jour et chaque score, le nombre de joueurs. Ni identifiant, ni pseudo, ni adresse IP. Sa structure évolue par des migrations numérotées (`migrations/`), appliquées à la main : `npx wrangler d1 migrations apply duel-carbone --remote` (production), puis la même commande avec `--preview` (la base des aperçus) ;
+  - les aperçus des branches ont leur propre base, `duel-carbone-apercus` (bloc `previews` de `wrangler.jsonc`) : essayer un aperçu ne fausse pas le Rang des vrais joueurs ;
+  - `GET /api/rang-du-jour` rend `{ numero, effectifs }` (11 nombres) ; `POST` avec `{ numero, choix }` compte le joueur et rend les mêmes Effectifs, à jour. Refusé : un autre numéro que celui du jour (409), des choix qui ne correspondent pas aux Duels du jour (422), autre chose que du JSON (415). Base injoignable ou quota épuisé : 503, et le jeu n'affiche rien.
 - **PWA** (installable, utilisable hors ligne) grâce au module `vite-plugin-pwa` (ticket #16) :
   - un manifeste (nom, couleurs, icônes PNG tirées du logo par `npm run logo`, dans `public/application/`) ;
   - un service worker qui garde tout le jeu en copie à la première visite (moins d'1 Mo, calendrier des Duels du jour compris) ;
@@ -168,6 +174,7 @@ La référence visuelle est la variante **A2** du prototype ; le détail et les 
    **Partage en image** (#79), pour les Stories (Instagram, Facebook, Snapchat, statuts WhatsApp), qui n'acceptent que des images : « 📸 Partager en image », juste après le bouton du texte, dessine sur l'appareil une image 1080 × 1920 en thème sombre (logo, « Duel du jour n° N » ou « Partie libre », score, message, cases ✓/✗, série, « duelcarbone.fr » ; les icônes de la vitrine en filigrane, jamais les Gestes de la Partie). Sur téléphone, le menu de partage reçoit l'image seule (sans texte : il serait perdu dans une Story) ; sur ordinateur ou sans partage de fichier, le bouton devient « Enregistrer l'image ». Le lien n'est pas cliquable dans une Story : un message rappelle l'autocollant « Lien ». L'éditeur de Story pré-rempli d'Instagram est réservé aux applications natives.
 9. **Mise en forme des nombres** : unité automatique (g, kg, t) et conventions françaises (virgule décimale).
 10. **Pages** : Accueil, Partie, Fin de Partie, En savoir plus.
+11. **Rang du jour** : le calcul et les phrases, en fonctions pures (`src/domaine/rang-du-jour.ts`, partagé avec le serveur qui s'en sert pour recalculer un score) ; l'échange avec le serveur, qui renvoie `null` au lieu d'une erreur (`src/navigateur/rang-du-jour.ts`) ; le serveur lui-même (`serveur/`). La mémoire locale retient si le serveur a compté le score du jour (`compte`), pour ne comparer le joueur qu'aux autres même quand son envoi s'est perdu.
 
 ### Événements de mesure d'audience
 `partie_lancee`, `partie_terminee`, `rejouer`, `partage`, `partage/image`, `duree_partie/<tranche>`, `serie/<jours>`, `erreur/<type>`.
@@ -195,11 +202,12 @@ Le **temps de jeu** est mesuré sur l'appareil, de l'affichage du premier Duel j
 - Un bon test vérifie un **comportement observable** (« le Duel n°10 a un Rapport entre ×1,25 et ×1,5 »), pas les détails internes du code.
 - **Tests de bout en bout (Playwright, `npm run e2e`, lancés par la CI)** : un vrai navigateur joue le Duel du jour et une Partie libre entièrement au clavier, en vérifiant que le focus reste visible. Chaque écran passe aussi une analyse d'accessibilité automatique (axe-core, WCAG 2.2 A et AA, en mode clair et sombre), le zoom à 200 % et le réglage « réduire les animations ». Ce qu'un robot ne vérifie pas (lecteur d'écran) est dans [accessibilite.md](accessibilite.md).
 - **Contrôle des données** : l'import échoue si le catalogue référence un Équivalent inconnu, ou si une Quantité est absente ou inférieure ou égale à zéro.
+- **Le serveur** (`serveur/api.test.ts`, Vitest dans Node) : les requêtes passent par le vrai code du Worker, sur une vraie base SQLite en mémoire (`node:sqlite`) créée avec le fichier de migration. Les tests de bout en bout remplacent `/api/rang-du-jour` par un faux serveur (le site y est servi par Vite, sans Worker), et vérifient aussi le jeu sans serveur.
 
 ## 8. Hors périmètre de la v1
 
 - La Juste émission (v1.1, cadrée à ce moment-là) et le Comparateur (v2).
-- Les comptes utilisateurs, les classements et toute donnée personnelle.
+- Les comptes utilisateurs, les Groupes et leur Classement (issue 96), et toute donnée personnelle. Le Rang du jour, anonyme, est entré dans le jeu au bilan J+7 (issue 87).
 - Les gestes absents du Référentiel ADEME (requête IA, pipi sous la douche, vélo carbone contre vélo alu…), à garder dans une liste d'idées.
 - La modification des paramètres ADEME (forçage radiatif, taux de remplissage).
 - Le chrono et le score pondéré.

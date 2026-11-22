@@ -283,6 +283,13 @@ export function EcranEnSavoirPlus() {
           tous mesurés de la même façon : le numérique compte la fabrication des appareils, où qu'ils soient
           fabriqués, alors que les autres sont des inventaires des émissions en France.
         </p>
+        <p>
+          Une fois ton Duel du jour joué, le Rang du jour te dit où tu te situes : « Tu as fait mieux ou autant que
+          x % des joueurs du jour jusqu’ici ». Il compare ton score à celui des autres joueurs du jour, sans toi, et
+          bouge au fil de la journée. Il n’apparaît qu’à partir de {REGLES.rangDuJour.joueursMinimum} joueurs dans la
+          journée, et seule la première Partie du jour de chaque appareil compte, si elle se termine avant minuit. La
+          Partie libre n’a pas de Rang.
+        </p>
       </Partie>
 
       <Partie id="installer">
@@ -300,6 +307,14 @@ export function EcranEnSavoirPlus() {
           Sans cookie, sans compte. Ton record, ta Partie du jour (pour la reprendre ou revoir ton résultat), ta
           série, les derniers Duels joués (pour ne pas te reposer les mêmes) et ton éventuel « Non merci » à
           l’invitation à installer le jeu sont gardés dans ton navigateur, sur cet appareil. Ils ne sont envoyés nulle part.
+        </p>
+        <p>
+          Pour le Rang du jour, le jeu envoie une seule fois à son serveur, à la fin de ton Duel du jour, le numéro du
+          Duel et les {REGLES.nombreDeDuels} gestes que tu as choisis. Le serveur recalcule ton score et ajoute 1 au
+          nombre de joueurs qui ont fait ce score ce jour-là. C’est tout ce qu’il garde : pour chaque jour, combien de
+          joueurs ont fait 0, 1… {REGLES.nombreDeDuels}. Ni tes choix, ni l’heure, ni ton adresse IP, ni aucun
+          identifiant : personne, pas même nous, ne peut savoir qui a fait quel score. Ces chiffres sont gardés chez
+          Cloudflare, dans l’Union européenne. La Partie libre n’envoie rien, et sans réseau, le jeu marche tout autant.
         </p>
         <p>
           Pour que le jeu marche sans réseau (et s'installe sur ton écran d'accueil), ton navigateur garde aussi une

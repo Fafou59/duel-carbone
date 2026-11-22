@@ -190,6 +190,16 @@ describe('Page En savoir plus', () => {
     expect(screen.getByText(/Le jeu est hébergé par Cloudflare/)).toHaveTextContent(/adresse IP/)
   })
 
+  it('dit ce que le serveur du Rang du jour reçoit et garde, et ce qu’il ne garde pas', () => {
+    render(<EcranEnSavoirPlus />)
+    const paragraphe = screen.getByText(/Pour le Rang du jour, le jeu envoie une seule fois/)
+    expect(paragraphe).toHaveTextContent(/le numéro du Duel et les 10 gestes que tu as choisis/)
+    expect(paragraphe).toHaveTextContent(/combien de joueurs ont fait 0, 1… 10/)
+    expect(paragraphe).toHaveTextContent(/Ni tes choix, ni l’heure, ni ton adresse IP, ni aucun identifiant/)
+    expect(paragraphe).toHaveTextContent(/dans l’Union européenne/)
+    expect(screen.getByText(/le Rang du jour te dit où tu te situes/)).toHaveTextContent(/à partir de 5 joueurs/)
+  })
+
   it('explique la mesure d’audience : GoatCounter, sans cookie, des chiffres agrégés', () => {
     render(<EcranEnSavoirPlus />)
     expect(screen.getByRole('link', { name: 'GoatCounter' })).toHaveAttribute('href', 'https://www.goatcounter.com')

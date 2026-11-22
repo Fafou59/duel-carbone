@@ -40,7 +40,7 @@ Les données restent la propriété de l'ADEME et sont réutilisées dans le cad
 
 ## Pile technique
 
-React · TypeScript · Vite · application web installable (PWA) · hébergement Cloudflare · mesure d'audience sans cookie (GoatCounter).
+React · TypeScript · Vite · application web installable (PWA) · hébergement Cloudflare (Workers) · un petit serveur pour le Rang du jour, avec une base D1 dans l'Union européenne et sans aucune donnée personnelle (ADR 0005) · mesure d'audience sans cookie (GoatCounter).
 
 ## Lancer le projet en local
 
@@ -56,6 +56,13 @@ npm run import   # met à jour l'Instantané des données ADEME (src/donnees/ins
 npm run icones   # refait les icônes des Gestes (public/icones/), après l'ajout d'un Geste
 npm run image-partage  # refait l'image des aperçus de lien (public/apercu-partage.png), après un changement de logo
 npm run captures # refait les captures d'écran de ce README (docs/captures/), après un changement d'écran
+```
+
+Pour essayer le jeu avec son serveur (le Rang du jour), sur une base D1 locale, dans le dossier `.wrangler/` :
+
+```bash
+npx wrangler d1 migrations apply BASE --local  # crée la table de la base locale (une fois)
+npm run build && npx wrangler dev             # le jeu construit et son serveur, sur http://localhost:8787
 ```
 
 La clé d'API Impact CO2 est facultative : pour l'utiliser, copier `.env.example` en `.env` et la renseigner.
