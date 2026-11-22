@@ -40,6 +40,26 @@ test('le Duel du jour se joue en entier au clavier', async ({ page }) => {
   await expect(page.getByRole('region', { name: 'Reviens demain en un geste' })).toHaveCount(0)
   await verifierAccessibilite(page, 'fin du Duel du jour, sur ordinateur')
 
+  // « joue sur ton téléphone » ouvre le QR code du jeu (#98) : au clavier, l'image chargée, l'adresse en clair,
+  // l'analyse en clair et en sombre ; Échap la ferme et rend le focus au bouton.
+  await tabulerJusqua(page, /^Joue sur ton téléphone : afficher un QR code$/)
+  await page.keyboard.press('Enter')
+  const fenetreQr = page.getByRole('dialog', { name: 'Joue sur ton téléphone' })
+  await expect(fenetreQr).toBeVisible()
+  await expect(focus(page)).toHaveAccessibleName('Fermer')
+  const qr = fenetreQr.getByRole('img', { name: 'QR code vers duelcarbone.fr' })
+  await expect(qr).toHaveJSProperty('complete', true)
+  expect(await qr.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0)
+  await expect(fenetreQr).toContainText('duelcarbone.fr')
+  for (const colorScheme of ['light', 'dark'] as const) {
+    await page.emulateMedia({ colorScheme })
+    await verifierAccessibilite(page, `QR code du jeu (${colorScheme === 'light' ? 'clair' : 'sombre'})`)
+  }
+  await page.emulateMedia({ colorScheme: null })
+  await page.keyboard.press('Escape')
+  await expect(fenetreQr).toBeHidden()
+  await expect(focus(page)).toHaveAccessibleName('Joue sur ton téléphone : afficher un QR code')
+
   // Le Récapitulatif : le détail d'un Duel s'ouvre au clavier, Échap le ferme, et le focus revient sur sa case.
   await tabulerJusqua(page, /Duel 1 \((réussi|raté)\)/)
   const caseDuel1 = page.getByRole('button', { name: /^Duel 1 ?\((réussi|raté)\)/ })

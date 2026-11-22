@@ -17,7 +17,14 @@ import { fileURLToPath } from 'node:url'
 import QRCode from 'qrcode'
 import { ADRESSE_DU_JEU } from '../src/domaine/partage.ts'
 
-const svg = await QRCode.toString(ADRESSE_DU_JEU, {
+/**
+ * L'adresse porte une provenance, « ?ref=qr-code » : GoatCounter la lit comme un site d'origine et range ces
+ * arrivées sous « qr-code » dans ses provenances (Referrers). La page comptée reste « / », grâce au lien canonique
+ * d'index.html. Une seule étiquette pour tout le monde : elle dit d'où l'on vient, jamais qui l'on est.
+ */
+const ADRESSE_DU_QR_CODE = `${ADRESSE_DU_JEU}/?ref=qr-code`
+
+const svg = await QRCode.toString(ADRESSE_DU_QR_CODE, {
   type: 'svg',
   errorCorrectionLevel: 'M',
   margin: 4,
@@ -25,4 +32,4 @@ const svg = await QRCode.toString(ADRESSE_DU_JEU, {
 })
 
 writeFileSync(fileURLToPath(new URL('../public/qr-code.svg', import.meta.url)), `${svg.trim()}\n`, 'utf8')
-console.log(`QR code de ${ADRESSE_DU_JEU} enregistré dans public/qr-code.svg`)
+console.log(`QR code de ${ADRESSE_DU_QR_CODE} enregistré dans public/qr-code.svg`)

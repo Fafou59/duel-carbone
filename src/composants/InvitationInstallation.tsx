@@ -190,8 +190,8 @@ function FenetreQrCode({ onFermer }: { onFermer: () => void }) {
         </button>
       </div>
       <p>Scanne ce code avec l’appareil photo de ton téléphone : le jeu s’ouvre, et tu pourras l’installer sur ton écran d’accueil.</p>
-      {/* 33 carrés de 6 px : des carrés entiers restent nets. */}
-      <img className="qr-code__image" src="/qr-code.svg" alt="QR code vers duelcarbone.fr" width={198} height={198} />
+      {/* 37 carrés de 6 px : des carrés entiers restent nets. */}
+      <img className="qr-code__image" src="/qr-code.svg" alt="QR code vers duelcarbone.fr" width={222} height={222} />
       <p className="qr-code__adresse">
         Ou tape l’adresse : <strong>{new URL(ADRESSE_DU_JEU).hostname}</strong>
       </p>
