@@ -55,6 +55,7 @@ npm run build    # construit la version de production dans dist/
 npm run import   # met à jour l'Instantané des données ADEME (src/donnees/instantane.json)
 npm run icones   # refait les icônes des Gestes (public/icones/), après l'ajout d'un Geste
 npm run image-partage  # refait l'image des aperçus de lien (public/apercu-partage.png), après un changement de logo
+npm run qr-code  # refait les QR codes du jeu (liste en tête de scripts/qr-code.ts), chacun avec sa provenance GoatCounter
 npm run captures # refait les captures d'écran de ce README (docs/captures/), après un changement d'écran
 ```
 
