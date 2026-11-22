@@ -26,7 +26,7 @@ type Props = {
   /** Appelé à chaque nouvelle réponse, pour la retenir aussitôt (et pouvoir reprendre la Partie). */
   onReponse?: (idChoisi: string) => void
   /** Ce que l'écran de fin doit savoir du Duel du jour (voir EcranFin) : c'est lui qu'on termine, ou celui qui reste à jouer. */
-  fin?: Pick<PropsFin, 'partieDuJour' | 'duJour'>
+  fin?: Pick<PropsFin, 'partieDuJour' | 'duJour' | 'conseil'>
 }
 
 export function EcranPartie({
@@ -131,6 +131,7 @@ export function EcranPartie({
         onRejouer={onRejouer}
         partieDuJour={fin?.partieDuJour}
         duJour={fin?.duJour}
+        conseil={fin?.conseil}
       />
     )
   }

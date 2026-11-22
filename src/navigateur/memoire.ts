@@ -1,13 +1,14 @@
 /**
  * La mémoire du jeu, sur l'appareil du joueur (localStorage) : son meilleur score et les paires
- * de ses dernières Parties libres, sa Partie du jour (pour la reprendre ou revoir son résultat)
- * et sa série. Pas de compte, pas de cookie, aucune donnée personnelle. Seuls les choix de la Partie du jour partent,
+ * de ses dernières Parties libres, sa Partie du jour (pour la reprendre ou revoir son résultat),
+ * sa série et les derniers Conseils de fin de Partie qu'il a vus. Pas de compte, pas de cookie, aucune donnée personnelle. Seuls les choix de la Partie du jour partent,
  * une fois, au serveur du Rang du jour (rang-du-jour.ts), qui n'en garde que le score.
  *
  * Le stockage peut manquer (navigation privée stricte), refuser d'écrire (mémoire pleine)
  * ou contenir n'importe quoi (version ancienne, modification à la main) :
  * dans tous ces cas, le jeu continue, simplement sans mémoire.
  */
+import { CONSEILS_RECENTS } from '../domaine/conseils.ts'
 import { decalerJour } from '../domaine/jour.ts'
 import { PARTIES_MEMORISEES } from './taille-memoire.ts'
 
@@ -25,8 +26,9 @@ export const CLE_MEMOIRE = 'duel-carbone/memoire'
  * Absents d'une Partie commencée avant cette règle : on se rabat alors sur le calendrier.
  * `compte` : le serveur du Rang du jour a compté ce score (on le retire alors des Effectifs, pour ne comparer
  * le joueur qu'aux autres). Absent si l'envoi a échoué ou n'a pas eu lieu.
+ * `conseil` : le Conseil montré à la fin, pour remontrer le même quand le joueur revoit son résultat.
  */
-type DuJour = { jour: string; duels?: string[]; reponses: string[]; score: number | null; compte?: true }
+type DuJour = { jour: string; duels?: string[]; reponses: string[]; score: number | null; compte?: true; conseil?: string }
 
 /** La série : combien de jours de suite la Partie du jour a été terminée, et le dernier de ces jours. */
 type Serie = { longueur: number; dernierJour: string }
@@ -34,6 +36,7 @@ type Serie = { longueur: number; dernierJour: string }
 /**
  * Ce qui est enregistré. Le numéro de version permet de faire évoluer le format sans tout casser :
  * la version 2 (Partie du jour, série) garde le record et les paires récentes de la version 1.
+ * Les Conseils récents s'y sont ajoutés sans changer de version : absents, la liste est simplement vide.
  */
 type Contenu = {
   version: 2
@@ -42,9 +45,19 @@ type Contenu = {
   duJour: DuJour | null
   serie: Serie | null
   meilleureSerie: number
+  /** Les identifiants des Conseils vus dans les dernières Parties (du plus ancien au plus récent). */
+  conseilsRecents: string[]
 }
 
-const VIDE: Contenu = { version: 2, meilleurScore: null, partiesRecentes: [], duJour: null, serie: null, meilleureSerie: 0 }
+const VIDE: Contenu = {
+  version: 2,
+  meilleurScore: null,
+  partiesRecentes: [],
+  duJour: null,
+  serie: null,
+  meilleureSerie: 0,
+  conseilsRecents: [],
+}
 
 export type Memoire = {
   /** Le record de la Partie libre. */
@@ -56,7 +69,9 @@ export type Memoire = {
   /** Retient les paires (cleDePaire) d'une Partie libre qui commence. */
   enregistrerPartie: (paires: string[]) => void
   /** La Partie du jour de ce jour-là, en cours ou terminée (null si elle n'a pas commencé). */
-  partieDuJour: (jour: string) => { duels?: string[]; reponses: string[]; score: number | null; compte?: true } | null
+  partieDuJour: (
+    jour: string,
+  ) => { duels?: string[]; reponses: string[]; score: number | null; compte?: true; conseil?: string } | null
   /** Retient les Duels de la Partie du jour qui commence (sans remplacer ceux d'une Partie déjà commencée). */
   commencerPartieDuJour: (jour: string, duels: string[]) => void
   /** Retient une réponse de la Partie du jour, dès qu'elle est donnée (une Partie de la veille est oubliée). */
@@ -65,6 +80,13 @@ export type Memoire = {
   terminerPartieDuJour: (jour: string, score: number) => void
   /** Le serveur du Rang du jour a compté le score de la Partie du jour de ce jour-là. */
   noterScoreCompte: (jour: string) => void
+  /** Les Conseils vus dans les dernières Parties, à ne pas remontrer tout de suite. */
+  conseilsRecents: () => string[]
+  /**
+   * Retient le Conseil montré en fin de Partie (une seule fois s'il est revu aussitôt) ; avec le jour d'un Duel du
+   * jour, aussi comme Conseil de ce Duel-là.
+   */
+  noterConseil: (id: string, jourDuDuel?: string) => void
   /** La série actuelle (0 après un jour manqué) et la meilleure série. */
   serie: (aujourdhui: string) => { actuelle: number; meilleure: number }
 }
@@ -106,6 +128,7 @@ export function creerMemoire(stockage: Stockage | null = stockageDuNavigateur())
         reponses: duJour.reponses,
         score: duJour.score,
         ...(duJour.compte && { compte: true }),
+        ...(duJour.conseil && { conseil: duJour.conseil }),
       }
     },
     commencerPartieDuJour: (jour, duels) => {
@@ -129,7 +152,14 @@ export function creerMemoire(stockage: Stockage | null = stockageDuNavigateur())
         serie?.dernierJour === jour ? serie.longueur : serie?.dernierJour === decalerJour(jour, -1) ? serie.longueur + 1 : 1
       ecrire({
         ...contenu,
-        duJour: { jour, ...(enCours?.duels && { duels: enCours.duels }), reponses, score },
+        duJour: {
+          jour,
+          ...(enCours?.duels && { duels: enCours.duels }),
+          reponses,
+          score,
+          // Le Conseil peut être noté juste avant (l'écran de fin s'affiche dans le même temps) : on le garde.
+          ...(enCours?.conseil && { conseil: enCours.conseil }),
+        },
         serie: { longueur, dernierJour: jour },
         meilleureSerie: Math.max(contenu.meilleureSerie, longueur),
       })
@@ -137,6 +167,15 @@ export function creerMemoire(stockage: Stockage | null = stockageDuNavigateur())
     noterScoreCompte: (jour) => {
       const contenu = lire()
       if (contenu.duJour?.jour === jour) ecrire({ ...contenu, duJour: { ...contenu.duJour, compte: true } })
+    },
+    conseilsRecents: () => lire().conseilsRecents,
+    noterConseil: (id, jourDuDuel) => {
+      const contenu = lire()
+      const dejaNote = contenu.conseilsRecents.at(-1) === id
+      const conseilsRecents = dejaNote ? contenu.conseilsRecents : [...contenu.conseilsRecents, id].slice(-CONSEILS_RECENTS)
+      const duJour =
+        jourDuDuel !== undefined && contenu.duJour?.jour === jourDuDuel ? { ...contenu.duJour, conseil: id } : contenu.duJour
+      ecrire({ ...contenu, conseilsRecents, duJour })
     },
     serie: (aujourdhui) => {
       const { serie, meilleureSerie } = lire()
@@ -149,7 +188,7 @@ export function creerMemoire(stockage: Stockage | null = stockageDuNavigateur())
 /** On ne fait jamais confiance à ce qu'on relit : tout ce qui n'a pas la forme attendue est ignoré. */
 function valider(brut: unknown): Contenu {
   if (typeof brut !== 'object' || brut === null || Array.isArray(brut)) return VIDE
-  const { meilleurScore, partiesRecentes, duJour, serie, meilleureSerie } = brut as Record<string, unknown>
+  const { meilleurScore, partiesRecentes, duJour, serie, meilleureSerie, conseilsRecents } = brut as Record<string, unknown>
   const nombre = (x: unknown): x is number => typeof x === 'number' && Number.isFinite(x)
   const jour = (x: unknown): x is string => typeof x === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x)
   const textes = (x: unknown): x is string[] => Array.isArray(x) && x.every((t) => typeof t === 'string')
@@ -170,10 +209,12 @@ function valider(brut: unknown): Contenu {
             reponses: j.reponses,
             score: j.score as number | null,
             ...(j.compte === true && { compte: true as const }),
+            ...(typeof j.conseil === 'string' && { conseil: j.conseil }),
           }
         : null,
     serie: s && nombre(s.longueur) && jour(s.dernierJour) ? { longueur: s.longueur, dernierJour: s.dernierJour } : null,
     meilleureSerie: nombre(meilleureSerie) ? meilleureSerie : 0,
+    conseilsRecents: textes(conseilsRecents) ? conseilsRecents.slice(-CONSEILS_RECENTS) : [],
   }
 }
 
