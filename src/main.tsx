@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
+import { BasculePrototype } from './PROTOTYPE-rang-du-jour/prototype.tsx'
 import { capturerInvitationNative } from './navigateur/installation.ts'
 import { chargerMesure, ecouterLesPlantages } from './navigateur/mesure.ts'
 import { enregistrerServiceWorker } from './navigateur/mise-a-jour.ts'
@@ -20,5 +21,6 @@ void enregistrerServiceWorker()
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
+    <BasculePrototype />
   </StrictMode>,
 )

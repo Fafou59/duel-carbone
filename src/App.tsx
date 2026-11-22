@@ -16,7 +16,8 @@ import { EcranEnSavoirPlus } from './ecrans/EcranEnSavoirPlus.tsx'
 import { ADRESSES, usePage } from './navigateur/adresse.ts'
 import { creerMemoire, type Memoire } from './navigateur/memoire.ts'
 import { appliquerNouvelleVersion, useNouvelleVersion } from './navigateur/mise-a-jour.ts'
-import { serveurDuRang, type ServeurDuRang } from './navigateur/rang-du-jour.ts'
+import { type ServeurDuRang } from './navigateur/rang-du-jour.ts'
+import { DERNIERS, FAUX_SERVEUR, useVarianteDuPrototype } from './PROTOTYPE-rang-du-jour/prototype.tsx'
 
 import { IMPACT_CO2_DOC } from './liens.ts'
 import { TITRE_ACCUEIL, TITRE_EN_SAVOIR_PLUS } from './referencement.ts'
@@ -39,7 +40,8 @@ type Partie =
 export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, serveur: serveurFourni }: Props) {
   // useState(() => …) : la mémoire est créée une seule fois, au premier affichage.
   const [memoire] = useState(() => memoireFournie ?? creerMemoire())
-  const [serveur] = useState(() => serveurFourni ?? serveurDuRang())
+  const [serveur] = useState(() => serveurFourni ?? FAUX_SERVEUR)
+  useVarianteDuPrototype()
   // Les derniers Effectifs reçus du serveur du Rang du jour, et le jour auquel ils se rapportent.
   // `score` : présent quand ils répondent à l'envoi du score (le joueur y est donc compté, même sans mémoire locale).
   const [effectifs, setEffectifs] = useState<{ jour: string; effectifs: Effectifs; score?: number } | null>(null)
@@ -92,6 +94,8 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
     const memorise = memoire.partieDuJour(jour)
     const score = effectifs.score ?? memorise?.score
     if (score == null) return null
+    DERNIERS.effectifs = effectifs.effectifs
+    DERNIERS.score = score
     return rangDuJour({ effectifs: effectifs.effectifs, score, compte: effectifs.score !== undefined || memorise?.compte === true })
   }
 
