@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
+import { CONSEILS } from '../donnees/conseils.ts'
 import { GESTES_CALCULES, gesteCalcule, INSTANTANE } from '../donnees/index.ts'
 import { enMinuscule, formaterDate, formaterEmpreinte } from '../domaine/format.ts'
 import { REGLES } from '../domaine/regles.ts'
@@ -57,6 +58,11 @@ const PART_DES_TRAINEES = trainees ? Math.round((trainees.valeur / NEW_YORK.empr
 const kgIa = (h: keyof typeof HYPOTHESES) => Math.round(empreinteDeLaCreation(JETONS, HYPOTHESES[h]).kgCo2e)
 const FRIENDS = gesteCalcule('friends')
 
+// L'exemple de calcul d'un Conseil : 2 repas au bœuf par semaine devenus végétariens, avec les valeurs de l'Instantané.
+const REPAS_BOEUF = gesteCalcule('repas-boeuf')
+const REPAS_VEGETARIEN = gesteCalcule('repas-vegetarien')
+const ECONOMIE_VEGETARIENNE = 2 * 52 * (REPAS_BOEUF.empreinte - REPAS_VEGETARIEN.empreinte)
+
 const PREMIERE_TRANCHE = REGLES.tranchesParDuel[0]
 const DERNIERE_TRANCHE = REGLES.tranchesParDuel[REGLES.tranchesParDuel.length - 1]
 
@@ -72,6 +78,7 @@ const PARTIES = {
   objets: "Les objets : la durée d'utilisation retenue par l'ADEME",
   reglages: "Les réglages : ceux de l'ADEME, par défaut",
   regles: 'Les règles du jeu',
+  conseils: 'Les Conseils de fin de Partie',
   installer: 'Jouer hors ligne : installer le jeu',
   'vie-privee': 'Ta vie privée',
   empreinte: 'L’empreinte de ce jeu',
@@ -292,6 +299,30 @@ export function EcranEnSavoirPlus() {
         </p>
       </Partie>
 
+      <Partie id="conseils">
+        <p>
+          À la fin de chaque Partie, un Conseil propose une action concrète, liée à un geste de ta Partie, de
+          préférence à un Duel que tu as raté. Le jeu en compte {CONSEILS.length}, écrits par Duel Carbone : l'ADEME
+          publie des idées pour agir, mais pas de conseil chiffré pour chaque geste. Un même Conseil ne revient pas
+          avant 5 Parties.
+        </p>
+        <p>
+          Leurs chiffres ne sont jamais écrits à la main : ils sont calculés avec les mêmes valeurs de l'ADEME que les
+          Duels, pour ne jamais les contredire. Seules les hypothèses sont notre choix (2 repas par semaine, 10 km
+          pour aller au travail, 220 jours de travail par an…), et elles sont écrites dans le texte. Par exemple :
+        </p>
+        <p className="savoir__formule">
+          2 repas × 52 semaines × ({formaterEmpreinte(REPAS_BOEUF.empreinte)} pour un repas avec du bœuf −{' '}
+          {formaterEmpreinte(REPAS_VEGETARIEN.empreinte)} pour un repas végétarien) ={' '}
+          {formaterEmpreinte(ECONOMIE_VEGETARIENNE)} de moins par an
+        </p>
+        <p>
+          Le Conseil l'arrondit (« environ {formaterEmpreinte(Math.round(ECONOMIE_VEGETARIENNE / 10) * 10)} ») et
+          renvoie vers une page de l'ADEME pour aller plus loin : une action de Nos Gestes Climat, ou les questions
+          fréquentes d'Impact CO2.
+        </p>
+      </Partie>
+
       <Partie id="installer">
         <p>
           Pour ne manquer aucun Duel du jour, installe Duel Carbone sur l’écran d’accueil de ton téléphone : il
@@ -305,7 +336,7 @@ export function EcranEnSavoirPlus() {
       <Partie id="vie-privee">
         <p>
           Sans cookie, sans compte. Ton record, ta Partie du jour (pour la reprendre ou revoir ton résultat), ta
-          série, les derniers Duels joués (pour ne pas te reposer les mêmes) et ton éventuel « Non merci » à
+          série, les derniers Duels joués et les derniers Conseils lus (pour ne pas te reposer les mêmes) et ton éventuel « Non merci » à
           l’invitation à installer le jeu sont gardés dans ton navigateur, sur cet appareil. Ils ne sont envoyés nulle part.
         </p>
         <p>
@@ -333,7 +364,7 @@ export function EcranEnSavoirPlus() {
         </p>
         <p>
           Pour savoir si le jeu plaît, nous comptons les visites et quelques moments de jeu (une Partie lancée, terminée
-          et sa durée approximative, la longueur de ta série quand tu lances le Duel du jour, « Rejouer », un partage en texte ou en image, l'invitation à installer le jeu et sa réponse, l'ouverture du QR code sur ordinateur, et les plantages du jeu, sans leur détail) avec{' '}
+          et sa durée approximative, la longueur de ta série quand tu lances le Duel du jour, « Rejouer », un partage en texte ou en image, le lien « En savoir plus » d'un Conseil, l'invitation à installer le jeu et sa réponse, l'ouverture du QR code sur ordinateur, et les plantages du jeu, sans leur détail) avec{' '}
           <a href={GOATCOUNTER}>GoatCounter</a>, une mesure
           d'audience sans cookie ni identifiant. Elle ne donne que des chiffres agrégés : elle ne peut pas te suivre
           d'un site à l'autre, ne conserve pas ton adresse IP, et ni ton score ni tes réponses ne lui sont envoyés. Si

@@ -21,6 +21,10 @@ for (const theme of ['clair', 'sombre'] as const) {
     const photographier = (ecran: string) => page.screenshot({ path: `${DOSSIER}/${ecran}-${theme}.png` })
     await page.emulateMedia({ colorScheme: theme === 'clair' ? 'light' : 'dark', reducedMotion: 'reduce' })
     await page.clock.setFixedTime(JOUR_DE_TEST)
+    // Le Conseil de fin de Partie est tiré au hasard parmi ceux liés à la Partie : un hasard figé redonne le même.
+    await page.addInitScript(() => {
+      Math.random = () => 0.5
+    })
 
     await page.goto('/')
     const jouer = page.getByRole('button', { name: /^Jouer le Duel du jour/ })

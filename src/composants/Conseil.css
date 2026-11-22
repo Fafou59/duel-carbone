@@ -1,0 +1,28 @@
+/* Le Conseil de fin de Partie : une carte, comme « Envie de t'entraîner ? » et l'invitation à installer. */
+.conseil {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 14px;
+  border: 3px solid var(--ligne);
+  border-radius: 20px;
+  background: var(--carte);
+}
+
+.conseil h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.conseil p {
+  margin: 0;
+}
+
+.conseil__lien {
+  font-weight: 700;
+}
+
+.conseil__page {
+  color: var(--discret);
+  font-weight: 400;
+}
