@@ -90,6 +90,10 @@ _À éviter_ : streak, combo
 La part des autres joueurs du jour dont le score à la Partie du jour est inférieur ou égal au tien, affichée « Tu as fait mieux ou autant que x % des joueurs ». Il est anonyme : le serveur ne connaît que le nombre de joueurs par score. La Partie libre n'en a pas.
 _À éviter_ : percentile, classement (réservé à la liste ordonnée des membres d'un Groupe)
 
+**Conseil** :
+Une action concrète et chiffrée, liée à un Geste de la Partie, proposée en fin de Partie comme une suggestion (« Et si… »). Son chiffre est calculé à partir des valeurs du Référentiel, et il renvoie vers une page de l'ADEME. Seuls les gestes à fort effet, ou les petits gestes fréquents dont le cumul sur l'année pèse, ont un Conseil.
+_À éviter_ : astuce, recommandation, éco-geste
+
 **Rapport** :
 Le quotient entre la plus grande et la plus petite Empreinte carbone d'un Duel (« ×11 »).
 _À éviter_ : écart, différence
