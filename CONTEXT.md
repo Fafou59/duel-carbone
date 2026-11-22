@@ -86,6 +86,10 @@ _À éviter_ : mode classique, entraînement (à l'écran seulement)
 Le nombre de jours consécutifs où le joueur a terminé la Partie du jour. Elle retombe à zéro après un jour manqué ; la meilleure série est gardée.
 _À éviter_ : streak, combo
 
+**Rang du jour** :
+La part des autres joueurs du jour dont le score à la Partie du jour est inférieur ou égal au tien, affichée « Tu as fait mieux ou autant que x % des joueurs ». Il est anonyme : le serveur ne connaît que le nombre de joueurs par score. La Partie libre n'en a pas.
+_À éviter_ : percentile, classement (réservé à la liste ordonnée des membres d'un Groupe)
+
 **Rapport** :
 Le quotient entre la plus grande et la plus petite Empreinte carbone d'un Duel (« ×11 »).
 _À éviter_ : écart, différence
