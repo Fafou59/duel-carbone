@@ -1,5 +1,5 @@
 /**
- * Le Rang du jour : « Tu as fait mieux ou autant que x % des joueurs du jour jusqu'ici » (issue 87, ADR 0005).
+ * Le Rang du jour : « Tu as fait mieux ou autant que x % des joueurs jusqu'ici » (issue 87, ADR 0005).
  *
  * Le serveur ne connaît personne : il ne garde, pour chaque jour, que les Effectifs (combien de joueurs ont fait
  * 0, combien 1… combien 10 au Duel du jour). Le jeu en déduit lui-même la place du joueur, avec les fonctions
@@ -67,13 +67,13 @@ const pourcent = (n: number) => `${n}\u00a0%`
 export function phraseDuRang(rang: RangDuJour): string {
   switch (rang.type) {
     case 'pourcentage':
-      return `Tu as fait mieux ou autant que ${pourcent(rang.pourcentage)} des joueurs du jour jusqu’ici.`
+      return `Tu as fait mieux ou autant que ${pourcent(rang.pourcentage)} des joueurs jusqu’ici.`
     case 'sansFaute':
       return rang.pourcentage === 0
         ? 'Sans-faute ! Personne d’autre n’y est arrivé aujourd’hui, pour l’instant.'
-        : `Sans-faute, comme ${pourcent(rang.pourcentage)} des joueurs du jour jusqu’ici.`
+        : `Sans-faute, comme ${pourcent(rang.pourcentage)} des joueurs jusqu’ici.`
     case 'encouragement':
-      return 'Les autres joueurs ont pris de l’avance aujourd’hui : chaque Duel raté t’en apprend un peu plus. Revanche demain !'
+      return 'Chaque Duel raté t’en apprend un peu plus. Revanche demain !'
   }
 }
 

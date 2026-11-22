@@ -348,7 +348,7 @@ describe('Application : le Rang du jour', () => {
     // Pas de lecture à la première fin : c'est l'envoi qui rapporte les Effectifs.
     expect(serveur.lire).not.toHaveBeenCalled()
     const attendu =
-      score === 0 ? /Revanche demain/ : score === 10 ? /Sans-faute/ : /mieux ou autant que 75 % des joueurs du jour/
+      score === 0 ? /Revanche demain/ : score === 10 ? /Sans-faute/ : /mieux ou autant que 75 % des joueurs jusqu’ici/
     expect(await screen.findByText(attendu)).toBeInTheDocument()
     expect(memoire.partieDuJour(JOUR)?.compte).toBe(true)
   })
@@ -376,7 +376,7 @@ describe('Application : le Rang du jour', () => {
     const serveur = fauxServeur([0, 0, 0, 2, 0, 1, 2, 0, 0, 1, 0])
     render(<App memoire={memoire} aujourdhui={JOUR} serveur={serveur} />)
     // (Testing Library lit l'espace insécable comme une espace ordinaire.)
-    expect(await screen.findByText('Tu as fait mieux ou autant que 80 % des joueurs du jour jusqu’ici.')).toBeInTheDocument()
+    expect(await screen.findByText('Tu as fait mieux ou autant que 80 % des joueurs jusqu’ici.')).toBeInTheDocument()
     expect(serveur.lire).toHaveBeenCalledWith(NUMERO)
   })
 
@@ -387,7 +387,7 @@ describe('Application : le Rang du jour', () => {
     const serveur = fauxServeur([0, 0, 0, 2, 0, 0, 1, 0, 0, 1, 0])
     render(<App memoire={memoire} aujourdhui={JOUR} serveur={serveur} />)
     await waitFor(() => expect(serveur.lire).toHaveBeenCalled())
-    expect(screen.queryByText(/des joueurs du jour/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/des joueurs jusqu’ici/)).not.toBeInTheDocument()
   })
 
   it('se joue normalement sans serveur (hors ligne, en panne) : le Rang ne s’affiche pas, c’est tout', async () => {
@@ -397,7 +397,7 @@ describe('Application : le Rang du jour', () => {
     jouerDixDuels()
     expect(screen.getByRole('heading', { name: 'Duel Carbone du jour n° 7' })).toBeInTheDocument()
     await waitFor(() => expect(serveur.envoyer).toHaveBeenCalled())
-    expect(screen.queryByText(/des joueurs du jour|Sans-faute|Revanche demain/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/des joueurs jusqu’ici|Sans-faute|Revanche demain/)).not.toBeInTheDocument()
   })
 
   it('n’envoie ni ne lit rien pour la Partie libre', async () => {

@@ -59,7 +59,7 @@ export const REGLES = {
   },
 
   /**
-   * Le Rang du jour (« Tu as fait mieux ou autant que x % des joueurs du jour ») ne s'affiche qu'à partir de ce
+   * Le Rang du jour (« Tu as fait mieux ou autant que x % des joueurs ») ne s'affiche qu'à partir de ce
    * nombre de joueurs ce jour-là, le joueur compris (issue 87) : avec 2 ou 3 joueurs, le chiffre ne veut rien dire
    * et laisse deviner le score des autres. À relever quand l'audience grandira.
    */

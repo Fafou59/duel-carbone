@@ -285,7 +285,7 @@ export function EcranEnSavoirPlus() {
         </p>
         <p>
           Une fois ton Duel du jour joué, le Rang du jour te dit où tu te situes : « Tu as fait mieux ou autant que
-          x % des joueurs du jour jusqu’ici ». Il compare ton score à celui des autres joueurs du jour, sans toi, et
+          x % des joueurs jusqu’ici ». Il compare ton score à celui des autres joueurs du jour, sans toi, et
           bouge au fil de la journée. Il n’apparaît qu’à partir de {REGLES.rangDuJour.joueursMinimum} joueurs dans la
           journée, et seule la première Partie du jour de chaque appareil compte, si elle se termine avant minuit. La
           Partie libre n’a pas de Rang.

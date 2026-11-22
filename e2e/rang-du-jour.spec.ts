@@ -10,7 +10,7 @@ import { jouerUnDuel, verifierAccessibilite } from './outils.ts'
 /** 213 joueurs du jour, au moins un par score : le Rang s'affiche quel que soit le score du joueur. */
 const EFFECTIFS = [1, 3, 7, 15, 26, 38, 44, 37, 24, 12, 6]
 
-const PHRASE_DU_RANG = /des joueurs du jour jusqu’ici|Sans-faute|Revanche demain/
+const PHRASE_DU_RANG = /des joueurs jusqu’ici|Sans-faute|Revanche demain/
 
 /** Branche le faux serveur ; renvoie les envois reçus. `enPanne` : il répond 503, comme une base injoignable. */
 async function fauxServeur(page: Page, numeroDuJour: () => number, { enPanne = false } = {}) {

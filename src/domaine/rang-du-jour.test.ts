@@ -116,12 +116,12 @@ describe('sontDesEffectifs : ce qui revient du serveur n’est jamais cru sur pa
 describe('phraseDuRang : ce que lit le joueur', () => {
   it('le cas général', () => {
     expect(phraseDuRang({ type: 'pourcentage', pourcentage: 72 })).toBe(
-      'Tu as fait mieux ou autant que 72\u00a0% des joueurs du jour jusqu’ici.',
+      'Tu as fait mieux ou autant que 72\u00a0% des joueurs jusqu’ici.',
     )
   })
 
   it('le sans-faute', () => {
-    expect(phraseDuRang({ type: 'sansFaute', pourcentage: 12 })).toBe('Sans-faute, comme 12\u00a0% des joueurs du jour jusqu’ici.')
+    expect(phraseDuRang({ type: 'sansFaute', pourcentage: 12 })).toBe('Sans-faute, comme 12\u00a0% des joueurs jusqu’ici.')
   })
 
   it('le seul sans-faute du jour, pour l’instant', () => {
