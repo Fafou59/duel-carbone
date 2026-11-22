@@ -1,4 +1,7 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState, type MouseEvent } from 'react'
+import { createPortal } from 'react-dom'
+import { ADRESSE_DU_JEU } from '../domaine/partage.ts'
+import { useGlisserPourFermer } from '../navigateur/glisser.ts'
 import {
   ecarterInvitation,
   invitationEcartee,
@@ -50,6 +53,7 @@ const ETAPES: Record<Guide, string[]> = {
 export function InvitationInstallationVue({ situation, installer, onEcarter, mesurer }: PropsVue) {
   const [fermee, setFermee] = useState(false)
   const [deplie, setDeplie] = useState(false)
+  const [qrOuvert, setQrOuvert] = useState(false)
   const idEtapes = useId()
   const ordinateur = situation === 'ordinateur' || situation === 'mac'
   const visible = situation !== 'installe' && !ordinateur && !fermee
@@ -63,13 +67,31 @@ export function InvitationInstallationVue({ situation, installer, onEcarter, mes
     }
   }, [visible, mesurer])
 
-  // Sur ordinateur, le jeu installé sert peu : pas de carte, juste un rappel discret (ni compté, ni à refuser).
+  // Sur ordinateur, le jeu installé sert peu : pas de carte, juste un rappel discret (ni compté, ni à refuser),
+  // dont « joue sur ton téléphone » ouvre le QR code du jeu (#98).
   if (ordinateur) {
+    const ouvrirQr = () => {
+      mesurer('installation/qr')
+      setQrOuvert(true)
+    }
     return (
-      <p className="installation-ligne">
-        Pour revenir demain : ajoute Duel Carbone à tes favoris ({situation === 'mac' ? '⌘' : 'Ctrl'} + D), ou joue
-        sur ton téléphone.
-      </p>
+      <>
+        <p className="installation-ligne">
+          Pour revenir demain : ajoute Duel Carbone à tes favoris ({situation === 'mac' ? '⌘' : 'Ctrl'} + D), ou{' '}
+          <button
+            type="button"
+            className="lien-bouton installation-ligne__qr"
+            aria-label="Joue sur ton téléphone : afficher un QR code"
+            aria-haspopup="dialog"
+            onClick={ouvrirQr}
+          >
+            joue sur ton téléphone
+          </button>
+          .
+        </p>
+        {/* Hors de la phrase : une <dialog> n'a pas sa place dans un paragraphe. */}
+        {qrOuvert && createPortal(<FenetreQrCode onFermer={() => setQrOuvert(false)} />, document.body)}
+      </>
     )
   }
   if (!visible) return null
@@ -126,6 +148,54 @@ export function InvitationInstallationVue({ situation, installer, onEcarter, mes
         </ol>
       )}
     </section>
+  )
+}
+
+/**
+ * Le QR code du jeu, à scanner avec l'appareil photo du téléphone (#98). L'image est fabriquée d'avance par
+ * npm run qr-code (public/qr-code.svg) ; l'adresse est écrite en clair dessous, pour qui ne peut pas scanner.
+ *
+ * Comme le détail d'un Duel du Récapitulatif, c'est une balise <dialog> ouverte avec showModal() : le navigateur
+ * fournit le fond sombre et la touche Échap, et rend le reste de la page inaccessible tant qu'elle est ouverte.
+ */
+function FenetreQrCode({ onFermer }: { onFermer: () => void }) {
+  const boite = useRef<HTMLDialogElement>(null)
+  const croix = useRef<HTMLButtonElement>(null)
+  const idTitre = useId()
+
+  useEffect(() => {
+    const dialogue = boite.current
+    if (dialogue && !dialogue.open) dialogue.showModal()
+    croix.current?.focus()
+  }, [])
+
+  const fermer = () => boite.current?.close()
+  useGlisserPourFermer(boite, fermer)
+  // Le fond sombre fait partie de la balise <dialog> : un clic dont la cible est la balise elle-même est un clic
+  // sur le fond.
+  const surClic = (evenement: MouseEvent<HTMLDialogElement>) => {
+    if (evenement.target === evenement.currentTarget) fermer()
+  }
+
+  return (
+    // Échap ferme la boîte nativement : l'événement « close » nous prévient dans tous les cas.
+    <dialog ref={boite} className="fenetre qr-code" aria-labelledby={idTitre} onClose={onFermer} onClick={surClic}>
+      <div className="qr-code__entete">
+        <h2 id={idTitre}>Joue sur ton téléphone</h2>
+        <button ref={croix} type="button" className="qr-code__fermer" aria-label="Fermer" onClick={fermer}>
+          {/* La même croix dessinée que le détail d'un Duel : le caractère « × » n'est pas centré partout. */}
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+            <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+          </svg>
+        </button>
+      </div>
+      <p>Scanne ce code avec l’appareil photo de ton téléphone : le jeu s’ouvre, et tu pourras l’installer sur ton écran d’accueil.</p>
+      {/* 33 carrés de 6 px : des carrés entiers restent nets. */}
+      <img className="qr-code__image" src="/qr-code.svg" alt="QR code vers duelcarbone.fr" width={198} height={198} />
+      <p className="qr-code__adresse">
+        Ou tape l’adresse : <strong>{new URL(ADRESSE_DU_JEU).hostname}</strong>
+      </p>
+    </dialog>
   )
 }
 

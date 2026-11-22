@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { InvitationInstallationVue } from './InvitationInstallation.tsx'
 
@@ -70,8 +70,49 @@ describe('L’invitation à installer le jeu, à la fin du Duel du jour', () => 
       `Pour revenir demain : ajoute Duel Carbone à tes favoris (${raccourci}), ou joue sur ton téléphone.`,
     )
     expect(screen.queryByRole('region')).not.toBeInTheDocument()
-    expect(screen.queryByRole('button')).not.toBeInTheDocument()
+    // « joue sur ton téléphone » est un bouton, qui dit ce qu'il ouvre ; la fenêtre reste fermée.
+    expect(screen.getByRole('button', { name: 'Joue sur ton téléphone : afficher un QR code' })).toHaveTextContent(
+      'joue sur ton téléphone',
+    )
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(p.mesurer).not.toHaveBeenCalled()
+  })
+
+  it('sur ordinateur, « joue sur ton téléphone » ouvre le QR code du jeu, avec son adresse en clair, et le compte', () => {
+    const p = afficher({ situation: 'ordinateur', installer: undefined })
+    fireEvent.click(screen.getByRole('button', { name: 'Joue sur ton téléphone : afficher un QR code' }))
+
+    const fenetre = screen.getByRole('dialog', { name: 'Joue sur ton téléphone' })
+    const qr = within(fenetre).getByRole('img', { name: 'QR code vers duelcarbone.fr' })
+    expect(qr).toHaveAttribute('src', '/qr-code.svg')
+    expect(fenetre).toHaveTextContent('duelcarbone.fr')
+    expect(within(fenetre).getByRole('button', { name: 'Fermer' })).toHaveFocus()
+    expect(p.mesurer).toHaveBeenCalledWith('installation/qr')
+  })
+
+  it('la fenêtre du QR code se ferme par la croix, Échap ou un clic sur le fond, et se compte à chaque ouverture', () => {
+    const p = afficher({ situation: 'mac', installer: undefined })
+    const ouvrir = () => fireEvent.click(screen.getByRole('button', { name: 'Joue sur ton téléphone : afficher un QR code' }))
+
+    ouvrir()
+    fireEvent.click(screen.getByRole('button', { name: 'Fermer' }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+
+    // Dans un vrai navigateur, Échap ferme le <dialog> et déclenche l'événement « close ».
+    ouvrir()
+    const fenetre = screen.getByRole('dialog', { name: 'Joue sur ton téléphone' }) as HTMLDialogElement
+    act(() => fenetre.close())
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+
+    // Le fond sombre fait partie de la balise <dialog> elle-même ; un clic sur son contenu ne la ferme pas.
+    ouvrir()
+    const fenetre2 = screen.getByRole('dialog', { name: 'Joue sur ton téléphone' })
+    fireEvent.click(within(fenetre2).getByRole('img'))
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    fireEvent.click(fenetre2)
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+
+    expect(vi.mocked(p.mesurer).mock.calls.filter(([evenement]) => evenement === 'installation/qr')).toHaveLength(3)
   })
 
   it('« Non merci » la ferme pour de bon', () => {

@@ -43,3 +43,64 @@
   color: var(--discret);
   font-size: 14px;
 }
+
+/* « joue sur ton téléphone » : un bouton dans la phrase, sans la marge des autres liens-boutons (#98). */
+.installation-ligne__qr {
+  padding: 0;
+  font-size: inherit;
+}
+
+/* La fenêtre du QR code : étroite, centrée, le code au milieu. */
+.qr-code {
+  width: min(360px, calc(100vw - 16px));
+  line-height: 1.45;
+  text-align: center;
+}
+
+.qr-code p {
+  margin: 0 0 12px;
+}
+
+.qr-code__entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+.qr-code__entete h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.qr-code__fermer {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 2px solid var(--ligne);
+  border-radius: 50%;
+  background: var(--carte);
+  color: var(--encre);
+  cursor: pointer;
+}
+
+.qr-code__fermer:focus-visible {
+  outline: 3px solid var(--marque);
+  outline-offset: 2px;
+}
+
+/* Noir sur blanc dans les deux thèmes : le fichier a son propre fond blanc (et sa marge). */
+.qr-code__image {
+  display: block;
+  margin: 0 auto 12px;
+  border-radius: 12px;
+}
+
+.qr-code__adresse strong {
+  font-size: 18px;
+}

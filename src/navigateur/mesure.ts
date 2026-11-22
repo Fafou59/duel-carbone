@@ -38,7 +38,7 @@ export type Evenement =
   | 'partage'
   | 'partage/image'
   | `erreur/${Plantage}`
-  | `installation/${'proposee' | 'guide' | 'acceptee' | 'refusee'}`
+  | `installation/${'proposee' | 'guide' | 'acceptee' | 'refusee' | 'qr'}`
 
 /** Les plantages comptés : une erreur de script, ou une promesse rejetée que personne n'a rattrapée. */
 export type Plantage = 'script' | 'promesse'
