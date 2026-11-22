@@ -24,8 +24,8 @@
     {
       "binding": "BASE",
       "database_name": "duel-carbone",
-      "database_id": "IDENTIFIANT_DE_LA_BASE_DE_PRODUCTION",
-      "preview_database_id": "IDENTIFIANT_DE_LA_BASE_DES_APERCUS"
+      "database_id": "b69ad0f7-ed91-4091-bfa4-46ae8056b334",
+      "preview_database_id": "7562794e-fd5e-4c6d-9cf7-c67cacc3ba92"
     }
   ],
   // Les aperçus des branches (commande « npx wrangler preview », lancée par Cloudflare pour chaque branche autre
@@ -36,7 +36,7 @@
       {
         "binding": "BASE",
         "database_name": "duel-carbone-apercus",
-        "database_id": "IDENTIFIANT_DE_LA_BASE_DES_APERCUS"
+        "database_id": "7562794e-fd5e-4c6d-9cf7-c67cacc3ba92"
       }
     ]
   }
