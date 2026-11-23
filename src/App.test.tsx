@@ -383,11 +383,12 @@ describe('Application : le Rang du jour', () => {
     expect(serveur.lire).toHaveBeenCalledWith(NUMERO)
   })
 
-  it('n’affiche rien sous 5 joueurs', async () => {
+  it('n’affiche rien sous 4 joueurs', async () => {
     const memoire = creerMemoire(stockage())
     memoire.terminerPartieDuJour(JOUR, 6)
     memoire.noterScoreCompte(JOUR)
-    const serveur = fauxServeur([0, 0, 0, 2, 0, 0, 1, 0, 0, 1, 0])
+    // 3 joueurs, le joueur compris : 3, 6 et 9.
+    const serveur = fauxServeur([0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0])
     render(<App memoire={memoire} aujourdhui={JOUR} serveur={serveur} />)
     await waitFor(() => expect(serveur.lire).toHaveBeenCalled())
     expect(screen.queryByText(/des joueurs jusqu’ici/)).not.toBeInTheDocument()

@@ -89,7 +89,7 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
   const scoreHier = memoire.partieDuJour(decalerJour(aujourdhui, -1))?.score ?? undefined
 
   /**
-   * Le Rang du jour du joueur pour ce jour-là, ou null (rien reçu du serveur, moins de 5 joueurs…).
+   * Le Rang du jour du joueur pour ce jour-là, ou null (rien reçu du serveur, moins de 4 joueurs…).
    * Les Effectifs reçus à l'envoi du score le comptent déjà ; ceux qu'on relit aussi, si la mémoire dit que
    * l'envoi a réussi. Dans ces deux cas, on le retire de sa case pour ne le comparer qu'aux autres.
    */

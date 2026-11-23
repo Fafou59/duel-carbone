@@ -197,7 +197,7 @@ describe('Page En savoir plus', () => {
     expect(paragraphe).toHaveTextContent(/combien de joueurs ont fait 0, 1… 10/)
     expect(paragraphe).toHaveTextContent(/Ni tes choix, ni l’heure, ni ton adresse IP, ni aucun identifiant/)
     expect(paragraphe).toHaveTextContent(/dans l’Union européenne/)
-    expect(screen.getByText(/le Rang du jour te dit où tu te situes/)).toHaveTextContent(/à partir de 5 joueurs/)
+    expect(screen.getByText(/le Rang du jour te dit où tu te situes/)).toHaveTextContent(/à partir de 4 joueurs/)
   })
 
   it('explique la mesure d’audience : GoatCounter, sans cookie, des chiffres agrégés', () => {
