@@ -106,6 +106,18 @@ _À éviter_ : niveau
 La liste des 10 Duels d'une Partie terminée, avec pour chacun le choix du joueur (bon ou mauvais) et le Rapport.
 _À éviter_ : historique, résumé
 
+**Taux d'erreur** :
+La part des réponses fausses à un Duel, comptée pour sa paire de Gestes quel que soit l'ordre des deux Gestes, le jour ou la Partie, affichée « 72 % de réponses fausses sur ce Duel ». On compte des réponses et non des joueurs : un même joueur peut retomber sur une paire. Il décrit ce que font les joueurs, alors que la Difficulté se déduit du Rapport.
+_À éviter_ : taux d'échec, part des joueurs qui se trompent, difficulté réelle
+
+**Geste sous-estimé** :
+Un Geste que les joueurs croient souvent moins émetteur qu'il n'est : dans ses Duels, quand il est le plus émetteur, les réponses fausses désignent souvent l'autre Geste. Se déduit des Taux d'erreur de ses Duels.
+_À éviter_ : Geste piège, Geste méconnu (qui regroupe sous-estimés et surestimés sans les distinguer)
+
+**Geste surestimé** :
+Un Geste que les joueurs croient souvent plus émetteur qu'il n'est : dans ses Duels, quand il est le moins émetteur, les réponses fausses le désignent souvent. Se déduit des Taux d'erreur de ses Duels.
+_À éviter_ : Geste piège, Geste méconnu
+
 **Juste émission** :
 Le jeu où le joueur estime l'Empreinte carbone d'un Geste à l'aide d'un curseur et marque des points selon la justesse de son estimation.
 _À éviter_ : jeu du curseur, devinette
