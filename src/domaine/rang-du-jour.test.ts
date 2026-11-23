@@ -27,14 +27,15 @@ describe('Rang du jour : la part des autres joueurs qui ont fait moins ou autant
     expect(rang).toEqual({ type: 'pourcentage', pourcentage: 50 })
   })
 
-  describe('le plancher de 5 joueurs (REGLES.rangDuJour)', () => {
-    it('ne donne rien à 4 joueurs, le joueur compris', () => {
-      expect(rangDuJour({ effectifs: effectifsDe(3, 5, 6, 8), score: 6, compte: true })).toBeNull()
-      expect(rangDuJour({ effectifs: effectifsDe(3, 5, 8), score: 6, compte: false })).toBeNull()
+  describe('le plancher de 4 joueurs (REGLES.rangDuJour)', () => {
+    it('ne donne rien à 3 joueurs, le joueur compris', () => {
+      expect(rangDuJour({ effectifs: effectifsDe(3, 6, 8), score: 6, compte: true })).toBeNull()
+      expect(rangDuJour({ effectifs: effectifsDe(3, 8), score: 6, compte: false })).toBeNull()
     })
 
-    it('donne un Rang à partir de 5 joueurs', () => {
-      expect(rangDuJour({ effectifs: effectifsDe(3, 5, 6, 8), score: 6, compte: false })).not.toBeNull()
+    it('donne un Rang à partir de 4 joueurs : le 4e voit le sien', () => {
+      expect(rangDuJour({ effectifs: effectifsDe(3, 5, 6, 8), score: 6, compte: true })).not.toBeNull()
+      expect(rangDuJour({ effectifs: effectifsDe(3, 5, 8), score: 6, compte: false })).not.toBeNull()
     })
   })
 

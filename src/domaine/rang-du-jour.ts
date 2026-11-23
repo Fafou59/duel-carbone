@@ -38,7 +38,7 @@ function enPourcent(part: number): number {
 }
 
 /**
- * Le Rang du jour d'un joueur, ou null s'il n'y a rien à afficher (moins de 5 joueurs, données abîmées).
+ * Le Rang du jour d'un joueur, ou null s'il n'y a rien à afficher (moins de 4 joueurs, données abîmées).
  *
  * - `effectifs` : ce qu'a renvoyé le serveur ;
  * - `score` : le score du joueur au Duel du jour ;
@@ -51,7 +51,7 @@ export function rangDuJour({ effectifs, score, compte }: { effectifs: unknown; s
   // On ne retire rien d'une case vide (base remise à zéro, par exemple) : on fait comme si l'envoi s'était perdu.
   if (compte && autres[score] > 0) autres[score] -= 1
   const nombreDAutres = somme(autres)
-  // Le plancher compte le joueur lui-même : « 5 joueurs ce jour-là ».
+  // Le plancher compte le joueur lui-même : « 4 joueurs ce jour-là ».
   if (nombreDAutres + 1 < REGLES.rangDuJour.joueursMinimum) return null
 
   if (score === NOMBRE_DE_DUELS) return { type: 'sansFaute', pourcentage: enPourcent(autres[score] / nombreDAutres) }

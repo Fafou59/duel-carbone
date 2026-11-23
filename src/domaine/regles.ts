@@ -64,7 +64,7 @@ export const REGLES = {
    * et laisse deviner le score des autres. À relever quand l'audience grandira.
    */
   rangDuJour: {
-    joueursMinimum: 5,
+    joueursMinimum: 4,
   },
 
   /**
