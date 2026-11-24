@@ -13,6 +13,7 @@ import type { DonneesImage } from '../domaine/image-de-partage.ts'
 import type { DuelDePartie } from '../domaine/partie.ts'
 import type { RangDuJour as Rang } from '../domaine/rang-du-jour.ts'
 import { phraseDuTaux } from '../domaine/taux-d-erreur.ts'
+import { Jauge, varianteTaux } from '../PROTOTYPE-taux-d-erreur.tsx'
 import { fabriquerImageDePartage } from '../navigateur/image-de-partage.ts'
 import {
   partager,
@@ -158,6 +159,8 @@ export function EcranFin({
 
   // Le Taux d'erreur de chaque Duel du Récapitulatif (null : rien à afficher).
   const taux = (ligne: LigneRecapitulatif) => tauxDe(ligne.duel)
+  // PROTOTYPE (issue 122) : la variante de placement du Taux d'erreur, ou null hors prototype.
+  const variante = varianteTaux()
 
   // Le Duel du jour reste à jouer (ou à finir) : il passe devant « Rejouer ».
   const inviterAuDuJour = !partieDuJour && duJour && duJour.situation !== 'joue' ? duJour : null
@@ -267,6 +270,7 @@ export function EcranFin({
               }}
               type="button"
               className={`recap__case recap__case--${ligne.bonne ? 'bon' : 'mauvais'}`}
+              style={variante === 'B' ? { position: 'relative' } : undefined}
               aria-haspopup="dialog"
               onClick={() => setOuvert(i)}
             >
@@ -284,10 +288,32 @@ export function EcranFin({
               <span className="recap__equivalence" aria-hidden="true">
                 1 <Icone id={ligne.plus.id} /> = {formaterMultiple(ligne.rapport)} <Icone id={ligne.moins.id} />
               </span>
-              {taux(ligne) !== null && (
+              {taux(ligne) !== null && variante !== 'B' && (
                 <span className="recap__taux">
                   <span className="visuellement-cache">, </span>
                   {phraseDuTaux(taux(ligne) ?? 0, { courte: true })}
+                  {/* PROTOTYPE variante C : la jauge dans chaque case. */}
+                  {variante === 'C' && <Jauge taux={taux(ligne) ?? 0} compacte />}
+                </span>
+              )}
+              {/* PROTOTYPE variante B : une pastille « 72 % » dans le coin de la case. */}
+              {taux(ligne) !== null && variante === 'B' && (
+                <span
+                  title={phraseDuTaux(taux(ligne) ?? 0, { courte: true })}
+                  style={{
+                    position: 'absolute',
+                    top: 6,
+                    right: 6,
+                    padding: '1px 7px',
+                    borderRadius: 99,
+                    background: 'var(--mauvais)',
+                    color: 'var(--carte)',
+                    fontSize: 12,
+                    fontWeight: 800,
+                  }}
+                >
+                  <span className="visuellement-cache">, réponses fausses : </span>
+                  {taux(ligne)}&nbsp;%
                 </span>
               )}
             </button>
