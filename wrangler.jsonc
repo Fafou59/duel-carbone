@@ -7,6 +7,8 @@
 //   - sur les autres branches : « npm run deployer:apercu » fait de même avec la base des aperçus, puis publie l'aperçu.
 // Le « && » entre les deux étapes garantit que si la migration échoue, rien n'est déployé : la production garde
 // l'ancienne version. Le jeton de Workers Builds doit avoir la permission « D1 : Edit » (ticket 117).
+// Attention : les réglages de l'onglet « Base des aperçus » ne valent que pour les aperçus créés ensuite ; un
+// aperçu qui existe déjà garde la commande qu'il avait à sa création (constaté le 24/11/2026).
 //
 // Deux règles en découlent pour le dossier migrations/ :
 //   - une migration AJOUTE sans casser (une table, une colonne) : elle passe quelques secondes avant le nouveau code,
