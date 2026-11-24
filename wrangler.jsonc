@@ -1,6 +1,19 @@
 // Configuration de l'hébergement chez Cloudflare (Workers), versionnée avec le code.
 // Cloudflare construit le jeu (npm run build, réglé dans son tableau de bord), puis publie le dossier dist/
 // et le serveur (serveur/index.ts). Voir docs/adr/0003-hebergement-cloudflare.md et 0005-serveur-worker-d1-sans-identite.md.
+//
+// Le déploiement, réglé lui aussi dans le tableau de bord (Workers Builds), appelle un script de package.json :
+//   - sur main : « npm run deployer » applique les nouvelles migrations à la base de production, puis déploie ;
+//   - sur les autres branches : « npm run deployer:apercu » fait de même avec la base des aperçus, puis publie l'aperçu.
+// Le « && » entre les deux étapes garantit que si la migration échoue, rien n'est déployé : la production garde
+// l'ancienne version. Le jeton de Workers Builds doit avoir la permission « D1 : Edit » (ticket 117).
+// Attention : les réglages de l'onglet « Base des aperçus » ne valent que pour les aperçus créés ensuite ; un
+// aperçu qui existe déjà garde la commande qu'il avait à sa création (constaté le 24/11/2026).
+//
+// Deux règles en découlent pour le dossier migrations/ :
+//   - une migration AJOUTE sans casser (une table, une colonne) : elle passe quelques secondes avant le nouveau code,
+//     donc l'ancien code doit encore fonctionner avec elle. Renommer ou supprimer se fait en deux fois ;
+//   - une seule branche à la fois porte une nouvelle migration, car la base des aperçus est partagée par toutes.
 {
   // Doit être identique au nom du Worker dans le tableau de bord Cloudflare.
   "name": "duel-carbone",
@@ -16,10 +29,13 @@
     "run_worker_first": ["/api/*"]
   },
   // La base D1 de production, créée dans la juridiction « eu » (les données restent dans l'Union européenne).
-  // Le serveur la reçoit sous le nom env.BASE. Sa table se crée avec les fichiers du dossier migrations/ :
+  // Le serveur la reçoit sous le nom env.BASE. Ses tables se créent avec les fichiers du dossier migrations/,
+  // appliqués à chaque déploiement (voir plus haut). À la main, en cas de besoin :
   //   npx wrangler d1 migrations apply duel-carbone --remote
   // « preview_database_id » désigne la base des aperçus (voir « previews » plus bas) pour les commandes de Wrangler :
   //   npx wrangler d1 migrations apply duel-carbone --remote --preview
+  // (Un « wrangler deploy --dry-run » affiche cet identifiant-là à côté de env.BASE : ce n'est que l'affichage,
+  // le déploiement utilise bien « database_id ».)
   "d1_databases": [
     {
       "binding": "BASE",
