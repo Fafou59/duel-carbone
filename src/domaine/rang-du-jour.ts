@@ -27,8 +27,8 @@ export const sontDesEffectifs = (brut: unknown): brut is Effectifs =>
 
 const somme = (nombres: number[]) => nombres.reduce((total, n) => total + n, 0)
 
-/** Une part (entre 0 et 1) en pour cent, sans jamais afficher 0 % ni 100 % à tort. */
-function enPourcent(part: number): number {
+/** Une part (entre 0 et 1) en pour cent, sans jamais afficher 0 % ni 100 % à tort (sert aussi au Taux d'erreur). */
+export function enPourcent(part: number): number {
   const arrondi = Math.round(part * 100)
   // Entre 0 et 1 % : 1 %, pour que seul un vrai zéro déclenche la phrase encourageante (issue 87).
   if (part > 0 && arrondi === 0) return 1
@@ -61,7 +61,7 @@ export function rangDuJour({ effectifs, score, compte }: { effectifs: unknown; s
 }
 
 /** Espace insécable : « 72 % » ne se coupe jamais en fin de ligne. */
-const pourcent = (n: number) => `${n}\u00a0%`
+export const pourcent = (n: number) => `${n}\u00a0%`
 
 /** La phrase que lit le joueur, sous son score. */
 export function phraseDuRang(rang: RangDuJour): string {

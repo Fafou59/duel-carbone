@@ -12,16 +12,25 @@ const EFFECTIFS = [1, 3, 7, 15, 26, 38, 44, 37, 24, 12, 6]
 
 const PHRASE_DU_RANG = /des joueurs jusqu’ici|Sans-faute|Revanche demain/
 
+/** Les comptes des paires demandées : 10 réponses chacune, dont 7 fausses (70 %). */
+const comptesDe = (cles: string[]) => Object.fromEntries(cles.map((cle) => [cle, { reponses: 10, fausses: 7 }]))
+
 /** Branche le faux serveur ; renvoie les envois reçus. `enPanne` : il répond 503, comme une base injoignable. */
 async function fauxServeur(page: Page, numeroDuJour: () => number, { enPanne = false } = {}) {
   const envois: { numero: number; choix: string[] }[] = []
+  // Le Taux d'erreur (ADR 0006) : au lancement, le jeu demande les comptes des 10 paires de la Partie.
+  await page.route('**/api/taux-d-erreur?*', (route) => {
+    if (enPanne) return route.fulfill({ status: 503, json: { erreur: 'base indisponible' } })
+    const cles = (new URL(route.request().url()).searchParams.get('paires') ?? '').split(',')
+    return route.fulfill({ json: { paires: comptesDe(cles) } })
+  })
   await page.route('**/api/rang-du-jour', (route) => {
     const requete = route.request()
     const envoi = requete.method() === 'POST' ? (requete.postDataJSON() as { numero: number; choix: string[] }) : null
     if (envoi) envois.push(envoi)
     if (enPanne) return route.fulfill({ status: 503, json: { erreur: 'base indisponible' } })
-    // Comme le vrai serveur, il répond avec le numéro du Duel du jour.
-    return route.fulfill({ json: { numero: envoi?.numero ?? numeroDuJour(), effectifs: EFFECTIFS } })
+    // Comme le vrai serveur, il répond avec le numéro du Duel du jour (et, après un envoi, les comptes à jour).
+    return route.fulfill({ json: { numero: envoi?.numero ?? numeroDuJour(), effectifs: EFFECTIFS, paires: {} } })
   })
   return envois
 }
@@ -67,6 +76,30 @@ for (const theme of ['light', 'dark'] as const) {
       await page.getByRole('button', { name: 'Revoir mon Récapitulatif' }).click()
       await expect(page.locator('.fin .rang-du-jour')).toHaveText(PHRASE_DU_RANG)
       expect(envois).toHaveLength(1)
+    })
+
+    test('le Taux d’erreur s’affiche à la révélation de chaque Duel, puis dans le Récapitulatif', async ({ page }) => {
+      let numero = 0
+      await fauxServeur(page, () => numero)
+      await page.goto('/')
+      const jouer = page.getByRole('button', { name: /^Jouer le Duel du jour n° \d+$/ })
+      await expect(jouer).toBeEnabled()
+      numero = Number((await jouer.textContent())?.match(/\d+/)?.[0])
+      await jouer.click()
+      // Rien avant le choix : le chiffre ne souffle pas la réponse.
+      await expect(page.getByText('Duel 1/10', { exact: true })).toBeVisible()
+      await expect(page.locator('.duel__taux')).toHaveCount(0)
+      await jouerUnDuel(page, 1)
+      await expect(page.locator('.duel__taux')).toHaveText('70 % de réponses fausses sur ce Duel')
+      await verifierAccessibilite(page, 'révélation d’un Duel, avec le Taux d’erreur')
+      await page.keyboard.press('Enter')
+      for (let n = 2; n <= 10; n++) {
+        await jouerUnDuel(page, n)
+        await page.keyboard.press('Enter')
+      }
+      await expect(page.locator('.recap__taux')).toHaveCount(10)
+      await expect(page.locator('.recap__taux').first()).toHaveText(/70\s% de réponses fausses$/)
+      await verifierAccessibilite(page, 'fin du Duel du jour, avec les Taux d’erreur')
     })
   })
 }

@@ -179,6 +179,14 @@
   color: var(--bon);
 }
 
+/* Le Taux d'erreur, sous le verdict : une information d'appoint, plus discrète que lui. */
+.duel__taux {
+  margin: 4px 0 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--discret);
+}
+
 .duel__verdict--mauvais {
   color: var(--mauvais);
 }

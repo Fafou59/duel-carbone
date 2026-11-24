@@ -121,6 +121,15 @@
   font-weight: 700;
 }
 
+/* Le Taux d'erreur du Duel (ADR 0006), sous l'équivalence : discret, comme le numéro. */
+.recap__taux {
+  display: block;
+  margin-top: 2px;
+  color: var(--discret);
+  font-size: 13px;
+  font-weight: 600;
+}
+
 /* La taille suit la largeur de l'écran (14 à 18 px) pour que l'équivalence tienne sur une ligne. */
 .recap__equivalence {
   display: block;

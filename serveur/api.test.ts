@@ -1,12 +1,13 @@
 // @vitest-environment node
 // (Le serveur ne tourne pas dans un navigateur : pas besoin de jsdom, et node:sqlite n'existe que dans Node.)
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { DatabaseSync } from 'node:sqlite'
 import { beforeEach, describe, expect, it } from 'vitest'
 import calendrierJson from '../src/donnees/calendrier.json'
 import { GESTES_CALCULES } from '../src/donnees/index.ts'
 import { partieDuJour, type Calendrier } from '../src/domaine/calendrier.ts'
-import { plusEmetteur, type Duel } from '../src/domaine/duel.ts'
+import { cleDePaire, plusEmetteur, type Duel } from '../src/domaine/duel.ts'
+import { cleDuDuel } from '../src/domaine/taux-d-erreur.ts'
 import { numeroDuJour } from '../src/domaine/jour.ts'
 import { traiterRequete } from './api.ts'
 import type { BaseD1, RequeteD1 } from './base.ts'
@@ -17,7 +18,11 @@ import type { BaseD1, RequeteD1 } from './base.ts'
  */
 function baseDeTest(): BaseD1 & { sqlite: DatabaseSync } {
   const sqlite = new DatabaseSync(':memory:')
-  sqlite.exec(readFileSync(new URL('../migrations/0001_effectifs.sql', import.meta.url), 'utf8'))
+  // Toutes les migrations, dans l'ordre de leur numéro, comme Wrangler les applique à la vraie base.
+  const dossier = new URL('../migrations/', import.meta.url)
+  for (const fichier of readdirSync(dossier).filter((f) => f.endsWith('.sql')).sort()) {
+    sqlite.exec(readFileSync(new URL(fichier, dossier), 'utf8'))
+  }
   const requete = (sql: string, valeurs: (string | number)[] = []): RequeteD1 => ({
     bind: (...v) => requete(sql, v),
     all: async <T,>() => ({ results: sqlite.prepare(sql).all(...valeurs) as T[] }),
@@ -62,6 +67,9 @@ const envoyer = (corps: unknown, base: BaseD1, entetes: Record<string, string> =
     MAINTENANT,
   )
 const lire = (base: BaseD1, maintenant = MAINTENANT) => traiterRequete(new Request(URL_API), { BASE: base }, maintenant)
+const URL_TAUX = 'https://duelcarbone.fr/api/taux-d-erreur'
+const lireTaux = (cles: string[], base: BaseD1) =>
+  traiterRequete(new Request(`${URL_TAUX}?${new URLSearchParams({ paires: cles.join(',') })}`), { BASE: base }, MAINTENANT)
 
 describe('le serveur du Rang du jour', () => {
   let base: ReturnType<typeof baseDeTest>
@@ -73,7 +81,7 @@ describe('le serveur du Rang du jour', () => {
     const reponse = await envoyer({ numero: NUMERO, choix: choixPour(7) }, base)
     expect(reponse.status).toBe(200)
     const effectifs = [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
-    expect(await reponse.json()).toEqual({ numero: NUMERO, effectifs })
+    expect(await reponse.json()).toMatchObject({ numero: NUMERO, effectifs })
   })
 
   it('renvoie les 11 effectifs du jour, même vides', async () => {
@@ -86,12 +94,16 @@ describe('le serveur du Rang du jour', () => {
     expect(await reponse.json()).toEqual({ numero: NUMERO, effectifs: [0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1] })
   })
 
-  it('ne garde rien d’autre que le jour, le score et le nombre de joueurs', async () => {
+  it('ne garde rien d’autre que des totaux : par jour et par score, puis par paire de Gestes', async () => {
     await envoyer({ numero: NUMERO, choix: choixPour(4), pseudo: 'Camille' }, base, {
       'Content-Type': 'application/json',
       'CF-Connecting-IP': '203.0.113.7',
     })
     expect(base.sqlite.prepare('SELECT * FROM effectifs').all()).toEqual([{ jour: JOUR, score: 4, joueurs: 1 }])
+    // Ni jour, ni heure, ni identifiant dans les comptes des paires : seulement la paire et deux nombres.
+    const lignes = base.sqlite.prepare('SELECT * FROM reponses ORDER BY paire').all()
+    expect(lignes).toHaveLength(10)
+    for (const ligne of lignes) expect(Object.keys(ligne as object).sort()).toEqual(['fausses', 'paire', 'reponses'])
   })
 
   it('ne compte que le Duel du jour d’aujourd’hui, heure de Paris', async () => {
@@ -128,6 +140,47 @@ describe('le serveur du Rang du jour', () => {
   it('n’accepte que du JSON (un autre site ne peut pas envoyer de score à la place d’un joueur)', async () => {
     const reponse = await envoyer(JSON.stringify({ numero: NUMERO, choix: choixPour(5) }), base, { 'Content-Type': 'text/plain' })
     expect(reponse.status).toBe(415)
+  })
+
+  it('compte les réponses de chaque paire, sans ordre, et renvoie les comptes à jour', async () => {
+    const cles = DUELS.map(cleDuDuel)
+    // Deux joueurs : le premier trouve les 7 premières réponses, le second les 3 premières.
+    await envoyer({ numero: NUMERO, choix: choixPour(7) }, base)
+    const reponse = await envoyer({ numero: NUMERO, choix: choixPour(3) }, base)
+    const { paires } = (await reponse.json()) as { paires: Record<string, { reponses: number; fausses: number }> }
+    expect(Object.keys(paires).sort()).toEqual([...cles].sort())
+    expect(paires[cles[0]]).toEqual({ reponses: 2, fausses: 0 })
+    expect(paires[cles[5]]).toEqual({ reponses: 2, fausses: 1 })
+    expect(paires[cles[9]]).toEqual({ reponses: 2, fausses: 2 })
+    // La clé est la même quel que soit l'ordre des deux Gestes à l'écran.
+    expect(cles[0]).toBe(cleDePaire(DUELS[0].b.id, DUELS[0].a.id))
+  })
+
+  it('lit les comptes des paires demandées, sans rien compter', async () => {
+    await envoyer({ numero: NUMERO, choix: choixPour(7) }, base)
+    const [premiere, deuxieme] = DUELS.map(cleDuDuel)
+    const reponse = await lireTaux([premiere, deuxieme, 'paire|jamais-jouee'], base)
+    expect(reponse.status).toBe(200)
+    expect(reponse.headers.get('Cache-Control')).toBe('no-store')
+    expect(await reponse.json()).toEqual({
+      paires: { [premiere]: { reponses: 1, fausses: 0 }, [deuxieme]: { reponses: 1, fausses: 0 } },
+    })
+    // Lire n'a rien ajouté.
+    const relu = (await (await lireTaux([premiere], base)).json()) as { paires: Record<string, unknown> }
+    expect(relu.paires[premiere]).toEqual({ reponses: 1, fausses: 0 })
+  })
+
+  it.each([
+    ['aucune paire', []],
+    ['plus de 10 paires', Array.from({ length: 11 }, (_, i) => `a${i}|b${i}`)],
+    ['une paire mal formée', ["avion|steak'; DROP TABLE reponses; --"]],
+  ])('refuse une lecture du Taux d’erreur avec %s', async (_, cles) => {
+    expect((await lireTaux(cles, base)).status).toBe(400)
+  })
+
+  it('n’accepte que la lecture à l’adresse du Taux d’erreur', async () => {
+    const post = new Request(URL_TAUX, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+    expect((await traiterRequete(post, { BASE: base }, MAINTENANT)).status).toBe(405)
   })
 
   it('répond 404 aux autres adresses et 405 aux autres méthodes', async () => {

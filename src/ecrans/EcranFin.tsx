@@ -10,7 +10,9 @@ import { formaterMultiple, queDevant } from '../domaine/format.ts'
 import { texteDePartage, texteDePartageDuJour } from '../domaine/partage.ts'
 import { messageDeScore, type LigneRecapitulatif } from '../domaine/recapitulatif.ts'
 import type { DonneesImage } from '../domaine/image-de-partage.ts'
+import type { DuelDePartie } from '../domaine/partie.ts'
 import type { RangDuJour as Rang } from '../domaine/rang-du-jour.ts'
+import { phraseDuTaux } from '../domaine/taux-d-erreur.ts'
 import { fabriquerImageDePartage } from '../navigateur/image-de-partage.ts'
 import {
   partager,
@@ -43,6 +45,8 @@ export type PropsFin = {
    * Partie, puis noté comme vu (pour ne pas le remontrer dans les Parties suivantes). Sans lui, pas de Conseil.
    */
   conseil?: { choisir: (lignes: LigneRecapitulatif[]) => ConseilAffiche; onVu: (id: string) => void }
+  /** Le Taux d'erreur d'un Duel, en pour cent, ou null (ADR 0006) : affiché dans sa case du Récapitulatif. */
+  tauxDErreur?: (duel: DuelDePartie) => number | null
   /** Comment partager (remplaçable dans les tests) : par défaut, avec les outils du navigateur. */
   onPartager?: (texte: string) => Promise<ResultatPartage>
   /** Comment partager le score en image (remplaçable dans les tests) : par défaut, avec les outils du navigateur. */
@@ -82,6 +86,7 @@ export function EcranFin({
   partieDuJour,
   duJour,
   conseil,
+  tauxDErreur: tauxDe = () => null,
   onPartager = partager,
   partageImage = PARTAGE_IMAGE_DU_NAVIGATEUR,
 }: PropsFin) {
@@ -150,6 +155,9 @@ export function EcranFin({
     setOuvert(null)
     cases.current[ouvert]?.focus()
   }
+
+  // Le Taux d'erreur de chaque Duel du Récapitulatif (null : rien à afficher).
+  const taux = (ligne: LigneRecapitulatif) => tauxDe(ligne.duel)
 
   // Le Duel du jour reste à jouer (ou à finir) : il passe devant « Rejouer ».
   const inviterAuDuJour = !partieDuJour && duJour && duJour.situation !== 'joue' ? duJour : null
@@ -276,6 +284,12 @@ export function EcranFin({
               <span className="recap__equivalence" aria-hidden="true">
                 1 <Icone id={ligne.plus.id} /> = {formaterMultiple(ligne.rapport)} <Icone id={ligne.moins.id} />
               </span>
+              {taux(ligne) !== null && (
+                <span className="recap__taux">
+                  <span className="visuellement-cache">, </span>
+                  {phraseDuTaux(taux(ligne) ?? 0, { courte: true })}
+                </span>
+              )}
             </button>
           </li>
         ))}

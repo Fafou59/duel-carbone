@@ -12,6 +12,7 @@ import { decalerJour, jourDeParis, numeroDuJour, secondesAvantMinuitAParis } fro
 import { NOMBRE_DE_DUELS, type DuelDePartie } from './domaine/partie.ts'
 import { rangDuJour, type Effectifs } from './domaine/rang-du-jour.ts'
 import type { LigneRecapitulatif } from './domaine/recapitulatif.ts'
+import { cleDuDuel, tauxDErreur, type ComptesDesPaires } from './domaine/taux-d-erreur.ts'
 import { doitForcerUnDuelThematique } from './domaine/thematiques.ts'
 import { Accueil, type Situation } from './ecrans/Accueil.tsx'
 import { EcranPartie } from './ecrans/EcranPartie.tsx'
@@ -53,6 +54,8 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
   const [partie, setPartie] = useState<Partie | null>(null)
   // Numéro de Partie : change à chaque nouvelle Partie, pour repartir d'un écran neuf.
   const [numero, setNumero] = useState(0)
+  // Les comptes des paires de la Partie en cours (Taux d'erreur, ADR 0006), et le numéro de cette Partie.
+  const [comptes, setComptes] = useState<{ numero: number; paires: ComptesDesPaires } | null>(null)
   // Le numéro de la dernière Partie terminée : son écran de fin est affiché, ses Duels sont joués.
   const [partieTerminee, setPartieTerminee] = useState<number | null>(null)
   // Le record actuel de la Partie libre (affiché sur l'accueil), et celui d'avant la Partie en cours.
@@ -116,6 +119,24 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
       actif = false
     }
   }, [relireLeRang, numero, aujourdhui, serveur])
+
+  // Le Taux d'erreur de chaque Duel se lit une fois, au lancement de la Partie du jour (ou quand on la reprend ou la
+  // revoit) : les 10 paires partent au serveur, qui rend leurs comptes. C'est ce chiffre-là qu'affiche la révélation.
+  // La Partie libre suivra (issue 122, étape 2).
+  useEffect(() => {
+    if (partie?.mode !== 'jour') return
+    let actif = true
+    const numeroDeLaPartie = numero
+    serveur.lireTaux(partie.duels.map(cleDuDuel)).then((paires) => {
+      if (actif && paires) setComptes({ numero: numeroDeLaPartie, paires })
+    })
+    return () => {
+      actif = false
+    }
+  }, [partie, numero, serveur])
+
+  /** Le Taux d'erreur d'un Duel de la Partie en cours, ou null (rien reçu du serveur, trop peu de réponses). */
+  const tauxDe = (duel: DuelDePartie) => (comptes?.numero === numero ? tauxDErreur(comptes.paires[cleDuDuel(duel)]) : null)
 
   // Une nouvelle version du jeu est prête (application installée) : on l'applique en silence dès que le joueur
   // est sur l'accueil, jamais en pleine Partie ni pendant une lecture (tutoriel, En savoir plus).
@@ -298,13 +319,18 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
                 setActualisation((n) => n + 1)
                 setPartieTerminee(numero)
                 if (!premiereFin || partie.jour !== aujourdhui) return
+                const numeroDeLaPartie = numero
                 serveur.envoyer(numeroDuJour(partie.jour), choix).then((recus) => {
                   if (!recus) return
                   memoire.noterScoreCompte(partie.jour)
-                  setEffectifs({ jour: partie.jour, effectifs: recus, score })
+                  setEffectifs({ jour: partie.jour, effectifs: recus.effectifs, score })
+                  // Les Taux d'erreur à jour, réponses du joueur comprises : le Récapitulatif les affiche.
+                  const paires = recus.paires
+                  if (paires) setComptes((avant) => ({ numero: numeroDeLaPartie, paires: { ...(avant?.numero === numeroDeLaPartie ? avant.paires : {}), ...paires } }))
                 })
               }}
               onRejouer={lancerPartie}
+              tauxDErreur={tauxDe}
               fin={{
                 partieDuJour: { numero: numeroDuJour(partie.jour), serie: serie.actuelle, rang: rangDu(partie.jour) },
                 conseil: conseilDeFin(partie.jour),
