@@ -58,6 +58,7 @@ export function phraseDuVerdict(bon: boolean, taux: number): string {
     if (taux >= 50) return `Bien vu : ${taux} % des réponses à ce Duel sont fausses.`
     return `${taux} % des réponses à ce Duel sont fausses.`
   }
+  if (taux === 0) return 'Piégé : jusqu’ici, aucune autre réponse fausse sur ce Duel.'
   if (taux === 100) return 'Pas de panique : toutes les réponses à ce Duel sont fausses.'
   if (taux >= 50) return `Pas de panique : ${taux} % des réponses à ce Duel sont fausses.`
   return `Piégé : seulement ${taux} % des réponses à ce Duel sont fausses.`
