@@ -21,7 +21,9 @@
     "image-partage": "node scripts/image-partage.ts",
     "qr-code": "node scripts/qr-code.ts",
     "analyse:paires": "node scripts/analyse-paires.ts",
-    "empreinte-ia": "node scripts/empreinte-ia.ts"
+    "empreinte-ia": "node scripts/empreinte-ia.ts",
+    "deployer": "wrangler d1 migrations apply duel-carbone --remote && wrangler deploy",
+    "deployer:apercu": "wrangler d1 migrations apply duel-carbone --remote --preview && wrangler preview"
   },
   "dependencies": {
     "react": "^19.3.1",
@@ -45,6 +47,7 @@
     "typescript": "~7.0.2",
     "vite": "^8.3.6",
     "vite-plugin-pwa": "^2.0.0",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.0",
+    "wrangler": "^4.167.0"
   }
 }
