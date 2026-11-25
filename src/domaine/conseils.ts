@@ -3,7 +3,7 @@
  * proposée comme une suggestion (« Et si… »), avec un lien « En savoir plus » vers une page de l'ADEME.
  *
  * Un Conseil est rangé en trois morceaux, pour pouvoir changer l'un sans toucher aux autres :
- * - le texte, écrit maison (si l'ADEME accepte qu'on cite ses « Idées pour agir », on ne remplacera que lui) ;
+ * - le texte, écrit maison (les actions de Nos Gestes Climat sont des articles, pas des phrases à reprendre : issue 126) ;
  * - les chiffres, jamais écrits en dur : calculés à partir des valeurs de l'Instantané, pour ne jamais
  *   contredire un Duel ;
  * - le lien.
@@ -13,8 +13,12 @@
 import type { Instantane } from '../donnees/referentiel.ts'
 import type { SourceDeHasard } from './hasard.ts'
 
-/** Combien de Parties on se souvient des Conseils vus : un Conseil ne revient pas avant 5 Parties. */
-export const CONSEILS_RECENTS = 5
+/**
+ * Combien de Parties on se souvient des Conseils vus : un Conseil ne revient pas avant 10 Parties.
+ * 10 depuis l'issue 126 (5 avant) : les Conseils amenés par beaucoup de Gestes (« repas végétarien ») revenaient
+ * plus souvent que les autres. Sur 2 000 Parties simulées, le plus vu passe de 9,5 % à 7 % des Parties.
+ */
+export const CONSEILS_RECENTS = 10
 
 /** Ce qu'un Conseil peut lire de l'Instantané, par le slug d'un Équivalent ADEME (en kg CO2e par unité). */
 export type Valeurs = {

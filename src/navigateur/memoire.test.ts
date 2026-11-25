@@ -219,7 +219,10 @@ describe('Mémoire locale : les Conseils vus', () => {
     const memoire = creerMemoire(contenu)
     expect(memoire.conseilsRecents()).toEqual([])
     for (let i = 1; i <= CONSEILS_RECENTS + 2; i++) memoire.noterConseil(`conseil-${i}`)
-    expect(memoire.conseilsRecents()).toEqual(['conseil-3', 'conseil-4', 'conseil-5', 'conseil-6', 'conseil-7'])
+    // Les 2 plus anciens sont oubliés, les CONSEILS_RECENTS derniers retenus dans l'ordre.
+    expect(memoire.conseilsRecents()).toEqual(
+      Array.from({ length: CONSEILS_RECENTS }, (_, i) => `conseil-${i + 3}`),
+    )
     expect(creerMemoire(contenu).conseilsRecents()).toHaveLength(CONSEILS_RECENTS)
   })
 
