@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
 import { CONSEILS } from '../donnees/conseils.ts'
+import { CONSEILS_RECENTS } from '../domaine/conseils.ts'
 import { GESTES_CALCULES, gesteCalcule, INSTANTANE } from '../donnees/index.ts'
 import { enMinuscule, formaterDate, formaterEmpreinte } from '../domaine/format.ts'
 import { REGLES } from '../domaine/regles.ts'
@@ -313,7 +314,7 @@ export function EcranEnSavoirPlus() {
           À la fin de chaque Partie, un Conseil propose une action concrète, liée à un geste de ta Partie, de
           préférence à un Duel que tu as raté. Le jeu en compte {CONSEILS.length}, écrits par Duel Carbone : l'ADEME
           publie des idées pour agir, mais pas de conseil chiffré pour chaque geste. Un même Conseil ne revient pas
-          avant 5 Parties.
+          avant {CONSEILS_RECENTS} Parties.
         </p>
         <p>
           Leurs chiffres ne sont jamais écrits à la main : ils sont calculés avec les mêmes valeurs de l'ADEME que les
@@ -328,7 +329,7 @@ export function EcranEnSavoirPlus() {
         <p>
           Le Conseil l'arrondit (« environ {formaterEmpreinte(Math.round(ECONOMIE_VEGETARIENNE / 10) * 10)} ») et
           renvoie vers une page de l'ADEME pour aller plus loin : une action de Nos Gestes Climat, ou les questions
-          fréquentes d'Impact CO2.
+          fréquentes d'Impact CO2. Les liens vers les actions de Nos Gestes Climat sont faits avec l'accord de l'ADEME.
         </p>
       </Partie>
 

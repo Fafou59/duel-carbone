@@ -154,8 +154,8 @@ describe('Le choix du Conseil de fin de Partie', () => {
     expect(choisi.id).toBe('jean')
   })
 
-  it('se souvient des Conseils des 5 dernières Parties', () => {
-    expect(CONSEILS_RECENTS).toBe(5)
+  it('se souvient des Conseils des 10 dernières Parties (issue 126)', () => {
+    expect(CONSEILS_RECENTS).toBe(10)
   })
 })
 
