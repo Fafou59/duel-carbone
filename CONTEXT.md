@@ -125,3 +125,25 @@ _À éviter_ : jeu du curseur, devinette
 **Comparateur** :
 La page qui exprime l'Empreinte carbone d'un Geste choisi en nombre d'autres Gestes (« Paris–New York = x steaks »).
 _À éviter_ : convertisseur, calculateur
+
+## Mode animation
+
+**Mode animation** :
+La manière de jouer à Duel Carbone en groupe et en direct : un Animateur projette les Duels, les Participants répondent sur leur téléphone, et la salle découvre ensemble la réponse.
+_À éviter_ : mode Kahoot, mode quiz, mode multijoueur
+
+**Séance** :
+Une animation en direct, de l'affichage du code d'entrée aux résultats finaux. Ses Duels sont tirés comme ceux d'une Partie libre, avec toujours un Duel thématique ; mais une Séance n'est pas une Partie : elle se joue à plusieurs, au rythme de l'Animateur.
+_À éviter_ : session, salle, partie en direct, quiz
+
+**Animateur** :
+La personne qui crée la Séance, la projette et fait avancer les Duels. Il décide à la création s'il y aura un Classement.
+_À éviter_ : hôte, organisateur, admin
+
+**Participant** :
+Une personne qui rejoint une Séance avec son téléphone. Il ne donne un pseudo que si l'Animateur a choisi un Classement.
+_À éviter_ : joueur (réservé à la Partie en solo), invité
+
+**Classement** :
+La liste des Participants d'une Séance rangés par nombre de bonnes réponses, sous leur pseudo : les 10 premiers sur l'écran projeté après chaque Duel et à la fin, et sur son téléphone le score et le rang de chaque Participant. Les scores égaux sont ex aequo : la vitesse de réponse ne compte pas. Il n'existe que si l'Animateur l'a choisi en créant la Séance.
+_À éviter_ : podium, palmarès, Rang (réservé au Rang du jour)
