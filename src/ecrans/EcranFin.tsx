@@ -12,8 +12,7 @@ import { messageDeScore, type LigneRecapitulatif } from '../domaine/recapitulati
 import type { DonneesImage } from '../domaine/image-de-partage.ts'
 import type { DuelDePartie } from '../domaine/partie.ts'
 import type { RangDuJour as Rang } from '../domaine/rang-du-jour.ts'
-import { phraseDuTaux } from '../domaine/taux-d-erreur.ts'
-import { CaseCommeToi, varianteTaux } from '../PROTOTYPE-taux-d-erreur.tsx'
+import { CommeToi } from '../composants/CommeToi.tsx'
 import { fabriquerImageDePartage } from '../navigateur/image-de-partage.ts'
 import {
   partager,
@@ -46,7 +45,7 @@ export type PropsFin = {
    * Partie, puis noté comme vu (pour ne pas le remontrer dans les Parties suivantes). Sans lui, pas de Conseil.
    */
   conseil?: { choisir: (lignes: LigneRecapitulatif[]) => ConseilAffiche; onVu: (id: string) => void }
-  /** Le Taux d'erreur d'un Duel, en pour cent, ou null (ADR 0006) : affiché dans sa case du Récapitulatif. */
+  /** Le Taux d'erreur d'un Duel, en pour cent, ou null (ADR 0006) : sa case du Récapitulatif en tire « 72 % comme toi ». */
   tauxDErreur?: (duel: DuelDePartie) => number | null
   /** Comment partager (remplaçable dans les tests) : par défaut, avec les outils du navigateur. */
   onPartager?: (texte: string) => Promise<ResultatPartage>
@@ -159,8 +158,6 @@ export function EcranFin({
 
   // Le Taux d'erreur de chaque Duel du Récapitulatif (null : rien à afficher).
   const taux = (ligne: LigneRecapitulatif) => tauxDe(ligne.duel)
-  // PROTOTYPE (issue 122) : la variante de placement du Taux d'erreur, ou null hors prototype.
-  const variante = varianteTaux()
 
   // Le Duel du jour reste à jouer (ou à finir) : il passe devant « Rejouer ».
   const inviterAuDuJour = !partieDuJour && duJour && duJour.situation !== 'joue' ? duJour : null
@@ -287,15 +284,10 @@ export function EcranFin({
               <span className="recap__equivalence" aria-hidden="true">
                 1 <Icone id={ligne.plus.id} /> = {formaterMultiple(ligne.rapport)} <Icone id={ligne.moins.id} />
               </span>
-              {taux(ligne) !== null && variante === null && (
+              {taux(ligne) !== null && (
                 <span className="recap__taux">
-                  <span className="visuellement-cache">, </span>
-                  {phraseDuTaux(taux(ligne) ?? 0, { courte: true })}
+                  <CommeToi bon={ligne.bonne} taux={taux(ligne) ?? 0} petite />
                 </span>
-              )}
-              {/* PROTOTYPE (E, F, G) : la part des réponses « comme toi », sur une ligne. */}
-              {taux(ligne) !== null && variante !== null && (
-                <CaseCommeToi variante={variante} bon={ligne.bonne} tauxDErreur={taux(ligne) ?? 0} />
               )}
             </button>
           </li>

@@ -1,0 +1,39 @@
+/* « ▬▬▭ 72 % comme toi » (CommeToi.tsx) : une ligne, jamais coupée. */
+.comme-toi {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  color: var(--encre);
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.comme-toi--petite {
+  color: var(--discret);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* La barre : le fond gris, et la part « comme toi » dans la couleur du verdict. */
+.comme-toi__barre {
+  display: inline-flex;
+  flex: none;
+  width: 56px;
+  height: 0.5em;
+  overflow: hidden;
+  border-radius: 99px;
+  background: var(--ligne);
+}
+
+.comme-toi--petite .comme-toi__barre {
+  width: 36px;
+}
+
+.comme-toi__part--bon {
+  background: var(--bon);
+}
+
+.comme-toi__part--mauvais {
+  background: var(--mauvais);
+}

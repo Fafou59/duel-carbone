@@ -22,8 +22,6 @@ import { creerMemoire, type Memoire } from './navigateur/memoire.ts'
 import { appliquerNouvelleVersion, useNouvelleVersion } from './navigateur/mise-a-jour.ts'
 import { serveurDuRang, type ServeurDuRang } from './navigateur/rang-du-jour.ts'
 
-import { PrototypeSwitcher } from './composants/PrototypeSwitcher.tsx'
-import { tauxSimule, varianteTaux, VARIANTES_TAUX, type VarianteTaux } from './PROTOTYPE-taux-d-erreur.tsx'
 import { IMPACT_CO2_DOC } from './liens.ts'
 import { TITRE_ACCUEIL, TITRE_EN_SAVOIR_PLUS } from './referencement.ts'
 
@@ -138,10 +136,7 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
   }, [partie, numero, serveur])
 
   /** Le Taux d'erreur d'un Duel de la Partie en cours, ou null (rien reçu du serveur, trop peu de réponses). */
-  const tauxReel = (duel: DuelDePartie) => (comptes?.numero === numero ? tauxDErreur(comptes.paires[cleDuDuel(duel)]) : null)
-  // PROTOTYPE (issue 122) : en mode prototype, des chiffres simulés, en Partie libre aussi.
-  const [variante, setVariante] = useState(() => varianteTaux())
-  const tauxDe = variante ? tauxSimule : tauxReel
+  const tauxDe = (duel: DuelDePartie) => (comptes?.numero === numero ? tauxDErreur(comptes.paires[cleDuDuel(duel)]) : null)
 
   // Une nouvelle version du jeu est prête (application installée) : on l'applique en silence dès que le joueur
   // est sur l'accueil, jamais en pleine Partie ni pendant une lecture (tutoriel, En savoir plus).
@@ -295,7 +290,6 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
                 setPartieTerminee(numero)
               }}
               onRejouer={lancerPartie}
-              tauxDErreur={variante ? tauxDe : undefined}
               // Le Duel du jour, proposé en premier à la fin s'il reste à jouer (une fois le calendrier arrivé).
               fin={{
                 conseil: conseilDeFin(),
@@ -356,7 +350,6 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
         </p>
       </footer>
       <Tutoriel ouvert={tutoriel} onFermer={() => setTutoriel(false)} onJouer={lancerPartieDuJour} />
-      {variante && <PrototypeSwitcher variantes={VARIANTES_TAUX} courante={variante} onChange={(v) => setVariante(v as VarianteTaux)} />}
     </div>
   )
 }

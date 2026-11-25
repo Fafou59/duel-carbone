@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { GESTES_CALCULES } from '../donnees/index.ts'
 import { plusEmetteur, moinsEmetteur, type Duel } from './duel.ts'
 import { REGLES } from './regles.ts'
-import { cleDuDuel, phraseDuTaux, reponsesDeLaPartie, sontDesComptes, tauxDErreur } from './taux-d-erreur.ts'
+import { cleDuDuel, partCommeToi, phraseCommeToi, reponsesDeLaPartie, sontDesComptes, tauxDErreur } from './taux-d-erreur.ts'
 
 const geste = (id: string) => {
   const trouve = GESTES_CALCULES.find((g) => g.id === id)
@@ -25,11 +25,14 @@ describe('le Taux d’erreur', () => {
     expect(tauxDErreur({ reponses: 1000, fausses: 1000 })).toBe(100)
   })
 
-  it('se dit toujours en réponses fausses, avec deux phrases pour les extrêmes', () => {
-    expect(phraseDuTaux(72)).toBe('72 % de réponses fausses sur ce Duel')
-    expect(phraseDuTaux(72, { courte: true })).toBe('72 % de réponses fausses')
-    expect(phraseDuTaux(0)).toBe('Aucune réponse fausse sur ce Duel')
-    expect(phraseDuTaux(100, { courte: true })).toBe('Que des réponses fausses')
+  it('se montre au joueur comme la part des réponses qui vont dans le même sens que la sienne', () => {
+    // 72 % de réponses fausses : 72 % comme toi si tu t'es trompé, 28 % si tu as trouvé.
+    expect(partCommeToi(false, 72)).toBe(72)
+    expect(partCommeToi(true, 72)).toBe(28)
+    // Les arrondis prudents du Taux d'erreur restent justes : 0 % et 100 % seulement s'ils sont vrais.
+    expect(partCommeToi(true, 99)).toBe(1)
+    expect(partCommeToi(true, 0)).toBe(100)
+    expect(phraseCommeToi(72)).toBe('72 % comme toi')
   })
 })
 

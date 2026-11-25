@@ -5,7 +5,7 @@ date: 2026-11-23
 
 # Compter les erreurs par paire de Gestes, en un envoi par Partie
 
-Un joueur a demandé à savoir, pour chaque Duel, combien de personnes se trompent. Le serveur du Rang du jour (ADR 0005) reçoit déjà les 10 choix du Duel du jour pour recalculer le score, puis les oublie. Nous lui faisons désormais garder, **pour chaque paire de Gestes**, deux compteurs : le nombre de réponses et le nombre de réponses fausses. Le jeu en tire le **Taux d'erreur** (« 72 % de réponses fausses sur ce Duel »), affiché à la révélation de chaque Duel et sur le Récapitulatif, dès 4 réponses. Les mêmes compteurs permettent de repérer les Gestes sous-estimés et surestimés.
+Un joueur a demandé à savoir, pour chaque Duel, combien de personnes se trompent. Le serveur du Rang du jour (ADR 0005) reçoit déjà les 10 choix du Duel du jour pour recalculer le score, puis les oublie. Nous lui faisons désormais garder, **pour chaque paire de Gestes**, deux compteurs : le nombre de réponses et le nombre de réponses fausses. Le jeu en tire le **Taux d'erreur**, qu'il montre au joueur à travers sa propre réponse : « 72 % comme toi », avec une petite barre, sur la ligne du verdict de chaque Duel et dans le Récapitulatif, dès 4 réponses (la part des bonnes réponses s'il a trouvé, des fausses sinon ; prototype du 25/11, branche `prototype/taux-d-erreur`). Les mêmes compteurs permettent de repérer les Gestes sous-estimés et surestimés.
 
 La paire est comptée **sans ordre** (jean contre pull = pull contre jean), **tous jours et toutes Parties confondus** : un Duel thématique et un Duel tiré au hasard sur la même paire comptent ensemble. On compte des **réponses**, pas des joueurs : le serveur ne connaît toujours aucune identité, et un même joueur peut retomber sur une paire.
 

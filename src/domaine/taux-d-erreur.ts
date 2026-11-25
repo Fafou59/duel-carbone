@@ -45,15 +45,14 @@ export function tauxDErreur(compte: CompteDePaire | undefined): number | null {
 }
 
 /**
- * La phrase que lit le joueur. Toujours tournée vers l'erreur, pour se lire de la même façon d'un Duel à l'autre ;
- * deux phrases à part pour les extrêmes. La version courte, sans « sur ce Duel », sert au Récapitulatif.
+ * Ce que voit le joueur : la part des réponses qui vont dans le même sens que la sienne (prototype du 25/11,
+ * variante F). S'il a trouvé, la part des bonnes réponses ; s'il s'est trompé, la part des réponses fausses.
+ * `taux` est le Taux d'erreur déjà arrondi : 100 − taux reste juste (0 % et 100 % seulement s'ils sont vrais).
  */
-export function phraseDuTaux(taux: number, { courte = false }: { courte?: boolean } = {}): string {
-  const suite = courte ? '' : ' sur ce Duel'
-  if (taux === 0) return `Aucune réponse fausse${suite}`
-  if (taux === 100) return `Que des réponses fausses${suite}`
-  return `${pourcent(taux)} de réponses fausses${suite}`
-}
+export const partCommeToi = (bon: boolean, taux: number): number => (bon ? 100 - taux : taux)
+
+/** « 72 % comme toi » : une ligne, à côté du verdict et dans le Récapitulatif, avec une petite barre. */
+export const phraseCommeToi = (part: number): string => `${pourcent(part)} comme toi`
 
 /**
  * Ce que le serveur compte à la fin d'une Partie : pour chaque Duel, sa clé et si la réponse était fausse.

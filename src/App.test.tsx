@@ -437,9 +437,10 @@ describe('Application : le Rang du jour', () => {
     const auDuel = screen.queryByRole('button', { name: 'Au Duel !' })
     if (auDuel) fireEvent.click(auDuel)
     // Avant le choix, rien : le chiffre ne doit pas souffler la réponse.
-    expect(screen.queryByText(/réponses fausses/)).not.toBeInTheDocument()
+    expect(document.querySelector('.comme-toi')).toBeNull()
     fireEvent.click(within(screen.getByRole('region', { name: 'Lequel émet le plus ?' })).getAllByRole('button')[0])
-    expect(await screen.findByText('70 % de réponses fausses sur ce Duel')).toBeInTheDocument()
+    // 70 % de réponses fausses : 70 % comme toi si la première carte était fausse, 30 % sinon.
+    await waitFor(() => expect(document.querySelector('.duel__verdict .comme-toi')?.textContent).toMatch(/^, (30|70)\s% comme toi \(part des réponses identiques à la tienne\)$/))
 
     // On finit la Partie (le premier Duel est déjà choisi).
     fireEvent.click(screen.getByRole('button', { name: 'Duel suivant →' }))
@@ -449,7 +450,9 @@ describe('Application : le Rang du jour', () => {
       fireEvent.click(within(screen.getByRole('region', { name: 'Lequel émet le plus ?' })).getAllByRole('button')[0])
       fireEvent.click(screen.getByRole('button', { name: i === 9 ? 'Voir mon score' : 'Duel suivant →' }))
     }
-    await waitFor(() => expect(screen.getAllByText('73 % de réponses fausses')).toHaveLength(10))
+    // À la fin, le joueur compté : 11 réponses dont 8 fausses, soit 73 % ou 27 % comme toi selon la case.
+    await waitFor(() => expect(document.querySelectorAll('.recap__taux .comme-toi')).toHaveLength(10))
+    for (const caseDuRecap of document.querySelectorAll('.recap__taux .comme-toi')) expect(caseDuRecap.textContent).toMatch(/(27|73)\s% comme toi/)
   })
 
   it('ne montre aucun Taux d’erreur sous le minimum de réponses, ni sans serveur', async () => {
@@ -459,7 +462,7 @@ describe('Application : le Rang du jour', () => {
     await lancerLeDuelDuJour()
     await waitFor(() => expect(serveur.lireTaux).toHaveBeenCalled())
     jouerDixDuels()
-    expect(screen.queryByText(/réponses fausses|réponse fausse/)).not.toBeInTheDocument()
+    expect(document.querySelector('.comme-toi')).toBeNull()
   })
 
   it('ne demande pas le Taux d’erreur en Partie libre (pas encore : étape 2 de l’issue 122)', async () => {

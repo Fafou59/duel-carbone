@@ -88,9 +88,10 @@ for (const theme of ['light', 'dark'] as const) {
       await jouer.click()
       // Rien avant le choix : le chiffre ne souffle pas la réponse.
       await expect(page.getByText('Duel 1/10', { exact: true })).toBeVisible()
-      await expect(page.locator('.duel__taux')).toHaveCount(0)
-      await jouerUnDuel(page, 1)
-      await expect(page.locator('.duel__taux')).toHaveText('70 % de réponses fausses sur ce Duel')
+      await expect(page.locator('.comme-toi')).toHaveCount(0)
+      const bon = await jouerUnDuel(page, 1)
+      // 70 % de réponses fausses : « 30 % comme toi » si le joueur a trouvé, « 70 % comme toi » sinon, sur la ligne du verdict.
+      await expect(page.locator('.duel__verdict .comme-toi')).toContainText(new RegExp(`^, ${bon ? 30 : 70}\\s% comme toi`))
       await verifierAccessibilite(page, 'révélation d’un Duel, avec le Taux d’erreur')
       await page.keyboard.press('Enter')
       for (let n = 2; n <= 10; n++) {
@@ -98,7 +99,7 @@ for (const theme of ['light', 'dark'] as const) {
         await page.keyboard.press('Enter')
       }
       await expect(page.locator('.recap__taux')).toHaveCount(10)
-      await expect(page.locator('.recap__taux').first()).toHaveText(/70\s% de réponses fausses$/)
+      await expect(page.locator('.recap__taux').first()).toContainText(/(30|70)\s% comme toi/)
       await verifierAccessibilite(page, 'fin du Duel du jour, avec les Taux d’erreur')
     })
   })

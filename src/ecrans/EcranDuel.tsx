@@ -6,8 +6,7 @@ import { estBonChoix, plusEmetteur, rapport } from '../domaine/duel.ts'
 import { formaterRapport } from '../domaine/format.ts'
 import type { GesteCalcule } from '../domaine/geste.ts'
 import type { DuelDePartie } from '../domaine/partie.ts'
-import { phraseDuTaux } from '../domaine/taux-d-erreur.ts'
-import { varianteTaux, VerdictCommeToi } from '../PROTOTYPE-taux-d-erreur.tsx'
+import { CommeToi } from '../composants/CommeToi.tsx'
 import { mouvementReduit } from '../navigateur/mouvement.ts'
 import './EcranDuel.css'
 
@@ -22,7 +21,7 @@ type Props = {
   onChoisir: (idGeste: string) => void
   /** Ce qui s'affiche à la fin de l'explication (ex. le bouton « Duel suivant »). */
   suite?: ReactNode
-  /** Le Taux d'erreur de ce Duel, en pour cent (null : rien à afficher), montré sous le verdict. */
+  /** Le Taux d'erreur de ce Duel, en pour cent (null : rien à afficher) : le verdict en tire « 72 % comme toi ». */
   tauxDErreur?: number | null
 }
 
@@ -31,8 +30,6 @@ export const DELAI_DEFILEMENT_MS = 1500
 
 export function EcranDuel({ duel, choix, onChoisir, suite, tauxDErreur = null }: Props) {
   const revele = choix !== null
-  // PROTOTYPE (issue 122) : la variante de placement du Taux d'erreur, ou null hors prototype.
-  const variante = varianteTaux()
   // Une « référence » vers l'élément HTML de l'explication, pour pouvoir y faire défiler la page.
   const explication = useRef<HTMLDivElement>(null)
   const cartes = useRef<HTMLDivElement>(null)
@@ -135,18 +132,13 @@ export function EcranDuel({ duel, choix, onChoisir, suite, tauxDErreur = null }:
       <div ref={explication} className="duel__resultat" tabIndex={-1}>
         {/* aria-live : un lecteur d'écran annonce le verdict dès qu'il apparaît. */}
         <div aria-live="polite">
-          {/* PROTOTYPE (E, F, G) : le verdict et la part des réponses « comme toi », sur une seule ligne. */}
-          {revele && variante && tauxDErreur !== null ? (
-            <VerdictCommeToi variante={variante} bon={bonChoix} tauxDErreur={tauxDErreur} />
-          ) : (
-            revele && (
-              <p className={`duel__verdict duel__verdict--${bonChoix ? 'bon' : 'mauvais'}`}>
-                {bonChoix ? '✓ Bonne réponse !' : '✗ Raté !'}
-              </p>
-            )
+          {revele && (
+            <p className={`duel__verdict duel__verdict--${bonChoix ? 'bon' : 'mauvais'}`}>
+              <span className="duel__verdict-texte">{bonChoix ? '✓ Bonne réponse !' : '✗ Raté !'}</span>
+              {/* Sur la même ligne : la part des réponses qui vont dans le même sens (ADR 0006), lue au lancement. */}
+              {tauxDErreur !== null && <CommeToi bon={bonChoix} taux={tauxDErreur} />}
+            </p>
           )}
-          {/* Ce que les autres joueurs ont répondu à ce Duel (ADR 0006), lu au lancement de la Partie. */}
-          {revele && tauxDErreur !== null && variante === null && <p className="duel__taux">{phraseDuTaux(tauxDErreur)}</p>}
         </div>
 
         {revele && (

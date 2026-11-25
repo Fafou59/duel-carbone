@@ -179,12 +179,12 @@
   color: var(--bon);
 }
 
-/* Le Taux d'erreur, sous le verdict : une information d'appoint, plus discrète que lui. */
-.duel__taux {
-  margin: 4px 0 0;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--discret);
+/* Le verdict et « 72 % comme toi » sur une même ligne (qui ne passe à la ligne que sur un écran minuscule). */
+.duel__verdict {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 0.5em;
 }
 
 .duel__verdict--mauvais {
@@ -197,7 +197,7 @@
   }
 
   /* Sans éclat de confettis, une petite étincelle fixe à côté du verdict (décorative : le « / "" » la tait aux lecteurs d'écran). */
-  .duel__verdict--bon::after {
+  .duel__verdict--bon .duel__verdict-texte::after {
     content: ' ✨' / '';
   }
 }

@@ -298,10 +298,11 @@ export function EcranEnSavoirPlus() {
           Partie libre n’a pas de Rang.
         </p>
         <p>
-          Pendant le Duel du jour, chaque réponse dévoile aussi la part de réponses fausses à ce Duel : « 72&nbsp;% de
-          réponses fausses sur ce Duel ». Elle compte toutes les réponses données à cette paire de gestes, quel que
-          soit le jour, dans un sens ou dans l’autre (le jean face au pull, ou le pull face au jean). Ce sont des
-          réponses et non des joueurs : on peut retomber sur une même paire. Elle n’apparaît qu’à partir de{' '}
+          Pendant le Duel du jour, chaque réponse dévoile aussi la part des réponses identiques à la tienne : « 72&nbsp;%
+          comme toi », avec une petite barre. Si tu as trouvé, c’est la part des bonnes réponses ; si tu t’es trompé,
+          celle des réponses fausses. Elle compte toutes les réponses données à cette paire de gestes, quel que soit le
+          jour, dans un sens ou dans l’autre (le jean face au pull, ou le pull face au jean). Ce sont des réponses et
+          non des joueurs : on peut retomber sur une même paire. Elle n’apparaît qu’à partir de{' '}
           {REGLES.tauxDErreur.reponsesMinimum} réponses.
         </p>
       </Partie>
@@ -347,7 +348,7 @@ export function EcranEnSavoirPlus() {
           l’invitation à installer le jeu sont gardés dans ton navigateur, sur cet appareil. Ils ne sont envoyés nulle part.
         </p>
         <p>
-          Pour le Rang du jour et la part de réponses fausses à chaque Duel, le jeu échange deux fois avec son serveur
+          Pour le Rang du jour et la part des réponses identiques à la tienne, le jeu échange deux fois avec son serveur
           pendant ton Duel du jour. Au début, il lui demande, pour chacune des {REGLES.nombreDeDuels} paires de gestes,
           combien de réponses ont été données et combien étaient fausses. À la fin, il envoie une seule fois le numéro
           du Duel et les {REGLES.nombreDeDuels} gestes que tu as choisis. Le serveur recalcule ton score et tes bonnes
