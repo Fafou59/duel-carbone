@@ -6,8 +6,11 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import calendrierJson from '../src/donnees/calendrier.json'
 import { GESTES_CALCULES } from '../src/donnees/index.ts'
 import { partieDuJour, type Calendrier } from '../src/domaine/calendrier.ts'
-import { cleDePaire, plusEmetteur, type Duel } from '../src/domaine/duel.ts'
+import { cleDePaire, moinsEmetteur, plusEmetteur, type Duel } from '../src/domaine/duel.ts'
+import { genererPartie } from '../src/domaine/generateur.ts'
+import { hasardReproductible } from '../src/domaine/hasard.ts'
 import { cleDuDuel } from '../src/domaine/taux-d-erreur.ts'
+import { DUELS_THEMATIQUES } from '../src/donnees/duels-thematiques.ts'
 import { numeroDuJour } from '../src/domaine/jour.ts'
 import { traiterRequete } from './api.ts'
 import type { BaseD1, RequeteD1 } from './base.ts'
@@ -178,9 +181,80 @@ describe('le serveur du Rang du jour', () => {
     expect((await lireTaux(cles, base)).status).toBe(400)
   })
 
-  it('n’accepte que la lecture à l’adresse du Taux d’erreur', async () => {
-    const post = new Request(URL_TAUX, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
-    expect((await traiterRequete(post, { BASE: base }, MAINTENANT)).status).toBe(405)
+  describe('la fin d’une Partie libre (issue 122, étape 2)', () => {
+    // Une vraie Partie libre, tirée comme dans le jeu, avec un Duel thématique.
+    const LIBRE = genererPartie({
+      gestes: GESTES_CALCULES,
+      thematiques: DUELS_THEMATIQUES,
+      probabiliteThematique: 1,
+      hasard: hasardReproductible(7),
+    })
+    const codes = LIBRE.map((d) => `${d.a.id}>${d.b.id}`)
+    /** Les 10 choix d'un joueur qui trouve les `bonnes` premières réponses, puis se trompe. */
+    const choixLibres = (bonnes: number) =>
+      LIBRE.map((d, i) => (i < bonnes ? plusEmetteur(d).id : moinsEmetteur(d).id))
+    const envoyerLibre = (corps: unknown, entetes: Record<string, string> = { 'Content-Type': 'application/json' }) =>
+      traiterRequete(
+        new Request(URL_TAUX, { method: 'POST', headers: entetes, body: typeof corps === 'string' ? corps : JSON.stringify(corps) }),
+        { BASE: base },
+        MAINTENANT,
+      )
+    const geste = (filtre: (g: (typeof GESTES_CALCULES)[number]) => boolean) => {
+      const trouve = GESTES_CALCULES.find(filtre)
+      if (!trouve) throw new Error('aucun Geste pour ce test')
+      return trouve
+    }
+
+    it('compte les 10 réponses, sans toucher au Rang du jour, et renvoie les comptes à jour', async () => {
+      const reponse = await envoyerLibre({ duels: codes, choix: choixLibres(6) })
+      expect(reponse.status).toBe(200)
+      const { paires } = (await reponse.json()) as { paires: Record<string, { reponses: number; fausses: number }> }
+      expect(Object.keys(paires)).toHaveLength(10)
+      expect(paires[cleDuDuel(LIBRE[0])]).toEqual({ reponses: 1, fausses: 0 })
+      expect(paires[cleDuDuel(LIBRE[9])]).toEqual({ reponses: 1, fausses: 1 })
+      expect(base.sqlite.prepare('SELECT * FROM effectifs').all()).toEqual([])
+      // Rejouer compte à nouveau : on compte des réponses, pas des joueurs.
+      await envoyerLibre({ duels: codes, choix: choixLibres(6) })
+      expect(base.sqlite.prepare('SELECT reponses FROM reponses WHERE paire = ?').get(cleDuDuel(LIBRE[0]))).toEqual({ reponses: 2 })
+    })
+
+    it('accepte le Duel thématique de la Partie, même avec un Geste réservé', async () => {
+      expect(LIBRE.some((d) => d.thematique)).toBe(true)
+      expect((await envoyerLibre({ duels: codes, choix: choixLibres(10) })).status).toBe(200)
+    })
+
+    it.each([
+      ['un Geste inconnu', (c: string[]) => c.with(2, 'geste-inconnu>avion-paris-new-york')],
+      ['la même paire deux fois', (c: string[]) => c.with(3, c[4])],
+      ['la même paire deux fois, dans l’autre sens', (c: string[]) => c.with(3, c[4].split('>').reverse().join('>'))],
+      ['un Duel mal écrit', (c: string[]) => c.with(5, 'avion>steak>bus')],
+    ])('refuse %s', async (_, modifier) => {
+      expect((await envoyerLibre({ duels: modifier(codes), choix: choixLibres(5) })).status).toBe(422)
+      expect(base.sqlite.prepare('SELECT * FROM reponses').all()).toEqual([])
+    })
+
+    it('refuse une paire que le jeu ne peut pas proposer', async () => {
+      const reserve = geste((g) => Boolean(g.seulementEnDuelThematique))
+      const repas = geste((g) => g.nature === 'repas')
+      const aliment = geste((g) => g.nature === 'aliment')
+      const injouables = [
+        `${reserve.id}>${LIBRE[0].a.id === reserve.id ? LIBRE[0].b.id : LIBRE[0].a.id}`, // un Geste réservé, hors de son Duel thématique
+        `${repas.id}>${aliment.id}`, // une Combinaison interdite
+        `${LIBRE[0].a.id}>${LIBRE[0].a.id}`, // un Geste face à lui-même (Rapport 1, sous le plancher)
+      ]
+      for (const injouable of injouables) {
+        const duels = codes.with(0, injouable)
+        const choix = choixLibres(5).with(0, injouable.split('>')[0])
+        expect((await envoyerLibre({ duels, choix })).status, injouable).toBe(422)
+      }
+    })
+
+    it('refuse un choix qui n’est aucun des deux Gestes, et autre chose que du JSON', async () => {
+      expect((await envoyerLibre({ duels: codes, choix: choixLibres(5).with(1, 'geste-inconnu') })).status).toBe(422)
+      expect((await envoyerLibre({ duels: codes, choix: choixLibres(5).slice(0, 9) })).status).toBe(422)
+      const texte = JSON.stringify({ duels: codes, choix: choixLibres(5) })
+      expect((await envoyerLibre(texte, { 'Content-Type': 'text/plain' })).status).toBe(415)
+    })
   })
 
   it('répond 404 aux autres adresses et 405 aux autres méthodes', async () => {

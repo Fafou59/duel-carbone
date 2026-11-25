@@ -32,6 +32,16 @@ describe('le serveur du Rang du jour, vu du navigateur', () => {
     expect(faireFetch.mock.calls[0][0]).toBe(`${ADRESSE_DU_TAUX}?paires=avion%7Csteak%2Cjean%7Cpull`)
   })
 
+  it('envoie les 10 Duels et les choix d’une Partie libre à l’adresse du Taux d’erreur, et rend les comptes', async () => {
+    const paires = { 'avion|steak': { reponses: 5, fausses: 2 } }
+    const faireFetch = vi.fn((_adresse: string, _init?: RequestInit) => reponse({ paires }))
+    const duels = ['avion>steak', 'jean>pull']
+    expect(await serveurDuRang(faireFetch as unknown as typeof fetch).envoyerReponses(duels, ['avion', 'pull'])).toEqual(paires)
+    const [adresse, init] = faireFetch.mock.calls[0]
+    expect(adresse).toBe(ADRESSE_DU_TAUX)
+    expect(init).toMatchObject({ method: 'POST', body: JSON.stringify({ duels, choix: ['avion', 'pull'] }) })
+  })
+
   it('lit les Effectifs du jour', async () => {
     const faireFetch = vi.fn(() => reponse({ numero: 9, effectifs: EFFECTIFS }))
     expect(await serveurDuRang(faireFetch).lire(9)).toEqual(EFFECTIFS)

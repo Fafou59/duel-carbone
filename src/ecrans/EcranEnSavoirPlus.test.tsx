@@ -198,6 +198,7 @@ describe('Page En savoir plus', () => {
     expect(paragraphe).toHaveTextContent(/pour chaque paire de gestes, combien de réponses et combien de fausses/)
     expect(paragraphe).toHaveTextContent(/Ni tes choix un par un, ni l’heure, ni ton adresse IP, ni aucun identifiant/)
     expect(paragraphe).toHaveTextContent(/dans l’Union européenne/)
+    expect(paragraphe).toHaveTextContent(/La Partie libre fait de même pour la part des réponses .* sans rien pour le Rang du jour/)
     expect(screen.getByText(/le Rang du jour te dit où tu te situes/)).toHaveTextContent(/à partir de 4 joueurs/)
     expect(screen.getByText(/la part des réponses identiques à la tienne : « 72/)).toHaveTextContent(/à partir de 4 réponses/)
   })

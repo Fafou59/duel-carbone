@@ -120,11 +120,11 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
     }
   }, [relireLeRang, numero, aujourdhui, serveur])
 
-  // Le Taux d'erreur de chaque Duel se lit une fois, au lancement de la Partie du jour (ou quand on la reprend ou la
-  // revoit) : les 10 paires partent au serveur, qui rend leurs comptes. C'est ce chiffre-là qu'affiche la révélation.
-  // La Partie libre suivra (issue 122, étape 2).
+  // Le Taux d'erreur de chaque Duel se lit une fois, au lancement de la Partie (du jour, quand on la reprend ou la
+  // revoit, ou libre) : les 10 paires partent au serveur, qui rend leurs comptes. C'est ce chiffre-là qu'affiche la
+  // révélation.
   useEffect(() => {
-    if (partie?.mode !== 'jour') return
+    if (!partie) return
     let actif = true
     const numeroDeLaPartie = numero
     serveur.lireTaux(partie.duels.map(cleDuDuel)).then((paires) => {
@@ -285,11 +285,18 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
               key={numero}
               duels={partie.duels}
               ancienRecord={ancienRecord}
-              onTerminee={(score) => {
+              onTerminee={(score, choix) => {
                 terminerPartieLibre(score)
                 setPartieTerminee(numero)
+                // Les 10 Duels et les choix partent au serveur, une seule fois, pour le Taux d'erreur de leurs paires
+                // (issue 122, étape 2). Rien n'est envoyé pour le Rang du jour. S'il ne répond pas, rien ne s'affiche.
+                const numeroDeLaPartie = numero
+                serveur.envoyerReponses(partie.duels.map((d) => `${d.a.id}>${d.b.id}`), choix).then((paires) => {
+                  if (paires) setComptes((avant) => ({ numero: numeroDeLaPartie, paires: { ...(avant?.numero === numeroDeLaPartie ? avant.paires : {}), ...paires } }))
+                })
               }}
               onRejouer={lancerPartie}
+              tauxDErreur={tauxDe}
               // Le Duel du jour, proposé en premier à la fin s'il reste à jouer (une fois le calendrier arrivé).
               fin={{
                 conseil: conseilDeFin(),

@@ -74,6 +74,16 @@ export async function lireComptes(base: BaseD1, cles: string[]): Promise<Comptes
   return enComptes(results)
 }
 
+/** La fin d'une Partie libre, en une seule transaction : ses 10 réponses comptées, puis les comptes à jour. */
+export async function compterDesReponses(base: BaseD1, reponses: { cle: string; fausse: boolean }[]): Promise<ComptesDesPaires> {
+  const cles = [...new Set(reponses.map((r) => r.cle))]
+  const resultats = await base.batch<unknown>([
+    ...reponses.map((r) => base.prepare(AJOUTER_UNE_REPONSE).bind(r.cle, r.fausse ? 1 : 0)),
+    base.prepare(lireLesPaires(cles.length)).bind(...cles),
+  ])
+  return enComptes(resultats[resultats.length - 1].results as LigneDePaire[])
+}
+
 /**
  * La fin d'une Partie du jour, en une seule transaction : le joueur dans la case de son score, ses 10 réponses
  * dans les comptes de leurs paires, puis la relecture des Effectifs du jour et des comptes à jour.

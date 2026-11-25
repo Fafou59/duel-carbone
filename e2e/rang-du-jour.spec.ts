@@ -114,18 +114,37 @@ test('serveur en panne : le Duel du jour se joue normalement, sans Rang', async 
   await expect(page.getByText(PHRASE_DU_RANG)).toHaveCount(0)
 })
 
-test('la Partie libre n’appelle jamais le serveur', async ({ page }) => {
-  let appels = 0
-  await page.route('**/api/**', (route) => {
-    appels++
+test('la Partie libre : le Taux d’erreur à la révélation et un seul envoi à la fin, jamais le Rang du jour', async ({ page }) => {
+  const appelsAuRang: string[] = []
+  const envois: { duels: string[]; choix: string[] }[] = []
+  await page.route('**/api/rang-du-jour', (route) => {
+    appelsAuRang.push(route.request().method())
     return route.fulfill({ status: 503 })
+  })
+  await page.route('**/api/taux-d-erreur*', (route) => {
+    const requete = route.request()
+    if (requete.method() === 'POST') {
+      const envoi = requete.postDataJSON() as { duels: string[]; choix: string[] }
+      envois.push(envoi)
+      return route.fulfill({ json: { paires: comptesDe(envoi.duels.map((d) => d.split('>').sort().join('|'))) } })
+    }
+    const cles = (new URL(requete.url()).searchParams.get('paires') ?? '').split(',')
+    return route.fulfill({ json: { paires: comptesDe(cles) } })
   })
   await page.goto('/')
   await page.getByRole('button', { name: 'Partie libre' }).first().click()
-  for (let n = 1; n <= 10; n++) {
+  const bon = await jouerUnDuel(page, 1)
+  await expect(page.locator('.duel__verdict .comme-toi')).toContainText(new RegExp(`^, ${bon ? 30 : 70}\\s% comme toi`))
+  await page.keyboard.press('Enter')
+  for (let n = 2; n <= 10; n++) {
     await jouerUnDuel(page, n)
     await page.keyboard.press('Enter')
   }
   await expect(page.getByRole('heading', { level: 2, name: 'Partie terminée !' })).toBeVisible()
-  expect(appels).toBe(0)
+  await expect(page.locator('.recap__taux')).toHaveCount(10)
+  await expect.poll(() => envois.length).toBe(1)
+  expect(Object.keys(envois[0]).sort()).toEqual(['choix', 'duels'])
+  expect(envois[0].duels).toHaveLength(10)
+  expect(envois[0].choix).toHaveLength(10)
+  expect(appelsAuRang).toEqual([])
 })
