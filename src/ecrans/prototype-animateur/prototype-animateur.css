@@ -1,0 +1,546 @@
+/* PROTOTYPE (jetable) : l'écran projeté de l'Animateur. Tailles en vw/vh : lisible du fond d'une salle. */
+.pa {
+  min-height: 100vh;
+  background: var(--fond);
+  color: var(--encre);
+  font-size: clamp(16px, 1.4vw, 28px);
+}
+.pa h1 {
+  margin: 0.2em 0 0.5em;
+  font-size: 2.2em;
+  line-height: 1.15;
+}
+.pa ul,
+.pa ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.pa-bouton {
+  position: fixed;
+  right: 2vw;
+  bottom: 6vh;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.7em 1.2em;
+  border: 0;
+  border-radius: 999px;
+  background: var(--marque);
+  color: var(--sur-marque);
+  cursor: pointer;
+}
+.pa-bouton kbd {
+  font-size: 0.6em;
+  opacity: 0.8;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  padding: 0 0.4em;
+  margin-left: 0.5em;
+}
+.pa-bouton:focus-visible,
+.pa-barre button:focus-visible {
+  outline: 3px solid var(--encre);
+  outline-offset: 3px;
+}
+
+/* La barre du prototype : volontairement étrangère au design évalué. */
+.pa-barre {
+  position: fixed;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #111;
+  color: #fff;
+  font: 14px system-ui, sans-serif;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.35);
+  z-index: 10;
+}
+.pa-barre button {
+  background: #333;
+  color: #fff;
+  border: 0;
+  border-radius: 999px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+}
+.pa-barre select {
+  font: inherit;
+  max-width: 260px;
+}
+
+/* Communs */
+.pa-qr {
+  display: block;
+  border-radius: 6px;
+}
+.pa-rejoindre {
+  display: flex;
+  gap: 1.2em;
+  align-items: center;
+}
+.pa-rejoindre p {
+  margin: 0;
+}
+.pa-rejoindre__adresse {
+  font-size: 1.2em;
+}
+.pa-rejoindre__code {
+  font: 800 3.4em/1.1 ui-monospace, monospace;
+  letter-spacing: 0.12em;
+  color: var(--marque);
+}
+.pa-rejoindre--compact {
+  gap: 0.8em;
+}
+.pa-rejoindre--compact .pa-rejoindre__adresse {
+  font-size: 0.8em;
+}
+.pa-rejoindre--compact .pa-rejoindre__code {
+  font-size: 1.8em;
+}
+.pa-geste__icone {
+  display: block;
+  width: 7vw;
+  height: 7vw;
+}
+.pa-geste__icone img,
+.pa-geste__icone svg {
+  width: 100%;
+  height: 100%;
+}
+.pa-geste__titre {
+  display: block;
+  font-weight: 800;
+  font-size: 1.6em;
+  line-height: 1.15;
+}
+.pa-geste__sous-titre {
+  display: block;
+  color: var(--discret);
+}
+.pa-geste__empreinte {
+  display: block;
+  margin-top: 0.3em;
+  font-weight: 800;
+  font-size: 1.4em;
+}
+.pa--gagnant {
+  border-color: var(--bon) !important;
+  box-shadow: 0 0 0 4px var(--bon);
+}
+.pa--perdant {
+  opacity: 0.55;
+}
+.pa-annonce {
+  margin: 0 0 0.5em;
+  padding: 0.5em 0.9em;
+  border-radius: 10px;
+  background: var(--thematique);
+  color: #fff;
+}
+.pa-rang {
+  font-weight: 800;
+  color: var(--discret);
+  min-width: 1.6em;
+}
+.pa-score {
+  font-weight: 800;
+  margin-left: auto;
+}
+
+/* A : Scène */
+.pa-a {
+  min-height: 100vh;
+  padding: 3vh 4vw 12vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.pa-a__bandeau {
+  align-self: stretch;
+  display: flex;
+  justify-content: space-between;
+  color: var(--discret);
+}
+.pa-a__question {
+  font-size: 2.6em !important;
+}
+.pa-a__face-a-face {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6vw;
+  width: 100%;
+  flex: 1;
+  align-items: stretch;
+}
+.pa-a__carte {
+  position: relative;
+  background: var(--carte);
+  border: 2px solid var(--ligne);
+  border-radius: 24px;
+  padding: 4vh 2vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
+  transition: transform 0.4s, opacity 0.4s;
+}
+.pa-a__carte .pa-geste__icone {
+  width: 12vw;
+  height: 12vw;
+}
+.pa-a__carte .pa-geste__titre {
+  font-size: 2.2em;
+}
+.pa-a__carte.pa--gagnant {
+  transform: scale(1.04);
+}
+.pa-a__ou {
+  position: absolute;
+  right: -6vw;
+  top: 50%;
+  width: 6vw;
+  transform: translateY(-50%);
+  font-weight: 800;
+  font-size: 2em;
+}
+.pa-a__repondus {
+  font-size: 1.6em;
+}
+.pa-a__part {
+  font-size: 1.8em;
+  margin: 0.6em 0 0.2em;
+}
+.pa-a__part strong {
+  font-size: 2em;
+  color: var(--mauvais);
+}
+.pa-a__texte {
+  max-width: 60em;
+  margin: 0 auto;
+}
+.pa-a--attente {
+  justify-content: center;
+  gap: 2vh;
+}
+.pa-a__compte {
+  font-size: 2em;
+  font-weight: 800;
+  margin: 0;
+}
+.pa-a__pseudos,
+.pa-b__pseudos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4em 1.2em;
+  max-width: 70vw;
+  color: var(--discret);
+}
+.pa-a__classement {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(5, auto);
+  gap: 1.2vh 6vw;
+  font-size: 1.6em;
+  text-align: left;
+}
+.pa-a__classement li {
+  display: flex;
+  gap: 0.6em;
+  min-width: 14em;
+  padding: 0.3em 0.6em;
+  border-bottom: 1px solid var(--ligne);
+}
+.pa-a__rates {
+  margin-top: 4vh;
+}
+.pa-a__rates li {
+  margin: 0.3em 0;
+}
+
+/* B : Plateau et colonne */
+.pa-b {
+  display: grid;
+  grid-template-columns: 1fr 26vw;
+  min-height: 100vh;
+}
+.pa-b__plateau {
+  padding: 4vh 4vw 12vh;
+}
+.pa-b__colonne {
+  background: var(--carte);
+  border-left: 2px solid var(--ligne);
+  padding: 3vh 1.5vw;
+  display: flex;
+  flex-direction: column;
+  gap: 2vh;
+  font-size: 0.9em;
+  transition: background 0.4s;
+}
+.pa-b__colonne--en-avant {
+  font-size: 1.1em;
+  background: color-mix(in srgb, var(--marque) 10%, var(--carte));
+}
+.pa-b__colonne h2 {
+  margin: 0;
+  font-size: 1.1em;
+}
+.pa-b__jauge div {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--ligne);
+  margin-top: 0.3em;
+}
+.pa-b__jauge i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--marque);
+  transition: width 0.3s;
+}
+.pa-b__top li {
+  display: flex;
+  gap: 0.5em;
+  padding: 0.25em 0;
+  border-bottom: 1px solid var(--ligne);
+}
+.pa-b__mouvement {
+  color: var(--marque);
+  font-size: 0.8em;
+  width: 1em;
+}
+.pa-b__entete {
+  color: var(--discret);
+  margin: 0;
+}
+.pa-b__grand {
+  font-size: 2em;
+  font-weight: 800;
+}
+.pa-b__lignes {
+  display: flex;
+  flex-direction: column;
+  gap: 3vh;
+}
+.pa-b__ligne {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
+  gap: 2vw;
+  align-items: center;
+  background: var(--carte);
+  border: 2px solid var(--ligne);
+  border-radius: 18px;
+  padding: 2.5vh 2vw;
+}
+.pa-b__touche {
+  font-weight: 800;
+  font-size: 2em;
+  color: var(--discret);
+}
+.pa-b__geste {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 1em;
+  align-items: center;
+}
+.pa-b__geste .pa-geste__icone {
+  grid-row: span 3;
+}
+.pa-b__barre {
+  height: 2.2em;
+  background: var(--fond);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.pa-b__barre i {
+  display: block;
+  height: 100%;
+  background: var(--encre);
+}
+.pa-b__ligne.pa--gagnant .pa-b__barre i {
+  background: var(--bon);
+}
+.pa-b__revelation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em 4vw;
+  font-size: 1.4em;
+}
+.pa-b__revelation strong {
+  font-size: 1.6em;
+}
+.pa-b__texte {
+  font-size: 0.75em;
+  flex-basis: 100%;
+}
+.pa-b__frise {
+  display: flex;
+  gap: 1.5vw;
+  align-items: flex-end;
+  height: 45vh;
+}
+.pa-b__frise li {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3em;
+  height: 100%;
+}
+.pa-b__frise-barre {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  background: var(--carte);
+  border-radius: 8px;
+}
+.pa-b__frise-barre i {
+  display: block;
+  width: 100%;
+  background: var(--mauvais);
+  border-radius: 8px;
+}
+.pa-b__frise--avenir {
+  opacity: 0.4;
+}
+.pa-b__frise-num {
+  color: var(--discret);
+}
+
+/* C : la salle d'abord */
+.pa-c {
+  min-height: 100vh;
+  padding: 2vh 3vw 12vh;
+  display: flex;
+  flex-direction: column;
+  gap: 2vh;
+}
+.pa-c__frise {
+  display: flex;
+  gap: 0.6vw;
+}
+.pa-c__frise li {
+  flex: 1;
+  text-align: center;
+  padding: 0.3em 0;
+  border-radius: 8px;
+  background: var(--carte);
+  color: var(--discret);
+  font-size: 0.9em;
+}
+.pa-c__frise--joue {
+  background: color-mix(in srgb, var(--bon) 18%, var(--carte)) !important;
+  color: var(--encre) !important;
+}
+.pa-c__frise--actuel {
+  background: var(--marque) !important;
+  color: var(--sur-marque) !important;
+  font-weight: 800;
+}
+.pa-c__attente {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 5vw;
+  align-items: center;
+  flex: 1;
+}
+.pa-c__colonnes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3vw;
+  flex: 1;
+}
+.pa-c__colonne {
+  background: var(--carte);
+  border: 2px solid var(--ligne);
+  border-radius: 20px;
+  padding: 2vh 2vw;
+  display: flex;
+  flex-direction: column;
+  gap: 1vh;
+}
+.pa-c__geste {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 1em;
+  align-items: center;
+}
+.pa-c__geste .pa-geste__icone {
+  grid-row: span 3;
+}
+.pa-c__effectif {
+  margin: 0;
+  font-weight: 800;
+  font-size: 1.3em;
+}
+.pa-c__tas,
+.pa-c__nuage {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em;
+}
+.pa-c__pastille {
+  padding: 0.2em 0.7em;
+  border-radius: 999px;
+  border: 1px dashed var(--ligne);
+  color: var(--discret);
+  transition: all 0.3s;
+}
+.pa-c__pastille--allumee {
+  border: 1px solid var(--marque);
+  background: color-mix(in srgb, var(--marque) 15%, var(--carte));
+  color: var(--encre);
+}
+.pa-c__colonne.pa--perdant {
+  opacity: 0.75;
+}
+.pa-c__colonne.pa--perdant .pa-c__pastille--allumee {
+  border-color: var(--mauvais);
+  background: color-mix(in srgb, var(--mauvais) 12%, var(--carte));
+}
+.pa-c__verdict {
+  font-size: 1.5em;
+  margin: 0;
+}
+.pa-c__verdict strong {
+  color: var(--mauvais);
+}
+.pa-c__texte {
+  display: block;
+  font-size: 0.6em;
+  margin-top: 0.4em;
+}
+.pa-c__course li {
+  display: grid;
+  grid-template-columns: 2em 10em 1fr 2em;
+  gap: 1em;
+  align-items: center;
+  font-size: 1.3em;
+  margin: 0.4em 0;
+}
+.pa-c__course-barre {
+  height: 1.2em;
+  background: var(--carte);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.pa-c__course-barre i {
+  display: block;
+  height: 100%;
+  background: var(--marque);
+  border-radius: 999px;
+  transition: width 0.6s;
+}
+.pa-b .pa-bouton {
+  right: calc(26vw + 2vw);
+}
