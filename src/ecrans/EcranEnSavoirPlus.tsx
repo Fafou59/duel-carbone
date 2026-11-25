@@ -4,6 +4,8 @@ import { CONSEILS_RECENTS } from '../domaine/conseils.ts'
 import { GESTES_CALCULES, gesteCalcule, INSTANTANE } from '../donnees/index.ts'
 import { enMinuscule, formaterDate, formaterEmpreinte } from '../domaine/format.ts'
 import { REGLES } from '../domaine/regles.ts'
+import { MEMOIRE_DU_CALENDRIER } from '../domaine/calendrier.ts'
+import { PARTIES_MEMORISEES } from '../navigateur/taille-memoire.ts'
 import { APPELS, DATE_DU_DECOMPTE, DEBUT_DU_PROJET, HYPOTHESES, JETONS } from '../donnees/empreinte-ia.ts'
 import { empreinteDeLaCreation } from '../domaine/empreinte-ia.ts'
 import {
@@ -267,7 +269,9 @@ export function EcranEnSavoirPlus() {
         <p>
           Chaque jour, le Duel Carbone du jour propose la même Partie à tous les joueurs : elle change à minuit, heure
           de Paris, et ne se joue qu'une fois. Ses Duels sont tirés à l'avance, selon les mêmes règles que la Partie
-          libre, que tu peux rejouer à volonté pour t'entraîner.
+          libre, que tu peux rejouer à volonté pour t'entraîner. Un même Duel ne revient pas avant{' '}
+          {MEMOIRE_DU_CALENDRIER} jours dans le Duel du jour, ni avant {PARTIES_MEMORISEES} Parties en Partie libre,
+          qui évite aussi les Duels du jour récents.
         </p>
         <p>
           Une Partie, c'est {REGLES.nombreDeDuels} Duels, sans chrono, de plus en plus serrés. Au Duel 1, l'un des
