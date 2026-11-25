@@ -11,9 +11,9 @@ import type { DuelDePartie } from './domaine/partie.ts'
 import { variantePrototype } from './composants/PrototypeSwitcher.tsx'
 
 export const VARIANTES_TAUX = {
-  E: 'Verdict + camembert + « 72 % comme toi »',
-  F: 'Verdict + barre + « 72 % comme toi »',
-  G: 'Une phrase « Raté, comme 72 % des réponses » + camembert',
+  E: 'Camembert',
+  F: 'Barre',
+  G: 'Une seule phrase',
 } as const
 
 export type VarianteTaux = keyof typeof VARIANTES_TAUX
@@ -73,14 +73,9 @@ function Barre({ part, bon, largeur = 56 }: { part: number; bon: boolean; largeu
 
 /** La phrase de la variante G : verdict et comparaison en une seule phrase. */
 function phraseG(bon: boolean, part: number): string {
-  if (bon) {
-    if (part === 0) return '✓ Bien vu : personne n’avait trouvé jusqu’ici !'
-    if (part === 100) return '✓ Bien vu, comme toutes les réponses jusqu’ici'
-    return `✓ Bien vu, comme ${pct(part)} des réponses`
-  }
-  if (part === 0) return '✗ Raté : jusqu’ici, toutes les réponses étaient bonnes'
-  if (part === 100) return '✗ Raté, comme toutes les réponses jusqu’ici'
-  return `✗ Raté, comme ${pct(part)} des réponses`
+  // Une réponse que personne n'avait donnée jusqu'ici : une phrase courte, pour tenir sur une ligne de téléphone.
+  if (part === 0) return bon ? '✓ Bien vu, une réponse rare !' : '✗ Raté, une réponse rare'
+  return `${bon ? '✓ Bien vu' : '✗ Raté'}, comme ${pct(part)} des réponses`
 }
 
 const ligne: CSSProperties = { display: 'flex', alignItems: 'center', gap: '0.5em', flexWrap: 'nowrap', whiteSpace: 'nowrap' }
