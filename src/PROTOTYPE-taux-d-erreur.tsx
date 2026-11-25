@@ -118,7 +118,8 @@ export function CaseCommeToi({ variante, bon, tauxDErreur }: { variante: Variant
   return (
     <span className="recap__taux" style={{ ...ligne, gap: '0.35em' }}>
       {variante === 'F' ? <Barre part={part} bon={bon} largeur={36} /> : <Camembert part={part} bon={bon} />}
-      {variante === 'G' ? `comme ${pct(part)} des réponses` : `${pct(part)} comme toi`}
+      {/* Les cases du Récapitulatif sont étroites sur téléphone (145 px) : la formule la plus courte. */}
+      {variante === 'G' ? `comme ${pct(part)}` : `${pct(part)} comme toi`}
     </span>
   )
 }
