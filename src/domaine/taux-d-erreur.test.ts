@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { GESTES_CALCULES } from '../donnees/index.ts'
+import { CALIBRAGE, GESTES_CALCULES } from '../donnees/index.ts'
+import { DUELS_THEMATIQUES } from '../donnees/duels-thematiques.ts'
+import { genererPartie } from './generateur.ts'
+import { hasardReproductible } from './hasard.ts'
 import { plusEmetteur, moinsEmetteur, type Duel } from './duel.ts'
 import { REGLES } from './regles.ts'
-import { cleDuDuel, partCommeToi, phraseCommeToi, reponsesDeLaPartie, sontDesComptes, tauxDErreur } from './taux-d-erreur.ts'
+import { cleDuDuel, partCommeToi, phraseCommeToi, reponsesDeLaPartie, reponsesDUnePartieLibre, sontDesComptes, tauxDErreur } from './taux-d-erreur.ts'
 
 const geste = (id: string) => {
   const trouve = GESTES_CALCULES.find((g) => g.id === id)
@@ -73,5 +76,25 @@ describe('les réponses d’une Partie, telles que le serveur les compte', () =>
     choix[4] = 'geste-inconnu'
     expect(reponsesDeLaPartie(duels, choix)).toBeNull()
     expect(reponsesDeLaPartie(duels, choix.slice(0, 9))).toBeNull()
+  })
+})
+
+describe('les Parties libres, telles que le serveur les vérifie (issue 122, étape 2)', () => {
+  it('accepte toutes les Parties que le jeu peut tirer : un refus à tort ferait perdre des réponses sans bruit', () => {
+    // 200 Parties tirées comme dans le jeu, avec des paires récentes qui poussent le tirage à s'assouplir.
+    let recentes = new Set<string>()
+    for (let graine = 1; graine <= 200; graine++) {
+      const duels = genererPartie({
+        gestes: GESTES_CALCULES,
+        thematiques: DUELS_THEMATIQUES,
+        pairesRecentes: recentes,
+        coefficients: CALIBRAGE.coefficients,
+        hasard: hasardReproductible(graine),
+      })
+      const codes = duels.map((d) => `${d.a.id}>${d.b.id}`)
+      const choix = duels.map((d, i) => (i % 2 ? plusEmetteur(d).id : moinsEmetteur(d).id))
+      expect(reponsesDUnePartieLibre(codes, choix, GESTES_CALCULES, DUELS_THEMATIQUES), `graine ${graine}`).not.toBeNull()
+      recentes = new Set([...recentes, ...duels.map(cleDuDuel)].slice(-60))
+    }
   })
 })
