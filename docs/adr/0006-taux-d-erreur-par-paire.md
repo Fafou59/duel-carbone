@@ -9,7 +9,7 @@ Un joueur a demandé à savoir, pour chaque Duel, combien de personnes se trompe
 
 La paire est comptée **sans ordre** (jean contre pull = pull contre jean), **tous jours et toutes Parties confondus** : un Duel thématique et un Duel tiré au hasard sur la même paire comptent ensemble. On compte des **réponses**, pas des joueurs : le serveur ne connaît toujours aucune identité, et un même joueur peut retomber sur une paire.
 
-Le jeu échange **deux fois par Partie** avec le serveur : au lancement, il envoie les 10 paires (tirées dès le début, même en Partie libre) et reçoit leurs Taux d'erreur ; à la fin, il envoie ses 10 choix en une fois, et reçoit les Taux d'erreur à jour. Pour le Duel du jour, cet envoi de fin est aussi celui du Rang du jour. Le Duel du jour vient d'abord ; la Partie libre suit avec le même mécanisme.
+Le jeu échange **deux fois par Partie** avec le serveur : au lancement, il envoie les 10 paires (tirées dès le début, même en Partie libre) et reçoit leurs Taux d'erreur ; à la fin, il envoie ses 10 choix en une fois, et reçoit les Taux d'erreur à jour. Pour le Duel du jour, cet envoi de fin est aussi celui du Rang du jour. La Partie libre suit le même mécanisme (issue 122, étape 2) : à la fin, elle envoie ses 10 Duels et les 10 choix à `POST /api/taux-d-erreur`, sans rien pour le Rang du jour.
 
 ## Options écartées
 

@@ -7,7 +7,10 @@
  *   recalcule le score et les bonnes réponses à partir du calendrier (il ne croit jamais un résultat qu'on lui
  *   annonce), ajoute 1 dans la case du score et dans les comptes des 10 paires de Gestes, et renvoie les Effectifs du
  *   jour et le Taux d'erreur à jour de ces paires ;
- * - GET /api/taux-d-erreur?paires=… : au lancement d'une Partie, les comptes de ses 10 paires (issue 107).
+ * - GET /api/taux-d-erreur?paires=… : au lancement d'une Partie, les comptes de ses 10 paires (issue 107) ;
+ * - POST /api/taux-d-erreur { duels, choix } : à la fin d'une Partie libre, ses 10 Duels (« idA>idB ») et les 10
+ *   Gestes choisis. Le serveur vérifie que chaque paire a pu être jouée (domaine/taux-d-erreur.ts), recalcule les
+ *   bonnes réponses, compte, et renvoie les comptes à jour (issue 122, étape 2).
  *
  * Le serveur ne sait rien du joueur : il ne lit ni ne garde son adresse IP, et n'enregistre ni l'heure ni ses choix
  * un par un, seulement des totaux. Le jeu calcule lui-même son Rang et les Taux d'erreur (src/domaine/).
@@ -18,8 +21,9 @@ import { partieDuJour, type Calendrier } from '../src/domaine/calendrier.ts'
 import { jourDeParis, numeroDuJour } from '../src/domaine/jour.ts'
 import { NOMBRE_DE_DUELS } from '../src/domaine/partie.ts'
 import { scoreDesChoix } from '../src/domaine/rang-du-jour.ts'
-import { estUneCleDePaire, reponsesDeLaPartie } from '../src/domaine/taux-d-erreur.ts'
-import { compterUnePartieDuJour, lireComptes, lireEffectifs, type BaseD1 } from './base.ts'
+import { estUneCleDePaire, reponsesDeLaPartie, reponsesDUnePartieLibre } from '../src/domaine/taux-d-erreur.ts'
+import { DUELS_THEMATIQUES } from '../src/donnees/duels-thematiques.ts'
+import { compterDesReponses, compterUnePartieDuJour, lireComptes, lireEffectifs, type BaseD1 } from './base.ts'
 
 /** Ce que Cloudflare passe au Worker : la base D1, si wrangler.jsonc la déclare (sinon, l'API répond 503). */
 export type Environnement = { BASE?: BaseD1 }
@@ -41,17 +45,23 @@ const json = (statut: number, corps: unknown) =>
 
 const erreur = (statut: number, message: string) => json(statut, { erreur: message })
 
-/** Lit et vérifie l'envoi du jeu : { numero, choix }, ou un message d'erreur. */
-async function lireEnvoi(requete: Request): Promise<{ numero: number; choix: string[] } | string> {
+/** Le corps JSON d'un envoi du jeu, ou un message d'erreur (trop long, illisible). */
+async function lireJson(requete: Request): Promise<Record<string, unknown> | string> {
   const texte = await requete.text()
   if (texte.length > TAILLE_MAX) return 'envoi trop long'
-  let brut: unknown
   try {
-    brut = JSON.parse(texte)
+    const brut: unknown = JSON.parse(texte)
+    return typeof brut === 'object' && brut !== null ? (brut as Record<string, unknown>) : {}
   } catch {
     return 'JSON illisible'
   }
-  const { numero, choix } = (typeof brut === 'object' && brut !== null ? brut : {}) as Record<string, unknown>
+}
+
+/** Lit et vérifie l'envoi du jeu : { numero, choix }, ou un message d'erreur. */
+async function lireEnvoi(requete: Request): Promise<{ numero: number; choix: string[] } | string> {
+  const corps = await lireJson(requete)
+  if (typeof corps === 'string') return corps
+  const { numero, choix } = corps
   if (typeof numero !== 'number' || !Number.isInteger(numero)) return 'numéro du Duel du jour manquant'
   const choixValides =
     Array.isArray(choix) && choix.length === NOMBRE_DE_DUELS && choix.every((c) => typeof c === 'string' && c.length <= 100)
@@ -75,8 +85,12 @@ function lirePaires(brut: string | null): string[] | string {
 export async function traiterRequete(requete: Request, env: Environnement, maintenant = new Date()): Promise<Response> {
   const { pathname, searchParams } = new URL(requete.url)
   if (pathname !== ADRESSE_DU_RANG && pathname !== ADRESSE_DU_TAUX) return erreur(404, 'adresse inconnue')
-  const methodes = pathname === ADRESSE_DU_TAUX ? ['GET'] : ['GET', 'POST']
-  if (!methodes.includes(requete.method)) return erreur(405, 'méthode non prise en charge')
+  if (requete.method !== 'GET' && requete.method !== 'POST') return erreur(405, 'méthode non prise en charge')
+  // Un formulaire d'un autre site ne peut envoyer que du texte brut ; exiger du JSON l'empêche de compter un
+  // score ou des réponses à la place d'un joueur (et le navigateur interdit à un autre site de lire nos réponses).
+  if (requete.method === 'POST' && !requete.headers.get('Content-Type')?.startsWith('application/json')) {
+    return erreur(415, 'JSON attendu')
+  }
 
   const jour = jourDeParis(maintenant)
   const numero = numeroDuJour(jour)
@@ -87,10 +101,19 @@ export async function traiterRequete(requete: Request, env: Environnement, maint
   }
 
   if (pathname === ADRESSE_DU_TAUX) {
-    const cles = lirePaires(searchParams.get('paires'))
-    if (typeof cles === 'string') return erreur(400, cles)
     try {
-      return json(200, { paires: await lireComptes(base, cles) })
+      if (requete.method === 'GET') {
+        const cles = lirePaires(searchParams.get('paires'))
+        if (typeof cles === 'string') return erreur(400, cles)
+        return json(200, { paires: await lireComptes(base, cles) })
+      }
+      // La fin d'une Partie libre (issue 122, étape 2) : ses 10 Duels (« idA>idB ») et les 10 Gestes choisis. Le
+      // serveur vérifie que chaque paire a pu être jouée, recalcule les bonnes réponses, et compte.
+      const corps = await lireJson(requete)
+      if (typeof corps === 'string') return erreur(400, corps)
+      const reponses = reponsesDUnePartieLibre(corps.duels, corps.choix, GESTES_CALCULES, DUELS_THEMATIQUES)
+      if (reponses === null) return erreur(422, 'ces Duels ou ces choix ne viennent pas d’une Partie libre')
+      return json(200, { paires: await compterDesReponses(base, reponses) })
     } catch (panne) {
       console.error('Taux d’erreur : la base D1 ne répond pas.', panne)
       return erreur(503, 'base indisponible')
@@ -100,9 +123,6 @@ export async function traiterRequete(requete: Request, env: Environnement, maint
   try {
     if (requete.method === 'GET') return json(200, { numero, effectifs: await lireEffectifs(base, jour) })
 
-    // Un formulaire d'un autre site ne peut envoyer que du texte brut ; exiger du JSON l'empêche de compter un
-    // score à la place d'un joueur (et le navigateur interdit à un autre site de lire nos réponses).
-    if (!requete.headers.get('Content-Type')?.startsWith('application/json')) return erreur(415, 'JSON attendu')
     const envoi = await lireEnvoi(requete)
     if (typeof envoi === 'string') return erreur(400, envoi)
     // Seul le Duel du jour d'aujourd'hui compte : une Partie finie après minuit n'est plus celle du jour.

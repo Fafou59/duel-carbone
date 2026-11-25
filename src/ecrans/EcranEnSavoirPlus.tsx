@@ -298,7 +298,8 @@ export function EcranEnSavoirPlus() {
           Partie libre n’a pas de Rang.
         </p>
         <p>
-          Pendant le Duel du jour, chaque réponse dévoile aussi la part des réponses identiques à la tienne : « 72&nbsp;%
+          Dans le Duel du jour comme en Partie libre, chaque réponse dévoile aussi la part des réponses identiques à la
+          tienne : « 72&nbsp;%
           comme toi », avec une petite barre. Si tu as trouvé, c’est la part des bonnes réponses ; si tu t’es trompé,
           celle des réponses fausses. Elle compte toutes les réponses données à cette paire de gestes, quel que soit le
           jour, dans un sens ou dans l’autre (le jean face au pull, ou le pull face au jean). Ce sont des réponses et
@@ -357,7 +358,9 @@ export function EcranEnSavoirPlus() {
           {REGLES.nombreDeDuels} ; pour chaque paire de gestes, combien de réponses et combien de fausses, tous jours
           confondus. Ni tes choix un par un, ni l’heure, ni ton adresse IP, ni aucun identifiant : personne, pas même
           nous, ne peut savoir qui a répondu quoi. Ces chiffres sont gardés chez Cloudflare, dans l’Union européenne.
-          La Partie libre n’envoie rien, et sans réseau, le jeu marche tout autant.
+          La Partie libre fait de même pour la part des réponses (ses {REGLES.nombreDeDuels} paires au début, ses{' '}
+          {REGLES.nombreDeDuels} Duels et tes choix à la fin), sans rien pour le Rang du jour. Sans réseau, le jeu marche
+          tout autant.
         </p>
         <p>
           Pour que le jeu marche sans réseau (et s'installe sur ton écran d'accueil), ton navigateur garde aussi une

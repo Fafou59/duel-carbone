@@ -6,7 +6,11 @@
  * joueurs : un même joueur peut retomber sur une paire, d'où « réponses » et non « joueurs ». Le jeu en tire le
  * pourcentage affiché, avec les fonctions pures de ce fichier ; le serveur s'en sert pour savoir quoi compter.
  */
-import { cleDePaire, estBonChoix, type Duel } from './duel.ts'
+import { duelsDepuisCodes } from './calendrier.ts'
+import { cleDePaire, estBonChoix, rapport, type Duel } from './duel.ts'
+import { estPaireExclue } from './generateur.ts'
+import type { GesteCalcule } from './geste.ts'
+import type { DuelThematique } from './thematiques.ts'
 import { NOMBRE_DE_DUELS, type DuelDePartie } from './partie.ts'
 import { enPourcent, pourcent } from './rang-du-jour.ts'
 import { REGLES } from './regles.ts'
@@ -53,6 +57,45 @@ export const partCommeToi = (bon: boolean, taux: number): number => (bon ? 100 -
 
 /** « 72 % comme toi » : une ligne, à côté du verdict et dans le Récapitulatif, avec une petite barre. */
 export const phraseCommeToi = (part: number): string => `${pourcent(part)} comme toi`
+
+/**
+ * Une paire qu'une Partie libre peut proposer : un Duel thématique, ou une paire que le tirage au hasard peut sortir
+ * (ni Geste réservé, ni Combinaison interdite, ni trajets de Parcours différents, Rapport entre plancher et plafond).
+ * Le serveur s'en sert pour ne compter que des Duels qui ont pu être joués.
+ */
+export function estUnePaireJouable(duel: DuelDePartie): boolean {
+  if (duel.thematique) return true
+  if (duel.a.seulementEnDuelThematique || duel.b.seulementEnDuelThematique || estPaireExclue(duel)) return false
+  const r = rapport(duel)
+  return Number.isFinite(r) && r >= REGLES.plancher && r <= REGLES.plafond
+}
+
+/** Un Duel tel que le jeu l'envoie : « idA>idB », les deux Gestes dans l'ordre de l'écran. */
+const estUnCodeDeDuel = (brut: unknown): brut is string =>
+  typeof brut === 'string' && brut.length <= 200 && /^[a-z0-9-]+>[a-z0-9-]+$/.test(brut)
+
+/**
+ * Ce que le serveur compte à la fin d'une Partie libre (issue 122, étape 2) : les 10 Duels joués (« idA>idB ») et
+ * les 10 Gestes choisis. null si l'envoi ne peut pas venir d'une vraie Partie : Geste inconnu, paire injouable,
+ * la même paire deux fois, ou un choix qui n'est aucun des deux Gestes.
+ */
+export function reponsesDUnePartieLibre(
+  codes: unknown,
+  choix: unknown,
+  gestes: GesteCalcule[],
+  thematiques: DuelThematique[],
+): { cle: string; fausse: boolean }[] | null {
+  if (!Array.isArray(codes) || !codes.every(estUnCodeDeDuel)) return null
+  if (!Array.isArray(choix) || !choix.every((c) => typeof c === 'string')) return null
+  let duels: DuelDePartie[]
+  try {
+    duels = duelsDepuisCodes(codes, gestes, thematiques)
+  } catch {
+    return null // un Geste absent du catalogue
+  }
+  if (!duels.every(estUnePaireJouable) || new Set(duels.map(cleDuDuel)).size !== duels.length) return null
+  return reponsesDeLaPartie(duels, choix)
+}
 
 /**
  * Ce que le serveur compte à la fin d'une Partie : pour chaque Duel, sa clé et si la réponse était fausse.

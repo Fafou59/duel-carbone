@@ -24,6 +24,8 @@ export type ServeurDuRang = {
   lire: (numero: number) => Promise<Effectifs | null>
   /** Au lancement d'une Partie : les comptes de ses paires de Gestes (clés de cleDuDuel), ou null. */
   lireTaux: (cles: string[]) => Promise<ComptesDesPaires | null>
+  /** À la fin d'une Partie libre : ses 10 Duels (« idA>idB ») et les 10 Gestes choisis ; rend les comptes à jour. */
+  envoyerReponses: (duels: string[], choix: string[]) => Promise<ComptesDesPaires | null>
 }
 
 /** Le corps JSON d'une réponse réussie, ou null. */
@@ -68,5 +70,13 @@ export function serveurDuRang(faireFetch: typeof fetch = (...args) => fetch(...a
       const adresse = `${ADRESSE_DU_TAUX}?${new URLSearchParams({ paires: cles.join(',') })}`
       return comptesDe(await appeler(adresse, { cache: 'no-store' }))
     },
+    envoyerReponses: async (duels, choix) =>
+      comptesDe(
+        await appeler(ADRESSE_DU_TAUX, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ duels, choix }),
+        }),
+      ),
   }
 }
