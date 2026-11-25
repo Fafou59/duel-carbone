@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import { CALIBRAGE, GESTES_CALCULES } from '../donnees/index.ts'
 import { DUELS_THEMATIQUES } from '../donnees/duels-thematiques.ts'
-import { duelsDepuisCodes, joursRestants, partieDuJour, prolongerCalendrier, type Calendrier } from './calendrier.ts'
+import {
+  duelsDepuisCodes,
+  joursRestants,
+  MEMOIRE_DU_CALENDRIER,
+  pairesDesDerniersJours,
+  partieDuJour,
+  prolongerCalendrier,
+  type Calendrier,
+} from './calendrier.ts'
 import { cleDePaire } from './duel.ts'
 import { decalerJour } from './jour.ts'
 import { REGLES } from './regles.ts'
@@ -33,11 +41,20 @@ describe('Le calendrier des Parties du jour', () => {
     expect(joursRestants(relance, demain)).toBe(20)
   })
 
-  it('évite de reprendre le même Duel deux jours de suite', () => {
+  it(`ne reprend aucun Duel des ${MEMOIRE_DU_CALENDRIER} jours précédents (issue 127)`, () => {
+    expect(MEMOIRE_DU_CALENDRIER).toBe(10)
     for (let i = 1; i < cal.jours.length; i++) {
-      const hier = new Set(cles(cal.jours[i - 1]))
-      expect(cles(cal.jours[i]).filter((c) => hier.has(c))).toEqual([])
+      const recents = new Set(cal.jours.slice(Math.max(0, i - MEMOIRE_DU_CALENDRIER), i).flatMap(cles))
+      expect(cles(cal.jours[i]).filter((c) => recents.has(c)), `jour ${i}`).toEqual([])
     }
+  })
+
+  it('donne les paires des Duels du jour des derniers jours, aujourd’hui compris, pour que la Partie libre les écarte', () => {
+    const dans12Jours = decalerJour(AUJOURDHUI, 12)
+    expect(pairesDesDerniersJours(cal, dans12Jours)).toEqual(cal.jours.slice(3, 13).flatMap(cles))
+    // Au début du calendrier, seulement les jours qu'il contient ; avant son début, aucun.
+    expect(pairesDesDerniersJours(cal, AUJOURDHUI)).toEqual(cles(cal.jours[0]))
+    expect(pairesDesDerniersJours(cal, decalerJour(AUJOURDHUI, -1))).toEqual([])
   })
 
   it('retrouve la Partie d’un jour, avec les textes de ses Duels thématiques', () => {

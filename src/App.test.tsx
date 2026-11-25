@@ -3,12 +3,20 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 import { redigerConseil, valeursDe } from './domaine/conseils.ts'
 import { CONSEILS } from './donnees/conseils.ts'
-import { INSTANTANE } from './donnees/index.ts'
+import { chargerCalendrier, INSTANTANE } from './donnees/index.ts'
+import { pairesDesDerniersJours } from './domaine/calendrier.ts'
+import { genererPartie } from './domaine/generateur.ts'
 import type { ComptesDesPaires } from './domaine/taux-d-erreur.ts'
 import { creerMemoire, type Stockage } from './navigateur/memoire.ts'
 import type { ReponseDeFin } from './navigateur/rang-du-jour.ts'
 import { signalerNouvelleVersion } from './navigateur/mise-a-jour.ts'
 import { TITRE_ACCUEIL, TITRE_EN_SAVOIR_PLUS } from './referencement.ts'
+
+// Le vrai générateur, observé : on lit ce que l'application lui demande d'écarter.
+vi.mock('./domaine/generateur.ts', async (importOriginal) => {
+  const original = await importOriginal<typeof import('./domaine/generateur.ts')>()
+  return { ...original, genererPartie: vi.fn(original.genererPartie) }
+})
 
 /** Un faux localStorage, partagé entre deux affichages de l'application (comme avant et après un rechargement). */
 function stockage(): Stockage {
@@ -299,6 +307,16 @@ describe('Application : le Duel Carbone du jour', () => {
     fireEvent.click(await boutonDuJour())
     fermerAnnonce()
     expect(titresDesCartes().join(' ')).toMatch(/jean.*Paris–Marseille en TGV/)
+  })
+
+  it('écarte de la Partie libre les Duels du jour des 10 derniers jours, aujourd’hui compris (issue 127)', async () => {
+    render(<App memoire={creerMemoire(stockage())} aujourdhui={JOUR} />)
+    await boutonDuJour() // le calendrier est arrivé
+    fireEvent.click(screen.getByRole('button', { name: 'Partie libre' }))
+    const duJour = pairesDesDerniersJours(await chargerCalendrier(), JOUR)
+    expect(duJour).toHaveLength(100)
+    const ecartees = vi.mocked(genererPartie).mock.lastCall?.[0].pairesRecentes ?? new Set()
+    expect(duJour.filter((cle) => !ecartees.has(cle))).toEqual([])
   })
 
   it('reste jouable sans stockage', async () => {

@@ -4,7 +4,7 @@ import { DUELS_THEMATIQUES } from './donnees/duels-thematiques.ts'
 import { CALIBRAGE, chargerCalendrier, GESTES_CALCULES, INSTANTANE } from './donnees/index.ts'
 import { Tutoriel } from './composants/Tutoriel.tsx'
 import { Frise } from './composants/Vitrine.tsx'
-import { duelsDepuisCodes, partieDuJour, type Calendrier } from './domaine/calendrier.ts'
+import { duelsDepuisCodes, pairesDesDerniersJours, partieDuJour, type Calendrier } from './domaine/calendrier.ts'
 import { choisirConseil, conseilAffiche, valeursDe } from './domaine/conseils.ts'
 import { estBonChoix } from './domaine/duel.ts'
 import { cleDePaire, genererPartie } from './domaine/generateur.ts'
@@ -163,10 +163,18 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
   const lancerPartie = () => {
     // Une Partie sur deux contient un Duel thématique (REGLES.probabiliteDuelThematique),
     // et jamais plus de 3 Parties de suite sans (la garantie, lue dans la mémoire des Parties récentes).
+    // Elle écarte les paires des 10 dernières Parties libres, et aussi celles des Duels du jour des 10 derniers jours
+    // (issue 127) : celles du calendrier, et celles que la mémoire a retenues pour aujourd'hui (le calendrier peut ne pas
+    // être encore arrivé, ou avoir changé depuis).
+    const pairesRecentes = new Set([
+      ...memoire.pairesRecentes(),
+      ...(calendrier ? pairesDesDerniersJours(calendrier, aujourdhui) : []),
+      ...(duJour?.duels ?? []).map((code) => cleDePaire(...(code.split('>') as [string, string]))),
+    ])
     const duels = genererPartie({
       gestes: GESTES_CALCULES,
       thematiques: DUELS_THEMATIQUES,
-      pairesRecentes: memoire.pairesRecentes(),
+      pairesRecentes,
       forcerThematique: doitForcerUnDuelThematique(memoire.partiesRecentes(), DUELS_THEMATIQUES),
       coefficients: CALIBRAGE.coefficients,
     })

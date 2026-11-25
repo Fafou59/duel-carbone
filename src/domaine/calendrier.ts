@@ -42,8 +42,13 @@ type Sources = {
  * Les jours récents dont on tient compte : pas deux fois le même Duel, et la garantie des Duels thématiques.
  * Les Duels thématiques, eux, se lisent sur tout le calendrier : chacun passe une fois avant qu'un autre ne revienne
  * (REGLES.duelDuJour).
+ *
+ * 10 jours depuis l'issue 127 (3 avant), comme les 10 Parties libres retenues par le navigateur : avec 3 jours,
+ * 2 % des Duels avaient déjà été tirés dans les 10 jours précédents (environ un tous les 5 jours pour qui joue
+ * chaque jour). Sur un an simulé, plus aucun ne revient dans les 10 jours, sans aucun assouplissement du tirage
+ * ni changement pour les Duels thématiques.
  */
-const MEMOIRE_DU_CALENDRIER = 3
+export const MEMOIRE_DU_CALENDRIER = 10
 
 /**
  * Garde le jour en cours et les jours passés tels quels, et tire à nouveau tous les jours suivants,
@@ -71,6 +76,16 @@ export function prolongerCalendrier(existant: Calendrier | null, aujourdhui: str
     jours.push(duels.map((d) => `${d.a.id}>${d.b.id}`))
   }
   return { empreinte: sources.empreinte, debut, jours }
+}
+
+/**
+ * Les paires des Duels du jour des `n` derniers jours, aujourd'hui compris (issue 127). La Partie libre les écarte :
+ * elle ne redonne pas un Duel que le joueur vient de jouer dans le Duel du jour, et ne dévoile pas celui d'aujourd'hui
+ * s'il ne l'a pas encore joué. Les jours hors du calendrier sont ignorés.
+ */
+export function pairesDesDerniersJours(calendrier: Calendrier, aujourdhui: string, n = MEMOIRE_DU_CALENDRIER): string[] {
+  const fin = joursEntre(calendrier.debut, aujourdhui) + 1
+  return calendrier.jours.slice(Math.max(0, fin - n), Math.max(0, fin)).flatMap(cles)
 }
 
 /** Combien de jours le calendrier couvre encore après aujourd'hui. */
