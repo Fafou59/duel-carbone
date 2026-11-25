@@ -27,6 +27,8 @@ type Props = {
   onReponse?: (idChoisi: string) => void
   /** Ce que l'écran de fin doit savoir du Duel du jour (voir EcranFin) : c'est lui qu'on termine, ou celui qui reste à jouer. */
   fin?: Pick<PropsFin, 'partieDuJour' | 'duJour' | 'conseil'>
+  /** Le Taux d'erreur d'un Duel, en pour cent, ou null s'il n'y a rien à afficher (ADR 0006). */
+  tauxDErreur?: (duel: DuelDePartie) => number | null
 }
 
 export function EcranPartie({
@@ -39,6 +41,7 @@ export function EcranPartie({
   reponsesInitiales = [],
   onReponse,
   fin,
+  tauxDErreur,
 }: Props) {
   // useReducer branche la machine à états (domaine/partie.ts) sur React :
   // « envoyer » une action calcule le nouvel état, et React redessine l'écran.
@@ -132,6 +135,7 @@ export function EcranPartie({
         partieDuJour={fin?.partieDuJour}
         duJour={fin?.duJour}
         conseil={fin?.conseil}
+        tauxDErreur={tauxDErreur}
       />
     )
   }
@@ -202,6 +206,7 @@ export function EcranPartie({
         key={etat.index}
         duel={duel}
         choix={etat.phase === 'revelation' ? etat.reponses[etat.index].idChoisi : null}
+        tauxDErreur={tauxDErreur?.(duel) ?? null}
         onChoisir={choisir}
         suite={
           <button

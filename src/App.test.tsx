@@ -4,7 +4,9 @@ import App from './App'
 import { redigerConseil, valeursDe } from './domaine/conseils.ts'
 import { CONSEILS } from './donnees/conseils.ts'
 import { INSTANTANE } from './donnees/index.ts'
+import type { ComptesDesPaires } from './domaine/taux-d-erreur.ts'
 import { creerMemoire, type Stockage } from './navigateur/memoire.ts'
+import type { ReponseDeFin } from './navigateur/rang-du-jour.ts'
 import { signalerNouvelleVersion } from './navigateur/mise-a-jour.ts'
 import { TITRE_ACCUEIL, TITRE_EN_SAVOIR_PLUS } from './referencement.ts'
 
@@ -310,9 +312,10 @@ describe('Application : le Rang du jour', () => {
   const JOUR = '2026-11-20'
   const NUMERO = 7
   /** Un faux serveur du Rang du jour : il répond les Effectifs donnés, ou rien (null : hors ligne, en panne). */
-  const fauxServeur = (effectifs: number[] | null) => ({
-    envoyer: vi.fn(async (_numero: number, _choix: string[]) => effectifs),
+  const fauxServeur = (effectifs: number[] | null, paires: ComptesDesPaires | null = null) => ({
+    envoyer: vi.fn(async (_numero: number, _choix: string[]): Promise<ReponseDeFin | null> => (effectifs ? { effectifs, paires } : null)),
     lire: vi.fn(async (_numero: number) => effectifs),
+    lireTaux: vi.fn(async (_cles: string[]) => paires),
   })
   const lancerLeDuelDuJour = async () => {
     const bouton = await screen.findByRole('button', { name: /Jouer le Duel du jour/ })
@@ -342,7 +345,7 @@ describe('Application : le Rang du jour', () => {
     const memoire = creerMemoire(stockage())
     const serveur = fauxServeur(null)
     // Le serveur répond les Effectifs qui suivent l'ajout du joueur, quel que soit son score.
-    serveur.envoyer.mockImplementation(async () => effectifsAutourDe(memoire.partieDuJour(JOUR)?.score ?? 0))
+    serveur.envoyer.mockImplementation(async () => ({ effectifs: effectifsAutourDe(memoire.partieDuJour(JOUR)?.score ?? 0), paires: null }))
     render(<App memoire={memoire} aujourdhui={JOUR} serveur={serveur} />)
     await lancerLeDuelDuJour()
     const score = jouerDixDuels()
@@ -413,6 +416,62 @@ describe('Application : le Rang du jour', () => {
     expect(screen.getByRole('heading', { name: 'Partie terminée !' })).toBeInTheDocument()
     expect(serveur.envoyer).not.toHaveBeenCalled()
     expect(serveur.lire).not.toHaveBeenCalled()
+  })
+
+  it('montre le Taux d’erreur reçu au lancement à chaque révélation, puis celui à jour dans le Récapitulatif', async () => {
+    const serveur = fauxServeur(null)
+    // Au lancement : 10 réponses par paire, dont 7 fausses. À la fin, le joueur compté : 11 réponses, dont 8 fausses.
+    const comptes = (cles: string[], reponses: number, fausses: number) =>
+      Object.fromEntries(cles.map((cle) => [cle, { reponses, fausses }]))
+    let clesDeLaPartie: string[] = []
+    serveur.lireTaux.mockImplementation(async (cles) => {
+      clesDeLaPartie = cles
+      return comptes(cles, 10, 7)
+    })
+    serveur.envoyer.mockImplementation(async () => ({ effectifs: effectifsAutourDe(5), paires: comptes(clesDeLaPartie, 11, 8) }))
+    render(<App memoire={creerMemoire(stockage())} aujourdhui={JOUR} serveur={serveur} />)
+    await lancerLeDuelDuJour()
+    await waitFor(() => expect(serveur.lireTaux).toHaveBeenCalledTimes(1))
+    expect(clesDeLaPartie).toHaveLength(10)
+
+    const auDuel = screen.queryByRole('button', { name: 'Au Duel !' })
+    if (auDuel) fireEvent.click(auDuel)
+    // Avant le choix, rien : le chiffre ne doit pas souffler la réponse.
+    expect(document.querySelector('.comme-toi')).toBeNull()
+    fireEvent.click(within(screen.getByRole('region', { name: 'Lequel émet le plus ?' })).getAllByRole('button')[0])
+    // 70 % de réponses fausses : 70 % comme toi si la première carte était fausse, 30 % sinon.
+    await waitFor(() => expect(document.querySelector('.duel__verdict .comme-toi')?.textContent).toMatch(/^, (30|70)\s% comme toi \(part des réponses identiques à la tienne\)$/))
+
+    // On finit la Partie (le premier Duel est déjà choisi).
+    fireEvent.click(screen.getByRole('button', { name: 'Duel suivant →' }))
+    for (let i = 1; i < 10; i++) {
+      const annonce = screen.queryByRole('button', { name: 'Au Duel !' })
+      if (annonce) fireEvent.click(annonce)
+      fireEvent.click(within(screen.getByRole('region', { name: 'Lequel émet le plus ?' })).getAllByRole('button')[0])
+      fireEvent.click(screen.getByRole('button', { name: i === 9 ? 'Voir mon score' : 'Duel suivant →' }))
+    }
+    // À la fin, le joueur compté : 11 réponses dont 8 fausses, soit 73 % ou 27 % comme toi selon la case.
+    await waitFor(() => expect(document.querySelectorAll('.recap__taux .comme-toi')).toHaveLength(10))
+    for (const caseDuRecap of document.querySelectorAll('.recap__taux .comme-toi')) expect(caseDuRecap.textContent).toMatch(/(27|73)\s% comme toi/)
+  })
+
+  it('ne montre aucun Taux d’erreur sous le minimum de réponses, ni sans serveur', async () => {
+    const serveur = fauxServeur(null)
+    serveur.lireTaux.mockImplementation(async (cles) => Object.fromEntries(cles.map((cle) => [cle, { reponses: 3, fausses: 2 }])))
+    render(<App memoire={creerMemoire(stockage())} aujourdhui={JOUR} serveur={serveur} />)
+    await lancerLeDuelDuJour()
+    await waitFor(() => expect(serveur.lireTaux).toHaveBeenCalled())
+    jouerDixDuels()
+    expect(document.querySelector('.comme-toi')).toBeNull()
+  })
+
+  it('ne demande pas le Taux d’erreur en Partie libre (pas encore : étape 2 de l’issue 122)', async () => {
+    const serveur = fauxServeur(null)
+    render(<App memoire={creerMemoire(stockage())} aujourdhui={JOUR} serveur={serveur} />)
+    await screen.findByRole('button', { name: /Jouer le Duel du jour/ })
+    fireEvent.click(screen.getByRole('button', { name: 'Partie libre' }))
+    jouerDixDuels()
+    expect(serveur.lireTaux).not.toHaveBeenCalled()
   })
 
   it('n’envoie pas une Partie du jour finie après minuit : ce n’est plus le Duel du jour', async () => {

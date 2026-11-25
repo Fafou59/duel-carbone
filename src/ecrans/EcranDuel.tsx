@@ -6,6 +6,7 @@ import { estBonChoix, plusEmetteur, rapport } from '../domaine/duel.ts'
 import { formaterRapport } from '../domaine/format.ts'
 import type { GesteCalcule } from '../domaine/geste.ts'
 import type { DuelDePartie } from '../domaine/partie.ts'
+import { CommeToi } from '../composants/CommeToi.tsx'
 import { mouvementReduit } from '../navigateur/mouvement.ts'
 import './EcranDuel.css'
 
@@ -20,12 +21,14 @@ type Props = {
   onChoisir: (idGeste: string) => void
   /** Ce qui s'affiche à la fin de l'explication (ex. le bouton « Duel suivant »). */
   suite?: ReactNode
+  /** Le Taux d'erreur de ce Duel, en pour cent (null : rien à afficher) : le verdict en tire « 72 % comme toi ». */
+  tauxDErreur?: number | null
 }
 
 /** Délai pendant lequel le joueur voit les chiffres sur les cartes avant de descendre vers l'explication. */
 export const DELAI_DEFILEMENT_MS = 1500
 
-export function EcranDuel({ duel, choix, onChoisir, suite }: Props) {
+export function EcranDuel({ duel, choix, onChoisir, suite, tauxDErreur = null }: Props) {
   const revele = choix !== null
   // Une « référence » vers l'élément HTML de l'explication, pour pouvoir y faire défiler la page.
   const explication = useRef<HTMLDivElement>(null)
@@ -131,7 +134,9 @@ export function EcranDuel({ duel, choix, onChoisir, suite }: Props) {
         <div aria-live="polite">
           {revele && (
             <p className={`duel__verdict duel__verdict--${bonChoix ? 'bon' : 'mauvais'}`}>
-              {bonChoix ? '✓ Bonne réponse !' : '✗ Raté !'}
+              <span className="duel__verdict-texte">{bonChoix ? '✓ Bonne réponse !' : '✗ Raté !'}</span>
+              {/* Sur la même ligne : la part des réponses qui vont dans le même sens (ADR 0006), lue au lancement. */}
+              {tauxDErreur !== null && <CommeToi bon={bonChoix} taux={tauxDErreur} />}
             </p>
           )}
         </div>

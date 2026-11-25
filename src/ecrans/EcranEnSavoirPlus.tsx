@@ -297,6 +297,14 @@ export function EcranEnSavoirPlus() {
           journée, et seule la première Partie du jour de chaque appareil compte, si elle se termine avant minuit. La
           Partie libre n’a pas de Rang.
         </p>
+        <p>
+          Pendant le Duel du jour, chaque réponse dévoile aussi la part des réponses identiques à la tienne : « 72&nbsp;%
+          comme toi », avec une petite barre. Si tu as trouvé, c’est la part des bonnes réponses ; si tu t’es trompé,
+          celle des réponses fausses. Elle compte toutes les réponses données à cette paire de gestes, quel que soit le
+          jour, dans un sens ou dans l’autre (le jean face au pull, ou le pull face au jean). Ce sont des réponses et
+          non des joueurs : on peut retomber sur une même paire. Elle n’apparaît qu’à partir de{' '}
+          {REGLES.tauxDErreur.reponsesMinimum} réponses.
+        </p>
       </Partie>
 
       <Partie id="conseils">
@@ -340,12 +348,16 @@ export function EcranEnSavoirPlus() {
           l’invitation à installer le jeu sont gardés dans ton navigateur, sur cet appareil. Ils ne sont envoyés nulle part.
         </p>
         <p>
-          Pour le Rang du jour, le jeu envoie une seule fois à son serveur, à la fin de ton Duel du jour, le numéro du
-          Duel et les {REGLES.nombreDeDuels} gestes que tu as choisis. Le serveur recalcule ton score et ajoute 1 au
-          nombre de joueurs qui ont fait ce score ce jour-là. C’est tout ce qu’il garde : pour chaque jour, combien de
-          joueurs ont fait 0, 1… {REGLES.nombreDeDuels}. Ni tes choix, ni l’heure, ni ton adresse IP, ni aucun
-          identifiant : personne, pas même nous, ne peut savoir qui a fait quel score. Ces chiffres sont gardés chez
-          Cloudflare, dans l’Union européenne. La Partie libre n’envoie rien, et sans réseau, le jeu marche tout autant.
+          Pour le Rang du jour et la part des réponses identiques à la tienne, le jeu échange deux fois avec son serveur
+          pendant ton Duel du jour. Au début, il lui demande, pour chacune des {REGLES.nombreDeDuels} paires de gestes,
+          combien de réponses ont été données et combien étaient fausses. À la fin, il envoie une seule fois le numéro
+          du Duel et les {REGLES.nombreDeDuels} gestes que tu as choisis. Le serveur recalcule ton score et tes bonnes
+          réponses, ajoute 1 au nombre de joueurs qui ont fait ce score ce jour-là, et ajoute ta réponse au total de
+          chaque paire. C’est tout ce qu’il garde : pour chaque jour, combien de joueurs ont fait 0, 1…{' '}
+          {REGLES.nombreDeDuels} ; pour chaque paire de gestes, combien de réponses et combien de fausses, tous jours
+          confondus. Ni tes choix un par un, ni l’heure, ni ton adresse IP, ni aucun identifiant : personne, pas même
+          nous, ne peut savoir qui a répondu quoi. Ces chiffres sont gardés chez Cloudflare, dans l’Union européenne.
+          La Partie libre n’envoie rien, et sans réseau, le jeu marche tout autant.
         </p>
         <p>
           Pour que le jeu marche sans réseau (et s'installe sur ton écran d'accueil), ton navigateur garde aussi une

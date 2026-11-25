@@ -7,6 +7,7 @@
  */
 import { NOMBRE_DE_DUELS } from '../src/domaine/partie.ts'
 import type { Effectifs } from '../src/domaine/rang-du-jour.ts'
+import type { ComptesDesPaires } from '../src/domaine/taux-d-erreur.ts'
 
 /** Une requête SQL préparée, à laquelle on attache des valeurs (bind) avant de l'exécuter. */
 export type RequeteD1 = {
@@ -48,4 +49,48 @@ export async function lireEffectifs(base: BaseD1, jour: string): Promise<Effecti
 export async function compterUnJoueur(base: BaseD1, jour: string, score: number): Promise<Effectifs> {
   const [, lecture] = await base.batch<Ligne>([base.prepare(AJOUTER).bind(jour, score), base.prepare(LIRE).bind(jour)])
   return enEffectifs(lecture.results)
+}
+
+// --- Le Taux d'erreur (table « reponses », migration 0002, ADR 0006) ---
+
+type LigneDePaire = { paire: string; reponses: number; fausses: number }
+
+/** La lecture des comptes de quelques paires : « WHERE paire IN (?, ?, …) », un « ? » par paire. */
+const lireLesPaires = (nombre: number) =>
+  `SELECT paire, reponses, fausses FROM reponses WHERE paire IN (${Array(nombre).fill('?').join(', ')})`
+
+// Comme pour les Effectifs : la première réponse crée la ligne de la paire, les suivantes s'y ajoutent, et SQLite
+// fait l'addition lui-même. Le second « ? » vaut 1 pour une réponse fausse, 0 pour une bonne.
+const AJOUTER_UNE_REPONSE = `INSERT INTO reponses (paire, reponses, fausses) VALUES (?, 1, ?)
+  ON CONFLICT (paire) DO UPDATE SET reponses = reponses + 1, fausses = fausses + excluded.fausses`
+
+const enComptes = (lignes: LigneDePaire[]): ComptesDesPaires =>
+  Object.fromEntries(lignes.map(({ paire, reponses, fausses }) => [paire, { reponses, fausses }]))
+
+/** Les comptes des paires demandées (celles jamais jouées n'y figurent pas). */
+export async function lireComptes(base: BaseD1, cles: string[]): Promise<ComptesDesPaires> {
+  if (cles.length === 0) return {}
+  const { results } = await base.prepare(lireLesPaires(cles.length)).bind(...cles).all<LigneDePaire>()
+  return enComptes(results)
+}
+
+/**
+ * La fin d'une Partie du jour, en une seule transaction : le joueur dans la case de son score, ses 10 réponses
+ * dans les comptes de leurs paires, puis la relecture des Effectifs du jour et des comptes à jour.
+ */
+export async function compterUnePartieDuJour(
+  base: BaseD1,
+  jour: string,
+  score: number,
+  reponses: { cle: string; fausse: boolean }[],
+): Promise<{ effectifs: Effectifs; paires: ComptesDesPaires }> {
+  const cles = [...new Set(reponses.map((r) => r.cle))]
+  const resultats = await base.batch<unknown>([
+    base.prepare(AJOUTER).bind(jour, score),
+    ...reponses.map((r) => base.prepare(AJOUTER_UNE_REPONSE).bind(r.cle, r.fausse ? 1 : 0)),
+    base.prepare(LIRE).bind(jour),
+    base.prepare(lireLesPaires(cles.length)).bind(...cles),
+  ])
+  const [effectifs, paires] = resultats.slice(-2)
+  return { effectifs: enEffectifs(effectifs.results as Ligne[]), paires: enComptes(paires.results as LigneDePaire[]) }
 }

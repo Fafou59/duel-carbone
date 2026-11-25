@@ -107,7 +107,7 @@ La liste des 10 Duels d'une Partie terminée, avec pour chacun le choix du joueu
 _À éviter_ : historique, résumé
 
 **Taux d'erreur** :
-La part des réponses fausses à un Duel, comptée pour sa paire de Gestes quel que soit l'ordre des deux Gestes, le jour ou la Partie, affichée « 72 % de réponses fausses sur ce Duel ». On compte des réponses et non des joueurs : un même joueur peut retomber sur une paire. Il décrit ce que font les joueurs, alors que la Difficulté se déduit du Rapport.
+La part des réponses fausses à un Duel, comptée pour sa paire de Gestes quel que soit l'ordre des deux Gestes, le jour ou la Partie. Le joueur le voit à travers sa propre réponse : la part des réponses identiques à la sienne, « 72 % comme toi » (celle des bonnes réponses s'il a trouvé, des fausses sinon). On compte des réponses et non des joueurs : un même joueur peut retomber sur une paire. Il décrit ce que font les joueurs, alors que la Difficulté se déduit du Rapport.
 _À éviter_ : taux d'échec, part des joueurs qui se trompent, difficulté réelle
 
 **Geste sous-estimé** :

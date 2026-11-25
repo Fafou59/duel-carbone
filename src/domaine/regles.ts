@@ -68,6 +68,16 @@ export const REGLES = {
   },
 
   /**
+   * Le Taux d'erreur d'un Duel (« 72 % de réponses fausses sur ce Duel », issue 107, ADR 0006) ne s'affiche qu'à
+   * partir de ce nombre de réponses sur la paire de Gestes, tous jours et toutes Parties confondus. On compte des
+   * réponses, pas des joueurs : un même joueur peut retomber sur une paire. Comme le Rang, hors de l'empreinte du
+   * tirage (equilibrage.ts) : le changer ne demande pas de recalibrer.
+   */
+  tauxDErreur: {
+    reponsesMinimum: 4,
+  },
+
+  /**
    * La courbe de difficulté : une tranche de Rapport par Duel, du Duel 1 au Duel 10.
    * Elle part du plafond (un premier Duel d'échauffement) et se resserre vite.
    * Les étiquettes facile (1-3), moyen (4-6), difficile (7-9) et ultime (10) regroupent ces tranches.

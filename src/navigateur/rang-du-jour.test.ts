@@ -1,14 +1,15 @@
 import { describe, expect, it, vi } from 'vitest'
-import { ADRESSE_DU_RANG, serveurDuRang } from './rang-du-jour.ts'
+import { ADRESSE_DU_RANG, ADRESSE_DU_TAUX, serveurDuRang } from './rang-du-jour.ts'
 
 const EFFECTIFS = [0, 1, 0, 2, 0, 5, 3, 1, 0, 0, 1]
 const reponse = (corps: unknown, statut = 200) => Promise.resolve(new Response(JSON.stringify(corps), { status: statut }))
 
 describe('le serveur du Rang du jour, vu du navigateur', () => {
-  it('envoie le numéro du Duel du jour et les 10 choix, en JSON, et rend les Effectifs', async () => {
-    const faireFetch = vi.fn(() => reponse({ numero: 9, effectifs: EFFECTIFS }))
+  it('envoie le numéro du Duel du jour et les 10 choix, en JSON, et rend les Effectifs et les comptes des paires', async () => {
+    const paires = { 'avion|steak': { reponses: 5, fausses: 2 } }
+    const faireFetch = vi.fn(() => reponse({ numero: 9, effectifs: EFFECTIFS, paires }))
     const choix = Array.from({ length: 10 }, (_, i) => `geste-${i}`)
-    expect(await serveurDuRang(faireFetch).envoyer(9, choix)).toEqual(EFFECTIFS)
+    expect(await serveurDuRang(faireFetch).envoyer(9, choix)).toEqual({ effectifs: EFFECTIFS, paires })
     expect(faireFetch).toHaveBeenCalledWith(
       ADRESSE_DU_RANG,
       expect.objectContaining({
@@ -17,6 +18,18 @@ describe('le serveur du Rang du jour, vu du navigateur', () => {
         body: JSON.stringify({ numero: 9, choix }),
       }),
     )
+  })
+
+  it('rend les Effectifs même si les comptes des paires manquent ou sont abîmés (ancien serveur)', async () => {
+    const faireFetch = () => reponse({ numero: 9, effectifs: EFFECTIFS, paires: { avion: 3 } })
+    expect(await serveurDuRang(faireFetch).envoyer(9, [])).toEqual({ effectifs: EFFECTIFS, paires: null })
+  })
+
+  it('lit les comptes des paires d’une Partie, à l’adresse du Taux d’erreur', async () => {
+    const paires = { 'avion|steak': { reponses: 5, fausses: 2 } }
+    const faireFetch = vi.fn((_adresse: string) => reponse({ paires }))
+    expect(await serveurDuRang(faireFetch as unknown as typeof fetch).lireTaux(['avion|steak', 'jean|pull'])).toEqual(paires)
+    expect(faireFetch.mock.calls[0][0]).toBe(`${ADRESSE_DU_TAUX}?paires=avion%7Csteak%2Cjean%7Cpull`)
   })
 
   it('lit les Effectifs du jour', async () => {
@@ -37,6 +50,7 @@ describe('le serveur du Rang du jour, vu du navigateur', () => {
   ])('rend null, sans erreur : %s', async (_, faireFetch) => {
     expect(await serveurDuRang(faireFetch as typeof fetch).lire(9)).toBeNull()
     expect(await serveurDuRang(faireFetch as typeof fetch).envoyer(9, [])).toBeNull()
+    expect(await serveurDuRang(faireFetch as typeof fetch).lireTaux(['avion|steak'])).toBeNull()
   })
 
   it('n’attend pas un serveur trop lent', async () => {

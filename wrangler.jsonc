@@ -17,7 +17,7 @@
 {
   // Doit être identique au nom du Worker dans le tableau de bord Cloudflare.
   "name": "duel-carbone",
-  // Le serveur : le code qui répond aux adresses /api/… (le Rang du jour).
+  // Le serveur : le code qui répond aux adresses /api/… (le Rang du jour, le Taux d'erreur).
   "main": "serveur/index.ts",
   // Version des règles d'exécution de Cloudflare à utiliser (une date figée, pour éviter les surprises).
   "compatibility_date": "2026-11-01",
