@@ -87,10 +87,17 @@ export function VerdictCommeToi({ variante, bon, tauxDErreur }: { variante: Vari
   const classe = `duel__verdict duel__verdict--${bon ? 'bon' : 'mauvais'}`
   const verdict = bon ? '✓ Bonne réponse !' : '✗ Raté !'
   if (variante === 'G') {
+    // « Bien vu » ou « Raté » en grand, la suite de la phrase en plus petit : la ligne tient sur un téléphone.
+    const [tete, ...suite] = phraseG(bon, part).split(', ')
     return (
-      <p className={classe} style={{ ...ligne, fontSize: 19 }}>
-        {phraseG(bon, part)}
-        <Camembert part={part} bon={bon} />
+      <p className={classe} style={ligne}>
+        <span>
+          {tete},{' '}
+          <span style={{ fontSize: 15, fontWeight: 700 }}>{suite.join(', ')}</span>
+        </span>
+        <span style={{ fontSize: 15 }}>
+          <Camembert part={part} bon={bon} />
+        </span>
       </p>
     )
   }
