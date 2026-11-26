@@ -2,9 +2,8 @@
  * PROTOTYPE (jetable) : le téléphone du Participant pendant une Séance, sur l'adresse #prototype-participant.
  * Question : « Quels ajustements à l'écran de jeu actuel pour jouer au rythme de l'Animateur ? »
  * Même Séance fictive que l'écran de l'Animateur ; le Participant est « Camille ».
- * Deux variantes de l'attente après avoir répondu :
- *   ?variant=1 : on reste sur le Duel, la carte choisie est marquée, un bandeau dit d'attendre ;
- *   ?variant=2 : un écran d'attente à part, qui rappelle le choix et montre la salle qui répond.
+ * Deuxième tour : après avoir répondu, on reste sur le Duel (variante 1 du premier tour) ; la frise d'icônes reste
+ * fixe en bas de Rejoindre et de l'attente ; pas de bandeau à la révélation ; le Récapitulatif en fin de Séance.
  * L'étape (ce que fait l'Animateur) se choisit dans la barre noire, en haut. On peut répondre en touchant une carte.
  */
 import { useEffect, useMemo, useState } from 'react'
@@ -12,14 +11,16 @@ import { CarteGeste, type EtatCarte } from '../../composants/CarteGeste.tsx'
 import { Conseil } from '../../composants/Conseil.tsx'
 import { ExplicationDuel } from '../../composants/ExplicationDuel.tsx'
 import { Icone } from '../../composants/Icone.tsx'
+import { PanneauDuel } from '../../composants/PanneauDuel.tsx'
 import { Frise } from '../../composants/Vitrine.tsx'
 import { CONSEILS } from '../../donnees/conseils.ts'
 import { INSTANTANE } from '../../donnees/index.ts'
 import { conseilAffiche, valeursDe } from '../../domaine/conseils.ts'
-import { plusEmetteur, rapport } from '../../domaine/duel.ts'
-import { formaterRapport } from '../../domaine/format.ts'
+import { moinsEmetteur, plusEmetteur, rapport } from '../../domaine/duel.ts'
+import { formaterMultiple, formaterRapport, queDevant } from '../../domaine/format.ts'
 import type { GesteCalcule } from '../../domaine/geste.ts'
-import { choixDu, classementApres, creerSeanceFactice, partDeBonnes } from './seance-factice.ts'
+import type { LigneRecapitulatif } from '../../domaine/recapitulatif.ts'
+import { choixDu, classementApres, creerSeanceFactice } from './seance-factice.ts'
 import '../EcranDuel.css'
 import '../EcranPartie.css'
 import '../EcranFin.css'
@@ -44,12 +45,13 @@ function phraseDuRang(rang: number, exAequo: number, total: number, reste: numbe
 
 export function PrototypeParticipant() {
   const seance = useMemo(() => creerSeanceFactice(), [])
-  const variante = new URLSearchParams(window.location.search).get('variant') === '2' ? '2' : '1'
   const [etape, setEtape] = useState<Etape>({ phase: 'rejoindre', n: 0 })
   const [pseudo, setPseudo] = useState(MOI)
   // Mes réponses, Duel par Duel (sinon, celles de Camille dans la Séance fictive).
   const [mesChoix, setMesChoix] = useState<Record<number, string>>({})
   const [repondus, setRepondus] = useState(0)
+  // Le Duel du Récapitulatif dont le détail est ouvert.
+  const [ouvert, setOuvert] = useState<number | null>(null)
   const total = seance.participants.length
   const moi = seance.participants.find((p) => p.pseudo === MOI)!
 
@@ -78,7 +80,7 @@ export function PrototypeParticipant() {
 
   const barre = (
     <div className="pp-barre" role="toolbar" aria-label="Prototype : ce que fait l’Animateur">
-      <span>Proto {variante}</span>
+      <span>Proto</span>
       <select value={`${etape.phase}:${etape.n}`} onChange={(e) => aller(e.target.value)} aria-label="Étape de la Séance">
         <option value="rejoindre:0">Rejoindre</option>
         <option value="attente:0">Attente du lancement</option>
@@ -91,9 +93,6 @@ export function PrototypeParticipant() {
         ))}
         <option value="fin:9">Fin de la Séance</option>
       </select>
-      <a href={`?variant=${variante === '1' ? '2' : '1'}#prototype-participant`} onClick={() => setTimeout(() => location.reload())}>
-        ⇄ variante
-      </a>
     </div>
   )
 
@@ -134,9 +133,6 @@ export function PrototypeParticipant() {
         <p className="pp-grand">C’est bon, {pseudo} !</p>
         <p>Regarde l’écran : la Séance va bientôt commencer.</p>
         <p className="pp-discret">{total} personnes dans la salle</p>
-        <div className="pp-frise">
-          <Frise />
-        </div>
       </section>
     )
   } else if (etape.phase === 'classement' || etape.phase === 'fin') {
@@ -146,6 +142,21 @@ export function PrototypeParticipant() {
     const exAequo = lignes.filter((l) => l.score === moiLigne.score).length
     const avant = classementApres(seance, joues - 1).find((l) => l.pseudo === MOI)!
     const fin = etape.phase === 'fin'
+    // Le Récapitulatif, comme à la fin d'une Partie : mes réponses, sinon celles de Camille.
+    const lignesRecap: LigneRecapitulatif[] = seance.duels.map((d, n) => {
+      const p = plusEmetteur(d)
+      const choisi = mesChoix[n] ?? (moi.bonnes[n] ? p.id : moinsEmetteur(d).id)
+      return {
+        numero: n + 1,
+        duel: d,
+        difficulte: d.difficulte,
+        idChoisi: choisi,
+        bonne: choisi === p.id,
+        plus: p,
+        moins: moinsEmetteur(d),
+        rapport: rapport(d),
+      }
+    })
     // Le même Conseil que sur l'écran de l'Animateur, ici avec un lien qu'on peut toucher.
     const conseil = conseilAffiche(CONSEILS.find((c) => c.id === 'legumineuses') ?? CONSEILS[0], valeursDe(INSTANTANE))
     contenu = (
@@ -175,6 +186,8 @@ export function PrototypeParticipant() {
             </a>
             <p className="pp-discret">Un nouveau Duel chaque jour, sur duelcarbone.fr</p>
             <Conseil conseil={conseil} onLien={() => {}} />
+            <Recapitulatif lignes={lignesRecap} onOuvrir={setOuvert} />
+            {ouvert !== null && <PanneauDuel key={ouvert} ligne={lignesRecap[ouvert]} onFermer={() => setOuvert(null)} />}
           </>
         ) : (
           <p className="pp-attente-ecran">👀 Regarde l’écran : le Duel {joues + 1} arrive.</p>
@@ -225,35 +238,7 @@ export function PrototypeParticipant() {
       </>
     )
 
-    if (variante === '2' && envoye) {
-      // Variante 2 : un écran d'attente à part.
-      const choisi = monChoix === duel.a.id ? duel.a : duel.b
-      contenu = (
-        <>
-          {suivi}
-          <section className="pp-centre pp-envoye">
-            <p className="pp-grand">✓ Réponse envoyée</p>
-            <p className="pp-choix">
-              <span className="pp-choix__icone">
-                <Icone id={choisi.id} />
-              </span>
-              <span>
-                Tu as choisi <strong>{choisi.titre}</strong>
-                <br />
-                <small>{choisi.sousTitre}</small>
-              </span>
-            </p>
-            <p>
-              <strong>{repondus + 1}</strong> / {total} ont répondu
-            </p>
-            <span className="pp-jauge">
-              <i style={{ width: `${((repondus + 1) / total) * 100}%` }} />
-            </span>
-            <p className="pp-attente-ecran">👀 Regarde l’écran : l’animateur va révéler la réponse.</p>
-          </section>
-        </>
-      )
-    } else {
+    {
       contenu = (
         <>
           {suivi}
@@ -303,13 +288,6 @@ export function PrototypeParticipant() {
               <small>👀 Regarde l’écran : l’animateur va révéler la réponse.</small>
             </div>
           )}
-          {revele && (
-            <div className="pp-bandeau">
-              {etape.n === 9 ? '🥁 Le classement final arrive sur l’écran…' : '👀 Regarde l’écran : le classement arrive.'}
-              <br />
-              <small>{partDeBonnes(seance, etape.n)} % de bonnes réponses dans la salle</small>
-            </div>
-          )}
         </>
       )
     }
@@ -322,6 +300,48 @@ export function PrototypeParticipant() {
         {entete}
         <main>{contenu}</main>
       </div>
+      {/* La frise reste en place, sans repartir, entre Rejoindre et l'attente du lancement. */}
+      {(etape.phase === 'rejoindre' || etape.phase === 'attente') && (
+        <div className="pp-frise-fixe">
+          <Frise />
+        </div>
+      )}
     </div>
+  )
+}
+
+/** Le Récapitulatif de fin de Séance, avec les cases de celui d'une Partie (EcranFin.css). */
+function Recapitulatif({ lignes, onOuvrir }: { lignes: LigneRecapitulatif[]; onOuvrir: (i: number) => void }) {
+  return (
+    <section className="pp-recap" aria-labelledby="pp-recap-titre">
+      <h3 id="pp-recap-titre" className="fin__recap-titre">
+        Récapitulatif
+      </h3>
+      <p className="fin__aide">Touche un Duel pour revoir son explication.</p>
+      <ul className="recap" aria-labelledby="pp-recap-titre">
+        {lignes.map((ligne, i) => (
+          <li key={ligne.numero}>
+            <button
+              type="button"
+              className={`recap__case recap__case--${ligne.bonne ? 'bon' : 'mauvais'}`}
+              aria-haspopup="dialog"
+              onClick={() => onOuvrir(i)}
+            >
+              <span className="recap__numero">
+                <span aria-hidden="true">{ligne.bonne ? '✓' : '✗'} </span>Duel {ligne.numero}
+                <span className="visuellement-cache">
+                  {' '}
+                  ({ligne.bonne ? 'réussi' : 'raté'}) : {ligne.plus.titre} émet {formaterMultiple(ligne.rapport)} fois plus{' '}
+                  {queDevant(ligne.moins.titre)}
+                </span>
+              </span>
+              <span className="recap__equivalence" aria-hidden="true">
+                1 <Icone id={ligne.plus.id} /> = {formaterMultiple(ligne.rapport)} <Icone id={ligne.moins.id} />
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
   )
 }

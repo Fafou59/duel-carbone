@@ -213,3 +213,34 @@
   text-align: left;
   margin-top: 16px;
 }
+
+/* Deuxième tour */
+/* La frise d'icônes, fixée en bas de Rejoindre et de l'attente ; elle ne déborde jamais sur le côté. */
+.pp-frise-fixe {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  background: var(--fond);
+}
+.pp-frise-fixe .frise {
+  margin-top: 8px;
+}
+.pp-centre {
+  justify-items: stretch;
+}
+/* Le Récapitulatif, sous le Conseil. */
+.pp-recap {
+  justify-self: stretch;
+  text-align: left;
+  margin-top: 16px;
+}
+.pp-recap .fin__recap-titre {
+  margin: 0;
+}
+.pp-recap .fin__aide {
+  margin: 0 0 8px;
+  color: var(--discret);
+}
