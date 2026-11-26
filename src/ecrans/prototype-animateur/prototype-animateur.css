@@ -681,3 +681,76 @@
   padding-top: 2.6vh;
   padding-bottom: 2.6vh;
 }
+
+/* Quatrième tour */
+/* « ×N fois plus » revient au centre, à la place du VS. */
+.pa-entre .pa-rapport {
+  left: 50%;
+  right: auto;
+  transform: translate(-50%, -50%);
+  font-size: 0.9em;
+}
+.pa-ligne {
+  padding-right: 1.6vw;
+}
+.pa-geste__empreinte {
+  position: static;
+  transform: none;
+}
+.pa-ligne {
+  position: static;
+}
+/* Duel 10 révélé : le tambour avant le classement final. */
+.pa-colonne--teaser {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.pa-colonne--teaser p {
+  margin: 0;
+}
+.pa-teaser__tambour {
+  font-size: 5em;
+  animation: pa-tambour 0.5s ease-in-out infinite alternate;
+}
+@keyframes pa-tambour {
+  to {
+    transform: rotate(-8deg) scale(1.06);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pa-teaser__tambour {
+    animation: none;
+  }
+}
+.pa-teaser__texte {
+  font-size: 1.5em;
+  font-weight: 800;
+}
+.pa-teaser__sous-texte {
+  color: var(--discret);
+}
+/* Classement final : l'invitation au Duel du jour, en bas à gauche, face au bouton Rejouer. */
+.pa-final__invitation {
+  margin: 4vh 0 0;
+  padding: 0.7em 1.2em;
+  border-radius: 999px;
+  background: var(--carte);
+  border: 1px solid var(--ligne);
+}
+.pa-final__pied {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2vw;
+  width: 100%;
+  max-width: 1300px;
+  margin-top: 4vh;
+}
+.pa-final__pied .pa-final__invitation {
+  margin: 0;
+}
+.pa-final__pied .pa-bouton {
+  position: static;
+  flex: none;
+}

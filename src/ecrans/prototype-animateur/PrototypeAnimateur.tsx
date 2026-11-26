@@ -35,11 +35,13 @@ function libelle(e: Etape): string | null {
   if (e.phase === 'duel') return 'Révéler la réponse'
   if (e.phase === 'revelation') return e.n === 9 ? 'Voir le classement final' : 'Voir le classement'
   if (e.phase === 'classement') return `Duel ${e.n + 2}`
-  return null
+  return 'Rejouer une nouvelle Séance'
 }
 
 export function PrototypeAnimateur() {
-  const seance = useMemo(() => creerSeanceFactice(), [])
+  // « Rejouer » ouvre une nouvelle Séance : un nouveau code, de nouveaux Duels (ici, une nouvelle graine).
+  const [graine, setGraine] = useState(7)
+  const seance = useMemo(() => creerSeanceFactice(graine), [graine])
   const [etape, setEtape] = useState<Etape>({ phase: 'attente', n: 0 })
   const [repondus, setRepondus] = useState(0)
 
@@ -56,7 +58,8 @@ export function PrototypeAnimateur() {
 
   const avancer = () => {
     setRepondus(0)
-    setEtape(suivante)
+    if (etape.phase === 'fin') setGraine((g) => g + 1)
+    setEtape(etape.phase === 'fin' ? { phase: 'attente', n: 0 } : suivante)
     window.scrollTo(0, 0)
   }
 

@@ -38,7 +38,10 @@ export function creerSeanceFactice(graine = 7): SeanceFactice {
     // L'ordre d'arrivée des réponses, Duel par Duel.
     ordre: duels.map(() => hasard()),
   }))
-  return { code: 'K7RM4P', duels, participants }
+  // Un code de 6 caractères faciles à lire (sans 0/O ni 1/I), tiré de la graine.
+  const lettres = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  const code = Array.from({ length: 6 }, () => lettres[Math.floor(hasard() * lettres.length)]).join('')
+  return { code: graine === 7 ? 'K7RM4P' : code, duels, participants }
 }
 
 export type LigneClassement = { pseudo: string; score: number; rang: number; medaille: 'or' | 'argent' | 'bronze' | null }

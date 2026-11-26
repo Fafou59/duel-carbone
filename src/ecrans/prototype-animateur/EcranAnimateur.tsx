@@ -76,9 +76,9 @@ export function EcranAnimateur({ seance, etape, repondus, action }: PropsEcran) 
     const rates = classes.slice(0, 3)
     // Le Conseil : le premier dont un Geste déclencheur est dans le Duel le plus raté, sinon le suivant, etc.
     const lie = classes
-      .map(({ d }) => ({ d, conseil: CONSEILS.find((c) => c.declencheurs.some((id) => id === d.a.id || id === d.b.id)) }))
-      .find((x) => x.conseil)
-    const conseil = lie?.conseil ? conseilAffiche(lie.conseil, valeursDe(INSTANTANE)) : null
+      .map(({ d }) => CONSEILS.find((c) => c.declencheurs.some((id) => id === d.a.id || id === d.b.id)))
+      .find(Boolean)
+    const conseil = lie ? conseilAffiche(lie, valeursDe(INSTANTANE)) : null
     const enPhrase = (t: string) => t.charAt(0).toLowerCase() + t.slice(1)
     return (
       <main className="pa-final">
@@ -106,16 +106,16 @@ export function EcranAnimateur({ seance, etape, repondus, action }: PropsEcran) 
               ))}
             </ul>
           </section>
-          {conseil && lie && (
-            <div className="pa-final__conseil">
-              <p className="pa-final__lie">
-                Pour aller plus loin que « {lie.d.a.titre} ou {enPhrase(lie.d.b.titre)} » :
-              </p>
-              <Conseil conseil={conseil} onLien={() => {}} />
-            </div>
-          )}
+          {conseil && <Conseil conseil={conseil} onLien={() => {}} />}
         </div>
-        {bouton}
+        {/* L'invitation à revenir : les téléphones l'affichent aussi, avec le lien ?ref=seance. */}
+        <div className="pa-final__pied">
+          <p className="pa-final__invitation">
+            <span aria-hidden="true">📱 </span>Et demain ? <strong>Le Duel du jour</strong> t’attend sur ton téléphone,
+            un nouveau chaque jour sur <strong>duelcarbone.fr</strong>
+          </p>
+          {bouton}
+        </div>
       </main>
     )
   }
@@ -177,7 +177,18 @@ export function EcranAnimateur({ seance, etape, repondus, action }: PropsEcran) 
         </ol>
       </aside>
     )
-  } else if (!dernierDuelRevele) {
+  } else if (dernierDuelRevele) {
+    // Révélation du Duel 10 : la colonne reste (la mise en page ne bouge pas), mais garde la surprise du classement.
+    colonne = (
+      <aside className="pa-colonne pa-colonne--teaser">
+        <p className="pa-teaser__tambour" aria-hidden="true">
+          🥁
+        </p>
+        <p className="pa-teaser__texte">Qui monte sur le podium ?</p>
+        <p className="pa-teaser__sous-texte">Les 10 Duels sont joués : place au classement final.</p>
+      </aside>
+    )
+  } else {
     // Pendant le Duel et sa révélation : rejoindre, la jauge, et les pseudos dans l'ordre où ils ont répondu.
     const arrives = ordreDesReponses(seance, etape.n).slice(0, repondus)
     colonne = (
@@ -258,7 +269,7 @@ export function EcranAnimateur({ seance, etape, repondus, action }: PropsEcran) 
         <div className="pa-lignes">
           {ligne(duel.a)}
           {revele ? (
-            <div className="pa-entre pa-entre--droite">
+            <div className="pa-entre">
               <span className="pa-rapport">
                 <b>{formaterRapport(rapport(duel))}</b>
                 <small>fois plus</small>
