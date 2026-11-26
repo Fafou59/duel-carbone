@@ -13,7 +13,7 @@ import { cleDuDuel } from '../src/domaine/taux-d-erreur.ts'
 import { DUELS_THEMATIQUES } from '../src/donnees/duels-thematiques.ts'
 import { numeroDuJour } from '../src/domaine/jour.ts'
 import { traiterRequete } from './api.ts'
-import type { BaseD1, RequeteD1 } from './base.ts'
+import { compterUneSalle, lireComptes, type BaseD1, type RequeteD1 } from './base.ts'
 
 /**
  * Une base D1 de test : une vraie base SQLite en mémoire (node:sqlite), avec la même table que la vraie
@@ -157,6 +157,17 @@ describe('le serveur du Rang du jour', () => {
     expect(paires[cles[9]]).toEqual({ reponses: 2, fausses: 2 })
     // La clé est la même quel que soit l'ordre des deux Gestes à l'écran.
     expect(cles[0]).toBe(cleDePaire(DUELS[0].b.id, DUELS[0].a.id))
+  })
+
+  it('ajoute d’un coup les réponses d’une salle (une Séance) aux comptes de la paire', async () => {
+    const cle = cleDuDuel(DUELS[0])
+    await envoyer({ numero: NUMERO, choix: choixPour(7) }, base)
+    await compterUneSalle(base, { cle, reponses: 24, fausses: 13 })
+    await compterUneSalle(base, { cle: 'paire|nouvelle', reponses: 3, fausses: 0 })
+    expect(await lireComptes(base, [cle, 'paire|nouvelle'])).toEqual({
+      [cle]: { reponses: 25, fausses: 13 },
+      'paire|nouvelle': { reponses: 3, fausses: 0 },
+    })
   })
 
   it('lit les comptes des paires demandées, sans rien compter', async () => {

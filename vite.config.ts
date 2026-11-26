@@ -51,8 +51,9 @@ export default defineConfig({
     // jsdom simule un navigateur dans Node.js, pour tester les composants React sans ouvrir de vraie page.
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
-    // Vitest ne lance pas les tests de bout en bout (Playwright, dossier e2e), ni les copies du projet rangées
-    // dans .claude/worktrees (les sessions parallèles).
-    exclude: [...configDefaults.exclude, 'e2e/**', '.claude/**'],
+    // Vitest ne lance pas les tests de bout en bout (Playwright, dossier e2e), ni ceux du Durable Object de la
+    // Séance (serveur/objet, qui ont leur propre configuration : vitest.objet.config.ts), ni les copies du projet
+    // rangées dans .claude/worktrees (les sessions parallèles).
+    exclude: [...configDefaults.exclude, 'e2e/**', 'serveur/objet/**', '.claude/**'],
   },
 })

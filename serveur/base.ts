@@ -104,3 +104,13 @@ export async function compterUnePartieDuJour(
   const [effectifs, paires] = resultats.slice(-2)
   return { effectifs: enEffectifs(effectifs.results as Ligne[]), paires: enComptes(paires.results as LigneDePaire[]) }
 }
+
+// Toute une salle d'un coup : à la révélation d'un Duel d'une Séance, ses réponses s'ajoutent à celles de la paire
+// en une seule écriture (ADR 0006 et 0007), au lieu d'une par Participant.
+const AJOUTER_UNE_SALLE = `INSERT INTO reponses (paire, reponses, fausses) VALUES (?, ?, ?)
+  ON CONFLICT (paire) DO UPDATE SET reponses = reponses + excluded.reponses, fausses = fausses + excluded.fausses`
+
+/** Les réponses d'une salle à un Duel, ajoutées au Taux d'erreur de sa paire. */
+export async function compterUneSalle(base: BaseD1, { cle, reponses, fausses }: { cle: string; reponses: number; fausses: number }): Promise<void> {
+  await base.prepare(AJOUTER_UNE_SALLE).bind(cle, reponses, fausses).all()
+}

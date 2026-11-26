@@ -1,0 +1,10 @@
+{
+  // Les tests du Durable Object (serveur/objet/), qui tournent dans le moteur des Workers (vitest.objet.config.ts).
+  "extends": "./tsconfig.serveur.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.serveur-objet.tsbuildinfo",
+    "types": ["@cloudflare/workers-types", "@cloudflare/vitest-plugin/types"]
+  },
+  "include": ["serveur/objet"],
+  "exclude": []
+}
