@@ -1,0 +1,10 @@
+{
+  // Les tests du serveur qui tournent dans Node (api.test.ts), avec une base SQLite en mémoire (node:sqlite).
+  "extends": "./tsconfig.serveur.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.serveur-tests.tsbuildinfo",
+    "types": ["node"]
+  },
+  "include": ["serveur/api.test.ts"],
+  "exclude": []
+}

@@ -44,10 +44,13 @@
       "preview_database_id": "7562794e-fd5e-4c6d-9cf7-c67cacc3ba92"
     }
   ],
+  "durable_objects": { "bindings": [{ "name": "SEANCE", "class_name": "Seance" }] },
+  "exports": { "Seance": { "type": "durable-object", "storage": "sqlite" } },
   // Les aperçus des branches (commande « npx wrangler preview », lancée par Cloudflare pour chaque branche autre
   // que main). Ils n'héritent pas des bases de la production : on leur en donne une à part, elle aussi dans l'UE,
   // partagée par tous les aperçus. Ainsi, essayer un aperçu ne fausse jamais le Rang du jour des vrais joueurs.
   "previews": {
+    "durable_objects": { "bindings": [{ "name": "SEANCE", "class_name": "Seance" }] },
     "d1_databases": [
       {
         "binding": "BASE",
