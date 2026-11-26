@@ -32,7 +32,7 @@ Le **responsable du traitement est l'éditeur du jeu** : le Mode animation est u
 
 - **Le principe « sans identité » de l'ADR 0005 reste vrai pour tout le reste du jeu** (Rang du jour, Taux d'erreur, Partie du jour, Partie libre). Il est assoupli pour la seule Séance, et pour 24 heures au plus.
 - **Le jeu en solo ne dépend toujours pas du serveur.** Le Mode animation, lui, en dépend : sans connexion, une Séance ne peut pas se jouer. Un téléphone coupé se reconnecte de lui-même et retrouve la Séance où elle en est.
-- **La juridiction `eu` des Durable Objects sur le plan gratuit n'est pas documentée** : le premier lot de construction la vérifie sur un aperçu. Si elle n'est pas disponible, on s'arrête pour décider avant d'aller plus loin.
+- **La juridiction `eu` des Durable Objects sur le plan gratuit n'est pas documentée** : le premier lot de construction l'a vérifiée sur un aperçu le 26/11/2026 (issue 134) : un objet SQLite s'y crée, répond `jurisdiction: "eu"` et garde ses données. Le moteur local (workerd), lui, ne connaît pas les juridictions : les tests de l'objet s'en passent (`SEANCE_SANS_JURIDICTION`, jamais déclaré dans `wrangler.jsonc`).
 - **Les quotas gratuits** (100 000 requêtes et 100 000 lignes écrites par jour pour les Durable Objects) laissent environ 60 Séances types par jour. Au-delà, une nouvelle Séance ne peut plus se créer jusqu'au lendemain (00:00 UTC), ou on passe au plan payant (5 $ par mois).
 - **De nouveaux outils de test** : `@cloudflare/vitest-plugin`, dans une configuration Vitest à part, pour tester l'objet, son alarme et ses WebSockets.
 - À la construction, la page Vie privée, la page En savoir plus, le PRD (`docs/prd-mode-animation.md`) et `CLAUDE.md` sont mis à jour.
