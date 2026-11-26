@@ -1,4 +1,5 @@
 /** PROTOTYPE (jetable) : les petits morceaux de l'écran de l'Animateur. */
+import type { ReactNode } from 'react'
 import { Icone } from '../../composants/Icone.tsx'
 import { formaterEmpreinte } from '../../domaine/format.ts'
 import type { GesteCalcule } from '../../domaine/geste.ts'
@@ -47,8 +48,19 @@ export function Logo() {
   )
 }
 
-/** Un Geste sur une ligne : icône, titre et sous-titre (bien lisible), Empreinte à droite une fois révélée. */
-export function LigneGeste({ geste, montrerEmpreinte }: { geste: GesteCalcule; montrerEmpreinte: boolean }) {
+/**
+ * Un Geste sur une ligne : icône, titre et sous-titre (bien lisible), Empreinte à droite une fois révélée.
+ * `children` : ce qui s'ajoute sous le sous-titre (les réponses de la salle).
+ */
+export function LigneGeste({
+  geste,
+  montrerEmpreinte,
+  children,
+}: {
+  geste: GesteCalcule
+  montrerEmpreinte: boolean
+  children?: ReactNode
+}) {
   return (
     <div className="pa-geste">
       <span className="pa-geste__icone">
@@ -57,6 +69,7 @@ export function LigneGeste({ geste, montrerEmpreinte }: { geste: GesteCalcule; m
       <span className="pa-geste__textes">
         <span className="pa-geste__titre">{geste.titre}</span>
         <span className="pa-geste__sous-titre">{geste.sousTitre}</span>
+        {children}
       </span>
       {montrerEmpreinte && <span className="pa-geste__empreinte">{formaterEmpreinte(geste.empreinte)}</span>}
     </div>

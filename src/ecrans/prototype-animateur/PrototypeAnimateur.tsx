@@ -1,9 +1,7 @@
 /**
  * PROTOTYPE (jetable) : l'écran projeté de l'Animateur, sur l'adresse #prototype-animateur.
- * Deuxième tour : un seul écran, qui reprend les retours de Fabien sur les variantes A, B et C du premier tour.
- * Les deux variantes ne diffèrent que par l'accès au détail des émissions :
- *   ?variant=1 : un bouton « Voir le détail » ouvre une fenêtre par-dessus ;
- *   ?variant=2 : le détail est sous les Gestes, l'Animateur fait défiler la page (comme sur téléphone).
+ * Troisième tour : un seul écran, qui reprend les retours de Fabien sur les deux premiers tours
+ * (le détail des émissions s'ouvre par un bouton, choix du deuxième tour).
  * L'étape se choisit par la barre noire, ou par le bouton de l'Animateur (Espace). La salle est fictive.
  */
 import { useEffect, useMemo, useState } from 'react'
@@ -13,7 +11,6 @@ import './prototype-animateur.css'
 
 export type Phase = 'attente' | 'duel' | 'revelation' | 'classement' | 'fin'
 export type Etape = { phase: Phase; n: number }
-export type AccesDetail = 'bouton' | 'defilement'
 
 export type PropsEcran = {
   seance: SeanceFactice
@@ -22,13 +19,7 @@ export type PropsEcran = {
   repondus: number
   /** Le bouton principal de l'Animateur à cette étape. */
   action: { libelle: string; faire: () => void } | null
-  detail: AccesDetail
 }
-
-const VARIANTES = [
-  { cle: '1', nom: 'Détail par un bouton', detail: 'bouton' as const },
-  { cle: '2', nom: 'Détail en faisant défiler', detail: 'defilement' as const },
-]
 
 // Après le Duel 10, pas de classement intermédiaire : on garde la surprise pour le classement final.
 function suivante(e: Etape): Etape {
@@ -47,14 +38,8 @@ function libelle(e: Etape): string | null {
   return null
 }
 
-const lireVariante = () => {
-  const v = new URLSearchParams(window.location.search).get('variant')
-  return VARIANTES.some((x) => x.cle === v) ? v! : '1'
-}
-
 export function PrototypeAnimateur() {
   const seance = useMemo(() => creerSeanceFactice(), [])
-  const [variante, setVariante] = useState(lireVariante)
   const [etape, setEtape] = useState<Etape>({ phase: 'attente', n: 0 })
   const [repondus, setRepondus] = useState(0)
 
@@ -69,15 +54,6 @@ export function PrototypeAnimateur() {
     }
   }, [etape, seance])
 
-  const changerVariante = (pas: number) => {
-    const i = VARIANTES.findIndex((v) => v.cle === variante)
-    const cle = VARIANTES[(i + pas + VARIANTES.length) % VARIANTES.length].cle
-    const adresse = new URL(window.location.href)
-    adresse.searchParams.set('variant', cle)
-    window.history.replaceState(null, '', adresse)
-    setVariante(cle)
-  }
-
   const avancer = () => {
     setRepondus(0)
     setEtape(suivante)
@@ -87,8 +63,6 @@ export function PrototypeAnimateur() {
   useEffect(() => {
     const touche = (e: KeyboardEvent) => {
       if (e.target instanceof Element && e.target.closest('dialog, select')) return
-      if (e.key === 'ArrowLeft') changerVariante(-1)
-      if (e.key === 'ArrowRight') changerVariante(1)
       if (e.key === ' ' && e.target === document.body) {
         e.preventDefault()
         avancer()
@@ -98,7 +72,6 @@ export function PrototypeAnimateur() {
     return () => window.removeEventListener('keydown', touche)
   })
 
-  const { nom, detail } = VARIANTES.find((v) => v.cle === variante) ?? VARIANTES[0]
   const texte = libelle(etape)
   const action = texte ? { libelle: texte, faire: avancer } : null
 
@@ -111,17 +84,9 @@ export function PrototypeAnimateur() {
 
   return (
     <div className="pa">
-      <EcranAnimateur seance={seance} etape={etape} repondus={repondus} action={action} detail={detail} />
-      <div className="pa-barre" role="toolbar" aria-label="Prototype : choix de la variante et de l’étape">
-        <button type="button" onClick={() => changerVariante(-1)} aria-label="Variante précédente">
-          ←
-        </button>
-        <span>
-          {variante} ({nom})
-        </span>
-        <button type="button" onClick={() => changerVariante(1)} aria-label="Variante suivante">
-          →
-        </button>
+      <EcranAnimateur seance={seance} etape={etape} repondus={repondus} action={action} />
+      <div className="pa-barre" role="toolbar" aria-label="Prototype : choix de l’étape">
+        <span>Prototype</span>
         <select value={`${etape.phase}:${etape.n}`} onChange={(e) => aller(e.target.value)} aria-label="Étape de la Séance">
           <option value="attente:0">Attente des Participants</option>
           {seance.duels.map((d, n) => (

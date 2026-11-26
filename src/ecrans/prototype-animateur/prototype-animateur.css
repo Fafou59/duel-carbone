@@ -567,3 +567,117 @@
   top: 3vh;
   bottom: auto;
 }
+
+/* Troisième tour */
+/* « ×N fois plus » : à droite, sous les Empreintes, à cheval sur les deux Gestes. */
+.pa-lignes {
+  gap: 1.2vh;
+}
+.pa-vs,
+.pa-rapport {
+  margin: -2.2em 0;
+}
+.pa-rapport {
+  align-self: flex-end;
+  margin-right: 1.4vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.05;
+  padding: 0.45em 1em;
+}
+.pa-rapport small {
+  font-size: 0.85em;
+}
+.pa-ligne {
+  padding-right: calc(1.6vw + 7.5em);
+  position: relative;
+}
+.pa-geste__empreinte {
+  position: absolute;
+  right: 1.6vw;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.pa-geste {
+  position: static;
+}
+/* Les réponses de la salle : une petite jauge sous le sous-titre, à gauche, loin des Empreintes. */
+.pa-reponses {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  margin-top: 0.6em;
+  font-size: 0.9em;
+  color: var(--discret);
+}
+.pa-reponses__barre {
+  flex: none;
+  width: 9em;
+  height: 0.7em;
+}
+.pa-reponses__barre i {
+  background: var(--discret);
+}
+.pa-ligne--gagnant .pa-reponses__barre i {
+  background: var(--bon);
+}
+.pa-reponses__chiffres {
+  min-width: 0;
+  text-align: left;
+}
+.pa-reponses__chiffres strong {
+  font-size: 1.15em;
+  color: var(--encre);
+}
+/* La frise du classement : seulement les bonnes réponses. */
+.pa-frise__pile {
+  justify-content: flex-end;
+}
+.pa-frise__bonnes {
+  border-radius: 10px 10px 0 0;
+}
+/* Classement final : les Duels ratés et le Conseil côte à côte. */
+.pa-final__bas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4vw;
+  margin-top: 4vh;
+  max-width: 1300px;
+  width: 100%;
+}
+.pa-final__rates {
+  margin-top: 0;
+}
+.pa-final__lie {
+  margin: 0 0 0.4em;
+  color: var(--discret);
+}
+/* Entre les deux Gestes : une ligne de hauteur nulle, au milieu de l'écart ; la pastille y est centrée. */
+.pa-entre {
+  position: relative;
+  height: 0;
+  z-index: 1;
+}
+.pa-entre .pa-vs,
+.pa-entre .pa-rapport {
+  position: absolute;
+  top: 0;
+  margin: 0;
+  transform: translateY(-50%);
+}
+.pa-entre .pa-vs {
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.pa-entre--droite .pa-rapport {
+  right: 1.6vw;
+  font-size: 0.9em;
+}
+.pa-lignes {
+  gap: 1.6vh;
+}
+.pa-ligne {
+  padding-top: 2.6vh;
+  padding-bottom: 2.6vh;
+}

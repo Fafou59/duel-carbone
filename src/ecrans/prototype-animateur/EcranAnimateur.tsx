@@ -3,13 +3,18 @@
  * - Attente : la page d'accueil de la Séance (variante A du premier tour), habillée : logo, frise d'icônes.
  * - Duel : le plateau de la variante B, Gestes l'un sous l'autre sur toute la largeur, « VS » puis « ×N fois plus »
  *   entre les deux comme sur téléphone ; à droite, le QR code, la jauge et les pseudos de ceux qui ont répondu.
- * - Révélation : la répartition des réponses de la salle sur chaque Geste, l'explication du Duel thématique,
- *   et le détail des émissions (bouton ou défilement, selon la variante).
- * - Classement intermédiaire : la frise des Duels en vert et rouge, le top 10 dans la colonne (variante B).
- * - Classement final : la diapositive de la variante A, avec des médailles. Pas de classement après le Duel 10.
+ * - Révélation : sous chaque Geste, une petite jauge des réponses de la salle ; à droite, les Empreintes et,
+ *   à cheval sur les deux Gestes, « ×N fois plus » ; l'explication du Duel thématique ; le détail par un bouton.
+ * - Classement intermédiaire : la part de bonnes réponses Duel par Duel, le top 10 dans la colonne (variante B).
+ * - Classement final : la diapositive de la variante A, avec des médailles, les Duels les plus ratés et un Conseil
+ *   lié au Duel le plus raté. Pas de classement après le Duel 10.
  */
 import { useRef } from 'react'
+import { Conseil } from '../../composants/Conseil.tsx'
 import { Frise } from '../../composants/Vitrine.tsx'
+import { CONSEILS } from '../../donnees/conseils.ts'
+import { INSTANTANE } from '../../donnees/index.ts'
+import { conseilAffiche, valeursDe } from '../../domaine/conseils.ts'
 import { TableauRepartition } from '../../composants/TableauRepartition.tsx'
 import { plusEmetteur, rapport } from '../../domaine/duel.ts'
 import { formaterRapport } from '../../domaine/format.ts'
@@ -29,10 +34,9 @@ function Medaille({ ligne }: { ligne: LigneClassement }) {
   )
 }
 
-export function EcranAnimateur({ seance, etape, repondus, action, detail }: PropsEcran) {
+export function EcranAnimateur({ seance, etape, repondus, action }: PropsEcran) {
   const total = seance.participants.length
   const fenetre = useRef<HTMLDialogElement>(null)
-  const zoneDetail = useRef<HTMLElement>(null)
   const bouton = action && (
     <button type="button" className="pa-bouton" onClick={action.faire}>
       {action.libelle} <kbd>Espace</kbd>
@@ -66,10 +70,16 @@ export function EcranAnimateur({ seance, etape, repondus, action, detail }: Prop
   // Classement final.
   if (etape.phase === 'fin') {
     const lignes = classementApres(seance, 10).slice(0, 10)
-    const rates = seance.duels
+    const classes = seance.duels
       .map((d, n) => ({ d, n, bonnes: partDeBonnes(seance, n) }))
       .sort((x, y) => x.bonnes - y.bonnes)
-      .slice(0, 3)
+    const rates = classes.slice(0, 3)
+    // Le Conseil : le premier dont un Geste déclencheur est dans le Duel le plus raté, sinon le suivant, etc.
+    const lie = classes
+      .map(({ d }) => ({ d, conseil: CONSEILS.find((c) => c.declencheurs.some((id) => id === d.a.id || id === d.b.id)) }))
+      .find((x) => x.conseil)
+    const conseil = lie?.conseil ? conseilAffiche(lie.conseil, valeursDe(INSTANTANE)) : null
+    const enPhrase = (t: string) => t.charAt(0).toLowerCase() + t.slice(1)
     return (
       <main className="pa-final">
         <Logo />
@@ -85,16 +95,26 @@ export function EcranAnimateur({ seance, etape, repondus, action, detail }: Prop
             </li>
           ))}
         </ol>
-        <section className="pa-final__rates">
-          <h2>Les Duels qui ont le plus trompé la salle</h2>
-          <ul>
-            {rates.map(({ d, n, bonnes }) => (
-              <li key={n}>
-                <strong>{100 - bonnes} %</strong> de réponses fausses : {d.a.titre} ou {d.b.titre.charAt(0).toLowerCase() + d.b.titre.slice(1)} ?
-              </li>
-            ))}
-          </ul>
-        </section>
+        <div className="pa-final__bas">
+          <section className="pa-final__rates">
+            <h2>Les Duels qui ont le plus trompé la salle</h2>
+            <ul>
+              {rates.map(({ d, n, bonnes }) => (
+                <li key={n}>
+                  <strong>{100 - bonnes} %</strong> de réponses fausses : {d.a.titre} ou {enPhrase(d.b.titre)} ?
+                </li>
+              ))}
+            </ul>
+          </section>
+          {conseil && lie && (
+            <div className="pa-final__conseil">
+              <p className="pa-final__lie">
+                Pour aller plus loin que « {lie.d.a.titre} ou {enPhrase(lie.d.b.titre)} » :
+              </p>
+              <Conseil conseil={conseil} onLien={() => {}} />
+            </div>
+          )}
+        </div>
         {bouton}
       </main>
     )
@@ -184,7 +204,7 @@ export function EcranAnimateur({ seance, etape, repondus, action, detail }: Prop
   if (etape.phase === 'classement') {
     plateau = (
       <>
-        <h2 className="pa-titre">Les réponses de la salle, Duel par Duel</h2>
+        <h2 className="pa-titre">Les bonnes réponses de la salle, Duel par Duel</h2>
         <ol className="pa-frise">
           {seance.duels.map((d, n) => {
             const joue = n <= etape.n
@@ -193,14 +213,9 @@ export function EcranAnimateur({ seance, etape, repondus, action, detail }: Prop
               <li key={n} className={joue ? '' : 'pa-frise--avenir'}>
                 <span className="pa-frise__pile">
                   {joue && (
-                    <>
-                      <i className="pa-frise__mauvaises" style={{ height: `${100 - bonnes}%` }}>
-                        {100 - bonnes} %
-                      </i>
-                      <i className="pa-frise__bonnes" style={{ height: `${bonnes}%` }}>
-                        {bonnes} %
-                      </i>
-                    </>
+                    <i className="pa-frise__bonnes" style={{ height: `${bonnes}%` }}>
+                      {bonnes} %
+                    </i>
                   )}
                 </span>
                 <span className={`pa-frise__num difficulte--${d.thematique ? 'thematique' : d.difficulte}`}>{n + 1}</span>
@@ -208,10 +223,7 @@ export function EcranAnimateur({ seance, etape, repondus, action, detail }: Prop
             )
           })}
         </ol>
-        <p className="pa-legende">
-          <span className="pa-legende__bonnes">■</span> bonnes réponses · <span className="pa-legende__mauvaises">■</span> réponses fausses
-        </p>
-      </>
+              </>
     )
   } else {
     const plus = plusEmetteur(duel)
@@ -220,17 +232,18 @@ export function EcranAnimateur({ seance, etape, repondus, action, detail }: Prop
       const part = Math.round((nombre / total) * 100)
       return (
         <div className={`pa-ligne${revele ? (g === plus ? ' pa-ligne--gagnant' : ' pa-ligne--perdant') : ''}`}>
-          <LigneGeste geste={g} montrerEmpreinte={revele} />
-          {revele && (
-            <div className="pa-reponses" aria-label={`${nombre} réponses, ${part} %`}>
-              <span className="pa-reponses__barre">
-                <i style={{ width: `${Math.max(part, 1)}%` }} />
+          <LigneGeste geste={g} montrerEmpreinte={revele}>
+            {revele && (
+              <span className="pa-reponses" aria-label={`Réponses de la salle : ${part} %, ${nombre} réponses`}>
+                <span className="pa-reponses__barre">
+                  <i style={{ width: `${Math.max(part, 2)}%` }} />
+                </span>
+                <span className="pa-reponses__chiffres">
+                  <strong>{part} %</strong> de la salle ({nombre})
+                </span>
               </span>
-              <span className="pa-reponses__chiffres">
-                <strong>{part} %</strong> · {nombre} réponse{nombre > 1 ? 's' : ''}
-              </span>
-            </div>
-          )}
+            )}
+          </LigneGeste>
         </div>
       )
     }
@@ -245,12 +258,15 @@ export function EcranAnimateur({ seance, etape, repondus, action, detail }: Prop
         <div className="pa-lignes">
           {ligne(duel.a)}
           {revele ? (
-            <div className="pa-rapport">
-              <b>{formaterRapport(rapport(duel))}</b> fois plus
+            <div className="pa-entre pa-entre--droite">
+              <span className="pa-rapport">
+                <b>{formaterRapport(rapport(duel))}</b>
+                <small>fois plus</small>
+              </span>
             </div>
           ) : (
-            <div className="pa-vs" aria-hidden="true">
-              VS
+            <div className="pa-entre" aria-hidden="true">
+              <span className="pa-vs">VS</span>
             </div>
           )}
           {ligne(duel.b)}
@@ -261,7 +277,7 @@ export function EcranAnimateur({ seance, etape, repondus, action, detail }: Prop
             <p>{duel.thematique!.texte}</p>
           </div>
         )}
-        {revele && detail === 'bouton' && (
+        {revele && (
           <>
             <button type="button" className="pa-bouton-secondaire" onClick={() => fenetre.current?.showModal()}>
               Voir le détail des émissions
@@ -273,21 +289,6 @@ export function EcranAnimateur({ seance, etape, repondus, action, detail }: Prop
                 Fermer
               </button>
             </dialog>
-          </>
-        )}
-        {revele && detail === 'defilement' && (
-          <>
-            <button
-              type="button"
-              className="pa-bouton-secondaire"
-              onClick={() => zoneDetail.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-            >
-              ↓ Le détail des émissions
-            </button>
-            <section ref={zoneDetail} className="pa-detail">
-              <h2>Le détail des émissions</h2>
-              <TableauRepartition duel={duel} />
-            </section>
           </>
         )}
       </>
