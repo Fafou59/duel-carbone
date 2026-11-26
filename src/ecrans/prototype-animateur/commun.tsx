@@ -1,8 +1,7 @@
-/** PROTOTYPE (jetable) : les petits morceaux communs aux trois variantes (pas la mise en page). */
+/** PROTOTYPE (jetable) : les petits morceaux de l'écran de l'Animateur. */
 import { Icone } from '../../composants/Icone.tsx'
 import { formaterEmpreinte } from '../../domaine/format.ts'
 import type { GesteCalcule } from '../../domaine/geste.ts'
-import type { DuelTire } from '../../domaine/generateur.ts'
 
 /** Un faux QR code (motif reproductible) : le vrai sera généré à partir de l'adresse de la Séance. */
 export function QrFactice({ taille = 180 }: { taille?: number }) {
@@ -10,8 +9,10 @@ export function QrFactice({ taille = 180 }: { taille?: number }) {
   for (let y = 0; y < 21; y++)
     for (let x = 0; x < 21; x++) {
       const coin = (x < 7 && y < 7) || (x > 13 && y < 7) || (x < 7 && y > 13)
-      if (coin ? x % 6 === 0 || y % 6 === 0 || (x % 7 > 1 && x % 7 < 5 && y % 7 > 1 && y % 7 < 5) || x === 20 || y === 20 : (x * 7 + y * 13 + x * y) % 3 === 0)
-        cases.push([x, y])
+      const plein = coin
+        ? x % 7 === 0 || y % 7 === 0 || x % 7 === 6 || y % 7 === 6 || (x % 7 > 1 && x % 7 < 5 && y % 7 > 1 && y % 7 < 5)
+        : (x * 7 + y * 13 + x * y) % 3 === 0
+      if (plein) cases.push([x, y])
     }
   return (
     <svg className="pa-qr" width={taille} height={taille} viewBox="-1 -1 23 23" role="img" aria-label="QR code de la Séance">
@@ -26,7 +27,7 @@ export function QrFactice({ taille = 180 }: { taille?: number }) {
 export function Rejoindre({ code, compact = false }: { code: string; compact?: boolean }) {
   return (
     <div className={`pa-rejoindre${compact ? ' pa-rejoindre--compact' : ''}`}>
-      <QrFactice taille={compact ? 110 : 220} />
+      <QrFactice taille={compact ? 96 : 220} />
       <div>
         <p className="pa-rejoindre__adresse">duelcarbone.fr/rejoindre</p>
         <p className="pa-rejoindre__code" aria-label={`Code ${code.split('').join(' ')}`}>
@@ -37,26 +38,27 @@ export function Rejoindre({ code, compact = false }: { code: string; compact?: b
   )
 }
 
-export function Geste({ geste, montrerEmpreinte = false }: { geste: GesteCalcule; montrerEmpreinte?: boolean }) {
+export function Logo() {
   return (
-    <>
-      <span className="pa-geste__icone">
-        <Icone id={geste.id} />
-      </span>
-      <span className="pa-geste__titre">{geste.titre}</span>
-      <span className="pa-geste__sous-titre">{geste.sousTitre}</span>
-      {montrerEmpreinte && <span className="pa-geste__empreinte">{formaterEmpreinte(geste.empreinte)}</span>}
-    </>
+    <p className="pa-logo">
+      <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width="40" height="40" />
+      Duel Carbone
+    </p>
   )
 }
 
-export const NOMS_DIFFICULTE: Record<string, string> = { facile: 'Facile', moyen: 'Moyen', difficile: 'Difficile', ultime: 'Ultime' }
-
-export function Annonce({ duel }: { duel: DuelTire }) {
-  if (!duel.thematique) return null
+/** Un Geste sur une ligne : icône, titre et sous-titre (bien lisible), Empreinte à droite une fois révélée. */
+export function LigneGeste({ geste, montrerEmpreinte }: { geste: GesteCalcule; montrerEmpreinte: boolean }) {
   return (
-    <p className="pa-annonce">
-      <strong>{duel.thematique.titre}</strong> {duel.thematique.accroche}
-    </p>
+    <div className="pa-geste">
+      <span className="pa-geste__icone">
+        <Icone id={geste.id} />
+      </span>
+      <span className="pa-geste__textes">
+        <span className="pa-geste__titre">{geste.titre}</span>
+        <span className="pa-geste__sous-titre">{geste.sousTitre}</span>
+      </span>
+      {montrerEmpreinte && <span className="pa-geste__empreinte">{formaterEmpreinte(geste.empreinte)}</span>}
+    </div>
   )
 }

@@ -1,51 +1,56 @@
 /**
- * PROTOTYPE (jetable) : trois variantes de l'écran projeté de l'Animateur, sur l'adresse #prototype-animateur.
- * Question : « À quoi doit ressembler l'écran que l'Animateur projette pendant une Séance ? »
- * La variante se choisit par ?variant=A|B|C (barre flottante, ou flèches ← →) ; l'étape de la Séance par la même barre,
- * ou par le bouton de l'Animateur (Espace). Aucune donnée n'est envoyée : la salle est fictive.
+ * PROTOTYPE (jetable) : l'écran projeté de l'Animateur, sur l'adresse #prototype-animateur.
+ * Deuxième tour : un seul écran, qui reprend les retours de Fabien sur les variantes A, B et C du premier tour.
+ * Les deux variantes ne diffèrent que par l'accès au détail des émissions :
+ *   ?variant=1 : un bouton « Voir le détail » ouvre une fenêtre par-dessus ;
+ *   ?variant=2 : le détail est sous les Gestes, l'Animateur fait défiler la page (comme sur téléphone).
+ * L'étape se choisit par la barre noire, ou par le bouton de l'Animateur (Espace). La salle est fictive.
  */
 import { useEffect, useMemo, useState } from 'react'
 import { creerSeanceFactice, type SeanceFactice } from './seance-factice.ts'
-import { VarianteScene } from './VarianteScene.tsx'
-import { VariantePlateau } from './VariantePlateau.tsx'
-import { VarianteSalle } from './VarianteSalle.tsx'
+import { EcranAnimateur } from './EcranAnimateur.tsx'
 import './prototype-animateur.css'
 
 export type Phase = 'attente' | 'duel' | 'revelation' | 'classement' | 'fin'
 export type Etape = { phase: Phase; n: number }
+export type AccesDetail = 'bouton' | 'defilement'
 
-export type PropsVariante = {
+export type PropsEcran = {
   seance: SeanceFactice
   etape: Etape
   /** Combien de Participants ont répondu au Duel en cours (simulé, monte tout seul). */
   repondus: number
-  /** Le libellé du bouton principal de l'Animateur à cette étape, et son action. */
+  /** Le bouton principal de l'Animateur à cette étape. */
   action: { libelle: string; faire: () => void } | null
+  detail: AccesDetail
 }
 
 const VARIANTES = [
-  { cle: 'A', nom: 'Scène', Composant: VarianteScene },
-  { cle: 'B', nom: 'Plateau et colonne', Composant: VariantePlateau },
-  { cle: 'C', nom: 'La salle d’abord', Composant: VarianteSalle },
+  { cle: '1', nom: 'Détail par un bouton', detail: 'bouton' as const },
+  { cle: '2', nom: 'Détail en faisant défiler', detail: 'defilement' as const },
 ]
 
+// Après le Duel 10, pas de classement intermédiaire : on garde la surprise pour le classement final.
 function suivante(e: Etape): Etape {
   if (e.phase === 'attente') return { phase: 'duel', n: 0 }
   if (e.phase === 'duel') return { phase: 'revelation', n: e.n }
-  if (e.phase === 'revelation') return { phase: 'classement', n: e.n }
-  if (e.phase === 'classement') return e.n === 9 ? { phase: 'fin', n: 9 } : { phase: 'duel', n: e.n + 1 }
+  if (e.phase === 'revelation') return e.n === 9 ? { phase: 'fin', n: 9 } : { phase: 'classement', n: e.n }
+  if (e.phase === 'classement') return { phase: 'duel', n: e.n + 1 }
   return e
 }
 
 function libelle(e: Etape): string | null {
   if (e.phase === 'attente') return 'Lancer le premier Duel'
   if (e.phase === 'duel') return 'Révéler la réponse'
-  if (e.phase === 'revelation') return 'Voir le classement'
-  if (e.phase === 'classement') return e.n === 9 ? 'Résultats de la Séance' : `Duel ${e.n + 2}`
+  if (e.phase === 'revelation') return e.n === 9 ? 'Voir le classement final' : 'Voir le classement'
+  if (e.phase === 'classement') return `Duel ${e.n + 2}`
   return null
 }
 
-const lireVariante = () => new URLSearchParams(window.location.search).get('variant') ?? 'A'
+const lireVariante = () => {
+  const v = new URLSearchParams(window.location.search).get('variant')
+  return VARIANTES.some((x) => x.cle === v) ? v! : '1'
+}
 
 export function PrototypeAnimateur() {
   const seance = useMemo(() => creerSeanceFactice(), [])
@@ -53,12 +58,15 @@ export function PrototypeAnimateur() {
   const [etape, setEtape] = useState<Etape>({ phase: 'attente', n: 0 })
   const [repondus, setRepondus] = useState(0)
 
-  // Les réponses arrivent une à une pendant le Duel (simulation).
+  // Les réponses arrivent une à une pendant le Duel (simulation) ; à la révélation, tout le monde a répondu.
   useEffect(() => {
     if (etape.phase !== 'duel') return
-    setRepondus(0)
-    const minuterie = setInterval(() => setRepondus((r) => Math.min(r + 1, seance.participants.length - 2)), 350)
-    return () => clearInterval(minuterie)
+    let r = 0
+    const minuterie = setInterval(() => setRepondus(Math.min(++r, seance.participants.length)), 300)
+    return () => {
+      clearInterval(minuterie)
+      setRepondus(seance.participants.length)
+    }
   }, [etape, seance])
 
   const changerVariante = (pas: number) => {
@@ -70,10 +78,15 @@ export function PrototypeAnimateur() {
     setVariante(cle)
   }
 
-  const avancer = () => setEtape(suivante)
+  const avancer = () => {
+    setRepondus(0)
+    setEtape(suivante)
+    window.scrollTo(0, 0)
+  }
 
   useEffect(() => {
     const touche = (e: KeyboardEvent) => {
+      if (e.target instanceof Element && e.target.closest('dialog, select')) return
       if (e.key === 'ArrowLeft') changerVariante(-1)
       if (e.key === 'ArrowRight') changerVariante(1)
       if (e.key === ' ' && e.target === document.body) {
@@ -85,34 +98,40 @@ export function PrototypeAnimateur() {
     return () => window.removeEventListener('keydown', touche)
   })
 
-  const { Composant, nom } = VARIANTES.find((v) => v.cle === variante) ?? VARIANTES[0]
+  const { nom, detail } = VARIANTES.find((v) => v.cle === variante) ?? VARIANTES[0]
   const texte = libelle(etape)
   const action = texte ? { libelle: texte, faire: avancer } : null
 
   const aller = (valeur: string) => {
     const [phase, n] = valeur.split(':')
+    setRepondus(phase === 'duel' ? 0 : seance.participants.length)
     setEtape({ phase: phase as Phase, n: Number(n) })
+    window.scrollTo(0, 0)
   }
 
   return (
     <div className="pa">
-      <Composant seance={seance} etape={etape} repondus={repondus} action={action} />
+      <EcranAnimateur seance={seance} etape={etape} repondus={repondus} action={action} detail={detail} />
       <div className="pa-barre" role="toolbar" aria-label="Prototype : choix de la variante et de l’étape">
-        <button type="button" onClick={() => changerVariante(-1)} aria-label="Variante précédente">←</button>
+        <button type="button" onClick={() => changerVariante(-1)} aria-label="Variante précédente">
+          ←
+        </button>
         <span>
           {variante} ({nom})
         </span>
-        <button type="button" onClick={() => changerVariante(1)} aria-label="Variante suivante">→</button>
+        <button type="button" onClick={() => changerVariante(1)} aria-label="Variante suivante">
+          →
+        </button>
         <select value={`${etape.phase}:${etape.n}`} onChange={(e) => aller(e.target.value)} aria-label="Étape de la Séance">
           <option value="attente:0">Attente des Participants</option>
           {seance.duels.map((d, n) => (
             <optgroup key={n} label={`Duel ${n + 1}${d.thematique ? ' (thématique)' : ''}`}>
               <option value={`duel:${n}`}>Duel {n + 1} : question</option>
               <option value={`revelation:${n}`}>Duel {n + 1} : révélation</option>
-              <option value={`classement:${n}`}>Duel {n + 1} : classement</option>
+              {n < 9 && <option value={`classement:${n}`}>Duel {n + 1} : classement</option>}
             </optgroup>
           ))}
-          <option value="fin:9">Fin de la Séance</option>
+          <option value="fin:9">Classement final</option>
         </select>
       </div>
     </div>

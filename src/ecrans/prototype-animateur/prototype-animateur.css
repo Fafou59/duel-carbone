@@ -1,13 +1,14 @@
-/* PROTOTYPE (jetable) : l'écran projeté de l'Animateur. Tailles en vw/vh : lisible du fond d'une salle. */
+/* PROTOTYPE (jetable) : l'écran projeté de l'Animateur, deuxième tour. Tailles mesurées, sauf le sous-titre des Gestes. */
 .pa {
+  --colonne: 24vw;
   min-height: 100vh;
   background: var(--fond);
   color: var(--encre);
-  font-size: clamp(16px, 1.4vw, 28px);
+  font-size: clamp(15px, 1.15vw, 22px);
 }
 .pa h1 {
-  margin: 0.2em 0 0.5em;
-  font-size: 2.2em;
+  margin: 0 0 0.6em;
+  font-size: 1.9em;
   line-height: 1.15;
 }
 .pa ul,
@@ -16,29 +17,47 @@
   margin: 0;
   padding: 0;
 }
+
+/* Le bouton de l'Animateur, en bas à droite du plateau. */
 .pa-bouton {
   position: fixed;
-  right: 2vw;
-  bottom: 6vh;
+  right: calc(var(--colonne) + 2vw);
+  bottom: 7vh;
   font: inherit;
   font-weight: 700;
-  padding: 0.7em 1.2em;
+  padding: 0.6em 1.1em;
   border: 0;
   border-radius: 999px;
   background: var(--marque);
   color: var(--sur-marque);
   cursor: pointer;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 25%);
+  z-index: 2;
+}
+.pa-attente .pa-bouton,
+.pa-final .pa-bouton,
+.pa-scene--sans-colonne .pa-bouton {
+  right: 2vw;
 }
 .pa-bouton kbd {
-  font-size: 0.6em;
+  font-size: 0.65em;
   opacity: 0.8;
   border: 1px solid currentColor;
   border-radius: 4px;
   padding: 0 0.4em;
   margin-left: 0.5em;
 }
-.pa-bouton:focus-visible,
-.pa-barre button:focus-visible {
+.pa-bouton-secondaire {
+  font: inherit;
+  padding: 0.45em 1em;
+  border: 2px solid var(--marque);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--marque);
+  font-weight: 700;
+  cursor: pointer;
+}
+.pa button:focus-visible {
   outline: 3px solid var(--encre);
   outline-offset: 3px;
 }
@@ -71,10 +90,18 @@
 }
 .pa-barre select {
   font: inherit;
-  max-width: 260px;
+  max-width: 240px;
 }
 
-/* Communs */
+/* Logo, QR code, code */
+.pa-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin: 0;
+  font-weight: 800;
+  font-size: 1.3em;
+}
 .pa-qr {
   display: block;
   border-radius: 6px;
@@ -83,66 +110,28 @@
   display: flex;
   gap: 1.2em;
   align-items: center;
+  justify-content: center;
 }
 .pa-rejoindre p {
   margin: 0;
 }
 .pa-rejoindre__adresse {
-  font-size: 1.2em;
+  font-size: 1.3em;
 }
 .pa-rejoindre__code {
-  font: 800 3.4em/1.1 ui-monospace, monospace;
+  font: 800 3.2em/1.1 ui-monospace, monospace;
   letter-spacing: 0.12em;
   color: var(--marque);
 }
 .pa-rejoindre--compact {
   gap: 0.8em;
+  justify-content: flex-start;
 }
 .pa-rejoindre--compact .pa-rejoindre__adresse {
   font-size: 0.8em;
 }
 .pa-rejoindre--compact .pa-rejoindre__code {
-  font-size: 1.8em;
-}
-.pa-geste__icone {
-  display: block;
-  width: 7vw;
-  height: 7vw;
-}
-.pa-geste__icone img,
-.pa-geste__icone svg {
-  width: 100%;
-  height: 100%;
-}
-.pa-geste__titre {
-  display: block;
-  font-weight: 800;
   font-size: 1.6em;
-  line-height: 1.15;
-}
-.pa-geste__sous-titre {
-  display: block;
-  color: var(--discret);
-}
-.pa-geste__empreinte {
-  display: block;
-  margin-top: 0.3em;
-  font-weight: 800;
-  font-size: 1.4em;
-}
-.pa--gagnant {
-  border-color: var(--bon) !important;
-  box-shadow: 0 0 0 4px var(--bon);
-}
-.pa--perdant {
-  opacity: 0.55;
-}
-.pa-annonce {
-  margin: 0 0 0.5em;
-  padding: 0.5em 0.9em;
-  border-radius: 10px;
-  background: var(--thematique);
-  color: #fff;
 }
 .pa-rang {
   font-weight: 800;
@@ -154,393 +143,427 @@
   margin-left: auto;
 }
 
-/* A : Scène */
-.pa-a {
+/* Attente */
+.pa-attente {
   min-height: 100vh;
-  padding: 3vh 4vw 12vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  padding: 3vh 3vw 0;
 }
-.pa-a__bandeau {
-  align-self: stretch;
-  display: flex;
-  justify-content: space-between;
-  color: var(--discret);
-}
-.pa-a__question {
-  font-size: 2.6em !important;
-}
-.pa-a__face-a-face {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6vw;
-  width: 100%;
+.pa-attente__centre {
   flex: 1;
-  align-items: stretch;
-}
-.pa-a__carte {
-  position: relative;
-  background: var(--carte);
-  border: 2px solid var(--ligne);
-  border-radius: 24px;
-  padding: 4vh 2vw;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.3em;
-  transition: transform 0.4s, opacity 0.4s;
+  text-align: center;
+  gap: 2.5vh;
 }
-.pa-a__carte .pa-geste__icone {
-  width: 12vw;
-  height: 12vw;
-}
-.pa-a__carte .pa-geste__titre {
-  font-size: 2.2em;
-}
-.pa-a__carte.pa--gagnant {
-  transform: scale(1.04);
-}
-.pa-a__ou {
-  position: absolute;
-  right: -6vw;
-  top: 50%;
-  width: 6vw;
-  transform: translateY(-50%);
-  font-weight: 800;
-  font-size: 2em;
-}
-.pa-a__repondus {
-  font-size: 1.6em;
-}
-.pa-a__part {
-  font-size: 1.8em;
-  margin: 0.6em 0 0.2em;
-}
-.pa-a__part strong {
-  font-size: 2em;
-  color: var(--mauvais);
-}
-.pa-a__texte {
-  max-width: 60em;
-  margin: 0 auto;
-}
-.pa-a--attente {
-  justify-content: center;
-  gap: 2vh;
-}
-.pa-a__compte {
-  font-size: 2em;
-  font-weight: 800;
+.pa-attente__centre h1 {
   margin: 0;
 }
-.pa-a__pseudos,
-.pa-b__pseudos {
+.pa-attente__compte {
+  margin: 0;
+  font-size: 1.4em;
+}
+.pa-attente__compte strong {
+  font-size: 1.5em;
+  color: var(--marque);
+}
+.pa-pseudos {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.4em 1.2em;
+  gap: 0.4em;
   max-width: 70vw;
-  color: var(--discret);
 }
-.pa-a__classement {
-  display: grid;
-  grid-auto-flow: column;
-  grid-template-rows: repeat(5, auto);
-  gap: 1.2vh 6vw;
-  font-size: 1.6em;
-  text-align: left;
+.pa-pseudos li,
+.pa-repondus li {
+  padding: 0.15em 0.7em;
+  border-radius: 999px;
+  background: var(--carte);
+  border: 1px solid var(--ligne);
+  animation: pa-arrivee 0.35s ease-out both;
 }
-.pa-a__classement li {
-  display: flex;
-  gap: 0.6em;
-  min-width: 14em;
-  padding: 0.3em 0.6em;
-  border-bottom: 1px solid var(--ligne);
+@keyframes pa-arrivee {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
 }
-.pa-a__rates {
-  margin-top: 4vh;
-}
-.pa-a__rates li {
-  margin: 0.3em 0;
+.pa-attente__frise {
+  margin: 3vh -3vw 0;
+  padding-bottom: 9vh;
 }
 
-/* B : Plateau et colonne */
-.pa-b {
+/* Le plateau et sa colonne */
+.pa-scene {
   display: grid;
-  grid-template-columns: 1fr 26vw;
+  grid-template-columns: 1fr var(--colonne);
   min-height: 100vh;
 }
-.pa-b__plateau {
-  padding: 4vh 4vw 12vh;
+.pa-scene--sans-colonne {
+  grid-template-columns: 1fr;
 }
-.pa-b__colonne {
+.pa-plateau {
+  padding: 2.5vh 3vw 14vh;
+  min-width: 0;
+}
+.pa-scene--sans-colonne .pa-plateau {
+  max-width: 1300px;
+  width: 100%;
+  margin: 0 auto;
+}
+.pa-colonne {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  overflow: hidden;
   background: var(--carte);
-  border-left: 2px solid var(--ligne);
-  padding: 3vh 1.5vw;
+  border-left: 1px solid var(--ligne);
+  padding: 2.5vh 1.4vw;
   display: flex;
   flex-direction: column;
   gap: 2vh;
   font-size: 0.9em;
-  transition: background 0.4s;
 }
-.pa-b__colonne--en-avant {
-  font-size: 1.1em;
-  background: color-mix(in srgb, var(--marque) 10%, var(--carte));
-}
-.pa-b__colonne h2 {
+.pa-colonne h2 {
   margin: 0;
   font-size: 1.1em;
 }
-.pa-b__jauge div {
+.pa-jauge div {
   height: 10px;
   border-radius: 999px;
   background: var(--ligne);
-  margin-top: 0.3em;
+  margin-top: 0.35em;
 }
-.pa-b__jauge i {
+.pa-jauge i {
   display: block;
   height: 100%;
   border-radius: 999px;
   background: var(--marque);
   transition: width 0.3s;
 }
-.pa-b__top li {
+.pa-jauge strong {
+  font-size: 1.4em;
+}
+.pa-repondus {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 0.35em;
+  overflow: hidden;
+}
+.pa-top li {
   display: flex;
   gap: 0.5em;
-  padding: 0.25em 0;
+  padding: 0.35em 0;
   border-bottom: 1px solid var(--ligne);
+  font-size: 1.1em;
 }
-.pa-b__mouvement {
-  color: var(--marque);
-  font-size: 0.8em;
+.pa-top__mouvement {
   width: 1em;
+  font-size: 0.8em;
 }
-.pa-b__entete {
-  color: var(--discret);
+.pa-monte {
+  color: var(--bon);
+}
+.pa-descend {
+  color: var(--mauvais);
+}
+
+/* La barre de suivi reprend celle de la Partie (EcranPartie.css). */
+.pa-suivi {
+  margin-bottom: 2vh;
+}
+.pa-suivi .partie__entete {
+  display: flex;
+  gap: 0.8em;
+  align-items: center;
+}
+.pa-suivi .partie__position {
   margin: 0;
-}
-.pa-b__grand {
-  font-size: 2em;
   font-weight: 800;
 }
-.pa-b__lignes {
+.pa-suivi .progression__segment {
+  height: 10px;
+}
+.pa-titre {
+  margin: 0 0 1.5vh;
+  font-size: 1.5em;
+}
+.pa-annonce {
+  margin: 0 0 2vh;
+  padding: 0.6em 1em;
+  border-radius: 12px;
+  background: var(--thematique);
+  color: #fff;
+}
+
+/* Les deux Gestes, l'un sous l'autre, sur toute la largeur. */
+.pa-lignes {
   display: flex;
   flex-direction: column;
-  gap: 3vh;
+  align-items: stretch;
 }
-.pa-b__ligne {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
-  gap: 2vw;
-  align-items: center;
+.pa-ligne {
   background: var(--carte);
   border: 2px solid var(--ligne);
   border-radius: 18px;
-  padding: 2.5vh 2vw;
+  padding: 2vh 1.6vw;
+  transition: border-color 0.3s, opacity 0.3s;
 }
-.pa-b__touche {
+.pa-ligne--gagnant {
+  border-color: var(--bon);
+  box-shadow: 0 0 0 2px var(--bon);
+}
+.pa-geste {
+  display: flex;
+  align-items: center;
+  gap: 1.2vw;
+}
+.pa-geste__icone {
+  flex: none;
+  font-size: 4.2em;
+  line-height: 1;
+}
+.pa-geste__textes {
+  flex: 1;
+  min-width: 0;
+}
+.pa-geste__titre {
+  display: block;
   font-weight: 800;
-  font-size: 2em;
+  font-size: 1.45em;
+  line-height: 1.2;
+}
+/* La description de la Quantité doit rester lisible du fond de la salle. */
+.pa-geste__sous-titre {
+  display: block;
+  font-size: 1.25em;
   color: var(--discret);
 }
-.pa-b__geste {
+.pa-geste__empreinte {
+  flex: none;
+  font-weight: 800;
+  font-size: 1.5em;
+}
+.pa-vs,
+.pa-rapport {
+  align-self: center;
+  margin: -1.2vh 0;
+  z-index: 1;
+}
+.pa-vs {
   display: grid;
-  grid-template-columns: auto 1fr;
-  column-gap: 1em;
-  align-items: center;
-}
-.pa-b__geste .pa-geste__icone {
-  grid-row: span 3;
-}
-.pa-b__barre {
-  height: 2.2em;
-  background: var(--fond);
-  border-radius: 8px;
-  overflow: hidden;
-}
-.pa-b__barre i {
-  display: block;
-  height: 100%;
+  place-items: center;
+  width: 2.8em;
+  height: 2.8em;
+  border-radius: 999px;
   background: var(--encre);
+  color: var(--fond);
+  font-weight: 900;
 }
-.pa-b__ligne.pa--gagnant .pa-b__barre i {
-  background: var(--bon);
+.pa-rapport {
+  padding: 0.3em 1em;
+  border-radius: 18px;
+  background: var(--marque);
+  color: var(--sur-marque);
+  box-shadow: 0 6px 20px rgb(0 0 0 / 25%);
 }
-.pa-b__revelation {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1em 4vw;
-  font-size: 1.4em;
-}
-.pa-b__revelation strong {
+.pa-rapport b {
   font-size: 1.6em;
-}
-.pa-b__texte {
-  font-size: 0.75em;
-  flex-basis: 100%;
-}
-.pa-b__frise {
-  display: flex;
-  gap: 1.5vw;
-  align-items: flex-end;
-  height: 45vh;
-}
-.pa-b__frise li {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3em;
-  height: 100%;
-}
-.pa-b__frise-barre {
-  flex: 1;
-  width: 100%;
-  display: flex;
-  align-items: flex-end;
-  background: var(--carte);
-  border-radius: 8px;
-}
-.pa-b__frise-barre i {
-  display: block;
-  width: 100%;
-  background: var(--mauvais);
-  border-radius: 8px;
-}
-.pa-b__frise--avenir {
-  opacity: 0.4;
-}
-.pa-b__frise-num {
-  color: var(--discret);
+  font-weight: 900;
 }
 
-/* C : la salle d'abord */
-.pa-c {
-  min-height: 100vh;
-  padding: 2vh 3vw 12vh;
+/* La répartition des réponses de la salle sur chaque Geste. */
+.pa-reponses {
   display: flex;
-  flex-direction: column;
-  gap: 2vh;
-}
-.pa-c__frise {
-  display: flex;
-  gap: 0.6vw;
-}
-.pa-c__frise li {
-  flex: 1;
-  text-align: center;
-  padding: 0.3em 0;
-  border-radius: 8px;
-  background: var(--carte);
-  color: var(--discret);
-  font-size: 0.9em;
-}
-.pa-c__frise--joue {
-  background: color-mix(in srgb, var(--bon) 18%, var(--carte)) !important;
-  color: var(--encre) !important;
-}
-.pa-c__frise--actuel {
-  background: var(--marque) !important;
-  color: var(--sur-marque) !important;
-  font-weight: 800;
-}
-.pa-c__attente {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 5vw;
   align-items: center;
+  gap: 1vw;
+  margin-top: 1.5vh;
+}
+.pa-reponses__barre {
   flex: 1;
-}
-.pa-c__colonnes {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3vw;
-  flex: 1;
-}
-.pa-c__colonne {
-  background: var(--carte);
-  border: 2px solid var(--ligne);
-  border-radius: 20px;
-  padding: 2vh 2vw;
-  display: flex;
-  flex-direction: column;
-  gap: 1vh;
-}
-.pa-c__geste {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  column-gap: 1em;
-  align-items: center;
-}
-.pa-c__geste .pa-geste__icone {
-  grid-row: span 3;
-}
-.pa-c__effectif {
-  margin: 0;
-  font-weight: 800;
-  font-size: 1.3em;
-}
-.pa-c__tas,
-.pa-c__nuage {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4em;
-}
-.pa-c__pastille {
-  padding: 0.2em 0.7em;
-  border-radius: 999px;
-  border: 1px dashed var(--ligne);
-  color: var(--discret);
-  transition: all 0.3s;
-}
-.pa-c__pastille--allumee {
-  border: 1px solid var(--marque);
-  background: color-mix(in srgb, var(--marque) 15%, var(--carte));
-  color: var(--encre);
-}
-.pa-c__colonne.pa--perdant {
-  opacity: 0.75;
-}
-.pa-c__colonne.pa--perdant .pa-c__pastille--allumee {
-  border-color: var(--mauvais);
-  background: color-mix(in srgb, var(--mauvais) 12%, var(--carte));
-}
-.pa-c__verdict {
-  font-size: 1.5em;
-  margin: 0;
-}
-.pa-c__verdict strong {
-  color: var(--mauvais);
-}
-.pa-c__texte {
-  display: block;
-  font-size: 0.6em;
-  margin-top: 0.4em;
-}
-.pa-c__course li {
-  display: grid;
-  grid-template-columns: 2em 10em 1fr 2em;
-  gap: 1em;
-  align-items: center;
-  font-size: 1.3em;
-  margin: 0.4em 0;
-}
-.pa-c__course-barre {
-  height: 1.2em;
-  background: var(--carte);
+  height: 1.3em;
+  background: var(--fond);
   border-radius: 999px;
   overflow: hidden;
 }
-.pa-c__course-barre i {
+.pa-reponses__barre i {
   display: block;
   height: 100%;
-  background: var(--marque);
   border-radius: 999px;
+  background: var(--mauvais);
   transition: width 0.6s;
 }
-.pa-b .pa-bouton {
-  right: calc(26vw + 2vw);
+.pa-ligne--gagnant .pa-reponses__barre i {
+  background: var(--bon);
+}
+.pa-reponses__chiffres {
+  min-width: 9em;
+  text-align: right;
+}
+.pa-reponses__chiffres strong {
+  font-size: 1.4em;
+}
+
+.pa-explication {
+  margin-top: 3vh;
+  padding: 1em 1.2em;
+  border-left: 5px solid var(--thematique);
+  background: var(--carte);
+  border-radius: 0 12px 12px 0;
+  max-width: 70em;
+}
+.pa-explication p {
+  margin: 0.2em 0;
+}
+.pa-explication__titre {
+  font-weight: 800;
+  color: var(--thematique-texte);
+}
+.pa-plateau > .pa-bouton-secondaire {
+  margin-top: 3vh;
+}
+.pa-detail {
+  margin-top: 20vh;
+  padding-top: 3vh;
+  border-top: 1px solid var(--ligne);
+  scroll-margin-top: 2vh;
+}
+.pa-detail h2,
+.pa-fenetre h2 {
+  margin-top: 0;
+}
+.pa-fenetre {
+  width: min(1100px, 90vw);
+  max-height: 85vh;
+  padding: 3vh 3vw;
+  border: 0;
+  border-radius: 18px;
+  background: var(--fond);
+  color: var(--encre);
+  font-size: clamp(15px, 1.15vw, 22px);
+}
+.pa-fenetre::backdrop {
+  background: rgb(0 0 0 / 0.6);
+}
+.pa-fenetre .pa-bouton-secondaire {
+  margin-top: 2vh;
+}
+
+/* Le classement intermédiaire : la frise des Duels, bonnes réponses en vert, réponses fausses en rouge. */
+.pa-frise {
+  display: flex;
+  gap: 1.2vw;
+  height: 52vh;
+}
+.pa-frise li {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6vh;
+}
+.pa-frise__pile {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--carte);
+}
+.pa-frise__pile i {
+  display: grid;
+  place-items: center;
+  font-style: normal;
+  font-weight: 800;
+  font-size: 0.85em;
+  color: #fff;
+  min-height: 1.6em;
+}
+.pa-frise__mauvaises {
+  background: var(--mauvais);
+}
+.pa-frise__bonnes {
+  background: var(--bon);
+}
+.pa-frise--avenir {
+  opacity: 0.35;
+}
+.pa-frise__num {
+  text-align: center;
+  font-weight: 800;
+  border-radius: 6px;
+  color: var(--c);
+}
+.pa-legende {
+  color: var(--discret);
+}
+.pa-legende__bonnes {
+  color: var(--bon);
+}
+.pa-legende__mauvaises {
+  color: var(--mauvais);
+}
+
+/* Classement final */
+.pa-final {
+  min-height: 100vh;
+  padding: 3vh 4vw 14vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.pa-final .pa-logo {
+  align-self: flex-start;
+}
+.pa-final h1 {
+  margin-top: 1vh;
+}
+.pa-final__classement {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(5, auto);
+  gap: 1vh 5vw;
+  font-size: 1.35em;
+}
+.pa-final__classement li {
+  display: flex;
+  gap: 0.6em;
+  min-width: 15em;
+  padding: 0.35em 0.6em;
+  border-bottom: 1px solid var(--ligne);
+}
+.pa-final__nom {
+  font-weight: 700;
+}
+.pa-medaille {
+  margin-left: 0.2em;
+}
+.pa-final__rates {
+  margin-top: 5vh;
+  max-width: 60em;
+}
+.pa-final__rates h2 {
+  font-size: 1.2em;
+}
+.pa-final__rates li {
+  margin: 0.4em 0;
+}
+.pa-final__rates strong {
+  color: var(--mauvais);
+}
+.pa-frise__num {
+  color: #fff;
+  background: var(--c);
+}
+.pa-frise li.pa-frise--avenir .pa-frise__num {
+  opacity: 0.6;
+}
+/* Sur la page d'attente, le bouton monte en haut à droite pour laisser défiler la frise. */
+.pa-attente .pa-bouton {
+  top: 3vh;
+  bottom: auto;
 }
