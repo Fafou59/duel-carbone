@@ -145,5 +145,5 @@ Une personne qui rejoint une Séance avec son téléphone. Il ne donne un pseudo
 _À éviter_ : joueur (réservé à la Partie en solo), invité
 
 **Classement** :
-La liste des Participants d'une Séance rangés par nombre de bonnes réponses, sous leur pseudo : les 10 premiers sur l'écran projeté après chaque Duel et à la fin, et sur son téléphone le score et le rang de chaque Participant. Les scores égaux sont ex aequo : la vitesse de réponse ne compte pas. Il n'existe que si l'Animateur l'a choisi en créant la Séance.
+La liste des Participants d'une Séance rangés par nombre de bonnes réponses, sous leur pseudo : les 10 premiers sur l'écran projeté après chacun des Duels 1 à 9 et à la fin, et sur son téléphone le score et le rang de chaque Participant. Les scores égaux sont ex aequo et partagent le même rang ; le rang suivant est celui du score suivant (1, 1, 2…), et les trois premiers rangs reçoivent l'or, l'argent et le bronze. La vitesse de réponse ne compte pas. Il n'existe que si l'Animateur l'a choisi en créant la Séance.
 _À éviter_ : podium, palmarès, Rang (réservé au Rang du jour)
