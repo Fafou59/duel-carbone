@@ -754,3 +754,91 @@
   position: static;
   flex: none;
 }
+
+/* Cinquième tour : le classement final tient sur un écran, sans défiler. */
+.pa-final {
+  min-height: 0;
+  height: 100vh;
+  padding: 2.5vh 3vw 9vh;
+  justify-content: space-between;
+  gap: 2vh;
+}
+.pa-final__tete {
+  position: relative;
+  width: 100%;
+  text-align: center;
+}
+.pa-final__tete .pa-logo {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.pa-final__tete h1 {
+  margin: 0;
+}
+.pa-final__classement {
+  font-size: 1.2em;
+  gap: 0.4vh 5vw;
+}
+.pa-final__classement li {
+  padding: 0.25em 0.6em;
+}
+.pa-final__bas {
+  margin-top: 0;
+  align-items: start;
+}
+.pa-final__rates h2 {
+  margin: 0 0 0.5em;
+  font-size: 1.1em;
+}
+.pa-rates {
+  width: 100%;
+  border-collapse: collapse;
+}
+.pa-rates th {
+  text-align: left;
+  font-size: 0.8em;
+  font-weight: 600;
+  color: var(--discret);
+  padding: 0 0.6em 0.3em;
+  border-bottom: 1px solid var(--ligne);
+}
+.pa-rates td {
+  padding: 0.35em 0.6em;
+  border-bottom: 1px solid var(--ligne);
+  white-space: nowrap;
+}
+.pa-rates__numero {
+  font-weight: 800;
+  color: var(--discret);
+}
+.pa-rates__equivalence {
+  font-weight: 800;
+  font-size: 1.2em;
+}
+.pa-rates__part {
+  font-weight: 800;
+  font-size: 1.2em;
+  color: var(--mauvais);
+  text-align: right;
+}
+.pa-rates th:last-child {
+  text-align: right;
+}
+/* Le Conseil : titre plus grand, lien plus discret. */
+.pa-final .conseil {
+  margin-top: 0;
+}
+.pa-final .conseil h3 {
+  font-size: 1.4em;
+}
+.pa-final .conseil__lien {
+  font-size: 0.8em;
+}
+.pa-final__pied {
+  margin-top: 0;
+}
+.pa-rates__equivalence {
+  font-size: 1.45em;
+}

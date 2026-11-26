@@ -17,7 +17,8 @@ import { INSTANTANE } from '../../donnees/index.ts'
 import { conseilAffiche, valeursDe } from '../../domaine/conseils.ts'
 import { TableauRepartition } from '../../composants/TableauRepartition.tsx'
 import { plusEmetteur, rapport } from '../../domaine/duel.ts'
-import { formaterRapport } from '../../domaine/format.ts'
+import { Icone } from '../../composants/Icone.tsx'
+import { formaterMultiple, formaterRapport, queDevant } from '../../domaine/format.ts'
 import type { PropsEcran } from './PrototypeAnimateur.tsx'
 import { LigneGeste, Logo, Rejoindre } from './commun.tsx'
 import { choixDu, classementApres, ordreDesReponses, partDeBonnes, type LigneClassement } from './seance-factice.ts'
@@ -78,12 +79,15 @@ export function EcranAnimateur({ seance, etape, repondus, action }: PropsEcran) 
     const lie = classes
       .map(({ d }) => CONSEILS.find((c) => c.declencheurs.some((id) => id === d.a.id || id === d.b.id)))
       .find(Boolean)
-    const conseil = lie ? conseilAffiche(lie, valeursDe(INSTANTANE)) : null
-    const enPhrase = (t: string) => t.charAt(0).toLowerCase() + t.slice(1)
+    // Pour éprouver la mise en page : le Conseil le plus long du catalogue (légumineuses, 231 caractères).
+    const plusLong = CONSEILS.find((c) => c.id === 'legumineuses') ?? lie
+    const conseil = plusLong ? conseilAffiche(plusLong, valeursDe(INSTANTANE)) : null
     return (
       <main className="pa-final">
-        <Logo />
-        <h1>Classement final</h1>
+        <div className="pa-final__tete">
+          <Logo />
+          <h1>Classement final</h1>
+        </div>
         <ol className="pa-final__classement">
           {lignes.map((l) => (
             <li key={l.pseudo} className={l.medaille ? `pa-final--${l.medaille}` : ''}>
@@ -96,23 +100,47 @@ export function EcranAnimateur({ seance, etape, repondus, action }: PropsEcran) 
           ))}
         </ol>
         <div className="pa-final__bas">
+          {/* Comme le Récapitulatif d'une Partie : l'équivalence en icônes, sur une ligne par Duel. */}
           <section className="pa-final__rates">
             <h2>Les Duels qui ont le plus trompé la salle</h2>
-            <ul>
-              {rates.map(({ d, n, bonnes }) => (
-                <li key={n}>
-                  <strong>{100 - bonnes} %</strong> de réponses fausses : {d.a.titre} ou {enPhrase(d.b.titre)} ?
-                </li>
-              ))}
-            </ul>
+            <table className="pa-rates">
+              <thead>
+                <tr>
+                  <th scope="col">Duel</th>
+                  <th scope="col">Qui émet le plus</th>
+                  <th scope="col">Réponses fausses</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rates.map(({ d, n, bonnes }) => {
+                  const plus = plusEmetteur(d)
+                  const moins = plus === d.a ? d.b : d.a
+                  return (
+                    <tr key={n}>
+                      <td className="pa-rates__numero">{n + 1}</td>
+                      <td className="pa-rates__equivalence">
+                        <span aria-hidden="true">
+                          1 <Icone id={plus.id} /> = {formaterMultiple(rapport(d))} <Icone id={moins.id} />
+                        </span>
+                        <span className="visuellement-cache">
+                          {plus.titre} émet {formaterMultiple(rapport(d))} fois plus {queDevant(moins.titre)}
+                        </span>
+                      </td>
+                      <td className="pa-rates__part">{100 - bonnes} %</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
           </section>
           {conseil && <Conseil conseil={conseil} onLien={() => {}} />}
         </div>
         {/* L'invitation à revenir : les téléphones l'affichent aussi, avec le lien ?ref=seance. */}
         <div className="pa-final__pied">
           <p className="pa-final__invitation">
-            <span aria-hidden="true">📱 </span>Et demain ? <strong>Le Duel du jour</strong> t’attend sur ton téléphone,
-            un nouveau chaque jour sur <strong>duelcarbone.fr</strong>
+            <span aria-hidden="true">📱 </span>
+            <strong>Le Duel du jour</strong> t’attend sur ton téléphone, un nouveau chaque jour sur{' '}
+            <strong>duelcarbone.fr</strong>
           </p>
           {bouton}
         </div>
