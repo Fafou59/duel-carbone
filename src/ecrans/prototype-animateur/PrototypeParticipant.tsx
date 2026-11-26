@@ -167,7 +167,8 @@ export function PrototypeParticipant() {
           <span>/{joues}</span>
         </p>
         <p className="pp-rang">
-          {moiLigne.rang === 1 ? '1er' : `${moiLigne.rang}e`} sur {total}
+          {moiLigne.rang === 1 ? '1er' : `${moiLigne.rang}e`}
+          {exAequo > 1 && ' ex aequo'} sur {total}
           {fin && moiLigne.medaille && <span className="pp-medaille"> {MEDAILLES[moiLigne.medaille]}</span>}
           {!fin && avant.rang > moiLigne.rang && <span className="pp-monte"> ▲ {avant.rang - moiLigne.rang}</span>}
           {!fin && avant.rang < moiLigne.rang && <span className="pp-descend"> ▼ {moiLigne.rang - avant.rang}</span>}

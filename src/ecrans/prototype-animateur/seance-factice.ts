@@ -46,7 +46,7 @@ export function creerSeanceFactice(graine = 7): SeanceFactice {
 
 export type LigneClassement = { pseudo: string; score: number; rang: number; medaille: 'or' | 'argent' | 'bronze' | null }
 
-/** Le classement après les Duels 1 à n : rang avec ex aequo (1, 1, 3…), médaille par palier de score. */
+/** Le classement après les Duels 1 à n : un rang par palier de score (1, 1, 2…), et la médaille qui va avec (1 or, 2 argent, 3 bronze). */
 export function classementApres(seance: SeanceFactice, n: number): LigneClassement[] {
   const lignes = seance.participants.map((p) => ({ pseudo: p.pseudo, score: p.bonnes.slice(0, n).filter(Boolean).length }))
   lignes.sort((x, y) => y.score - x.score || x.pseudo.localeCompare(y.pseudo))
@@ -54,7 +54,7 @@ export function classementApres(seance: SeanceFactice, n: number): LigneClasseme
   const medailles = ['or', 'argent', 'bronze'] as const
   return lignes.map((l) => ({
     ...l,
-    rang: lignes.findIndex((m) => m.score === l.score) + 1,
+    rang: paliers.indexOf(l.score) + 1,
     medaille: medailles[paliers.indexOf(l.score)] ?? null,
   }))
 }
