@@ -1,0 +1,215 @@
+/* PROTOTYPE (jetable) : le téléphone du Participant. Le reste du style vient du jeu (index.css, EcranDuel.css…). */
+.pp {
+  min-height: 100vh;
+  padding-top: 44px;
+  padding-bottom: 110px;
+}
+
+/* La barre du prototype, en haut : volontairement étrangère au design évalué. */
+.pp-barre {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 10px;
+  background: #111;
+  color: #fff;
+  font: 13px system-ui, sans-serif;
+  z-index: 20;
+}
+.pp-barre select {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+}
+.pp-barre a {
+  color: #9fe0c0;
+  white-space: nowrap;
+}
+
+.pp-rejoindre {
+  display: grid;
+  gap: 8px;
+}
+.pp-rejoindre h2 {
+  margin: 0 0 8px;
+}
+.pp-rejoindre label {
+  display: grid;
+  gap: 4px;
+  font-weight: 700;
+}
+.pp-rejoindre input {
+  font: inherit;
+  font-size: 18px;
+  padding: 10px 12px;
+  border: 2px solid var(--ligne);
+  border-radius: 12px;
+  background: var(--carte);
+  color: var(--encre);
+}
+.pp-code {
+  font-family: ui-monospace, monospace !important;
+  letter-spacing: 0.15em;
+  font-weight: 800;
+}
+.pp-aide,
+.pp-discret {
+  margin: 0;
+  color: var(--discret);
+  font-size: 14px;
+}
+.pp-rejoindre .bouton {
+  justify-self: stretch;
+  margin-top: 12px;
+}
+
+.pp-centre {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  text-align: center;
+  padding-top: 24px;
+}
+.pp-centre p {
+  margin: 0;
+}
+.pp-grand {
+  font-size: 24px;
+  font-weight: 900;
+}
+.pp-frise {
+  width: calc(100% + 32px);
+  margin: 24px -16px 0;
+}
+
+.pp-annonce {
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--thematique);
+  color: #fff;
+}
+
+/* Variante 1 : la carte choisie reste marquée, l'autre s'efface. */
+.pp-carte {
+  position: relative;
+  display: grid;
+}
+.pp-carte--choisie .carte {
+  border-color: var(--marque);
+  box-shadow: 0 0 0 3px var(--marque);
+}
+.pp-carte--ecartee {
+  opacity: 0.45;
+}
+.pp-carte__badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 1;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--marque);
+  color: var(--sur-marque);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* Le bandeau du bas, à la place de « Duel suivant » : c'est l'Animateur qui fait avancer. */
+.pp-bandeau {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  background: var(--carte);
+  border-top: 1px solid var(--ligne);
+  text-align: center;
+  font-weight: 700;
+  box-shadow: 0 -6px 20px rgb(0 0 0 / 15%);
+  z-index: 5;
+}
+.pp-bandeau small {
+  color: var(--discret);
+  font-weight: 400;
+}
+
+/* Variante 2 : l'écran d'attente. */
+.pp-envoye {
+  padding-top: 32px;
+}
+.pp-choix {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  text-align: left;
+  padding: 12px 16px;
+  border: 3px solid var(--marque);
+  border-radius: 18px;
+  background: var(--carte);
+}
+.pp-choix__icone {
+  font-size: 44px;
+  line-height: 1;
+}
+.pp-jauge {
+  display: block;
+  width: 80%;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--ligne);
+  overflow: hidden;
+}
+.pp-jauge i {
+  display: block;
+  height: 100%;
+  background: var(--marque);
+  transition: width 0.3s;
+}
+.pp-attente-ecran {
+  margin-top: 16px !important;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--carte);
+  border: 1px solid var(--ligne);
+  font-weight: 700;
+}
+
+/* Classement intermédiaire et fin. */
+.pp-classement {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  text-align: center;
+  padding-top: 8px;
+}
+.pp-classement h2 {
+  margin: 0 0 8px;
+}
+.pp-rang {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 900;
+}
+.pp-monte {
+  color: var(--bon);
+  font-size: 18px;
+}
+.pp-descend {
+  color: var(--mauvais);
+  font-size: 18px;
+}
+.pp-bouton-large {
+  justify-self: stretch;
+  text-align: center;
+  text-decoration: none;
+  margin-top: 8px;
+}
+.pp-classement .conseil {
+  text-align: left;
+  margin-top: 16px;
+}

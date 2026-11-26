@@ -21,13 +21,21 @@ void enregistrerServiceWorker()
 const PrototypeAnimateur = lazy(() =>
   import('./ecrans/prototype-animateur/PrototypeAnimateur.tsx').then((m) => ({ default: m.PrototypeAnimateur })),
 )
-const prototype = window.location.hash === '#prototype-animateur'
+// Et le téléphone du Participant, sur #prototype-participant.
+const PrototypeParticipant = lazy(() =>
+  import('./ecrans/prototype-animateur/PrototypeParticipant.tsx').then((m) => ({ default: m.PrototypeParticipant })),
+)
+const prototype = window.location.hash
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    {prototype ? (
+    {prototype === '#prototype-animateur' ? (
       <Suspense fallback={null}>
         <PrototypeAnimateur />
+      </Suspense>
+    ) : prototype === '#prototype-participant' ? (
+      <Suspense fallback={null}>
+        <PrototypeParticipant />
       </Suspense>
     ) : (
       <App />
