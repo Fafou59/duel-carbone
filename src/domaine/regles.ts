@@ -78,6 +78,25 @@ export const REGLES = {
   },
 
   /**
+   * Une Séance du Mode animation (PRD docs/prd-mode-animation.md, ADR 0007). Comme le Rang et le Taux d'erreur,
+   * hors de l'empreinte du tirage (equilibrage.ts) : ces limites ne changent rien aux Duels tirés.
+   */
+  seance: {
+    /** Au-delà, la salle est pleine : personne d'autre ne peut rejoindre la Séance. */
+    participantsMax: 100,
+    /** Un pseudo tient en 20 caractères au plus (il n'existe que si l'Animateur a choisi un Classement). */
+    longueurMaxDuPseudo: 20,
+    /** La Séance se ferme 3 h après sa création : plus personne ne rejoint, plus rien n'avance. */
+    dureeMaxEnHeures: 3,
+    /** Tout est effacé 24 h après la création (ADR 0007). */
+    effacementEnHeures: 24,
+    /** Le Classement intermédiaire et le tableau final montrent les 10 premiers. */
+    tailleDuClassementAffiche: 10,
+    /** Le classement final montre les 3 Duels qui ont le plus trompé la salle. */
+    duelsLesPlusRates: 3,
+  },
+
+  /**
    * La courbe de difficulté : une tranche de Rapport par Duel, du Duel 1 au Duel 10.
    * Elle part du plafond (un premier Duel d'échauffement) et se resserre vite.
    * Les étiquettes facile (1-3), moyen (4-6), difficile (7-9) et ultime (10) regroupent ces tranches.
