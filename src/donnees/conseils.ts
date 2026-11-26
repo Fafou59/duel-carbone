@@ -1,5 +1,5 @@
 /**
- * Catalogue des Conseils de fin de Partie : 26 Conseils écrits maison et validés par Fabien (issue 88).
+ * Catalogue des Conseils de fin de Partie : 28 Conseils écrits maison et validés par Fabien (issues 88 et 126).
  *
  * Règles d'écriture :
  * - une suggestion (« Et si… »), jamais un ordre ; à l'échelle d'une personne ;
@@ -10,10 +10,12 @@
  *   Les hypothèses (2 repas par semaine, 10 km de trajet, 220 jours de travail…) restent, elles, dans le texte.
  * - `relu` garde les chiffres tels qu'ils ont été relus. Après un import ADEME, si l'un d'eux change, un test
  *   nomme le Conseil : relire le texte autour (« plus que… », « presque zéro »), puis recopier la nouvelle valeur.
- * - le lien mène à une page de l'ADEME : une action de Nos Gestes Climat, ou la FAQ d'Impact CO2 (une seule page :
- *   son titre est alors celui de la question à ouvrir, dans la partie « Idées pour agir »).
- *
- * Si l'ADEME accepte qu'on cite ses « Idées pour agir » (demande de Fabien du 22/11), on ne remplacera que `texte`.
+ * - le lien mène à une page de l'ADEME : de préférence une action de Nos Gestes Climat (l'ADEME a donné son accord
+ *   le 25/11 pour qu'on reprenne ses actions avec leur lien), sinon la FAQ d'Impact CO2. La FAQ n'est qu'une seule
+ *   page, sans lien direct vers chaque question : son titre est alors celui de la question à ouvrir, dans la partie
+ *   « Idées pour agir ». On ne la garde que faute d'action proche (issue 126).
+ * - les textes restent les nôtres, même quand une action de Nos Gestes Climat parle du même geste : ses pages sont
+ *   des articles, et ses chiffres viennent de son propre modèle, pas d'Impact CO2 (issue 126).
  *
  * `declencheurs` : les Gestes du catalogue (src/donnees/gestes.ts) qui amènent ce Conseil quand ils sont dans la
  * Partie (choix dans src/domaine/conseils.ts).
@@ -39,7 +41,25 @@ export const CONSEILS: Conseil[] = [
     },
     relu: { economie: '430' },
     lien: { url: `${NGC}/alimentation/reduire-viande`, titre: 'Manger moins de viande, par où commencer ?' },
-    declencheurs: ['repas-boeuf', 'steak-boeuf', 'cheeseburger', 'kebab', 'repas-vegetarien', 'repas-vegetalien'],
+    // Les produits animaux et les plats végétariens l'amènent aussi (issue 126) : c'est le Conseil le plus proche.
+    declencheurs: [
+      'repas-boeuf',
+      'steak-boeuf',
+      'cheeseburger',
+      'kebab',
+      'repas-vegetarien',
+      'repas-vegetalien',
+      'burger-vegetarien',
+      'nuggets-vegetaux',
+      'porc',
+      'canard',
+      'fromage',
+      'beurre',
+      'oeufs',
+      'yaourt',
+      'mozzarella',
+      'pizza',
+    ],
   },
   {
     id: 'boeuf-poulet',
@@ -65,7 +85,7 @@ export const CONSEILS: Conseil[] = [
       bateau: { calcul: (v) => 0.4 * v.valeur('manguebateau'), arrondi: 0.1 },
     },
     relu: { fois: '16', avion: '4,7', bateau: '0,3' },
-    lien: { url: FAQ_IMPACT_CO2, titre: 'Comment reconnaître les aliments de saison au supermarché ?' },
+    lien: { url: `${NGC}/alimentation/manger-local-saison`, titre: 'Quels sont les aliments de saison ce mois-ci ?' },
     declencheurs: ['mangue-avion', 'mangue-bateau'],
   },
   {
@@ -78,7 +98,10 @@ export const CONSEILS: Conseil[] = [
       soda: { calcul: (v) => 0.33 * 365 * v.valeur('soda'), arrondi: 5 },
     },
     relu: { bouteille: '175', soda: '60' },
-    lien: { url: FAQ_IMPACT_CO2, titre: 'Comment réduire l’impact carbone de l’alimentation ?' },
+    lien: {
+      url: `${NGC}/alimentation/reduire-consommation-boissons-sucrees`,
+      titre: 'Boissons sucrées : connaissez-vous leur impact sur le climat ?',
+    },
     declencheurs: ['eau-bouteille', 'eau-robinet', 'eau-bouteille-33cl', 'soda'],
   },
   {
@@ -93,6 +116,20 @@ export const CONSEILS: Conseil[] = [
       titre: 'Comment concilier impact carbone, plaisir, prix et équilibre nutritionnel ?',
     },
     declencheurs: ['lait', 'boisson-soja'],
+  },
+  {
+    id: 'cafe-the',
+    // Une tasse de 25 cl, comme les Gestes « Boire un café » et « Boire un thé », tous les jours de l'année.
+    texte: 'Et si un café par jour devenait un thé ? Environ {economie} kg CO2e de moins par an.',
+    chiffres: {
+      economie: { calcul: (v) => 365 * 0.25 * (v.valeur('cafe') - v.valeur('the')), arrondi: 1 },
+    },
+    relu: { economie: '54' },
+    lien: {
+      url: `${NGC}/alimentation/reduire-consommation-cafe`,
+      titre: 'Et si vous réduisiez votre consommation de café ?',
+    },
+    declencheurs: ['cafe', 'the', 'cafetiere-dosettes', 'cafetiere-filtre'],
   },
   {
     id: 'produits-de-la-mer',
@@ -171,7 +208,10 @@ export const CONSEILS: Conseil[] = [
       },
     },
     relu: { economie: '580' },
-    lien: { url: FAQ_IMPACT_CO2, titre: 'Quelles sont les alternatives à la voiture ?' },
+    lien: {
+      url: `${NGC}/transport/mobilite-decarbonee-entreprise`,
+      titre: 'Salarié⋅e ? Incitez votre employeur à la mobilité durable',
+    },
     declencheurs: ['voiture-10km', 'velo-electrique-10km', 'trottinette-10km', 'scooter-10km'],
   },
   {
@@ -230,7 +270,10 @@ export const CONSEILS: Conseil[] = [
       tgv: { calcul: (v) => 100 * v.valeur('tgv'), arrondi: 0.1 },
     },
     relu: { voiture: '14', ter: '2,8', tgv: '0,3' },
-    lien: { url: FAQ_IMPACT_CO2, titre: 'Quel est le moyen de transport le moins impactant pour le climat ?' },
+    lien: {
+      url: `${NGC}/transport/vacances-en-train`,
+      titre: 'Partir en train, qu’est-ce que vous allez y gagner ?',
+    },
     declencheurs: ['ter-100km', 'tgv-100km', 'autocar-100km'],
   },
   {
@@ -300,8 +343,9 @@ export const CONSEILS: Conseil[] = [
       part: { calcul: (v) => (100 * v.etape('smartphone', 'Construction')) / v.valeur('smartphone'), arrondi: 1 },
     },
     relu: { part: '96' },
-    lien: { url: FAQ_IMPACT_CO2, titre: 'Le réemploi des appareils permet-il de réduire leur impact ?' },
-    declencheurs: ['smartphone', 'tablette'],
+    lien: { url: `${NGC}/consommation/reparer-objet`, titre: 'Réparer ou faire réparer : est-ce bien rentable ?' },
+    // Les autres objets numériques l'amènent aussi (issue 126) : pour eux aussi, la fabrication pèse le plus.
+    declencheurs: ['smartphone', 'tablette', 'box', 'enceinte-connectee', 'cle-usb'],
   },
   {
     id: 'reparer-sa-television',
@@ -314,6 +358,27 @@ export const CONSEILS: Conseil[] = [
     relu: { total: '370', part: '88' },
     lien: { url: `${NGC}/consommation/reparer-objet`, titre: 'Réparer ou faire réparer : est-ce bien rentable ?' },
     declencheurs: ['television', 'ecran'],
+  },
+  {
+    id: 'reparer-electromenager',
+    // « Avant même de le brancher » : toutes les étapes avant l'usage (matières, fabrication, distribution), sur le total.
+    texte:
+      'Un lave-linge, c’est {total} kg CO2e, dont {part} % avant même de le brancher. Et si tu le faisais réparer plutôt que d’en racheter un ?',
+    chiffres: {
+      total: { calcul: (v) => v.valeur('lavelinge'), arrondi: 1 },
+      part: { calcul: (v) => (100 * v.fabrication('lavelinge')) / v.valeur('lavelinge'), arrondi: 1 },
+    },
+    relu: { total: '513', part: '66' },
+    lien: { url: `${NGC}/consommation/reparer-objet`, titre: 'Réparer ou faire réparer : est-ce bien rentable ?' },
+    declencheurs: [
+      'lave-linge',
+      'lave-vaisselle',
+      'refrigerateur',
+      'four-electrique',
+      'micro-ondes',
+      'aspirateur',
+      'bouilloire',
+    ],
   },
   {
     id: 'vetements-seconde-main',
@@ -363,6 +428,7 @@ export const CONSEILS: Conseil[] = [
     },
     relu: { gaz: '665', fioul: '1 350' },
     lien: {
+      // « renouvables » : c'est bien l'adresse de Nos Gestes Climat (« renouvelables » mène à une page 404, vérifié le 25/11).
       url: `${NGC}/logement/chauffage-energies-renouvables`,
       titre: 'Quelle énergie choisir pour votre chauffage ?',
     },

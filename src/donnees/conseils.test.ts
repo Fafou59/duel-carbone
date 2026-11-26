@@ -7,9 +7,9 @@ import { INSTANTANE } from './index.ts'
 const valeurs = valeursDe(INSTANTANE)
 
 describe('Catalogue des Conseils', () => {
-  it('compte les 26 Conseils validés par Fabien (issue 88), chacun avec son identifiant', () => {
-    expect(CONSEILS).toHaveLength(26)
-    expect(new Set(CONSEILS.map((c) => c.id)).size).toBe(26)
+  it('compte les 28 Conseils validés par Fabien (issues 88 et 126), chacun avec son identifiant', () => {
+    expect(CONSEILS).toHaveLength(28)
+    expect(new Set(CONSEILS.map((c) => c.id)).size).toBe(28)
   })
 
   it('n’a que des Gestes déclencheurs du catalogue', () => {
@@ -29,6 +29,12 @@ describe('Catalogue des Conseils', () => {
       expect(c.lien.url, c.id).toMatch(/^https:\/\/(nosgestesclimat\.fr\/actions\/|impactco2\.fr\/)/)
       expect(c.lien.titre, c.id).not.toBe('')
     }
+  })
+
+  it('ne renvoie vers la FAQ d’Impact CO2 que faute d’action Nos Gestes Climat proche (issue 126)', () => {
+    // La FAQ n'a pas de lien direct vers chaque question : une action de Nos Gestes Climat est toujours préférée.
+    const versLaFaq = CONSEILS.filter((c) => c.lien.url.startsWith('https://impactco2.fr/doc/')).map((c) => c.id)
+    expect(versLaFaq).toEqual(['boisson-soja', 'teletravail'])
   })
 
   it('calcule chaque chiffre du texte, et seulement ceux-là : aucun repère orphelin, aucun calcul inutilisé', () => {
