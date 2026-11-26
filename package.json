@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "typecheck": "tsc -b",
     "lint": "oxlint",
-    "test": "vitest run",
+    "test": "vitest run && npm run test:objet",
+    "test:objet": "vitest run --config vitest.objet.config.ts",
     "test:watch": "vitest",
     "e2e": "playwright test",
     "captures": "playwright test --config playwright.captures.config.ts",
@@ -31,6 +32,8 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
+    "@cloudflare/vitest-plugin": "^1.9.2",
+    "@cloudflare/workers-types": "^5.20261125.1",
     "@playwright/test": "^1.65.0",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",

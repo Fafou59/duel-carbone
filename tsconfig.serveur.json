@@ -7,7 +7,7 @@
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.serveur.tsbuildinfo",
     "target": "es2023",
     "lib": ["ES2023"],
-    "types": ["node"],
+    "types": ["@cloudflare/workers-types"],
     "skipLibCheck": true,
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -21,5 +21,6 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["serveur"]
+  "include": ["serveur"],
+  "exclude": ["serveur/**/*.test.ts", "serveur/objet"]
 }

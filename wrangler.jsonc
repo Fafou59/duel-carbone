@@ -17,7 +17,7 @@
 {
   // Doit être identique au nom du Worker dans le tableau de bord Cloudflare.
   "name": "duel-carbone",
-  // Le serveur : le code qui répond aux adresses /api/… (le Rang du jour, le Taux d'erreur).
+  // Le serveur : le code qui répond aux adresses /api/… (le Rang du jour, le Taux d'erreur, les Séances).
   "main": "serveur/index.ts",
   // Version des règles d'exécution de Cloudflare à utiliser (une date figée, pour éviter les surprises).
   "compatibility_date": "2026-11-01",
@@ -44,10 +44,22 @@
       "preview_database_id": "7562794e-fd5e-4c6d-9cf7-c67cacc3ba92"
     }
   ],
+  // Les Séances du Mode animation (ADR 0007) : un Durable Object par Séance, classe Seance de serveur/seance.ts.
+  // Le serveur le reçoit sous le nom env.SEANCE et crée chaque Séance dans la juridiction « eu » (serveur/seance-api.ts).
+  // « exports » déclare la classe avec le stockage SQLite, seul permis sur le plan gratuit (vérifié sur un aperçu
+  // le 26/11/2026, juridiction « eu » comprise). Il ne s'applique qu'avec « wrangler deploy ». Renommer ou supprimer
+  // la classe plus tard se fait par une « pierre tombale » dans « exports », et efface toutes les Séances.
+  // Essai en local (npx wrangler dev) : le moteur local ne connaît pas les juridictions ; mettre
+  // SEANCE_SANS_JURIDICTION=oui dans un fichier .dev.vars (jamais ici).
+  "durable_objects": { "bindings": [{ "name": "SEANCE", "class_name": "Seance" }] },
+  "exports": { "Seance": { "type": "durable-object", "storage": "sqlite" } },
   // Les aperçus des branches (commande « npx wrangler preview », lancée par Cloudflare pour chaque branche autre
   // que main). Ils n'héritent pas des bases de la production : on leur en donne une à part, elle aussi dans l'UE,
   // partagée par tous les aperçus. Ainsi, essayer un aperçu ne fausse jamais le Rang du jour des vrais joueurs.
+  // Les Durable Objects, eux, sont propres à chaque aperçu : Cloudflare lui donne ses propres Séances, effacées avec
+  // lui. Il faut seulement répéter la liaison env.SEANCE ici (sinon, l'aperçu répond par une erreur 1101).
   "previews": {
+    "durable_objects": { "bindings": [{ "name": "SEANCE", "class_name": "Seance" }] },
     "d1_databases": [
       {
         "binding": "BASE",

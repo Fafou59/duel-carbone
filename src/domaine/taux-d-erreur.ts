@@ -75,18 +75,12 @@ const estUnCodeDeDuel = (brut: unknown): brut is string =>
   typeof brut === 'string' && brut.length <= 200 && /^[a-z0-9-]+>[a-z0-9-]+$/.test(brut)
 
 /**
- * Ce que le serveur compte à la fin d'une Partie libre (issue 122, étape 2) : les 10 Duels joués (« idA>idB ») et
- * les 10 Gestes choisis. null si l'envoi ne peut pas venir d'une vraie Partie : Geste inconnu, paire injouable,
- * la même paire deux fois, ou un choix qui n'est aucun des deux Gestes.
+ * Les 10 Duels d'une Partie libre envoyés par le jeu (« idA>idB », dans l'ordre), ou null s'ils ne peuvent pas venir
+ * d'un vrai tirage : pas 10 Duels, Geste inconnu, paire injouable, ou la même paire deux fois. Sert à la fin d'une
+ * Partie libre et à la création d'une Séance, dont l'ordinateur de l'Animateur tire les Duels (ADR 0007).
  */
-export function reponsesDUnePartieLibre(
-  codes: unknown,
-  choix: unknown,
-  gestes: GesteCalcule[],
-  thematiques: DuelThematique[],
-): { cle: string; fausse: boolean }[] | null {
-  if (!Array.isArray(codes) || !codes.every(estUnCodeDeDuel)) return null
-  if (!Array.isArray(choix) || !choix.every((c) => typeof c === 'string')) return null
+export function duelsDUnePartieLibre(codes: unknown, gestes: GesteCalcule[], thematiques: DuelThematique[]): DuelDePartie[] | null {
+  if (!Array.isArray(codes) || codes.length !== NOMBRE_DE_DUELS || !codes.every(estUnCodeDeDuel)) return null
   let duels: DuelDePartie[]
   try {
     duels = duelsDepuisCodes(codes, gestes, thematiques)
@@ -94,7 +88,23 @@ export function reponsesDUnePartieLibre(
     return null // un Geste absent du catalogue
   }
   if (!duels.every(estUnePaireJouable) || new Set(duels.map(cleDuDuel)).size !== duels.length) return null
-  return reponsesDeLaPartie(duels, choix)
+  return duels
+}
+
+/**
+ * Ce que le serveur compte à la fin d'une Partie libre (issue 122, étape 2) : les 10 Duels joués (« idA>idB ») et
+ * les 10 Gestes choisis. null si l'envoi ne peut pas venir d'une vraie Partie : Duels refusés par
+ * duelsDUnePartieLibre, ou un choix qui n'est aucun des deux Gestes.
+ */
+export function reponsesDUnePartieLibre(
+  codes: unknown,
+  choix: unknown,
+  gestes: GesteCalcule[],
+  thematiques: DuelThematique[],
+): { cle: string; fausse: boolean }[] | null {
+  if (!Array.isArray(choix) || !choix.every((c) => typeof c === 'string')) return null
+  const duels = duelsDUnePartieLibre(codes, gestes, thematiques)
+  return duels && reponsesDeLaPartie(duels, choix)
 }
 
 /**

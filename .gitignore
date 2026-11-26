@@ -26,3 +26,6 @@ test-results/
 
 # Base D1 locale et fichiers temporaires de Wrangler (npx wrangler dev)
 .wrangler/
+
+# Variables locales de « wrangler dev » (voir wrangler.jsonc)
+.dev.vars

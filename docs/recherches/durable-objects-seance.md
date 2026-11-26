@@ -168,7 +168,7 @@ Même calcul, cas le plus lourd : 100 Participants + 2 appareils de l'Animateur,
 
 ## Ce qui reste incertain
 
-- **La juridiction `eu` sur l'offre gratuite :** la documentation n'en parle pas et ne mentionne aucune restriction. La base D1 du jeu a bien été créée en juridiction `eu` sur l'offre gratuite, mais c'est un autre produit. À vérifier au premier déploiement d'essai.
+- **La juridiction `eu` sur l'offre gratuite :** la documentation n'en parle pas et ne mentionne aucune restriction. La base D1 du jeu a bien été créée en juridiction `eu` sur l'offre gratuite, mais c'est un autre produit. À vérifier au premier déploiement d'essai. **Vérifié le 26/11/2026** sur l'aperçu de la branche du lot 1 (issue 134) : `env.SEANCE.jurisdiction("eu").getByName(…)` crée bien un objet SQLite, avec le champ `exports` et `wrangler preview`.
 - **La juridiction avec `ctx.exports` et dans les aperçus :** `ctx.exports` fournit « a Durable Object namespace binding » ([API Context](https://developers.cloudflare.com/workers/runtime-apis/context/)), qui devrait donc offrir `.jurisdiction("eu")`, mais aucun exemple ne le montre, et la page des aperçus ne parle pas de juridiction.
 - **Le champ `exports` avec la version de Wrangler du projet et avec `wrangler preview` :** la documentation dit que les aperçus « follow the same rules », sans exemple. À vérifier avec un `wrangler deploy --dry-run`, sinon revenir au tableau `migrations`.
 - **La façon dont `deleteAll()` est décompté :** chaque effacement compte comme une ligne écrite, mais la documentation ne dit pas si `deleteAll()` compte une ligne par ligne effacée. L'estimation ci-dessus le suppose (cas le plus cher).
