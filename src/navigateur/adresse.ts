@@ -17,8 +17,15 @@ export const ADRESSES: Record<Page, string> = { jeu: '#', enSavoirPlus: '#en-sav
 /** L'ancienne adresse de la page (quand elle s'appelait « Sources et méthode ») : les liens déjà partagés marchent. */
 const ANCIENNE_ADRESSE = '#sources'
 
+// PROTOTYPE (issue 111) : les sous-pages des variantes (#en-savoir-plus/…, #mentions-legales, #vie-privee).
+const AUTRES_PAGES_DU_PROTOTYPE = ['#en-savoir-plus/', '#mentions-legales', '#vie-privee']
+
 const pageActuelle = (): Page =>
-  window.location.hash === ADRESSES.enSavoirPlus || window.location.hash === ANCIENNE_ADRESSE ? 'enSavoirPlus' : 'jeu'
+  window.location.hash === ADRESSES.enSavoirPlus ||
+  window.location.hash === ANCIENNE_ADRESSE ||
+  AUTRES_PAGES_DU_PROTOTYPE.some((debut) => window.location.hash.startsWith(debut))
+    ? 'enSavoirPlus'
+    : 'jeu'
 
 const surveiller = (prevenir: () => void) => {
   window.addEventListener('hashchange', prevenir)

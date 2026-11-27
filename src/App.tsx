@@ -18,6 +18,8 @@ import { Accueil, type Situation } from './ecrans/Accueil.tsx'
 import { EcranPartie } from './ecrans/EcranPartie.tsx'
 import { EcranEnSavoirPlus } from './ecrans/EcranEnSavoirPlus.tsx'
 import { ADRESSES, usePage } from './navigateur/adresse.ts'
+import { PrototypeSwitcher } from './composants/PrototypeSwitcher.tsx'
+import { liensDuPied, SavoirPrototype, varianteMentions, VARIANTES_MENTIONS, type VarianteMentions } from './PROTOTYPE-mentions-legales.tsx'
 import { creerMemoire, type Memoire } from './navigateur/memoire.ts'
 import { appliquerNouvelleVersion, useNouvelleVersion } from './navigateur/mise-a-jour.ts'
 import { serveurDuRang, type ServeurDuRang } from './navigateur/rang-du-jour.ts'
@@ -67,6 +69,8 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
   const [, setActualisation] = useState(0)
   // La page demandée par l'adresse : le jeu, ou En savoir plus (#en-savoir-plus).
   const page = usePage()
+  // PROTOTYPE (issue 111) : la variante d'En savoir plus et des Mentions légales (?variant=A, B ou C).
+  const [variante, setVariante] = useState(() => varianteMentions())
   // « Comment ça marche ? » : le tutoriel, ouvert par-dessus l'écran en cours.
   const [tutoriel, setTutoriel] = useState(false)
 
@@ -268,7 +272,7 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
         </h1>
       </header>
       <main>
-        {page === 'enSavoirPlus' && <EcranEnSavoirPlus />}
+        {page === 'enSavoirPlus' && (variante ? <SavoirPrototype variante={variante} /> : <EcranEnSavoirPlus />)}
         {/* Le jeu reste en place (simplement caché) pendant la lecture des sources : la Partie en cours n'est pas perdue. */}
         <div hidden={page === 'enSavoirPlus'}>
           {!partie && (
@@ -360,10 +364,23 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
           <button type="button" className="lien-bouton pied__lien-bouton" onClick={() => setTutoriel(true)}>
             Comment ça marche ?
           </button>{' '}
-          · <a href={ADRESSES.enSavoirPlus}>En savoir plus</a> · <a href={IMPACT_CO2_DOC}>Chiffres de l’ADEME</a>, sans cookie
-          ni compte
+          {variante ? (
+            liensDuPied(variante).map((lien) => (
+              <span key={lien.adresse}>
+                · <a href={lien.adresse}>{lien.texte}</a>{' '}
+              </span>
+            ))
+          ) : (
+            <>
+              · <a href={ADRESSES.enSavoirPlus}>En savoir plus</a>{' '}
+            </>
+          )}
+          · <a href={IMPACT_CO2_DOC}>Chiffres de l’ADEME</a>, sans cookie ni compte
         </p>
       </footer>
+      {variante && (
+        <PrototypeSwitcher variantes={VARIANTES_MENTIONS} courante={variante} onChange={(v) => setVariante(v as VarianteMentions)} />
+      )}
       <Tutoriel ouvert={tutoriel} onFermer={() => setTutoriel(false)} onJouer={lancerPartieDuJour} />
     </div>
   )

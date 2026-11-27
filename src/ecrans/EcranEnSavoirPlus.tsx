@@ -89,7 +89,24 @@ const PARTIES = {
   mentions: 'Mentions légales',
 } as const
 
-type IdPartie = keyof typeof PARTIES
+export type IdPartie = keyof typeof PARTIES
+
+/** PROTOTYPE (issue 111) : une partie ajoutée par une variante, avec son identifiant, son titre et son contenu. */
+export type PartieEnPlus = { id: string; titre: string; contenu: ReactNode }
+export type ElementDuPlan = IdPartie | PartieEnPlus
+
+type Props = {
+  titre?: string
+  chapo?: ReactNode
+  /** Les parties affichées, dans l'ordre (par défaut, toutes celles de la page actuelle). */
+  plan?: ElementDuPlan[]
+  sansSommaire?: boolean
+  /** Un bloc avant les parties (le portail de la variante C), et un après. */
+  avant?: ReactNode
+  apres?: ReactNode
+  /** Le bouton du bas, à la place de « Retour au jeu ». */
+  retour?: { adresse: string; texte: string }
+}
 
 /** Descend jusqu'à un élément de la page, et y place le clavier et le lecteur d'écran. */
 function allerA(element: HTMLElement | null) {
@@ -99,11 +116,11 @@ function allerA(element: HTMLElement | null) {
 }
 
 /** Une partie de la page, avec son titre (que le sommaire sait atteindre). */
-function Partie({ id, children }: { id: IdPartie; children: ReactNode }) {
+function Partie({ id, titre, children }: { id: string; titre: string; children: ReactNode }) {
   return (
     <section className="savoir__partie" aria-labelledby={`savoir-${id}`}>
       <h3 id={`savoir-${id}`} tabIndex={-1}>
-        {PARTIES[id]}
+        {titre}
       </h3>
       {children}
     </section>
@@ -111,7 +128,15 @@ function Partie({ id, children }: { id: IdPartie; children: ReactNode }) {
 }
 
 /** La page « En savoir plus » : le projet, puis les sources et la méthode, la vie privée, et l'empreinte du jeu. */
-export function EcranEnSavoirPlus() {
+export function EcranEnSavoirPlus({
+  titre: titrePage = 'En savoir plus',
+  chapo,
+  plan = Object.keys(PARTIES) as IdPartie[],
+  sansSommaire = false,
+  avant,
+  apres,
+  retour = { adresse: ADRESSES.jeu, texte: '← Retour au jeu' },
+}: Props = {}) {
   const titre = useRef<HTMLHeadingElement>(null)
   const sommaire = useRef<HTMLElement>(null)
   const titreDuSommaire = useRef<HTMLParagraphElement>(null)
@@ -134,39 +159,17 @@ export function EcranEnSavoirPlus() {
 
   // Les liens du sommaire font défiler la page sans toucher à l'adresse : l'ancre « # » y désigne la page
   // affichée (navigateur/adresse.ts), et la changer ramènerait au jeu.
-  const versPartie = (id: IdPartie) => (evenement: MouseEvent<HTMLAnchorElement>) => {
+  const versPartie = (id: string) => (evenement: MouseEvent<HTMLAnchorElement>) => {
     evenement.preventDefault()
     allerA(document.getElementById(`savoir-${id}`))
   }
 
   const unite = STEAK.equivalent.unite ?? 'unité'
 
-  return (
-    <article className="savoir" aria-labelledby="savoir-titre">
-      <h2 id="savoir-titre" ref={titre} tabIndex={-1}>
-        En savoir plus
-      </h2>
-      <p className="savoir__chapo">
-        Pourquoi ce jeu, d'où viennent ses chiffres et comment on s'en sert, ce qu'il garde de toi, et ce qu'il a
-        coûté.
-      </p>
-
-      <nav ref={sommaire} className="savoir__sommaire" aria-labelledby="savoir-sommaire">
-        <p id="savoir-sommaire" ref={titreDuSommaire} className="savoir__sommaire-titre" tabIndex={-1}>
-          Sommaire
-        </p>
-        <ol>
-          {(Object.keys(PARTIES) as IdPartie[]).map((id) => (
-            <li key={id}>
-              <a href={`#savoir-${id}`} onClick={versPartie(id)}>
-                {PARTIES[id]}
-              </a>
-            </li>
-          ))}
-        </ol>
-      </nav>
-
-      <Partie id="pourquoi">
+  /** Le contenu de chaque partie (PROTOTYPE issue 111 : une variante peut les répartir sur plusieurs pages). */
+  const CONTENU: Record<IdPartie, ReactNode> = {
+    'pourquoi': (
+      <>
         <p>
           On estime très mal l'empreinte carbone de nos gestes du quotidien. On surestime ce qui se voit (un emballage,
           un mail) et on sous-estime ce qui ne se voit pas (la viande, la fabrication d'un smartphone, l'avion).
@@ -180,9 +183,11 @@ export function EcranEnSavoirPlus() {
           C'est un jeu gratuit, sans publicité, sans compte et sans cookie : un projet indépendant, pour que chacun
           sache où portent ses efforts.
         </p>
-      </Partie>
+      </>
+    ),
 
-      <Partie id="chiffres">
+    'chiffres': (
+      <>
         <p>
           Toutes les empreintes carbone viennent de l'ADEME, l'Agence de la transition écologique. C'est un
           établissement public, placé sous la tutelle des ministères chargés de l'environnement, de l'énergie et de la
@@ -211,13 +216,13 @@ export function EcranEnSavoirPlus() {
           Duel Carbone figure dans la <a href={GALERIE_IMPACT_CO2}>galerie des exemples d'Impact CO2</a> (ADEME),
           catégorie Associations, parmi les sites qui utilisent ses données. Ce n'est pas un partenariat avec l'ADEME.
         </p>
-      </Partie>
+      </>
+    ),
 
-      <Partie id="co2e">
-        <DefinitionCo2e niveau="h4" />
-      </Partie>
+    'co2e': <DefinitionCo2e niveau="h4" />,
 
-      <Partie id="calcul">
+    'calcul': (
+      <>
         <p>
           L'ADEME donne une valeur par unité : par kg pour un aliment, par km et par passager pour un trajet, par
           objet pour un appareil. Pour comparer des choses parlantes, le jeu multiplie cette valeur par une quantité
@@ -232,18 +237,22 @@ export function EcranEnSavoirPlus() {
           chaque geste l'affiche sous son nom. Après chaque Duel, un lien mène à la fiche ADEME de chaque geste ; ici,
           la <a href={STEAK.equivalent.url}>fiche ADEME du bœuf</a>.
         </p>
-      </Partie>
+      </>
+    ),
 
-      <Partie id="objets">
+    'objets': (
+      <>
         <p>
           Pour un appareil ou un vêtement, l'empreinte compte sa fabrication, sa fin de vie et son usage pendant la
           durée d'utilisation retenue par l'ADEME
           {TELEVISION.usage && ` (par exemple ${TELEVISION.usage.dureeAns} ans pour une télévision)`}. Le jeu reprend
           ces durées telles quelles et les affiche sous le nom de l'objet.
         </p>
-      </Partie>
+      </>
+    ),
 
-      <Partie id="reglages">
+    'reglages': (
+      <>
         <p>
           Impact CO2 permet d'ajuster certains calculs, comme le nombre de passagers d'une voiture ou l'effet des
           traînées de condensation des avions. Le jeu garde toujours les réglages par défaut de l'ADEME : l'avion
@@ -263,9 +272,11 @@ export function EcranEnSavoirPlus() {
           l'électricité vient davantage du charbon ou du gaz, les mêmes Gestes émettent plus, parfois plusieurs fois
           plus : les chiffres du jeu valent pour la France.
         </p>
-      </Partie>
+      </>
+    ),
 
-      <Partie id="regles">
+    'regles': (
+      <>
         <p>
           Chaque jour, le Duel Carbone du jour propose la même Partie à tous les joueurs : elle change à minuit, heure
           de Paris, et ne se joue qu'une fois. Ses Duels sont tirés à l'avance, selon les mêmes règles que la Partie
@@ -311,9 +322,11 @@ export function EcranEnSavoirPlus() {
           non des joueurs : on peut retomber sur une même paire. Elle n’apparaît qu’à partir de{' '}
           {REGLES.tauxDErreur.reponsesMinimum} réponses.
         </p>
-      </Partie>
+      </>
+    ),
 
-      <Partie id="conseils">
+    'conseils': (
+      <>
         <p>
           À la fin de chaque Partie, un Conseil propose une action concrète, liée à un geste de ta Partie, de
           préférence à un Duel que tu as raté. Le jeu en compte {CONSEILS.length}, écrits par Duel Carbone : l'ADEME
@@ -335,9 +348,11 @@ export function EcranEnSavoirPlus() {
           renvoie vers une page de l'ADEME pour aller plus loin : une action de Nos Gestes Climat, ou les questions
           fréquentes d'Impact CO2. Les liens vers les actions de Nos Gestes Climat sont faits avec l'accord de l'ADEME.
         </p>
-      </Partie>
+      </>
+    ),
 
-      <Partie id="installer">
+    'installer': (
+      <>
         <p>
           Pour ne manquer aucun Duel du jour, installe Duel Carbone sur l’écran d’accueil de ton téléphone : il
           s’ouvre en un geste, en plein écran, comme une appli. Il fonctionne aussi hors ligne : une fois le jeu
@@ -345,9 +360,11 @@ export function EcranEnSavoirPlus() {
           d’applications, et toujours ni compte ni cookie.
         </p>
         <GuideInstallation />
-      </Partie>
+      </>
+    ),
 
-      <Partie id="vie-privee">
+    'vie-privee': (
+      <>
         <p>
           Sans cookie, sans compte. Ton record, ta Partie du jour (pour la reprendre ou revoir ton résultat), ta
           série, les derniers Duels joués et les derniers Conseils lus (pour ne pas te reposer les mêmes) et ton éventuel « Non merci » à
@@ -390,9 +407,11 @@ export function EcranEnSavoirPlus() {
           d'un site à l'autre, ne conserve pas ton adresse IP, et ni ton score ni tes réponses ne lui sont envoyés. Si
           ton navigateur la bloque, le jeu marche tout autant.
         </p>
-      </Partie>
+      </>
+    ),
 
-      <Partie id="empreinte">
+    'empreinte': (
+      <>
         <p>
           Ce jeu a été codé avec l'aide d'une IA, Claude (d'Anthropic) : un humain pilote et valide, l'IA écrit le code
           et l'explique. Cela consomme de l'électricité, dans les centres de données qui font tourner le modèle.
@@ -415,9 +434,11 @@ export function EcranEnSavoirPlus() {
           Cette estimation est aussi devenue un Geste du jeu, caché dans deux Duels ★. Ouvre l'œil : c'est le seul
           chiffre d'un Duel qui ne vient pas de l'ADEME.
         </p>
-      </Partie>
+      </>
+    ),
 
-      <Partie id="projet">
+    'projet': (
+      <>
         <p>
           <a href={DEPOT}>Suivre le projet sur GitHub</a> : le <a href={DEPOT}>code source du jeu</a> est public, sous
           licence MIT. Une erreur, une idée ? Écris à <a href={`mailto:${CONTACT}`}>{CONTACT}</a>, ou{' '}
@@ -427,9 +448,11 @@ export function EcranEnSavoirPlus() {
           Les icônes viennent de <a href={FLUENT_EMOJI}>Fluent Emoji</a>, de Microsoft, sous licence MIT. Quand aucune
           ne parlait assez, nous avons dessiné la nôtre dans le même style (le micro-ondes, le lave-linge…).
         </p>
-      </Partie>
+      </>
+    ),
 
-      <Partie id="mentions">
+    'mentions': (
+      <>
         <p>
           Éditeur et directeur de la publication : Fabien Lesage. Contact :{' '}
           <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.
@@ -443,15 +466,55 @@ export function EcranEnSavoirPlus() {
           Les valeurs affichées sont celles de l'ADEME pour une consommation en France, avec notamment le mix
           électrique français : les émissions d'un même Geste peuvent être différentes dans un autre pays.
         </p>
-      </Partie>
+      </>
+    ),
+
+  }
+
+  const parties = plan.map((e) => (typeof e === 'string' ? { id: e, titre: PARTIES[e], contenu: CONTENU[e] } : e))
+
+  return (
+    <article className="savoir" aria-labelledby="savoir-titre">
+      <h2 id="savoir-titre" ref={titre} tabIndex={-1}>
+        {titrePage}
+      </h2>
+      <p className="savoir__chapo">
+        {chapo ??
+          "Pourquoi ce jeu, d'où viennent ses chiffres et comment on s'en sert, ce qu'il garde de toi, et ce qu'il a coûté."}
+      </p>
+
+      {avant}
+
+      {!sansSommaire && plan.length > 0 && <nav ref={sommaire} className="savoir__sommaire" aria-labelledby="savoir-sommaire">
+        <p id="savoir-sommaire" ref={titreDuSommaire} className="savoir__sommaire-titre" tabIndex={-1}>
+          Sommaire
+        </p>
+        <ol>
+          {parties.map(({ id, titre }) => (
+            <li key={id}>
+              <a href={`#savoir-${id}`} onClick={versPartie(id)}>
+                {titre}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>}
+
+      {parties.map(({ id, titre, contenu }) => (
+        <Partie key={id} id={id} titre={titre}>
+          {contenu}
+        </Partie>
+      ))}
+
+      {apres}
 
       {/* « Retour au jeu » reste collé en bas de l'écran, comme « Duel suivant » : pas besoin de remonter. */}
       <div className="savoir__suite">
         <div className="savoir__suite-barre">
-          <a className="bouton" href={ADRESSES.jeu}>
-            ← Retour au jeu
+          <a className="bouton" href={retour.adresse}>
+            {retour.texte}
           </a>
-          {!sommaireVisible && (
+          {!sommaireVisible && !sansSommaire && plan.length > 0 && (
             <button
               type="button"
               className="bouton bouton--secondaire savoir__haut"
