@@ -116,10 +116,10 @@ describe('ce que voit chaque écran', () => {
     expect(participant(3)?.moi.place).toMatchObject({ rang: 2, exAequo: true, medaille: 'argent' })
   })
 
-  it('le téléphone sait combien de Participants sont devant et derrière lui, sans voir les autres lignes', () => {
+  it('le téléphone sait combien de Participants sont derrière lui, sans voir les autres lignes', () => {
     const { participant } = vues(avancer(avancer(enDuel)))
-    expect(participant(1)?.moi.place).toMatchObject({ rang: 1, devant: 0, derriere: 2 })
-    expect(participant(3)?.moi.place).toMatchObject({ rang: 2, devant: 1, derriere: 0 })
+    expect(participant(1)?.moi.place).toMatchObject({ rang: 1, derriere: 2 })
+    expect(participant(3)?.moi.place).toMatchObject({ rang: 2, derriere: 0 })
   })
 
   it('sans Classement, personne ne voit de rang', () => {

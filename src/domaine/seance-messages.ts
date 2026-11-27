@@ -125,8 +125,8 @@ export type VueParticipant = VueCommune & {
     score: ScoreDeSeance
     /**
      * Sa ligne du Classement, seulement aux étapes classement et fin, et si l'Animateur l'a choisi ; avec le nombre
-     * de Participants qui ont un meilleur score (`devant`) et un moins bon (`derriere`), pour la phrase du téléphone
-     * (« dernier », « top 10 » : domaine/seance-phrases.ts), sans rien dévoiler des autres.
+     * de Participants qui ont un moins bon score (`derriere`), pour la phrase du téléphone (« dernier » :
+     * domaine/seance-phrases.ts), sans rien dévoiler des autres.
      */
     place: PlaceDuParticipant | null
   }
@@ -136,7 +136,7 @@ export type VueParticipant = VueCommune & {
   repondus: number
 }
 
-export type PlaceDuParticipant = LigneDeClassement & { devant: number; derriere: number }
+export type PlaceDuParticipant = LigneDeClassement & { derriere: number }
 
 export type RefusDuServeur =
   | RefusDArrivee
@@ -165,15 +165,11 @@ const enCode = (duel: DuelDePartie) => `${duel.a.id}>${duel.b.id}`
 /** Les étapes où le Classement se montre : jamais pendant un Duel ni à sa révélation (surprise du Duel 10). */
 const classementVisible = (etat: EtatSeance) => etat.classement && (etat.etape.phase === 'classement' || etat.etape.phase === 'fin')
 
-/** La ligne d'un Participant dans le Classement, avec combien sont devant et derrière lui ; null s'il n'y figure pas. */
+/** La ligne d'un Participant dans le Classement, avec combien sont derrière lui ; null s'il n'y figure pas. */
 function placeDans(classement: LigneDeClassement[] | null, numero: number): PlaceDuParticipant | null {
   const ligne = classement?.find((l) => l.numero === numero)
   if (!classement || !ligne) return null
-  return {
-    ...ligne,
-    devant: classement.filter((l) => l.rang < ligne.rang).length,
-    derriere: classement.filter((l) => l.rang > ligne.rang).length,
-  }
+  return { ...ligne, derriere: classement.filter((l) => l.rang > ligne.rang).length }
 }
 
 /**

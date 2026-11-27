@@ -279,14 +279,14 @@ describe('le classement intermédiaire', () => {
     const memoire = creerMemoireDeSeance(stockageDeTest())
     memoire.retenirRejointe({ code: CODE, jeton: JETON, pseudo: 'Léo' })
     const srv = afficher({ memoire })
-    // Duel 1 : Camille et Inès trouvent, Léo (2) se trompe : 2e palier, sur le podium.
+    // Duel 1 : Camille et Inès trouvent, Léo (2) se trompe : 2e palier et dernier (à 3, pas de phrases de podium).
     let etat = avancer(repondre(repondre(repondre(avancer(enAttente()), 1, 0, bon(0)), 2, 0, faux(0)), 3, 0, bon(0)))
     etat = avancer(etat)
     srv.pousser(vueDe(etat, 2))
     expect(screen.getByRole('heading', { name: 'Classement après le Duel 1' })).toBeInTheDocument()
     expect(screen.getByText('2e sur 3')).toBeInTheDocument()
     expect(screen.getByText(/le Duel 2 arrive/)).toBeInTheDocument()
-    expect(screen.getByText('Premier Duel, et déjà sur le podium !')).toBeInTheDocument()
+    expect(screen.getByText(PHRASES_DE_PLACE.dernier[0])).toBeInTheDocument()
 
     // Duel 2 : Léo seul trouve ; tous à 1 bonne réponse, en tête ex aequo, Léo remonte d'une place.
     etat = avancer(repondre(avancer(etat), 2, 1, bon(1)))

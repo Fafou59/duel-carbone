@@ -273,7 +273,7 @@ export function TelephoneParticipant({
   } else if (vue.etape.phase === 'classement') {
     const index = vue.etape.index
     // La phrase de ce classement-là, selon la place : une par classement, jamais deux fois la même.
-    const phrase = vue.moi.place ? phraseDePlace(categorieDePlace(vue.moi.place), index) : null
+    const phrase = vue.moi.place ? phraseDePlace(categorieDePlace({ ...vue.moi.place, participants: vue.participants }), index) : null
     contenu = <ClassementIntermediaire vue={vue} index={index} phrase={phrase} refTitre={retenirTitre} />
   } else {
     contenu = <FinDeSeance vue={vue} duels={duels} refTitre={retenirTitre} />

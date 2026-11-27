@@ -5,8 +5,8 @@
  *
  * Pas de hasard : la phrase dépend de la catégorie de place et du moment de la Séance. Chaque classement a ainsi sa
  * phrase à lui, écrite pour son moment (le tout début, l'arrivée des Duels moyens puis difficiles, le Duel ultime
- * qui reste), et un Participant ne lit jamais deux fois la même, même s'il reste toute la Séance dans la même
- * catégorie.
+ * qui reste), et un Participant ne lit jamais deux fois la même : deux classements n'ont jamais la même phrase (deux
+ * catégories peuvent partager une phrase au même classement, puisque chacun n'en lit qu'une).
  *
  * Les phrases tutoient, ne disent rien qu'on ne sache (ni écart de points, ni nombre de joueurs) et s'écrivent sans
  * accord de genre (« en tête », pas « seul » ni « bien placée ») : on ne sait rien du Participant. Elles suivent les
@@ -14,24 +14,32 @@
  */
 import { NOMBRE_DE_DUELS } from './partie.ts'
 
-export type CategorieDePlace = 'seul-en-tete' | 'en-tete-a-egalite' | 'podium' | 'top-10' | 'milieu' | 'dernier'
+export type CategorieDePlace = 'seul-en-tete' | 'en-tete-a-egalite' | 'podium' | 'milieu' | 'dernier'
 
 /**
- * Où se trouve le Participant au Classement : sa place par palier de score (`rang`, ex aequo compris), et combien
- * de Participants ont un meilleur score (`devant`) ou un moins bon (`derriere`).
+ * Où se trouve le Participant au Classement : sa place par palier de score (`rang`, ex aequo compris), combien de
+ * Participants ont un moins bon score (`derriere`), et combien sont dans la Séance (`participants`).
  */
-export type PlaceAuClassement = { rang: number; exAequo: boolean; devant: number; derriere: number }
+export type PlaceAuClassement = { rang: number; exAequo: boolean; derriere: number; participants: number }
 
 /**
- * La catégorie d'une place. Le podium (les trois premiers paliers, ceux des médailles) passe avant « dernier » :
- * dans une petite salle, le deuxième palier peut être le dernier, et il mérite alors sa médaille d'argent.
- * Le top 10 compte les Participants devant soi, comme les 10 lignes de l'écran projeté.
+ * Les phrases du podium ne parlent que dans une salle plus grande que le podium : à 3, tout le monde y serait, et la
+ * phrase ne voudrait plus rien dire.
  */
-export function categorieDePlace({ rang, exAequo, devant, derriere }: PlaceAuClassement): CategorieDePlace {
+export const PARTICIPANTS_MIN_POUR_LE_PODIUM = 4
+
+/**
+ * La catégorie d'une place, dans cet ordre (PRD) :
+ * - en tête (1er palier), seul ou à égalité ;
+ * - dernier (dernier palier, ex aequo compris), avant le podium : dans une petite salle, le dernier palier peut être
+ *   le 2e ou le 3e, et ses phrases d'encouragement lui vont mieux ;
+ * - podium (2e et 3e paliers), à partir de 4 Participants ;
+ * - milieu, tous les autres.
+ */
+export function categorieDePlace({ rang, exAequo, derriere, participants }: PlaceAuClassement): CategorieDePlace {
   if (rang === 1) return exAequo ? 'en-tete-a-egalite' : 'seul-en-tete'
-  if (rang <= 3) return 'podium'
   if (derriere === 0) return 'dernier'
-  if (devant < 10) return 'top-10'
+  if (rang <= 3 && participants >= PARTICIPANTS_MIN_POUR_LE_PODIUM) return 'podium'
   return 'milieu'
 }
 
@@ -73,17 +81,6 @@ export const PHRASES_DE_PLACE: Record<CategorieDePlace, readonly string[]> = {
     'Plus que deux Duels : ta médaille est en jeu !',
     'Sur le podium avant le Duel ultime : tiens bon !',
   ],
-  'top-10': [
-    'Premier Duel, et déjà dans le top 10 !',
-    'Top 10 ! Le podium te tend les bras.',
-    'Top 10 après les Duels faciles : les moyens peuvent te faire grimper.',
-    'Dans le top 10 : le podium est à portée de quelques bonnes réponses.',
-    'Top 10 à mi-parcours. Continue comme ça !',
-    'Les Duels difficiles arrivent : de quoi grimper vers le podium.',
-    'Toujours dans le top 10. Le podium te regarde !',
-    'Plus que deux Duels : une médaille est encore possible !',
-    'Top 10 avant le Duel ultime : il peut encore tout changer !',
-  ],
   milieu: [
     'Ce n’est que le premier Duel : tout reste à jouer !',
     'Les chiffres surprennent tout le monde : accroche-toi !',
@@ -96,7 +93,7 @@ export const PHRASES_DE_PLACE: Record<CategorieDePlace, readonly string[]> = {
     'Le Duel ultime peut encore te faire gagner des places !',
   ],
   dernier: [
-    'Ce n’est que le premier Duel : la Séance ne fait que commencer !',
+    'Ce n’est que le premier Duel : tout reste à jouer !',
     'Pas de panique : tout peut encore changer.',
     'Les ordres de grandeur, ça s’apprivoise : place aux Duels moyens.',
     'C’est en se trompant qu’on retient le mieux les ordres de grandeur.',
