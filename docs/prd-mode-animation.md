@@ -87,17 +87,20 @@ L'écran de jeu actuel, avec ces ajustements :
 - **Messages** : l'état complet de la Séance est renvoyé à chaque connexion ; ensuite, une étape à la fois.
 
 ### Événements de mesure d'audience
-- `seance/creee` à la création ;
-- `seance/rejointe` une fois par Participant (pas à chaque reconnexion) ;
-- `seance/terminee/<nombre de Participants>`, nombre exact (100 au plus) ;
-- `?ref=seance` sur « Jouer le Duel du jour » : GoatCounter range ces arrivées sous la provenance `seance` ;
-- `conseil/lien` sur le téléphone, comme en fin de Partie.
+Construits au lot 4 (`src/navigateur/mesure.ts`), envoyés comme les autres à GoatCounter, sur l'adresse publique seulement ; aucun ne porte le code de la Séance ni un pseudo.
+- `seance/creee` part de l'ordinateur de l'Animateur quand le serveur a créé la Séance (pas si la création échoue) ; « Rejouer une nouvelle Séance » en crée une autre, comptée elle aussi.
+- `seance/rejointe` part du téléphone à la première vue que le serveur lui envoie après « Rejoindre » : c'est elle qui dit que la Séance l'a accepté. Un refus (Séance pleine, pseudo refusé) n'est pas compté, ni une reconnexion (veille, page rechargée), qui ne repasse pas par « Rejoindre ». Un Participant retiré qui revient sous un autre pseudo est compté une seconde fois.
+- `seance/terminee/<nombre de Participants>` part de l'ordinateur de l'Animateur au clic qui ouvre le classement final (ou les résultats), une seule fois, avec le nombre exact de Participants encore dans la Séance (100 au plus : assez peu de valeurs pour les garder toutes). Réafficher l'écran de fin ne recompte rien. Rapporté à `seance/creee`, il dit combien de Séances vont au bout.
+- `?ref=seance` sur « Jouer le Duel du jour », à la fin de la Séance sur le téléphone : GoatCounter range ces arrivées sous la provenance `seance`, puis le jeu efface `?ref=…` de l'adresse, comme pour le QR code de l'accueil.
+- `conseil/lien` sur le téléphone, comme en fin de Partie (et depuis l'écran projeté, si l'Animateur suit le lien).
+
+La page **Mentions légales et vie privée** (`#mentions-legales`) explique la Séance juste après « Ta vie privée » : le jeton tiré par le téléphone, le pseudo et les réponses gardés par le serveur, la fermeture à 3 h et l'effacement à 24 h, le responsable (l'éditeur) et l'absence de bandeau. La page **En savoir plus** présente le Mode animation (« Jouer à plusieurs »).
 
 ## 8. Stratégie de test
 
 - **Vitest** sur le domaine de la Séance : étapes et transitions, fermeture des réponses à la révélation, score avec arrivée en cours, rang par palier et médailles, phrases (une par classement et par catégorie, toutes différentes), choix du Conseil.
 - **Le Durable Object** avec `@cloudflare/vitest-plugin`, dans une configuration à part : création, connexion, reconnexion avec le jeton, commandes réservées au jeton d'Animateur, minimum de 2 et limite de 100 Participants, fermeture à 3 h, effacement par l'alarme, paires vérifiées.
-- **Playwright** : une Séance entière au clavier, un onglet Animateur et deux onglets Participants (dont un qui se reconnecte), axe-core sur chaque écran, clair et sombre, zoom 200 %, animations réduites.
+- **Playwright** (`e2e/seance.spec.ts`, lot 4) : une Séance entière au clavier, un onglet Animateur (1280×720) et deux téléphones (375×812), dont un qui se reconnecte en plein Duel (onglet fermé puis rouvert sur l'adresse du QR code), axe-core sur chaque écran, clair et sombre. La Séance y vit dans son vrai Durable Object : `playwright.config.ts` lance un second serveur, `wrangler dev` (moteur local, base D1 locale, `SEANCE_SANS_JURIDICTION=oui`), qui sert le site construit avec le Worker. Le zoom à 200 % et les animations réduites de l'écran projeté restent à vérifier (l'écran est pensé pour un projecteur en 16:9).
 
 ## 9. Hors périmètre (lot futur)
 
@@ -108,4 +111,4 @@ Mort subite entre ex aequo, filtre automatique des pseudos en français, télép
 1. **Le serveur de la Séance** : Durable Object, routes `/api/seance/*`, domaine partagé, tests ; vérification de la juridiction `eu` sur un aperçu.
 2. **L'écran de l'Animateur** : lien discret de l'accueil, page d'explication, création, tous les écrans projetés, « Rejouer ».
 3. **Le téléphone du Participant** : rejoindre, attente, Duel, révélation, classement intermédiaire, fin, Récapitulatif, reconnexion, phrases.
-4. **Mesure, Vie privée et En savoir plus**, `CLAUDE.md`, tests de bout en bout de la Séance entière.
+4. **Mesure, Vie privée et En savoir plus**, `CLAUDE.md`, tests de bout en bout de la Séance entière (issue 137 ; la vie privée est dans la page Mentions légales et vie privée de l'issue 142).

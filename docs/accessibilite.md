@@ -9,10 +9,10 @@ Référence : les règles WCAG 2.2, niveaux A et AA (la norme internationale, re
 
 | Exigence | Comment | État |
 |---|---|---|
-| Jeu entièrement au clavier | Le Duel du jour et une Partie libre joués de bout en bout avec Tab, 1, 2, Entrée et Échap (`e2e/partie-au-clavier.spec.ts`) | ✓ |
+| Jeu entièrement au clavier | Le Duel du jour et une Partie libre joués de bout en bout avec Tab, 1, 2, Entrée et Échap (`e2e/partie-au-clavier.spec.ts`) ; une Séance du Mode animation entière, Espace sur l'écran projeté, 1 et 2 sur les téléphones (`e2e/seance.spec.ts`) | ✓ |
 | Focus visible | À chaque appui sur Tab, l'élément atteint doit montrer un contour | ✓ |
 | Le focus va au bon endroit | Sur la position (« Duel 3/10 ») à chaque Duel, sur l'explication après le choix, sur le titre à la fin, sur la case du Récapitulatif après la fermeture de son détail | ✓ |
-| Contrastes, noms des boutons, tableaux, rôles ARIA | Analyse axe-core de chaque écran (accueil, tutoriel, En savoir plus, Mentions légales et vie privée, Duel, réponse, fin, détail d'un Duel, tableau de bord du jour), en mode clair et en mode sombre (`e2e/accessibilite.spec.ts`) | ✓ |
+| Contrastes, noms des boutons, tableaux, rôles ARIA | Analyse axe-core de chaque écran (accueil, tutoriel, En savoir plus, Mentions légales et vie privée, Duel, réponse, fin, détail d'un Duel, tableau de bord du jour), en mode clair et en mode sombre (`e2e/accessibilite.spec.ts`) ; de même chaque écran d'une Séance du Mode animation, sur l'écran projeté et sur le téléphone (`e2e/seance.spec.ts`) | ✓ |
 | Zoom à 200 % | Chaque écran à 320 px de large (un écran de 640 px zoomé à 200 %) : rien ne déborde sur le côté | ✓ |
 | Réglage « réduire les animations » | Plus aucune animation en cours sur l'accueil ni pendant un Duel, pas de confettis | ✓ |
 | Arrêter ce qui défile | Un clic sur la vitrine met ses rubans en pause ; Entrée les relance | ✓ |
