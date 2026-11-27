@@ -82,6 +82,8 @@ export const REGLES = {
    * hors de l'empreinte du tirage (equilibrage.ts) : ces limites ne changent rien aux Duels tirés.
    */
   seance: {
+    /** Une Séance ne se lance qu'à partir de 2 Participants : seul, autant jouer une Partie. */
+    participantsMin: 2,
     /** Au-delà, la salle est pleine : personne d'autre ne peut rejoindre la Séance. */
     participantsMax: 100,
     /** Un pseudo tient en 20 caractères au plus (il n'existe que si l'Animateur a choisi un Classement). */

@@ -19,6 +19,7 @@ import {
   normaliserCode,
   normaliserPseudo,
   partDeLaSalle,
+  participantsManquants,
   reponsesPourLeTauxDErreur,
   repondre,
   retirerParticipant,
@@ -91,7 +92,7 @@ describe('le code d’une Séance', () => {
 
 describe('les étapes d’une Séance', () => {
   it('vont de l’attente à la fin, avec un classement après les Duels 1 à 9 seulement', () => {
-    let etat = creerSeance({ classement: true, duels: DUELS })
+    let etat = avecParticipants(creerSeance({ classement: true, duels: DUELS }), 'Camille', 'Léo')
     const etapes = [etat.etape]
     while (etapeSuivante(etat)) {
       etat = avancer(etat)
@@ -110,7 +111,7 @@ describe('les étapes d’une Séance', () => {
   })
 
   it('sautent le classement quand l’Animateur n’en a pas choisi', () => {
-    let etat = creerSeance({ classement: false, duels: DUELS })
+    let etat = avecParticipants(creerSeance({ classement: false, duels: DUELS }), 'A', 'B')
     const phases: string[] = []
     while (etapeSuivante(etat)) {
       etat = avancer(etat)
@@ -121,7 +122,7 @@ describe('les étapes d’une Séance', () => {
   })
 
   it('ne bougent pas si l’Animateur appuie deux fois depuis la même étape', () => {
-    const lance = avancer(creerSeance({ classement: true, duels: DUELS }))
+    const lance = avancer(avecParticipants(creerSeance({ classement: true, duels: DUELS }), 'Camille', 'Léo'))
     const revele = avancerSeance(lance, { phase: 'duel', index: 0 })
     expect(revele.etape).toEqual({ phase: 'revelation', index: 0 })
     // Le même appui, renvoyé après une coupure : la Séance est déjà plus loin, rien ne bouge.
@@ -129,11 +130,30 @@ describe('les étapes d’une Séance', () => {
   })
 
   it('retiennent le Conseil au passage à la fin, et seulement là', () => {
-    const debut = avancer(creerSeance({ classement: false, duels: DUELS }), 'velo')
+    const debut = avancer(avecParticipants(creerSeance({ classement: false, duels: DUELS }), 'A', 'B'), 'velo')
     expect(debut.conseil).toBeNull()
     const derniere = jusqua(debut, 'revelation', 9)
     expect(avancer(derniere, 'velo').conseil).toBe('velo')
     expect(avancer(avancer(derniere, 'velo'), 'autre')).toEqual(avancer(derniere, 'velo'))
+  })
+
+  it('ne lancent le premier Duel qu’à partir de 2 Participants', () => {
+    expect(REGLES.seance.participantsMin).toBe(2)
+    const vide = creerSeance({ classement: true, duels: DUELS })
+    expect(participantsManquants(vide.participants.length)).toBe(2)
+    expect(avancer(vide)).toBe(vide)
+    const seul = avecParticipants(vide, 'Camille')
+    expect(participantsManquants(seul.participants.length)).toBe(1)
+    expect(avancer(seul)).toBe(seul)
+    const deux = avecParticipants(seul, 'Léo')
+    expect(participantsManquants(deux.participants.length)).toBe(0)
+    expect(avancer(deux).etape).toEqual({ phase: 'duel', index: 0 })
+  })
+
+  it('continuent même s’il ne reste qu’un Participant (ou aucun) une fois lancées', () => {
+    const lancee = avancer(avecParticipants(creerSeance({ classement: true, duels: DUELS }), 'Camille', 'Léo'))
+    const seule = retirerParticipant(retirerParticipant(lancee, 1), 2)
+    expect(avancer(seule).etape).toEqual({ phase: 'revelation', index: 0 })
   })
 
   it('exigent 10 Duels', () => {
@@ -174,7 +194,7 @@ describe('les Participants', () => {
   })
 
   it('peuvent arriver en cours, jusqu’à la fin', () => {
-    const seance = creerSeance({ classement: true, duels: DUELS })
+    const seance = avecParticipants(creerSeance({ classement: true, duels: DUELS }), 'Camille', 'Léo')
     const premier = (etat: EtatSeance) => {
       const arrivee = ajouterParticipant(etat, 'Retard')
       return 'participant' in arrivee ? arrivee.participant.premierDuel : arrivee.refus
@@ -220,7 +240,7 @@ describe('les réponses', () => {
 
 describe('le score', () => {
   it('compte les bonnes réponses des seuls Duels révélés', () => {
-    let etat = jusqua(avecParticipants(creerSeance({ classement: true, duels: DUELS }), 'Camille'), 'duel', 0)
+    let etat = jusqua(avecParticipants(creerSeance({ classement: true, duels: DUELS }), 'Camille', 'Léo'), 'duel', 0)
     etat = repondre(etat, 1, 0, bon(0))
     const camille = etat.participants[0]
     // Avant la révélation, la bonne réponse ne compte pas encore (et ne se devine pas au score).
@@ -230,18 +250,18 @@ describe('le score', () => {
   })
 
   it('ne compte, pour un Participant arrivé en cours, que les Duels joués', () => {
-    let etat = jusqua(avecParticipants(creerSeance({ classement: true, duels: DUELS }), 'Camille'), 'revelation', 2)
+    let etat = jusqua(avecParticipants(creerSeance({ classement: true, duels: DUELS }), 'Camille', 'Léo'), 'revelation', 2)
     etat = avecParticipants(etat, 'Retard')
     etat = jusqua(etat, 'duel', 3)
-    etat = repondre(repondre(etat, 1, 3, bon(3)), 2, 3, bon(3))
+    etat = repondre(repondre(etat, 1, 3, bon(3)), 3, 3, bon(3))
     etat = avancer(etat)
-    const [camille, retard] = etat.participants
+    const [camille, , retard] = etat.participants
     expect(scoreDuParticipant(etat, camille)).toEqual({ bonnes: 1, joues: 4 })
     expect(scoreDuParticipant(etat, retard)).toEqual({ bonnes: 1, joues: 1 })
   })
 
   it('ne donne rien à qui n’a pas répondu', () => {
-    const etat = avancer(jusqua(avecParticipants(creerSeance({ classement: true, duels: DUELS }), 'Camille'), 'duel', 0))
+    const etat = avancer(jusqua(avecParticipants(creerSeance({ classement: true, duels: DUELS }), 'Camille', 'Léo'), 'duel', 0))
     expect(scoreDuParticipant(etat, etat.participants[0])).toEqual({ bonnes: 0, joues: 1 })
     expect(duelsReveles(etat)).toBe(1)
   })
@@ -311,7 +331,7 @@ describe('le Classement', () => {
   })
 
   it('fait figurer un Participant arrivé en cours, sans évolution la première fois', () => {
-    let etat = jusqua(avecParticipants(creerSeance({ classement: true, duels: DUELS }), 'Camille'), 'classement', 1)
+    let etat = jusqua(avecParticipants(creerSeance({ classement: true, duels: DUELS }), 'Camille', 'Léo'), 'classement', 1)
     etat = avecParticipants(etat, 'Retard')
     expect(classementDeLaSeance(etat).find((l) => l.pseudo === 'Retard')).toMatchObject({ bonnes: 0, joues: 0, evolution: null })
     etat = avancer(avancer(etat))
@@ -321,7 +341,8 @@ describe('le Classement', () => {
 
 describe('la salle', () => {
   function revelee(choix: string[]): EtatSeance {
-    const pseudos = choix.map((_, i) => `P${i}`)
+    // Au moins 2 Participants pour lancer la Séance ; les autres ne répondent pas.
+    const pseudos = Array.from({ length: Math.max(choix.length, REGLES.seance.participantsMin) }, (_, i) => `P${i}`)
     let etat = jusqua(avecParticipants(creerSeance({ classement: false, duels: DUELS }), ...pseudos), 'duel', 0)
     choix.forEach((id, i) => {
       etat = repondre(etat, i + 1, 0, id)

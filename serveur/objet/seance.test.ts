@@ -184,6 +184,8 @@ describe('les connexions', () => {
     await ecran.etat()
     const camille = await participant(code, 'Camille')
     await camille.etat()
+    // Il faut 2 Participants pour lancer la Séance.
+    await (await participant(code, 'Léo')).etat()
     ecran.envoyer({ type: 'avancer', depuis: { phase: 'attente' } })
     await dernierEtat<VueParticipant>(camille, (v) => v.etape.phase === 'duel')
     camille.envoyer({ type: 'repondre', duel: 0, idChoisi: bon(0) })
@@ -240,10 +242,28 @@ describe('le déroulé', () => {
     expect(apres).toEqual({ reponses: ((avant?.reponses as number) ?? 0) + 2, fausses: ((avant?.fausses as number) ?? 0) + 1 })
   })
 
+  it('ne lance pas le premier Duel avant 2 Participants', async () => {
+    const { code, jetonAnimateur } = await creerUneSeance()
+    const ecran = await animateur(code, jetonAnimateur)
+    await ecran.etat()
+    const camille = await participant(code, 'Camille')
+    await camille.etat()
+    await dernierEtat<VueAnimateur>(ecran, (v) => v.participants.length === 1)
+    ecran.envoyer({ type: 'avancer', depuis: { phase: 'attente' } })
+    // Refusé sans bruit : l'Animateur reçoit la Séance telle quelle, toujours en attente.
+    expect((await ecran.etat<VueAnimateur>()).etape).toEqual({ phase: 'attente' })
+    await (await participant(code, 'Léo')).etat()
+    await dernierEtat<VueAnimateur>(ecran, (v) => v.participants.length === 2)
+    ecran.envoyer({ type: 'avancer', depuis: { phase: 'attente' } })
+    await dernierEtat<VueAnimateur>(ecran, (v) => v.etape.phase === 'duel')
+  })
+
   it('ne bouge pas quand l’Animateur appuie deux fois depuis la même étape', async () => {
     const { code, jetonAnimateur } = await creerUneSeance(false)
     const ecran = await animateur(code, jetonAnimateur)
     await ecran.etat()
+    await (await participant(code, null)).etat()
+    await (await participant(code, null)).etat()
     ecran.envoyer({ type: 'avancer', depuis: { phase: 'attente' } })
     ecran.envoyer({ type: 'avancer', depuis: { phase: 'attente' } })
     await dernierEtat<VueAnimateur>(ecran, (v) => v.etape.phase === 'duel')
@@ -257,6 +277,9 @@ describe('le déroulé', () => {
     let vue = await ecran.etat<VueAnimateur>()
     const camille = await participant(code, 'Camille')
     await camille.etat()
+    // Léo est là, mais ne répond jamais.
+    await (await participant(code, 'Léo')).etat()
+    vue = await dernierEtat<VueAnimateur>(ecran, (v) => v.participants.length === 2)
     while (vue.etape.phase !== 'fin') {
       const depuis = vue.etape
       if (depuis.phase === 'duel') camille.envoyer({ type: 'repondre', duel: depuis.index, idChoisi: bon(depuis.index) })
@@ -265,6 +288,7 @@ describe('le déroulé', () => {
     }
     expect(vue.classement).toEqual([
       expect.objectContaining({ numero: 1, pseudo: 'Camille', bonnes: 10, joues: 10, rang: 1, medaille: 'or' }),
+      expect.objectContaining({ numero: 2, pseudo: 'Léo', bonnes: 0, joues: 10, rang: 2, medaille: 'argent' }),
     ])
     // Un Conseil inconnu n'est pas retenu.
     expect(vue.conseil).toBeNull()

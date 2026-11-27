@@ -123,7 +123,7 @@ describe('ce que voit chaque écran', () => {
   })
 
   it('sans Classement, personne ne voit de rang', () => {
-    let etat = avancer(arrivee(creerSeance({ classement: false, duels: DUELS }), 'ignoré'))
+    let etat = avancer(arrivee(arrivee(creerSeance({ classement: false, duels: DUELS }), 'ignoré'), 'ignoré aussi'))
     etat = avancer(repondre(etat, 1, 0, bon))
     expect(etat.etape).toEqual({ phase: 'revelation', index: 0 })
     etat = avancer(etat)
