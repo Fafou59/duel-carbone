@@ -19,7 +19,8 @@ import { formaterEmpreinte, formaterMultiple, formaterRapport, queDevant } from 
 import type { GesteCalcule } from '../../domaine/geste.ts'
 import type { DuelDePartie } from '../../domaine/partie.ts'
 import { enPourcent, pourcent } from '../../domaine/rang-du-jour.ts'
-import { duelsRatesDeLaSalle, type Etape, type LigneDeClassement, type PartDeLaSalle } from '../../domaine/seance.ts'
+import { REGLES } from '../../domaine/regles.ts'
+import { duelsRatesDeLaSalle, participantsManquants, type Etape, type LigneDeClassement, type PartDeLaSalle } from '../../domaine/seance.ts'
 import type { MessageDuServeur, VueAnimateur } from '../../domaine/seance-messages.ts'
 import { CONSEILS } from '../../donnees/conseils.ts'
 import { DUELS_THEMATIQUES } from '../../donnees/duels-thematiques.ts'
@@ -118,11 +119,13 @@ export function EcranSeance({ code, jeton, serveur, memoire, onNouvelle, onAband
   }, [conseilMontre, memoire])
 
   const pret = vue !== null && duels !== null && connexion === 'connecte'
+  // Le premier Duel ne se lance qu'à partir de 2 Participants (le serveur refuserait de toute façon).
+  const manquants = vue?.etape.phase === 'attente' ? participantsManquants(vue.participants.length) : 0
 
   const actionPrincipale = () => {
     if (!vue || !duels) return
     if (vue.fermee || vue.etape.phase === 'fin') return onNouvelle()
-    if (connexion !== 'connecte') return
+    if (connexion !== 'connecte' || manquants > 0) return
     const versLaFin = vue.etape.phase === 'revelation' && vue.etape.index === duels.length - 1
     const conseil = versLaFin ? choisirLeConseil(duels, vue.salle, memoire.conseilsRecents()) : null
     envoyer.current({ type: 'avancer', depuis: vue.etape, conseil })
@@ -183,7 +186,8 @@ export function EcranSeance({ code, jeton, serveur, memoire, onNouvelle, onAband
       type="button"
       className="an-bouton"
       onClick={actionPrincipale}
-      disabled={!pret && !vue.fermee && vue.etape.phase !== 'fin'}
+      disabled={(!pret || manquants > 0) && !vue.fermee && vue.etape.phase !== 'fin'}
+      aria-describedby={manquants > 0 ? 'an-minimum' : undefined}
     >
       {libelleDuBouton(vue)} <kbd>Espace</kbd>
     </button>
@@ -318,6 +322,11 @@ function Attente({ vue, code, bouton, retirer, onAbandon }: PropsCommunes & { on
         <p className="an-attente__compte" aria-live="polite">
           <strong>{nombre}</strong> Participant{nombre > 1 ? 's' : ''}
         </p>
+        {participantsManquants(nombre) > 0 && (
+          <p id="an-minimum" className="an-attente__minimum">
+            Il faut au moins {REGLES.seance.participantsMin} Participants pour lancer le premier Duel.
+          </p>
+        )}
         {vue.avecClassement && (
           <ul className="an-pseudos" aria-label="Participants">
             {vue.participants.map((p) => p.pseudo && <Pseudo key={p.numero} numero={p.numero} pseudo={p.pseudo} retirer={retirer} />)}

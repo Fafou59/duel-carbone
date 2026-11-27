@@ -50,7 +50,7 @@ Un **Mode animation**, inspiré des quiz en direct : l'Animateur projette une **
 | Conseil | Choisi par l'ordinateur de l'Animateur : le premier Conseil lié au Duel le plus raté par la salle, puis au suivant, en écartant ses 10 derniers Conseils montrés (`choisirConseil`). Le même sur l'écran projeté et les téléphones. |
 | Taux d'erreur | Les réponses d'une Séance comptent dans le Taux d'erreur de leur paire (ADR 0006). L'écran ne montre que la salle. |
 | Pseudo | 20 caractères au plus, sans filtre automatique. **Retirer un pseudo retire le Participant** de la Séance, avec ses réponses : son téléphone est déconnecté et son jeton oublié ; il peut revenir sous un autre pseudo (décidé au lot 1). |
-| Limites | 100 Participants par Séance ; fermeture 3 h après la création ; tout effacé sous 24 h (ADR 0007). |
+| Limites | De 2 à 100 Participants par Séance (le premier Duel ne se lance qu'à partir de 2 ; une fois lancée, la Séance continue même si des Participants sont retirés) ; fermeture 3 h après la création ; tout effacé sous 24 h (ADR 0007). |
 | Rien d'autre ne bouge | Une Séance ne compte ni pour la Série, ni pour le record de la Partie libre, ni pour la Partie du jour. |
 
 ## 6. Écrans (validés par prototype)
@@ -96,7 +96,7 @@ L'écran de jeu actuel, avec ces ajustements :
 ## 8. Stratégie de test
 
 - **Vitest** sur le domaine de la Séance : étapes et transitions, fermeture des réponses à la révélation, score avec arrivée en cours, rang par palier et médailles, phrases (une par classement et par catégorie, toutes différentes), choix du Conseil.
-- **Le Durable Object** avec `@cloudflare/vitest-plugin`, dans une configuration à part : création, connexion, reconnexion avec le jeton, commandes réservées au jeton d'Animateur, limite de 100 Participants, fermeture à 3 h, effacement par l'alarme, paires vérifiées.
+- **Le Durable Object** avec `@cloudflare/vitest-plugin`, dans une configuration à part : création, connexion, reconnexion avec le jeton, commandes réservées au jeton d'Animateur, minimum de 2 et limite de 100 Participants, fermeture à 3 h, effacement par l'alarme, paires vérifiées.
 - **Playwright** : une Séance entière au clavier, un onglet Animateur et deux onglets Participants (dont un qui se reconnecte), axe-core sur chaque écran, clair et sombre, zoom 200 %, animations réduites.
 
 ## 9. Hors périmètre (lot futur)

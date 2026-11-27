@@ -137,6 +137,23 @@ describe('l’écran projeté de la Séance', () => {
     expect(screen.getByRole('button', { name: /Lancer le premier Duel/ })).toBeInTheDocument()
   })
 
+  it('ne lance pas le premier Duel avant 2 Participants, et dit pourquoi', async () => {
+    const { montrer, commandes } = await lancer()
+    const seul = ajouterParticipant(creerSeance({ classement: true, duels: DUELS }), 'Camille')
+    if (!('etat' in seul)) throw new Error('Camille refusée')
+    montrer(seul.etat)
+    const bouton = screen.getByRole('button', { name: /Lancer le premier Duel/ })
+    expect(bouton).toBeDisabled()
+    expect(bouton).toHaveAccessibleDescription('Il faut au moins 2 Participants pour lancer le premier Duel.')
+    const avant = commandes.length
+    espace()
+    expect(commandes).toHaveLength(avant)
+
+    montrer(salle())
+    expect(screen.getByRole('button', { name: /Lancer le premier Duel/ })).toBeEnabled()
+    expect(screen.queryByText(/Il faut au moins 2 Participants/)).not.toBeInTheDocument()
+  })
+
   it('pendant un Duel, montre qui a répondu sans dire ce qu’ils ont choisi ; à la révélation, la part de la salle', async () => {
     const { montrer } = await lancer()
     let etat = avancer(salle())

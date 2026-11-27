@@ -110,13 +110,19 @@ export function etapeSuivante(etat: EtatSeance): Etape | null {
   }
 }
 
+/** Combien de Participants manquent encore pour lancer le premier Duel (0 : la Séance peut commencer). */
+export const participantsManquants = (nombreDeParticipants: number): number =>
+  Math.max(0, REGLES.seance.participantsMin - nombreDeParticipants)
+
 /**
  * L'Animateur passe à l'étape suivante. `depuis` est l'étape qu'il voyait en appuyant : si la Séance a déjà avancé
  * (double appui, message renvoyé après une coupure), rien ne bouge. `conseil` n'est retenu qu'au passage à la fin.
+ * Le premier Duel ne se lance qu'avec assez de Participants (REGLES.seance.participantsMin).
  */
 export function avancerSeance(etat: EtatSeance, depuis: Etape, conseil: string | null = null): EtatSeance {
   const suivante = etapeSuivante(etat)
   if (!suivante || !memeEtape(etat.etape, depuis)) return etat
+  if (etat.etape.phase === 'attente' && participantsManquants(etat.participants.length) > 0) return etat
   return { ...etat, etape: suivante, ...(suivante.phase === 'fin' ? { conseil } : {}) }
 }
 
