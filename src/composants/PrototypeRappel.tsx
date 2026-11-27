@@ -6,7 +6,7 @@
 import { useEffect, useState } from 'react'
 
 const estInstalle = () =>
-  window.matchMedia('(display-mode: standalone)').matches || (navigator as { standalone?: boolean }).standalone === true
+  window.matchMedia?.('(display-mode: standalone)').matches || (navigator as { standalone?: boolean }).standalone === true
 
 const pushPossible = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window
 
