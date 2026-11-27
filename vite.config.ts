@@ -44,6 +44,8 @@ export default defineConfig({
         navigateFallbackDenylist: [/\/[^/]+\.[^/]+$/, /^\/api\//],
         // Les copies d'une ancienne version sont effacées dès que la nouvelle prend la main.
         cleanupOutdatedCaches: true,
+        // PROTOTYPE (ticket 144) : la réception du Rappel du matin (push) et le clic sur la notification.
+        importScripts: ['/rappel-sw.js'],
       },
     }),
   ],

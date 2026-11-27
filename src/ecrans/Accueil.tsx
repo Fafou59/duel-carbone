@@ -3,6 +3,7 @@ import { Co2e } from '../composants/Co2e.tsx'
 import { RangDuJour } from '../composants/RangDuJour.tsx'
 import { CompteARebours } from '../composants/CompteARebours.tsx'
 import { Vitrine } from '../composants/Vitrine.tsx'
+import { PrototypeRappel } from '../composants/PrototypeRappel.tsx'
 import { REPERES_CLIMAT } from '../donnees/index.ts'
 import { formaterEmpreinte } from '../domaine/format.ts'
 import { texteDePartageDuJour } from '../domaine/partage.ts'
@@ -262,5 +263,11 @@ function TableauDeBord(props: PropsAccueil) {
  */
 export function Accueil(props: PropsAccueil) {
   const revient = props.situation === 'aujourdhui' || props.situation === 'hier' || (props.situation === 'enCours' && props.serie > 0)
-  return revient ? <TableauDeBord {...props} /> : <AccueilNouveau {...props} />
+  return (
+    <>
+      {revient ? <TableauDeBord {...props} /> : <AccueilNouveau {...props} />}
+      {/* PROTOTYPE (ticket 144) : le panneau d'essai du Rappel du matin. */}
+      <PrototypeRappel />
+    </>
+  )
 }
