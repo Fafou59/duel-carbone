@@ -363,6 +363,10 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
           · <a href={ADRESSES.enSavoirPlus}>En savoir plus</a> · <a href={IMPACT_CO2_DOC}>Chiffres de l’ADEME</a>, sans cookie
           ni compte
         </p>
+        {/* Le Mode animation : faire jouer une salle en direct (atelier, réunion). Discret : peu de joueurs en ont besoin. */}
+        <p>
+          <a href={ADRESSES.animer}>Animer une Séance</a> : faire jouer une salle sur ses téléphones
+        </p>
       </footer>
       <Tutoriel ouvert={tutoriel} onFermer={() => setTutoriel(false)} onJouer={lancerPartieDuJour} />
     </div>

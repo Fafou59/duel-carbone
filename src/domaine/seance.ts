@@ -284,17 +284,26 @@ export function partDeLaSalle(etat: EtatSeance, duel: number): PartDeLaSalle {
 }
 
 /**
- * Les Duels révélés qui ont le plus trompé la salle (tableau du classement final, choix du Conseil) : du plus raté
- * au moins raté, sans ceux où personne ne s'est trompé. `fausses` : la part de réponses fausses, en pour cent.
+ * Les Duels qui ont le plus trompé la salle (tableau du classement final, choix du Conseil), d'après ses réponses
+ * Duel par Duel (`salle[i]` : le Duel n° i) : du plus raté au moins raté, sans ceux où personne ne s'est trompé.
+ * `fausses` : la part de réponses fausses, en pour cent. Sert aussi à l'écran, qui ne reçoit que la salle.
  */
-export function duelsLesPlusRates(etat: EtatSeance, nombre = REGLES.seance.duelsLesPlusRates): { duel: number; fausses: number }[] {
-  return Array.from({ length: duelsReveles(etat) }, (_, duel) => ({ duel, salle: partDeLaSalle(etat, duel) }))
-    .filter(({ salle }) => salle.reponses > salle.bonnes)
-    .map(({ duel, salle }) => ({ duel, part: (salle.reponses - salle.bonnes) / salle.reponses }))
+export function duelsRatesDeLaSalle(salle: PartDeLaSalle[], nombre = REGLES.seance.duelsLesPlusRates): { duel: number; fausses: number }[] {
+  return salle
+    .map((s, duel) => ({ duel, salle: s }))
+    .filter(({ salle: s }) => s.reponses > s.bonnes)
+    .map(({ duel, salle: s }) => ({ duel, part: (s.reponses - s.bonnes) / s.reponses }))
     .sort((x, y) => y.part - x.part || x.duel - y.duel)
     .slice(0, nombre)
     .map(({ duel, part }) => ({ duel, fausses: enPourcent(part) }))
 }
+
+/** Les Duels révélés qui ont le plus trompé la salle (voir duelsRatesDeLaSalle). */
+export const duelsLesPlusRates = (etat: EtatSeance, nombre = REGLES.seance.duelsLesPlusRates): { duel: number; fausses: number }[] =>
+  duelsRatesDeLaSalle(
+    Array.from({ length: duelsReveles(etat) }, (_, duel) => partDeLaSalle(etat, duel)),
+    nombre,
+  )
 
 /**
  * Ce que la révélation d'un Duel ajoute au Taux d'erreur de sa paire (ADR 0006) : le nombre de réponses et de

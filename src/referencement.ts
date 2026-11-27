@@ -18,5 +18,8 @@ export const TITRE_ACCUEIL = 'Duel Carbone : le jeu qui compare l’empreinte ca
 /** Le titre de l'onglet sur la page En savoir plus. */
 export const TITRE_EN_SAVOIR_PLUS = 'En savoir plus · Duel Carbone'
 
+/** Le titre de l'onglet du Mode animation (l'écran de l'Animateur). */
+export const TITRE_MODE_ANIMATION = 'Animer une Séance · Duel Carbone'
+
 /** L'image des aperçus de lien (npm run image-partage), aux dimensions conseillées par Facebook et LinkedIn. */
 export const IMAGE_PARTAGE = { fichier: 'apercu-partage.png', largeur: 1200, hauteur: 630 } as const

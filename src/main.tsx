@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './App.tsx'
+import { Racine } from './Racine.tsx'
 import { capturerInvitationNative } from './navigateur/installation.ts'
 import { chargerMesure, ecouterLesPlantages } from './navigateur/mesure.ts'
 import { enregistrerServiceWorker } from './navigateur/mise-a-jour.ts'
@@ -19,6 +19,6 @@ void enregistrerServiceWorker()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <Racine />
   </StrictMode>,
 )

@@ -82,7 +82,7 @@ L'écran de jeu actuel, avec ces ajustements :
 - **Serveur** : un Durable Object par Séance, nommé par le code, juridiction `eu`, stockage SQLite, WebSockets avec mise en veille ; alarme à +24 h qui efface tout (ADR 0007). Les adresses `/api/seance/*` du Worker créent la Séance et ouvrent les connexions.
 - **Domaine partagé** : les règles de la Séance (étapes, réponses, score, rang par palier, médailles, part de la salle) en fonctions pures dans `src/domaine/`, utilisées par le jeu et par le Durable Object, comme le Rang du jour.
 - **Navigateur** : une connexion qui se rétablit d'elle-même (avec le jeton) et rend `null` au lieu d'une erreur ; la mémoire du navigateur garde le jeton de la Séance en cours, les paires et les Conseils récents de l'Animateur.
-- **QR code** : généré dans le navigateur à partir de l'adresse de la Séance (petite bibliothèque à choisir au lot 2).
+- **QR code** : généré dans le navigateur à partir de l'adresse de la Séance, avec la bibliothèque `qrcode` (déjà utilisée par les scripts), chargée seulement avec l'écran de l'Animateur. Il ouvre `/#rejoindre/<code>` (la page arrive avec le téléphone du Participant, lot 3) ; sous le QR code, l'écran projeté affiche le nom du site et le code, pour qui le tape à la main (lot 2).
 - **Messages** : l'état complet de la Séance est renvoyé à chaque connexion ; ensuite, une étape à la fois.
 
 ### Événements de mesure d'audience
