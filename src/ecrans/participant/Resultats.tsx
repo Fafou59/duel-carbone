@@ -9,6 +9,7 @@ import type { Medaille } from '../../domaine/seance.ts'
 import type { PlaceDuParticipant, VueParticipant } from '../../domaine/seance-messages.ts'
 import { CONSEILS } from '../../donnees/conseils.ts'
 import { INSTANTANE } from '../../donnees/index.ts'
+import type { Evenement } from '../../navigateur/mesure.ts'
 
 const VALEURS = valeursDe(INSTANTANE)
 
@@ -96,8 +97,19 @@ export function ClassementIntermediaire({
 /**
  * La fin de la Séance : score, place et médaille, l'invitation au Duel du jour, le Conseil de la Séance (le même que
  * sur l'écran projeté, ici avec son lien) et le Récapitulatif, dont chaque case ouvre le détail de son Duel.
+ * Le lien du Conseil est compté (`conseil/lien`), comme en fin de Partie.
  */
-export function FinDeSeance({ vue, duels, refTitre }: { vue: VueParticipant; duels: DuelDePartie[]; refTitre: Ref<HTMLHeadingElement> }) {
+export function FinDeSeance({
+  vue,
+  duels,
+  refTitre,
+  mesurer,
+}: {
+  vue: VueParticipant
+  duels: DuelDePartie[]
+  refTitre: Ref<HTMLHeadingElement>
+  mesurer: (evenement: Evenement) => void
+}) {
   const { place, score, choix } = vue.moi
   const conseil = CONSEILS.find((c) => c.id === vue.conseil)
   const lignes = lignesDuRecapitulatif(duels, choix)
@@ -122,7 +134,7 @@ export function FinDeSeance({ vue, duels, refTitre }: { vue: VueParticipant; due
       </a>
       <p className="telephone__discret">Un nouveau Duel chaque jour, sur duelcarbone.fr</p>
 
-      {conseil && <Conseil conseil={conseilAffiche(conseil, VALEURS)} />}
+      {conseil && <Conseil conseil={conseilAffiche(conseil, VALEURS)} onLien={() => mesurer('conseil/lien')} />}
 
       <div className="telephone__recap">
         <Recapitulatif

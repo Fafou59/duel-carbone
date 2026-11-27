@@ -19,6 +19,7 @@ import { categorieDePlace, phraseDePlace } from '../../domaine/seance-phrases.ts
 import { DUELS_THEMATIQUES } from '../../donnees/duels-thematiques.ts'
 import { GESTES_CALCULES } from '../../donnees/index.ts'
 import { codeDeLAdresse } from '../../navigateur/adresse.ts'
+import { mesurer as mesurerReel, type Evenement } from '../../navigateur/mesure.ts'
 import { creerMemoireDeSeance, tirerUnJeton, type MemoireDeSeance, type SeanceRejointe } from '../../navigateur/memoire-seance.ts'
 import { serveurDesSeances, type ConnexionDeSeance, type EtatDeConnexion, type ServeurDesSeances } from '../../navigateur/seance.ts'
 import { TITRE_SEANCE_PARTICIPANT } from '../../referencement.ts'
@@ -31,10 +32,11 @@ import '../../composants/CommeToi.css'
 import './TelephoneParticipant.css'
 
 type Props = {
-  /** Remplaçables dans les tests : la mémoire de la Séance, le serveur et le jeton. */
+  /** Remplaçables dans les tests : la mémoire de la Séance, le serveur, le jeton et la mesure. */
   memoireSeance?: MemoireDeSeance
   serveur?: ServeurDesSeances
   tirerJeton?: () => string
+  mesurer?: (evenement: Evenement) => void
 }
 
 /** Ce que le formulaire doit remontrer quand on y revient (Séance terminée, pseudo refusé, retrait…). */
@@ -62,6 +64,7 @@ export function TelephoneParticipant({
   memoireSeance: memoireFournie,
   serveur: serveurFourni,
   tirerJeton = tirerUnJeton,
+  mesurer = mesurerReel,
 }: Props) {
   const [memoireSeance] = useState(() => memoireFournie ?? creerMemoireDeSeance())
   const [serveur] = useState(() => serveurFourni ?? serveurDesSeances())
@@ -80,6 +83,9 @@ export function TelephoneParticipant({
   // La réponse en cours d'envoi (le serveur ne l'a pas encore confirmée), et l'échec d'un envoi.
   const [envoi, setEnvoi] = useState<{ duel: number; idChoisi: string } | null>(null)
   const [erreurEnvoi, setErreurEnvoi] = useState<string | null>(null)
+  // Vrai entre « Rejoindre » et la première vue du serveur : c'est elle qui dit que la Séance l'a accepté. Une
+  // reconnexion (veille, page rechargée) ne repasse pas par « Rejoindre » : elle n'est donc pas comptée.
+  const aCompter = useRef(false)
 
   useEffect(() => {
     document.title = TITRE_SEANCE_PARTICIPANT
@@ -88,6 +94,7 @@ export function TelephoneParticipant({
   /** On quitte la Séance (refus, retrait, Séance effacée) : le jeton est oublié, retour au formulaire. */
   const quitter = (message: string | null) => {
     memoireSeance.oublierRejointe()
+    aCompter.current = false
     setRetour({ message, code: seance?.code ?? '', pseudo: seance?.pseudo ?? '' })
     setSeance(null)
     setVue(null)
@@ -99,6 +106,10 @@ export function TelephoneParticipant({
   const surMessage = useEffectEvent((message: MessageDuServeur) => {
     if (message.type === 'etat' && message.vue.role === 'participant') {
       setVue(message.vue)
+      if (aCompter.current) {
+        aCompter.current = false
+        mesurer('seance/rejointe')
+      }
       return
     }
     if (message.type === 'retire') {
@@ -189,6 +200,7 @@ export function TelephoneParticipant({
   const rejoindre = ({ code: choisi, pseudo: donne }: { code: string; pseudo: string | null }) => {
     const nouvelle: SeanceRejointe = { code: choisi, jeton: tirerJeton(), pseudo: donne }
     memoireSeance.retenirRejointe(nouvelle)
+    aCompter.current = true
     setConnexion('connexion')
     setSeance(nouvelle)
   }
@@ -276,7 +288,7 @@ export function TelephoneParticipant({
     const phrase = vue.moi.place ? phraseDePlace(categorieDePlace({ ...vue.moi.place, participants: vue.participants }), index) : null
     contenu = <ClassementIntermediaire vue={vue} index={index} phrase={phrase} refTitre={retenirTitre} />
   } else {
-    contenu = <FinDeSeance vue={vue} duels={duels} refTitre={retenirTitre} />
+    contenu = <FinDeSeance vue={vue} duels={duels} refTitre={retenirTitre} mesurer={mesurer} />
   }
 
   // Ce que l'on dit de la connexion, au-dessus de l'écran, une fois dans la Séance.

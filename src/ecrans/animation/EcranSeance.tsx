@@ -27,6 +27,7 @@ import { DUELS_THEMATIQUES } from '../../donnees/duels-thematiques.ts'
 import { GESTES_CALCULES, INSTANTANE } from '../../donnees/index.ts'
 import { ADRESSES, adresseDeRejoindre } from '../../navigateur/adresse.ts'
 import type { Memoire } from '../../navigateur/memoire.ts'
+import type { Evenement } from '../../navigateur/mesure.ts'
 import type { ConnexionDeSeance, EtatDeConnexion, ServeurDesSeances } from '../../navigateur/seance.ts'
 import { QrCode } from './QrCode.tsx'
 import '../EcranPartie.css'
@@ -40,6 +41,8 @@ type Props = {
   serveur: ServeurDesSeances
   /** La mémoire du jeu de cet ordinateur : ses Conseils récents (le Conseil de fin n'en reprend aucun). */
   memoire: Memoire
+  /** La mesure d'audience : la fin de la Séance, avec son nombre de Participants. */
+  mesurer: (evenement: Evenement) => void
   /** « Rejouer une nouvelle Séance » (à la fin, ou une Séance fermée). */
   onNouvelle: () => void
   /** Abandonner cette Séance (avant le premier Duel) pour revenir à la page d'explication. */
@@ -79,7 +82,7 @@ function choisirLeConseil(duels: DuelDePartie[], salle: PartDeLaSalle[], recents
   }).id
 }
 
-export function EcranSeance({ code, jeton, serveur, memoire, onNouvelle, onAbandon, onPerdue }: Props) {
+export function EcranSeance({ code, jeton, serveur, memoire, mesurer, onNouvelle, onAbandon, onPerdue }: Props) {
   const [vue, setVue] = useState<VueAnimateur | null>(null)
   const [connexion, setConnexion] = useState<EtatDeConnexion>('connexion')
   const envoyer = useRef<ConnexionDeSeance['envoyer']>(() => false)
@@ -128,7 +131,10 @@ export function EcranSeance({ code, jeton, serveur, memoire, onNouvelle, onAband
     if (connexion !== 'connecte' || manquants > 0) return
     const versLaFin = vue.etape.phase === 'revelation' && vue.etape.index === duels.length - 1
     const conseil = versLaFin ? choisirLeConseil(duels, vue.salle, memoire.conseilsRecents()) : null
-    envoyer.current({ type: 'avancer', depuis: vue.etape, conseil })
+    const envoye = envoyer.current({ type: 'avancer', depuis: vue.etape, conseil })
+    // La fin de la Séance est comptée une fois, au clic qui la termine (pas à chaque réaffichage de l'écran de fin),
+    // avec le nombre exact de Participants : 100 au plus, assez peu de valeurs pour les garder toutes.
+    if (versLaFin && envoye) mesurer(`seance/terminee/${vue.participants.length}`)
   }
   const retirer = (numero: number) => envoyer.current({ type: 'retirer', numero })
 

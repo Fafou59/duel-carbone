@@ -6,7 +6,8 @@
  * - Le jeu ne dépend jamais de la mesure : si GoatCounter est bloqué, lent ou en panne, rien ne se passe.
  * - GoatCounter compte des événements mais ne calcule pas de moyenne : la durée d'une Partie
  *   est envoyée sous forme de tranche (voir docs/prd-v1-duel.md, « Événements de mesure d'audience »).
- * - L'arrivée par le QR code (?ref=qr-code-pc, #98) est comptée avec la visite, puis effacée de l'adresse.
+ * - L'arrivée par le QR code (?ref=qr-code-pc, #98) est comptée avec la visite, puis effacée de l'adresse ; de même
+ *   l'arrivée depuis la fin d'une Séance du Mode animation (?ref=seance, sur « Jouer le Duel du jour »).
  */
 import { useEffect, useRef } from 'react'
 import { ADRESSE_DU_JEU } from '../domaine/partage.ts'
@@ -41,6 +42,8 @@ export type Evenement =
   | `erreur/${Plantage}`
   | `installation/${'proposee' | 'guide' | 'acceptee' | 'refusee' | 'qr'}`
   | 'conseil/lien'
+  | `seance/${'creee' | 'rejointe'}`
+  | `seance/terminee/${number}`
 
 /** Les plantages comptés : une erreur de script, ou une promesse rejetée que personne n'a rattrapée. */
 export type Plantage = 'script' | 'promesse'
