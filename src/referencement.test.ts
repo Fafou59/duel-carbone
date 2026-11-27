@@ -84,7 +84,7 @@ describe('robots.txt et sitemap.xml', () => {
     expect(robots).toMatch(/^[\x20-\x7E\n]*$/)
   })
 
-  it('sitemap.xml ne liste que l’accueil (En savoir plus est une ancre, invisible pour les moteurs)', () => {
+  it('sitemap.xml ne liste que l’accueil (En savoir plus et les Mentions légales sont des ancres, invisibles pour les moteurs)', () => {
     const plan = new DOMParser().parseFromString(sitemap, 'application/xml')
     expect(plan.querySelector('parsererror')).toBeNull()
     expect(plan.documentElement.namespaceURI).toBe('http://www.sitemaps.org/schemas/sitemap/0.9')

@@ -50,27 +50,6 @@ describe('Page En savoir plus', () => {
     expect(screen.getByText(new RegExp(`${ademe.length} gestes \\(dont ${reserves}`))).toBeInTheDocument()
   })
 
-  it('donne les mentions légales : éditeur, contact et hébergeur (loi pour la confiance dans l’économie numérique)', () => {
-    render(<EcranEnSavoirPlus />)
-    expect(screen.getByRole('heading', { name: 'Mentions légales' })).toBeInTheDocument()
-    expect(screen.getByText(/Éditeur et directeur de la publication : Fabien Lesage/)).toBeInTheDocument()
-    expect(screen.getAllByRole('link', { name: 'contact@duelcarbone.fr' })[0]).toHaveAttribute('href', 'mailto:contact@duelcarbone.fr')
-    const hebergeur = screen.getByText(/Hébergeur : Cloudflare, Inc\./)
-    expect(hebergeur).toHaveTextContent(/101 Townsend St, San Francisco, CA 94107, États-Unis/)
-    expect(hebergeur).toHaveTextContent(/\+1 650 319 8930/)
-  })
-
-  it('dit ce que l’invitation à installer garde et compte', () => {
-    render(<EcranEnSavoirPlus />)
-    expect(screen.getByText(/Sans cookie, sans compte/)).toHaveTextContent(/« Non merci » à l’invitation à installer le jeu/)
-    expect(screen.getByText(/Pour savoir si le jeu plaît/)).toHaveTextContent(/l'invitation à installer le jeu et sa réponse, l'ouverture du QR code sur ordinateur,/)
-  })
-
-  it('dit que les plantages du jeu sont comptés, sans leur détail', () => {
-    render(<EcranEnSavoirPlus />)
-    expect(screen.getByText(/Pour savoir si le jeu plaît/)).toHaveTextContent(/les plantages du jeu, sans leur détail/)
-  })
-
   it('propose d’écrire, pas seulement GitHub, pour signaler une erreur', () => {
     render(<EcranEnSavoirPlus />)
     expect(screen.getByText(/Une erreur, une idée \?/)).toHaveTextContent(/contact@duelcarbone\.fr/)
@@ -87,7 +66,7 @@ describe('Page En savoir plus', () => {
   it('garde un bouton « Retour au jeu » toujours visible en bas de l’écran', () => {
     const { container } = render(<EcranEnSavoirPlus />)
     expect(screen.getByRole('link', { name: '← Retour au jeu' })).toHaveAttribute('href', '#')
-    expect(container.querySelector('.savoir__suite')).toContainElement(screen.getByRole('link', { name: '← Retour au jeu' }))
+    expect(container.querySelector('.lecture__suite')).toContainElement(screen.getByRole('link', { name: '← Retour au jeu' }))
   })
 
   it("cite l'ADEME avec la date de l'Instantané, lue dans les données (jamais écrite à la main)", () => {
@@ -169,47 +148,15 @@ describe('Page En savoir plus', () => {
     )
   })
 
-  it('explique le Duel Carbone du jour et ce qui en reste sur l’appareil', () => {
+  it('explique le Rang du jour et la part des réponses identiques, et leurs seuils lus dans les règles', () => {
     render(<EcranEnSavoirPlus />)
-    expect(screen.getByText(/le Duel Carbone du jour propose la même Partie à tous les joueurs/)).toBeInTheDocument()
-    expect(screen.getByText(/ta Partie du jour \(pour la reprendre ou revoir ton résultat\), ta série/)).toBeInTheDocument()
-  })
-
-  it('dit ce que contient le texte partagé, et ce qu’il ne contient pas', () => {
-    render(<EcranEnSavoirPlus />)
-    expect(screen.getByText(/jamais le nom des gestes/)).toBeInTheDocument()
-  })
-
-  it('dit que le jeu garde une copie de ses fichiers pour marcher sans réseau', () => {
-    render(<EcranEnSavoirPlus />)
-    expect(screen.getByText(/marche sans réseau/)).toBeInTheDocument()
-  })
-
-  it('nomme l’hébergeur, qui reçoit les demandes du navigateur comme tout hébergeur', () => {
-    render(<EcranEnSavoirPlus />)
-    expect(screen.getByText(/Le jeu est hébergé par Cloudflare/)).toHaveTextContent(/adresse IP/)
-  })
-
-  it('dit ce que le serveur reçoit et garde (Rang du jour, Taux d’erreur), et ce qu’il ne garde pas', () => {
-    render(<EcranEnSavoirPlus />)
-    const paragraphe = screen.getByText(/Pour le Rang du jour et la part des réponses identiques à la tienne/)
-    expect(paragraphe).toHaveTextContent(/le numéro du Duel et les 10 gestes que tu as choisis/)
-    expect(paragraphe).toHaveTextContent(/combien de joueurs ont fait 0, 1… 10/)
-    expect(paragraphe).toHaveTextContent(/pour chaque paire de gestes, combien de réponses et combien de fausses/)
-    expect(paragraphe).toHaveTextContent(/Ni tes choix un par un, ni l’heure, ni ton adresse IP, ni aucun identifiant/)
-    expect(paragraphe).toHaveTextContent(/dans l’Union européenne/)
-    expect(paragraphe).toHaveTextContent(/La Partie libre fait de même pour la part des réponses .* sans rien pour le Rang du jour/)
     expect(screen.getByText(/le Rang du jour te dit où tu te situes/)).toHaveTextContent(/à partir de 4 joueurs/)
     expect(screen.getByText(/la part des réponses identiques à la tienne : « 72/)).toHaveTextContent(/à partir de 4 réponses/)
   })
 
-  it('explique la mesure d’audience : GoatCounter, sans cookie, des chiffres agrégés', () => {
+  it('explique le Duel Carbone du jour', () => {
     render(<EcranEnSavoirPlus />)
-    expect(screen.getByRole('link', { name: 'GoatCounter' })).toHaveAttribute('href', 'https://www.goatcounter.com')
-    const paragraphe = screen.getByText(/Pour savoir si le jeu plaît/)
-    expect(paragraphe).toHaveTextContent(/sans cookie/)
-    expect(paragraphe).toHaveTextContent(/chiffres agrégés/)
-    expect(paragraphe).toHaveTextContent(/ni ton score ni tes réponses/)
+    expect(screen.getByText(/le Duel Carbone du jour propose la même Partie à tous les joueurs/)).toBeInTheDocument()
   })
 
   it('crédite le jeu d’icônes, comme le demande sa licence', () => {
@@ -234,10 +181,10 @@ describe('Page En savoir plus', () => {
     const defiler = vi.fn()
     Element.prototype.scrollIntoView = defiler
     render(<EcranEnSavoirPlus />)
-    fireEvent.click(within(screen.getByRole('navigation', { name: 'Sommaire' })).getByRole('link', { name: 'Mentions légales' }))
+    fireEvent.click(within(screen.getByRole('navigation', { name: 'Sommaire' })).getByRole('link', { name: 'Suivre le projet' }))
     expect(window.location.hash).toBe('')
     expect(defiler).toHaveBeenCalledOnce()
-    expect(screen.getByRole('heading', { name: 'Mentions légales' })).toHaveFocus()
+    expect(screen.getByRole('heading', { name: 'Suivre le projet' })).toHaveFocus()
   })
 
   it('remonte au sommaire d’un bouton, à droite de « Retour au jeu »', () => {
@@ -256,6 +203,32 @@ describe('Page En savoir plus', () => {
   it('précise que les chiffres valent pour la France (mix électrique français)', () => {
     render(<EcranEnSavoirPlus />)
     expect(screen.getByText(/mix électrique moyen\s+français/)).toBeInTheDocument()
-    expect(screen.getByText(/émissions d'un même Geste peuvent être différentes dans un autre pays/)).toBeInTheDocument()
+  })
+
+  it('suit l’ordre décidé : le jeu, puis ses chiffres, ce qu’il a coûté et le projet', () => {
+    render(<EcranEnSavoirPlus />)
+    expect(screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual([
+      'Pourquoi Duel Carbone ?',
+      'Les règles du jeu',
+      'Les Conseils de fin de Partie',
+      "D'où viennent les chiffres",
+      "L'unité : le CO2e",
+      'Le calcul : Geste = Équivalent × Quantité',
+      "Les objets : la durée d'utilisation retenue par l'ADEME",
+      "Les réglages : ceux de l'ADEME, par défaut",
+      'Jouer hors ligne : installer le jeu',
+      'L’empreinte de ce jeu',
+      'Suivre le projet',
+    ])
+  })
+
+  it('ne parle plus de vie privée ni de mentions légales, mais renvoie vers leur page', () => {
+    render(<EcranEnSavoirPlus />)
+    expect(screen.queryByRole('heading', { name: 'Ta vie privée' })).not.toBeInTheDocument()
+    expect(screen.queryByText(/Éditeur et directeur de la publication/)).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Ce que le jeu garde de toi, et les mentions légales →' })).toHaveAttribute(
+      'href',
+      '#mentions-legales',
+    )
   })
 })

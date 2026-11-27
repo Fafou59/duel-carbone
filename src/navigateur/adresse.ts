@@ -1,7 +1,8 @@
 /**
  * La navigation entre les pages, sans bibliothèque : l'ancre de l'adresse (la partie après « # »).
  *
- * - « …/#en-savoir-plus » affiche la page En savoir plus ; « …/#animer », l'écran de l'Animateur d'une Séance (Mode
+ * - « …/#en-savoir-plus » affiche la page En savoir plus ; « …/#mentions-legales », la page Mentions légales et vie
+ *   privée ; « …/#animer », l'écran de l'Animateur d'une Séance (Mode
  *   animation) ; « …/#rejoindre/K7RM4P », le téléphone du Participant, avec le code de la Séance (celle qu'ouvre le
  *   QR code ; « …/#rejoindre » seul demande le code) ; toute autre adresse affiche le jeu.
  * - Un lien <a href="#en-savoir-plus"> change l'ancre sans recharger la page : le navigateur prévient
@@ -11,10 +12,16 @@
  */
 import { useSyncExternalStore } from 'react'
 
-export type Page = 'jeu' | 'enSavoirPlus' | 'animer' | 'rejoindre'
+export type Page = 'jeu' | 'enSavoirPlus' | 'mentionsLegales' | 'animer' | 'rejoindre'
 
 /** L'adresse (relative) de chaque page, pour les liens. */
-export const ADRESSES: Record<Page, string> = { jeu: '#', enSavoirPlus: '#en-savoir-plus', animer: '#animer', rejoindre: '#rejoindre' }
+export const ADRESSES: Record<Page, string> = {
+  jeu: '#',
+  enSavoirPlus: '#en-savoir-plus',
+  mentionsLegales: '#mentions-legales',
+  animer: '#animer',
+  rejoindre: '#rejoindre',
+}
 
 /** L'ancienne adresse de la page (quand elle s'appelait « Sources et méthode ») : les liens déjà partagés marchent. */
 const ANCIENNE_ADRESSE = '#sources'
@@ -22,6 +29,7 @@ const ANCIENNE_ADRESSE = '#sources'
 const pageActuelle = (): Page => {
   const ancre = window.location.hash
   if (ancre === ADRESSES.enSavoirPlus || ancre === ANCIENNE_ADRESSE) return 'enSavoirPlus'
+  if (ancre === ADRESSES.mentionsLegales) return 'mentionsLegales'
   if (ancre === ADRESSES.rejoindre || ancre.startsWith(`${ADRESSES.rejoindre}/`)) return 'rejoindre'
   return ancre === ADRESSES.animer ? 'animer' : 'jeu'
 }

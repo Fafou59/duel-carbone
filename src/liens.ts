@@ -1,6 +1,6 @@
 /** Les adresses extérieures citées dans le jeu, réunies pour ne les écrire qu'une fois. */
 
-/** L'adresse de contact du jeu (redirigée vers l'éditeur), dans les mentions légales. */
+/** L'adresse de contact du jeu (redirigée vers l'éditeur), dans En savoir plus et les mentions légales. */
 export const CONTACT = 'contact@duelcarbone.fr'
 
 /** Le dépôt public du jeu sur GitHub. */
@@ -26,6 +26,12 @@ export const METHODE_EMPREINTE_IA = 'https://github.com/Fafou59/duel-carbone/blo
 
 /** Les conditions de réutilisation des informations de l'ADEME (section « Propriété intellectuelle »). */
 export const MENTIONS_LEGALES_ADEME = 'https://impactco2.fr/mentions-legales'
+
+/**
+ * La page de la CNIL qui explique comment lui adresser une plainte (en ligne ou par courrier), et quand : après avoir
+ * d'abord écrit à l'éditeur du site. Vérifiée le 27/11/2026.
+ */
+export const CNIL_PLAINTE = 'https://www.cnil.fr/fr/adresser-une-plainte'
 
 /** GoatCounter, l'outil de mesure d'audience sans cookie du jeu. */
 export const GOATCOUNTER = 'https://www.goatcounter.com'
