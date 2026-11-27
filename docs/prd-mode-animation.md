@@ -74,7 +74,8 @@ L'écran de jeu actuel, avec ces ajustements :
 - **Attente** : « C'est bon, Camille ! Regarde l'écran : la Séance va bientôt commencer. »
 - **Duel** : après le choix, la carte reste marquée « Ton choix », l'autre s'estompe, et un bandeau en bas (à la place de « Duel suivant ») : « ✓ Réponse envoyée · 6/24 ont répondu · Regarde l'écran ».
 - **Révélation** : cartes révélées, **animations de bonne réponse comme dans une Partie**, verdict, « 54 % de la salle comme toi », explication et tableau ; pas de bandeau.
-- **Classement intermédiaire** : score, rang (« 2e ex aequo sur 24 ») avec ▲▼, phrase selon la place.
+- **Classement intermédiaire** : score, rang (« 2e ex aequo sur 24 ») avec ▲▼, phrase selon la place. Catégories (décidé au lot 3, `src/domaine/seance-phrases.ts`) : en tête seul ou à égalité (1er palier), podium (2e et 3e paliers, ceux des médailles, même quand le 2e est le dernier), dernier (dernier palier, après le podium), top 10 (moins de 10 Participants devant soi, comme les 10 lignes de l'écran projeté), milieu. La phrase tirée reste la même si la page se recharge.
+- **Sans réponse** : à la révélation, « Pas de réponse à temps : ce Duel ne compte pas pour toi » (ou « Tu joues dès le prochain Duel » pour qui est arrivé pendant sa révélation) ; dans le Récapitulatif, la case compte comme ratée et son détail dit « Pas de réponse à ce Duel ».
 - **Fin** : score, rang, médaille ; « Jouer le Duel du jour » (`?ref=seance`) ; le Conseil, avec son lien ; le Récapitulatif, dont chaque case ouvre le détail du Duel.
 
 ## 7. Décisions d'implémentation

@@ -1,0 +1,243 @@
+/* Le téléphone du Participant (Mode animation). Le reste du style vient du jeu : index.css, EcranDuel.css,
+   EcranPartie.css, EcranFin.css, CarteGeste.css (prototype du 26/11). */
+
+/* La frise du bas recouvre le bas de la page : la page garde sous elle sa hauteur. */
+.page.telephone:has(+ .telephone__frise) {
+  padding-bottom: 120px;
+}
+
+/* Le bandeau « Réponse envoyée », fixé en bas, recouvre aussi le bas de la page. */
+.page.telephone:has(.telephone__bandeau) {
+  padding-bottom: 140px;
+}
+
+html:has(.telephone__bandeau) {
+  scroll-padding-bottom: 130px;
+}
+
+.telephone h2:focus {
+  outline: none;
+}
+
+/* Ce que l'on dit de la connexion, au-dessus de l'écran (vide la plupart du temps). */
+.telephone__connexion p {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--carte);
+  border: 1px solid var(--ligne);
+  font-weight: 700;
+  text-align: center;
+}
+
+/* --- Rejoindre --- */
+
+.telephone__rejoindre h2 {
+  margin: 0 0 12px;
+}
+
+.telephone__formulaire {
+  display: grid;
+  gap: 6px;
+}
+
+.telephone__formulaire label {
+  margin-top: 8px;
+  font-weight: 700;
+}
+
+.telephone__formulaire input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid var(--ligne);
+  border-radius: 12px;
+  background: var(--carte);
+  color: var(--encre);
+  font: inherit;
+  font-size: 18px;
+}
+
+.telephone__formulaire input:focus-visible {
+  outline: 3px solid var(--marque);
+  outline-offset: 2px;
+}
+
+.telephone__formulaire input[aria-invalid='true'] {
+  border-color: var(--mauvais);
+}
+
+.telephone__code {
+  font-family: ui-monospace, monospace;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+}
+
+.telephone__aide,
+.telephone__discret {
+  margin: 0;
+  color: var(--discret);
+  font-size: 14px;
+}
+
+.telephone__aide--erreur {
+  color: var(--mauvais);
+  font-weight: 700;
+}
+
+.telephone__message {
+  margin: 0 0 8px;
+  padding: 10px 14px;
+  border-left: 4px solid var(--mauvais);
+  border-radius: 8px;
+  background: var(--carte);
+  font-weight: 700;
+}
+
+.telephone__bouton-large {
+  justify-self: stretch;
+  margin-top: 12px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.telephone .bouton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --- Attente, connexion --- */
+
+.telephone__centre {
+  display: grid;
+  gap: 10px;
+  padding-top: 24px;
+  text-align: center;
+}
+
+.telephone__centre h2,
+.telephone__centre p {
+  margin: 0;
+}
+
+.telephone__grand {
+  font-size: 26px;
+  font-weight: 900;
+}
+
+/* La frise d'icônes, fixée en bas de Rejoindre et de l'attente ; elle ne déborde jamais sur le côté. */
+.telephone__frise {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  background: var(--fond);
+}
+
+.telephone__frise .frise {
+  margin-top: 8px;
+}
+
+/* --- Duel --- */
+
+/* L'annonce d'un Duel thématique, en haut de l'écran, sans fenêtre à fermer. */
+.telephone__annonce {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--thematique);
+  color: #fff;
+}
+
+.telephone__sans-reponse {
+  color: var(--discret);
+  font-weight: 700;
+}
+
+/* Le bandeau du bas, à la place de « Duel suivant » : c'est l'Animateur qui fait avancer. */
+.telephone__bandeau {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 5;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--ligne);
+  background: var(--carte);
+  box-shadow: 0 -6px 20px rgb(0 0 0 / 15%);
+  text-align: center;
+  font-weight: 700;
+}
+
+.telephone__bandeau p {
+  margin: 0;
+}
+
+.telephone__bandeau-discret {
+  color: var(--discret);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.telephone__bandeau-erreur {
+  color: var(--mauvais);
+}
+
+/* --- Classement intermédiaire et fin --- */
+
+.telephone__resultats {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  text-align: center;
+}
+
+.telephone__resultats h2 {
+  margin: 0 0 4px;
+}
+
+.telephone__place {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.telephone__monte {
+  color: var(--bon);
+  font-size: 18px;
+}
+
+.telephone__descend {
+  color: var(--mauvais);
+  font-size: 18px;
+}
+
+.telephone__regarde {
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  border: 1px solid var(--ligne);
+  border-radius: 12px;
+  background: var(--carte);
+  font-weight: 700;
+}
+
+.telephone__resultats .telephone__bouton-large {
+  margin-top: 8px;
+}
+
+.telephone__resultats .conseil,
+.telephone__recap {
+  justify-self: stretch;
+  margin-top: 16px;
+  text-align: left;
+}
+
+.telephone__recap .recap__titre {
+  margin: 0;
+}
+
+.telephone__salle-recap {
+  color: var(--discret);
+  font-size: 13px;
+}

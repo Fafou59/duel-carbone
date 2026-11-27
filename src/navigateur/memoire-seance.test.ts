@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { CLE_MEMOIRE_SEANCE, creerMemoireDeSeance } from './memoire-seance.ts'
+import { estUnJeton } from '../domaine/seance.ts'
+import { CLE_MEMOIRE_SEANCE, creerMemoireDeSeance, tirerUnJeton } from './memoire-seance.ts'
 import type { Stockage } from './memoire.ts'
 
 function stockageDeTest(initial: Record<string, string> = {}): Stockage & { donnees: Record<string, string> } {
@@ -35,5 +36,38 @@ describe('la mémoire de la Séance animée', () => {
       },
     }
     expect(() => creerMemoireDeSeance(plein).retenirAnimee(SEANCE)).not.toThrow()
+  })
+})
+
+describe('la mémoire de la Séance rejointe (téléphone du Participant)', () => {
+  const REJOINTE = { ...SEANCE, pseudo: 'Camille', phrases: { '0': 'Le podium te va bien.' } }
+
+  it('retient le code, le jeton, le pseudo et les phrases lues, à côté de la Séance animée', () => {
+    const stockage = stockageDeTest()
+    const memoire = creerMemoireDeSeance(stockage)
+    memoire.retenirAnimee(SEANCE)
+    memoire.retenirRejointe(REJOINTE)
+    expect(creerMemoireDeSeance(stockage).rejointe()).toEqual(REJOINTE)
+    expect(creerMemoireDeSeance(stockage).animee()).toEqual(SEANCE)
+    memoire.oublierRejointe()
+    expect(memoire.rejointe()).toBeNull()
+    expect(memoire.animee()).toEqual(SEANCE)
+  })
+
+  it('remet au propre un pseudo ou des phrases abîmés, et ignore un jeton invalide', () => {
+    const abime = { ...SEANCE, pseudo: 42, phrases: ['pas', 'un', 'objet'] }
+    expect(creerMemoireDeSeance(stockageDeTest({ [CLE_MEMOIRE_SEANCE]: JSON.stringify({ rejointe: abime }) })).rejointe()).toEqual({
+      ...SEANCE,
+      pseudo: null,
+      phrases: {},
+    })
+    const sansJeton = { ...REJOINTE, jeton: 'court' }
+    expect(creerMemoireDeSeance(stockageDeTest({ [CLE_MEMOIRE_SEANCE]: JSON.stringify({ rejointe: sansJeton }) })).rejointe()).toBeNull()
+  })
+
+  it('tire des jetons valides et tous différents', () => {
+    const jetons = new Set(Array.from({ length: 50 }, tirerUnJeton))
+    expect(jetons.size).toBe(50)
+    for (const jeton of jetons) expect(estUnJeton(jeton)).toBe(true)
   })
 })

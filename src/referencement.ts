@@ -21,5 +21,8 @@ export const TITRE_EN_SAVOIR_PLUS = 'En savoir plus · Duel Carbone'
 /** Le titre de l'onglet du Mode animation (l'écran de l'Animateur). */
 export const TITRE_MODE_ANIMATION = 'Animer une Séance · Duel Carbone'
 
+/** Le titre de l'onglet sur le téléphone d'un Participant (Mode animation). */
+export const TITRE_SEANCE_PARTICIPANT = 'Séance · Duel Carbone'
+
 /** L'image des aperçus de lien (npm run image-partage), aux dimensions conseillées par Facebook et LinkedIn. */
 export const IMAGE_PARTAGE = { fichier: 'apercu-partage.png', largeur: 1200, hauteur: 630 } as const
