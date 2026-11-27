@@ -29,7 +29,7 @@ for (const [appareil, viewport] of [
 /**
  * « Duel suivant » ne bouge jamais à l'écran (les joueurs rapides le touchent sans regarder) : ni après le
  * défilement automatique vers l'explication, ni en remontant vers les cartes, ni tout en bas de la page.
- * Tout en bas, le pied de page (Comment ça marche ?, En savoir plus) remonte au-dessus du bouton, sans être caché.
+ * Tout en bas, le pied de page (Comment ça marche ?, En savoir plus, Mentions légales) remonte au-dessus du bouton, sans être caché.
  */
 test.describe('téléphone : « Duel suivant »', () => {
   test.use({ viewport: { width: 375, height: 667 }, hasTouch: true, isMobile: true })
@@ -58,6 +58,7 @@ test.describe('téléphone : « Duel suivant »', () => {
     for (const lien of [
       page.getByRole('contentinfo').getByRole('button', { name: 'Comment ça marche ?' }),
       page.getByRole('contentinfo').getByRole('link', { name: 'En savoir plus' }),
+      page.getByRole('contentinfo').getByRole('link', { name: 'Mentions légales' }),
     ]) {
       const boite = await lien.boundingBox()
       if (!boite || !barre) throw new Error('pied de page ou barre introuvable')

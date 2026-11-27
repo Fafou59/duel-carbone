@@ -17,13 +17,14 @@ import { doitForcerUnDuelThematique } from './domaine/thematiques.ts'
 import { Accueil, type Situation } from './ecrans/Accueil.tsx'
 import { EcranPartie } from './ecrans/EcranPartie.tsx'
 import { EcranEnSavoirPlus } from './ecrans/EcranEnSavoirPlus.tsx'
+import { EcranMentionsLegales } from './ecrans/EcranMentionsLegales.tsx'
 import { ADRESSES, usePage } from './navigateur/adresse.ts'
 import { creerMemoire, type Memoire } from './navigateur/memoire.ts'
 import { appliquerNouvelleVersion, useNouvelleVersion } from './navigateur/mise-a-jour.ts'
 import { serveurDuRang, type ServeurDuRang } from './navigateur/rang-du-jour.ts'
 
 import { IMPACT_CO2_DOC } from './liens.ts'
-import { TITRE_ACCUEIL, TITRE_EN_SAVOIR_PLUS } from './referencement.ts'
+import { TITRE_ACCUEIL, TITRE_EN_SAVOIR_PLUS, TITRE_MENTIONS_LEGALES } from './referencement.ts'
 
 type Props = {
   /** La mémoire locale (remplaçable dans les tests) : par défaut, le localStorage du navigateur. */
@@ -65,8 +66,10 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
   const [calendrier, setCalendrier] = useState<Calendrier | null>(null)
   // Relu après chaque Partie du jour terminée.
   const [, setActualisation] = useState(0)
-  // La page demandée par l'adresse : le jeu, ou En savoir plus (#en-savoir-plus).
+  // La page demandée par l'adresse : le jeu, En savoir plus (#en-savoir-plus) ou Mentions légales (#mentions-legales).
   const page = usePage()
+  // Une page à lire, par-dessus le jeu (qui reste en place, caché).
+  const enLecture = page === 'enSavoirPlus' || page === 'mentionsLegales'
   // « Comment ça marche ? » : le tutoriel, ouvert par-dessus l'écran en cours.
   const [tutoriel, setTutoriel] = useState(false)
 
@@ -139,7 +142,7 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
   const tauxDe = (duel: DuelDePartie) => (comptes?.numero === numero ? tauxDErreur(comptes.paires[cleDuDuel(duel)]) : null)
 
   // Une nouvelle version du jeu est prête (application installée) : on l'applique en silence dès que le joueur
-  // est sur l'accueil, jamais en pleine Partie ni pendant une lecture (tutoriel, En savoir plus).
+  // est sur l'accueil, jamais en pleine Partie ni pendant une lecture (tutoriel, En savoir plus, Mentions légales).
   const nouvelleVersion = useNouvelleVersion()
   useEffect(() => {
     if (nouvelleVersion && !partie && !tutoriel && page === 'jeu') appliquerNouvelleVersion()
@@ -156,7 +159,8 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
   // À chaque changement de page : le titre de l'onglet, et retour en haut de l'écran.
   // Sur l'accueil, celui de index.html, que Google lit aussi une fois le jeu affiché (src/referencement.ts).
   useEffect(() => {
-    document.title = page === 'enSavoirPlus' ? TITRE_EN_SAVOIR_PLUS : TITRE_ACCUEIL
+    document.title =
+      page === 'enSavoirPlus' ? TITRE_EN_SAVOIR_PLUS : page === 'mentionsLegales' ? TITRE_MENTIONS_LEGALES : TITRE_ACCUEIL
     window.scrollTo(0, 0)
   }, [page])
 
@@ -240,10 +244,10 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
     return { score: duJour.score, bonnes: complet ? duels.map((duel, i) => estBonChoix(duel, duJour.reponses[i])) : [] }
   })()
 
-  // La frise d'icônes qui défile : seulement sur l'écran de fin et dans En savoir plus.
+  // La frise d'icônes qui défile : seulement sur l'écran de fin et dans les pages à lire (En savoir plus, Mentions légales).
   // Ni sur l'accueil (la vitrine y défile déjà : les deux ensemble, c'était chargé), ni pendant les Duels
   // (elle détournait l'attention des cartes).
-  const afficherFrise = page === 'enSavoirPlus' || (partie !== null && partieTerminee === numero)
+  const afficherFrise = enLecture || (partie !== null && partieTerminee === numero)
 
   const revenirALAccueil = () => {
     setPartie(null)
@@ -269,8 +273,9 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
       </header>
       <main>
         {page === 'enSavoirPlus' && <EcranEnSavoirPlus />}
-        {/* Le jeu reste en place (simplement caché) pendant la lecture des sources : la Partie en cours n'est pas perdue. */}
-        <div hidden={page === 'enSavoirPlus'}>
+        {page === 'mentionsLegales' && <EcranMentionsLegales />}
+        {/* Le jeu reste en place (simplement caché) pendant la lecture : la Partie en cours n'est pas perdue. */}
+        <div hidden={enLecture}>
           {!partie && (
             <Accueil
               jour={aujourdhui}
@@ -360,8 +365,8 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
           <button type="button" className="lien-bouton pied__lien-bouton" onClick={() => setTutoriel(true)}>
             Comment ça marche ?
           </button>{' '}
-          · <a href={ADRESSES.enSavoirPlus}>En savoir plus</a> · <a href={IMPACT_CO2_DOC}>Chiffres de l’ADEME</a>, sans cookie
-          ni compte
+          · <a href={ADRESSES.enSavoirPlus}>En savoir plus</a> · <a href={ADRESSES.mentionsLegales}>Mentions légales</a> ·{' '}
+          <a href={IMPACT_CO2_DOC}>Chiffres de l’ADEME</a>, sans cookie ni compte
         </p>
         {/* Le Mode animation : faire jouer une salle en direct (atelier, réunion). Discret : peu de joueurs en ont besoin. */}
         <p>

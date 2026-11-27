@@ -31,7 +31,7 @@ beaucoup.
 | 9 | Revenir à l'accueil | Le tableau de bord : score du jour, grille, série | | |
 | 10 | Jouer une Partie libre, puis « Rejouer » | Une nouvelle Partie démarre | | |
 | 11 | Passer le téléphone en mode sombre | Le jeu passe en sombre, tout reste lisible | | |
-| 12 | Ouvrir « En savoir plus » | La page, les liens vers l'ADEME, « Retour au jeu » collé en bas, les mentions légales en fin de page | | |
+| 12 | Ouvrir « En savoir plus », puis « Mentions légales » dans le pied de page | En savoir plus : les liens vers l'ADEME, « Retour au jeu » collé en bas, le renvoi vers les mentions légales en fin de page. Mentions légales et vie privée : la vie privée, la base légale, la CNIL, l'éditeur et l'hébergeur | | |
 | 13 | Installer le jeu sur l'écran d'accueil (Android : menu ⋮, « Installer l'application » ; iPhone : Partager, « Sur l'écran d'accueil ») | L'icône Duel Carbone, et le jeu s'ouvre en plein écran | | |
 | 14 | Passer en mode avion, ouvrir le jeu installé | Le jeu s'ouvre et une Partie libre se joue hors ligne | | |
 | 15 | L'invitation à installer (#68), sur un navigateur où le jeu n'est pas encore installé, à la fin du Duel du jour | Android Chrome : le bouton « Installer Duel Carbone » lance l'installation ; Firefox Android et iPhone (Safari, et Chrome si possible) : « Comment l'installer ? » déplie les étapes, à suivre jusqu'au bout pour vérifier que chaque libellé est juste et que le jeu s'ouvre depuis l'écran d'accueil ; ordinateur : pas de carte, seulement la petite ligne « Pour revenir demain… » (favoris ou téléphone) ; jamais une deuxième fois après « Non merci » | | |

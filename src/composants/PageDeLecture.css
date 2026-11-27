@@ -1,38 +1,38 @@
-/* Page En savoir plus : un texte à lire, donc des lignes pas trop longues. */
-.savoir {
+/* Une page de lecture (En savoir plus, Mentions légales et vie privée) : un texte à lire, donc des lignes pas trop longues. */
+.lecture {
   display: grid;
   gap: 4px;
   max-width: 68ch;
   padding: 8px 0;
 }
 
-.savoir h2 {
+.lecture h2 {
   margin: 8px 0 0;
   font-size: 26px;
 }
 
-.savoir h2:focus {
+.lecture h2:focus {
   outline: none;
 }
 
-.savoir h3 {
+.lecture h3 {
   margin: 20px 0 4px;
   font-size: 18px;
 }
 
-.savoir p {
+.lecture p {
   margin: 0 0 8px;
 }
 
 /* « Retour au jeu » reste collé en bas de l'écran, comme « Duel suivant » (EcranDuel.css). */
-.savoir__suite {
+.lecture__suite {
   container-type: scroll-state;
   position: sticky;
   bottom: 0;
   margin: 16px -16px 0;
 }
 
-.savoir__suite-barre {
+.lecture__suite-barre {
   display: flex;
   gap: 10px;
   align-items: center;
@@ -41,7 +41,7 @@
 }
 
 /* « ↑ » : un bouton rond, à droite de « Retour au jeu », qui remonte au sommaire. */
-.savoir__haut {
+.lecture__haut {
   flex: none;
   width: 48px;
   height: 48px;
@@ -52,22 +52,22 @@
 }
 
 /* Le sommaire : un encadré en tête de page, une partie par ligne. */
-.savoir__sommaire {
+.lecture__sommaire {
   margin: 8px 0 4px;
   padding: 12px 16px;
   border-radius: 12px;
   background: var(--carte);
 }
 
-.savoir__sommaire-titre {
+.lecture__sommaire-titre {
   font-weight: 800;
 }
 
-.savoir__sommaire-titre:focus {
+.lecture__sommaire-titre:focus {
   outline: none;
 }
 
-.savoir__sommaire ol {
+.lecture__sommaire ol {
   display: grid;
   gap: 2px;
   margin: 0;
@@ -78,27 +78,27 @@
 
 /* Une cible confortable au doigt (24 px au moins, WCAG 2.5.8). En bloc : sur deux lignes,
    le numéro reste en face de la première. */
-.savoir__sommaire a {
+.lecture__sommaire a {
   display: block;
   padding: 4px 0;
 }
 
 /* Arrivé sur une partie depuis le sommaire : un peu d'air au-dessus de son titre. */
-.savoir h3 {
+.lecture h3 {
   scroll-margin-top: 16px;
 }
 
-.savoir h3:focus {
+.lecture h3:focus {
   outline: none;
 }
 
-.savoir__suite .bouton {
+.lecture__suite .bouton {
   text-decoration: none;
 }
 
 /* Sur téléphone, un bouton large, facile à atteindre avec le pouce. */
 @media (max-width: 699px) {
-  .savoir__suite .bouton:not(.savoir__haut) {
+  .lecture__suite .bouton:not(.lecture__haut) {
     flex: 1;
     text-align: center;
   }
@@ -106,22 +106,38 @@
 
 /* Une ombre seulement quand la barre flotte sur le texte (Chrome 133+ ; ailleurs, sans ombre). */
 @container scroll-state(stuck: bottom) {
-  .savoir__suite-barre {
+  .lecture__suite-barre {
     box-shadow: 0 -8px 16px -8px rgb(0 0 0 / 30%);
   }
 }
 
-.savoir__chapo {
+.lecture__chapo {
   color: var(--discret);
   font-size: 18px;
 }
 
 /* La citation et le calcul : mis en valeur, pour qu'on les trouve d'un coup d'œil. */
-.savoir__citation,
-.savoir__formule {
+.lecture__citation,
+.lecture__formule {
   padding: 10px 14px;
   border-left: 4px solid var(--marque);
   border-radius: 4px;
   background: var(--carte);
   font-weight: 700;
+}
+
+/* Le renvoi vers l'autre page de lecture, en fin de page : un encadré, pour qu'on ne le manque pas (« .lecture » devant :
+   plus fort que la marge des paragraphes, « .lecture p »). */
+.lecture .lecture__renvoi {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--carte);
+  font-weight: 700;
+}
+
+/* Une cible confortable au doigt (WCAG 2.5.8). */
+.lecture__renvoi a {
+  display: inline-block;
+  padding: 4px 0;
 }

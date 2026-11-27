@@ -24,7 +24,7 @@ for (const theme of ['light', 'dark'] as const) {
   test.describe(`mode ${theme === 'light' ? 'clair' : 'sombre'}`, () => {
     test.use({ colorScheme: theme })
 
-    test('accueil, tutoriel et En savoir plus', async ({ page }) => {
+    test('accueil, tutoriel, En savoir plus, et Mentions légales et vie privée', async ({ page }) => {
       await page.goto('/')
       await expect(page.getByRole('button', { name: /Jouer le Duel du jour/ })).toBeEnabled()
       await verifierAccessibilite(page, 'accueil')
@@ -37,6 +37,11 @@ for (const theme of ['light', 'dark'] as const) {
       await page.goto('/#en-savoir-plus')
       await expect(page.getByRole('heading', { level: 2, name: 'En savoir plus' })).toBeVisible()
       await verifierAccessibilite(page, 'En savoir plus')
+
+      // Depuis le pied de page, au clavier : la seconde page à lire.
+      await page.getByRole('contentinfo').getByRole('link', { name: 'Mentions légales' }).press('Enter')
+      await expect(page.getByRole('heading', { level: 2, name: 'Mentions légales et vie privée' })).toBeVisible()
+      await verifierAccessibilite(page, 'Mentions légales et vie privée')
     })
 
     test('Duel : la question, puis la réponse et son explication', async ({ page }) => {
@@ -115,6 +120,8 @@ test.describe('zoom à 200 %', () => {
     await sansDefilementHorizontal(page, 'fin de Partie')
     await page.goto('/#en-savoir-plus')
     await sansDefilementHorizontal(page, 'En savoir plus')
+    await page.goto('/#mentions-legales')
+    await sansDefilementHorizontal(page, 'Mentions légales et vie privée')
   })
 
   /*

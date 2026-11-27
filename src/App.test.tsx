@@ -10,7 +10,7 @@ import type { ComptesDesPaires } from './domaine/taux-d-erreur.ts'
 import { creerMemoire, type Stockage } from './navigateur/memoire.ts'
 import type { ReponseDeFin } from './navigateur/rang-du-jour.ts'
 import { signalerNouvelleVersion } from './navigateur/mise-a-jour.ts'
-import { TITRE_ACCUEIL, TITRE_EN_SAVOIR_PLUS } from './referencement.ts'
+import { TITRE_ACCUEIL, TITRE_EN_SAVOIR_PLUS, TITRE_MENTIONS_LEGALES } from './referencement.ts'
 
 // Le vrai générateur, observé : on lit ce que l'application lui demande d'écarter.
 vi.mock('./domaine/generateur.ts', async (importOriginal) => {
@@ -102,9 +102,12 @@ describe('Application : accueil', () => {
     expect(within(fenetre).getByRole('heading', { name: '1. Deux gestes s’affrontent' })).toBeInTheDocument()
   })
 
-  it('mène à la page En savoir plus', () => {
+  it('mène aux deux pages à lire : En savoir plus, puis Mentions légales', () => {
     render(<App />)
-    expect(screen.getAllByRole('link', { name: 'En savoir plus' })[0]).toHaveAttribute('href', '#en-savoir-plus')
+    const pied = screen.getByRole('contentinfo')
+    expect(within(pied).getByRole('link', { name: 'En savoir plus' })).toHaveAttribute('href', '#en-savoir-plus')
+    expect(within(pied).getByRole('link', { name: 'Mentions légales' })).toHaveAttribute('href', '#mentions-legales')
+    expect(pied).toHaveTextContent('Comment ça marche ? · En savoir plus · Mentions légales · Chiffres de l’ADEME, sans cookie ni compte')
   })
 
   it('renvoie « Chiffres de l’ADEME » vers la documentation d’Impact CO2, et garde GitHub pour En savoir plus', () => {
@@ -157,6 +160,46 @@ describe('Application : page En savoir plus', () => {
     fireEvent.click(screen.getByRole('link', { name: /Retour au jeu/ }))
     await waitFor(() => expect(screen.getByRole('button', { name: 'Duel suivant →' })).toBeVisible())
     expect(screen.getByText('Duel 1/10')).toBeInTheDocument()
+  })
+})
+
+describe('Application : page Mentions légales et vie privée', () => {
+  afterEach(() => {
+    window.location.hash = ''
+  })
+
+  it("s'ouvre directement depuis son adresse (#mentions-legales), avec la base légale et la CNIL", () => {
+    window.location.hash = '#mentions-legales'
+    render(<App />)
+    expect(screen.getByRole('heading', { level: 2, name: 'Mentions légales et vie privée' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Qui est responsable, et sur quelle base' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'adresser une plainte à la CNIL' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Partie libre' })).not.toBeInTheDocument()
+    expect(document.title).toBe(TITRE_MENTIONS_LEGALES)
+  })
+
+  it("s'ouvre depuis le pied de page, mène à En savoir plus, puis ramène au jeu", async () => {
+    render(<App />)
+    fireEvent.click(within(screen.getByRole('contentinfo')).getByRole('link', { name: 'Mentions légales' }))
+    expect(await screen.findByRole('heading', { level: 2, name: 'Mentions légales et vie privée' })).toHaveFocus()
+    fireEvent.click(screen.getByRole('link', { name: /Pourquoi ce jeu, ses règles/ }))
+    // L'autre page à lire s'ouvre, et le lecteur d'écran repart de son titre.
+    expect(await screen.findByRole('heading', { level: 2, name: 'En savoir plus' })).toHaveFocus()
+    expect(document.title).toBe(TITRE_EN_SAVOIR_PLUS)
+    fireEvent.click(screen.getByRole('link', { name: /Retour au jeu/ }))
+    expect(await screen.findByRole('button', { name: 'Partie libre' })).toBeInTheDocument()
+  })
+
+  it('garde la Partie en cours pendant la lecture', async () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'Partie libre' }))
+    fireEvent.click(within(screen.getByRole('region', { name: 'Lequel émet le plus ?' })).getAllByRole('button')[0])
+    const suivant = screen.getByRole('button', { name: 'Duel suivant →' })
+    fireEvent.click(screen.getByRole('link', { name: 'Mentions légales' }))
+    await screen.findByRole('heading', { level: 2, name: 'Mentions légales et vie privée' })
+    expect(suivant).not.toBeVisible()
+    fireEvent.click(screen.getByRole('link', { name: /Retour au jeu/ }))
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Duel suivant →' })).toBeVisible())
   })
 })
 
