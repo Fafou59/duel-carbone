@@ -38,7 +38,8 @@ export function PanneauDuel({ ligne, onFermer }: Props) {
   }
 
   const { numero, difficulte, duel, bonne, idChoisi } = ligne
-  const choisi = duel.a.id === idChoisi ? duel.a : duel.b
+  // Pas de choix : un Duel d'une Séance auquel le Participant n'a pas répondu.
+  const choisi = idChoisi === null ? null : duel.a.id === idChoisi ? duel.a : duel.b
 
   return (
     // Échap ferme la boîte nativement : l'événement « close » nous prévient dans tous les cas.
@@ -59,7 +60,11 @@ export function PanneauDuel({ ligne, onFermer }: Props) {
           </button>
         </div>
         <p className={`panneau__verdict panneau__verdict--${bonne ? 'bon' : 'mauvais'}`}>
-          {bonne ? '✓ Bonne réponse !' : `✗ Raté ! Tu avais choisi : ${choisi.titre} (${choisi.sousTitre}).`}
+          {bonne
+            ? '✓ Bonne réponse !'
+            : choisi
+              ? `✗ Raté ! Tu avais choisi : ${choisi.titre} (${choisi.sousTitre}).`
+              : '✗ Pas de réponse à ce Duel.'}
         </p>
         <ExplicationDuel duel={duel} />
       </div>

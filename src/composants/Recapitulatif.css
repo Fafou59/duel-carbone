@@ -1,0 +1,81 @@
+/* Le Récapitulatif des 10 Duels (fin de Partie, fin de Séance), et ses cases qui ouvrent le détail d'un Duel. */
+.recap__titre {
+  margin: 24px 0 0;
+  font-size: 18px;
+}
+
+.recap__aide {
+  margin: 0;
+  color: var(--discret);
+  font-size: 14px;
+}
+
+/* minmax(0, 1fr) : les colonnes ne dépassent jamais la largeur de l'écran,
+   même si leur contenu refuse de passer à la ligne. */
+.recap {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (max-width: 290px) {
+  .recap {
+    grid-template-columns: 1fr;
+  }
+}
+
+.recap__case {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 8px;
+  border: 3px solid var(--ligne);
+  border-radius: 14px;
+  background: var(--carte);
+  color: var(--encre);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* La couleur est toujours doublée par le texte (✓ / ✗). */
+.recap__case--bon {
+  border-color: var(--bon);
+}
+
+.recap__case--mauvais {
+  border-color: var(--mauvais);
+}
+
+/* Indicateur de focus (navigation au clavier) : couleur de l'encre et non verte,
+   pour ne pas se confondre avec l'encadré vert d'un Duel réussi. */
+.recap__case:focus-visible {
+  outline: 3px solid var(--encre);
+  outline-offset: 3px;
+}
+
+.recap__numero {
+  display: block;
+  color: var(--discret);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* « 72 % comme toi » (ADR 0006), sous l'équivalence : discret, comme le numéro (CommeToi.css, version petite). */
+.recap__taux {
+  display: block;
+  margin-top: 2px;
+}
+
+/* La taille suit la largeur de l'écran (14 à 18 px) pour que l'équivalence tienne sur une ligne. */
+.recap__equivalence {
+  display: block;
+  margin-top: 2px;
+  overflow: hidden;
+  font-size: clamp(14px, 4.6vw, 18px);
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

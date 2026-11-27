@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { GesteCalcule } from './geste.ts'
 import { avancer, demarrerPartie, type EtatPartie } from './partie.ts'
-import { messageDeScore, recapitulatif } from './recapitulatif.ts'
+import { lignesDuRecapitulatif, messageDeScore, recapitulatif } from './recapitulatif.ts'
 
 const geste = (id: string, empreinte: number): GesteCalcule =>
   ({ id, titre: id, sousTitre: '', empreinte }) as unknown as GesteCalcule
@@ -31,6 +31,14 @@ describe('Récapitulatif', () => {
     expect(lignes[0]).toMatchObject({ idChoisi: 'gros-0', bonne: true })
     expect(lignes[1]).toMatchObject({ idChoisi: 'petit-1', bonne: false })
     expect(lignes[2]).toMatchObject({ idChoisi: 'gros-2', bonne: true })
+  })
+
+  it('accepte un Duel sans réponse (Séance) : il compte comme raté', () => {
+    const lignes = lignesDuRecapitulatif(DUELS, ['gros-0', null])
+    expect(lignes).toHaveLength(10)
+    expect(lignes[0]).toMatchObject({ idChoisi: 'gros-0', bonne: true })
+    expect(lignes[1]).toMatchObject({ idChoisi: null, bonne: false })
+    expect(lignes[9]).toMatchObject({ idChoisi: null, bonne: false })
   })
 
   it('donne l’équivalence du Duel : le plus émetteur, le moins émetteur et le Rapport', () => {
