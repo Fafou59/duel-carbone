@@ -42,7 +42,8 @@ export function PrototypeSwitcher({
     <div
       style={{
         position: 'fixed',
-        bottom: 16,
+        // Au-dessus des boutons collés en bas (« Retour au jeu », « Duel suivant »).
+        bottom: 96,
         left: '50%',
         transform: 'translateX(-50%)',
         display: 'flex',

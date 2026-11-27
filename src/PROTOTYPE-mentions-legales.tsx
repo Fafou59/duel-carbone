@@ -454,7 +454,10 @@ function VarianteC({ ancre }: { ancre: string }) {
 export function SavoirPrototype({ variante }: { variante: VarianteMentions }) {
   const ancre = useAncre()
   // Chaque nouvelle page repart du haut.
-  useEffect(() => window.scrollTo(0, 0), [ancre, variante])
+  // Entre accolades : certains navigateurs font rendre une promesse à scrollTo, que React prendrait pour un nettoyage.
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [ancre, variante])
   const cle = `${variante}${ancre}`
   if (variante === 'A') return <VarianteA key={cle} ancre={ancre} />
   if (variante === 'B') return <VarianteB key={cle} ancre={ancre} />
