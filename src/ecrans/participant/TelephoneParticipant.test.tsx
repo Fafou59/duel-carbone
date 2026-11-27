@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CALIBRAGE, GESTES_CALCULES } from '../../donnees/index.ts'
 import { DUELS_THEMATIQUES } from '../../donnees/duels-thematiques.ts'
 import { CONSEILS } from '../../donnees/conseils.ts'
@@ -104,8 +104,11 @@ function afficher({
   faux: fauxServeur = serveurDeTest(),
   memoire = creerMemoireDeSeance(stockageDeTest()),
 }: { faux?: ReturnType<typeof serveurDeTest>; memoire?: MemoireDeSeance } = {}) {
-  render(<TelephoneParticipant serveur={fauxServeur.serveur} memoireSeance={memoire} tirerJeton={() => JETON} />)
-  return { ...fauxServeur, memoire }
+  const mesurer = vi.fn()
+  const { unmount } = render(
+    <TelephoneParticipant serveur={fauxServeur.serveur} memoireSeance={memoire} tirerJeton={() => JETON} mesurer={mesurer} />,
+  )
+  return { ...fauxServeur, memoire, mesurer, unmount }
 }
 
 /** Le téléphone de Camille, déjà dans la Séance (jeton retenu) : il se connecte sans passer par le formulaire. */
@@ -139,6 +142,31 @@ describe('rejoindre la Séance', () => {
     expect(connexions).toHaveLength(1)
     expect(connexions[0].bonjour).toEqual({ type: 'bonjour', role: 'participant', jeton: JETON, pseudo: 'Camille' })
     expect(memoire.rejointe()).toMatchObject({ code: CODE, jeton: JETON, pseudo: 'Camille' })
+  })
+
+  it('compte le Participant une fois, quand la Séance l’accepte : ni au refus, ni à la reconnexion', async () => {
+    const srv = afficher()
+    fireEvent.change(await screen.findByLabelText('Ton pseudo (affiché au Classement)'), { target: { value: 'Camille' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Rejoindre' }))
+    expect(srv.mesurer).not.toHaveBeenCalled()
+    srv.pousser(vueDe(enAttente()))
+    srv.pousser(vueDe(avancer(enAttente())))
+    expect(srv.mesurer.mock.calls).toEqual([['seance/rejointe']])
+
+    // La page rechargée (même mémoire) : le téléphone reprend sa place sans être recompté.
+    srv.unmount()
+    const repris = afficher({ memoire: srv.memoire })
+    repris.pousser(vueDe(avancer(enAttente())))
+    expect(repris.mesurer).not.toHaveBeenCalled()
+  })
+
+  it('ne compte pas un Participant que la Séance refuse', async () => {
+    const srv = afficher()
+    fireEvent.change(await screen.findByLabelText('Ton pseudo (affiché au Classement)'), { target: { value: 'Camille' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Rejoindre' }))
+    srv.recevoir({ type: 'refus', raison: 'pleine' })
+    expect(await screen.findByText(/La Séance est complète/)).toBeInTheDocument()
+    expect(srv.mesurer).not.toHaveBeenCalled()
   })
 
   it('refuse un pseudo vide, en le disant', async () => {
@@ -333,6 +361,9 @@ describe('la fin de la Séance', () => {
     expect(screen.getByText('Bravo, tu montes sur le podium !')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Jouer le Duel du jour' })).toHaveAttribute('href', '/?ref=seance')
     expect(screen.getByRole('complementary', { name: /Un conseil/ })).toBeInTheDocument()
+    // Le lien du Conseil est compté, comme en fin de Partie.
+    fireEvent.click(screen.getByRole('link', { name: /^En savoir plus sur/ }))
+    expect(srv.mesurer).toHaveBeenCalledWith('conseil/lien')
 
     const cases = within(screen.getByRole('list', { name: 'Récapitulatif' })).getAllByRole('button')
     expect(cases).toHaveLength(10)

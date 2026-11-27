@@ -6,11 +6,13 @@ import { PageDeLecture, Renvoi, type PartieDeLecture } from '../composants/PageD
 /** L'adresse de contact, en lien « mailto: » : on y écrit pour toute question ou demande sur ses données. */
 const Contact = () => <a href={`mailto:${CONTACT}`}>{CONTACT}</a>
 
+const { dureeMaxEnHeures, effacementEnHeures, longueurMaxDuPseudo } = REGLES.seance
+
 /**
  * Les parties de la page, dans l'ordre : ce que le jeu garde de toi d'abord (c'est ce qu'on vient chercher), puis
  * pourquoi il en a le droit, ce que tu peux demander, qui l'édite, et à quelles conditions il reprend les données de
- * l'ADEME (décision de l'issue 111, variante A). La partie « Pendant une Séance du Mode animation » viendra juste
- * après « Ta vie privée » (lot 4 du Mode animation, issue 137).
+ * l'ADEME (décision de l'issue 111, variante A). Juste après « Ta vie privée », la Séance du Mode animation, seul
+ * moment où le serveur garde des données personnelles, et pour 24 heures au plus (ADR 0007, lot 4 : issue 137).
  *
  * Les faits sur les prestataires ont été vérifiés le 27/11/2026 dans leurs pages officielles : GoatCounter
  * (goatcounter.com/help/privacy, /help/sessions : données chez Hetzner en Finlande et en Allemagne, adresse IP jamais
@@ -59,11 +61,46 @@ const PARTIES: PartieDeLecture[] = [
         </p>
         <p>
           Pour savoir si le jeu plaît, nous comptons les visites et quelques moments de jeu (une Partie lancée, terminée
-          et sa durée approximative, la longueur de ta série quand tu lances le Duel du jour, « Rejouer », un partage en texte ou en image, le lien « En savoir plus » d'un Conseil, l'invitation à installer le jeu et sa réponse, l'ouverture du QR code sur ordinateur, et les plantages du jeu, sans leur détail) avec{' '}
+          et sa durée approximative, la longueur de ta série quand tu lances le Duel du jour, « Rejouer », un partage en texte ou en image, le lien « En savoir plus » d'un Conseil, l'invitation à installer le jeu et sa réponse, l'ouverture du QR code sur ordinateur, les Séances du Mode animation créées, rejointes et terminées, avec leur nombre de Participants, et les plantages du jeu, sans leur détail) avec{' '}
           <a href={GOATCOUNTER}>GoatCounter</a>, une mesure
           d'audience sans cookie ni identifiant. Elle ne donne que des chiffres agrégés : elle ne peut pas te suivre
           d'un site à l'autre, n'enregistre pas ton adresse IP, et ni ton score ni tes réponses ne lui sont envoyés. Si
           ton navigateur la bloque, le jeu marche tout autant.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'seance',
+    titre: 'Pendant une Séance du Mode animation',
+    contenu: (
+      <>
+        <p>
+          Une Séance fait jouer toute une salle en direct : l'Animateur projette les Duels, chacun répond sur son
+          téléphone. C'est le seul moment où le serveur du jeu garde des données qui te concernent, et seulement le
+          temps de la Séance.
+        </p>
+        <p>
+          Quand tu rejoins une Séance, ton téléphone tire au hasard un jeton, qu'il garde dans ton navigateur et envoie
+          avec chacune de tes réponses : il te rend ta place si la connexion se coupe ou si ton téléphone se met en
+          veille. Il ne vaut que pour cette Séance : il ne permet pas de te reconnaître d'une Séance à l'autre. Le
+          serveur de la Séance garde ce jeton, tes réponses (pour ton score, le classement et la part de la salle) et,
+          si l'Animateur a choisi un classement, ton pseudo ({longueurMaxDuPseudo} caractères au plus), que
+          l'Animateur peut retirer d'un clic. L'ordinateur de l'Animateur garde de même son propre jeton, qui lui
+          seul permet de faire avancer la Séance. Jamais ton adresse IP.
+        </p>
+        <p>
+          Ces données restent chez Cloudflare, dans l'Union européenne. La Séance se ferme {dureeMaxEnHeures} heures
+          après sa création, et tout est effacé au bout de {effacementEnHeures} heures. Ne restent que des totaux sans
+          nom : tes réponses s'ajoutent à la part des réponses fausses de chaque paire de gestes, comme dans une
+          Partie, et la mesure d'audience compte les Séances créées, les Participants qui les rejoignent et leur
+          nombre à la fin.
+        </p>
+        <p>
+          Le responsable de ces données est l'éditeur du jeu, pas l'Animateur : il se sert d'un outil public et
+          gratuit. Les jetons gardés sur ton téléphone et sur l'ordinateur de l'Animateur sont strictement nécessaires
+          pour jouer la Séance que tu as choisi de rejoindre : la loi n'exige pas d'accord pour eux, il n'y a donc pas
+          de bandeau à accepter.
         </p>
       </>
     ),
@@ -80,14 +117,15 @@ const PARTIES: PartieDeLecture[] = [
           personnelles.
         </p>
         <p>
-          Il reste ton adresse IP, que deux prestataires voient passer. Cloudflare, l'hébergeur, la reçoit pour
-          t'envoyer les pages du jeu et protéger le site des attaques : il agit pour notre compte, et le jeu lui-même ne
-          la garde pas. GoatCounter, la mesure d'audience, s'en sert quelques heures au plus, en mémoire, pour ne pas
+          Pendant une Séance du Mode animation, le serveur garde aussi ton pseudo, tes réponses et ton jeton,{' '}
+          {effacementEnHeures} heures au plus (voir plus haut). Il reste enfin ton adresse IP, que deux prestataires
+          voient passer. Cloudflare, l'hébergeur, la reçoit pour t'envoyer les pages du jeu et protéger le site des
+          attaques : il agit pour notre compte, et le jeu lui-même ne la garde pas. GoatCounter, la mesure d'audience, s'en sert quelques heures au plus, en mémoire, pour ne pas
           compter deux fois la même visite et en déduire ton pays, sans jamais l'enregistrer.
         </p>
         <p>
-          Les deux reposent sur notre intérêt légitime (article 6.1.f du RGPD) : faire marcher et protéger le site, et
-          savoir s'il plaît pour l'améliorer. La mesure d'audience ne dépose rien sur ton appareil, ni cookie ni autre
+          Tout cela repose sur notre intérêt légitime (article 6.1.f du RGPD) : faire marcher et protéger le site, y
+          compris la Séance que tu as rejointe, et savoir s'il plaît pour l'améliorer. La mesure d'audience ne dépose rien sur ton appareil, ni cookie ni autre
           trace : elle ne demande donc pas ton accord.
         </p>
         <p>
@@ -107,8 +145,9 @@ const PARTIES: PartieDeLecture[] = [
       <>
         <p>
           Tu peux demander à accéder aux données qui te concernent, à les faire corriger ou effacer, à en limiter
-          l'usage ou t'y opposer, en écrivant à <Contact />. Comme le jeu ne garde rien qui permette de te reconnaître,
-          il n'y aura le plus souvent rien à retrouver. Pour effacer ce que garde ton navigateur, il suffit de vider les
+          l'usage ou t'y opposer, en écrivant à <Contact />. En dehors d'une Séance du Mode animation, effacée au
+          bout de {effacementEnHeures} heures, le jeu ne garde rien qui permette de te reconnaître : il n'y aura le plus
+          souvent rien à retrouver. Pour effacer ce que garde ton navigateur, il suffit de vider les
           données du site dans ses réglages.
         </p>
         <p>

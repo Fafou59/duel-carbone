@@ -15,6 +15,7 @@ import { DUELS_THEMATIQUES } from '../../donnees/duels-thematiques.ts'
 import { CALIBRAGE, GESTES_CALCULES } from '../../donnees/index.ts'
 import { ADRESSES } from '../../navigateur/adresse.ts'
 import { creerMemoire, type Memoire } from '../../navigateur/memoire.ts'
+import { mesurer as mesurerReel, type Evenement } from '../../navigateur/mesure.ts'
 import { creerMemoireDeSeance, type MemoireDeSeance } from '../../navigateur/memoire-seance.ts'
 import { serveurDesSeances, type ServeurDesSeances } from '../../navigateur/seance.ts'
 import { TITRE_MODE_ANIMATION } from '../../referencement.ts'
@@ -22,11 +23,12 @@ import { EcranSeance } from './EcranSeance.tsx'
 import './ModeAnimation.css'
 
 type Props = {
-  /** Remplaçables dans les tests : la mémoire du jeu, celle de la Séance, le serveur et le hasard du tirage. */
+  /** Remplaçables dans les tests : la mémoire du jeu, celle de la Séance, le serveur, le hasard du tirage et la mesure. */
   memoire?: Memoire
   memoireSeance?: MemoireDeSeance
   serveur?: ServeurDesSeances
   hasard?: SourceDeHasard
+  mesurer?: (evenement: Evenement) => void
 }
 
 type Etat =
@@ -37,7 +39,13 @@ type Etat =
 
 const { participantsMin, participantsMax, dureeMaxEnHeures, effacementEnHeures } = REGLES.seance
 
-export function ModeAnimation({ memoire: memoireFournie, memoireSeance: memoireSeanceFournie, serveur: serveurFourni, hasard = Math.random }: Props) {
+export function ModeAnimation({
+  memoire: memoireFournie,
+  memoireSeance: memoireSeanceFournie,
+  serveur: serveurFourni,
+  hasard = Math.random,
+  mesurer = mesurerReel,
+}: Props) {
   const [memoire] = useState(() => memoireFournie ?? creerMemoire())
   const [memoireSeance] = useState(() => memoireSeanceFournie ?? creerMemoireDeSeance())
   const [serveur] = useState(() => serveurFourni ?? serveurDesSeances())
@@ -90,6 +98,8 @@ export function ModeAnimation({ memoire: memoireFournie, memoireSeance: memoireS
       })
       return
     }
+    // La mesure d'audience compte les Séances créées (PRD du Mode animation, section 7), sans rien d'autre.
+    mesurer('seance/creee')
     // Ces paires comptent désormais parmi les récentes : la prochaine Séance (ou Partie libre) en propose d'autres.
     memoire.enregistrerPartie(duels.map((d) => cleDePaire(d.a.id, d.b.id)))
     memoireSeance.retenirAnimee({ code: creee.code, jeton: creee.jetonAnimateur })
@@ -121,6 +131,7 @@ export function ModeAnimation({ memoire: memoireFournie, memoireSeance: memoireS
         jeton={etat.jeton}
         serveur={serveur}
         memoire={memoire}
+        mesurer={mesurer}
         onNouvelle={() => void creer(etat.avecClassement)}
         onAbandon={revenirALExplication}
         onPerdue={revenirALExplication}

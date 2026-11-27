@@ -86,10 +86,22 @@ describe('la page d’explication du Mode animation', () => {
 
   it('dit quand la Séance n’a pas pu être créée', async () => {
     const { serveur } = fauxServeur({ creation: null })
-    render(<ModeAnimation serveur={serveur} {...memoires()} />)
+    const mesurer = vi.fn()
+    render(<ModeAnimation serveur={serveur} mesurer={mesurer} {...memoires()} />)
     fireEvent.click(screen.getByRole('button', { name: 'Créer la Séance' }))
     expect(await screen.findByRole('alert')).toHaveTextContent(/n’a pas pu être créée/)
     expect(screen.getByRole('button', { name: 'Créer la Séance' })).toBeEnabled()
+    // Une Séance qui n'existe pas n'est pas comptée.
+    expect(mesurer).not.toHaveBeenCalled()
+  })
+
+  it('compte chaque Séance créée (mesure d’audience), sans rien d’autre', async () => {
+    const { serveur } = fauxServeur()
+    const mesurer = vi.fn()
+    render(<ModeAnimation serveur={serveur} mesurer={mesurer} {...memoires()} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Créer la Séance' }))
+    await waitFor(() => expect(mesurer).toHaveBeenCalledWith('seance/creee'))
+    expect(mesurer).toHaveBeenCalledOnce()
   })
 
   it('reprend la Séance en cours après une fermeture de l’onglet, ou l’oublie si elle n’existe plus', async () => {
@@ -112,10 +124,11 @@ describe('l’écran projeté de la Séance', () => {
   async function lancer() {
     const faux = fauxServeur()
     const { memoire, memoireSeance } = memoires()
+    const mesurer = vi.fn()
     memoireSeance.retenirAnimee({ code: CODE, jeton: JETON })
-    render(<ModeAnimation serveur={faux.serveur} memoire={memoire} memoireSeance={memoireSeance} />)
+    render(<ModeAnimation serveur={faux.serveur} memoire={memoire} memoireSeance={memoireSeance} mesurer={mesurer} />)
     await waitFor(() => expect(faux.serveur.connecter).toHaveBeenCalled())
-    return { ...faux, memoire, memoireSeance }
+    return { ...faux, memoire, memoireSeance, mesurer }
   }
   const espace = () => fireEvent.keyDown(document.body, { key: ' ' })
 
@@ -171,6 +184,22 @@ describe('l’écran projeté de la Séance', () => {
     expect(screen.getByRole('button', { name: /Voir le classement/ })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Voir le détail des émissions' }))
     expect(screen.getByRole('dialog', { name: 'Le détail des émissions' })).toBeVisible()
+  })
+
+  it('compte la fin de la Séance une seule fois, avec le nombre exact de Participants', async () => {
+    const { montrer, mesurer } = await lancer()
+    let etat = salle()
+    while (!(etat.etape.phase === 'revelation' && etat.etape.index === 9)) {
+      etat = avancer(etat)
+      // Rien n'est compté pendant la Séance : ni le lancement, ni les révélations, ni les classements.
+      montrer(etat)
+    }
+    espace()
+    expect(mesurer.mock.calls).toEqual([['seance/terminee/3']])
+    // L'écran de fin, réaffiché (onglet rouvert, nouvelle vue), ne recompte rien.
+    montrer(avancer(etat, CONSEILS[0].id))
+    montrer(avancer(etat, CONSEILS[0].id))
+    expect(mesurer).toHaveBeenCalledOnce()
   })
 
   it('choisit le Conseil en passant au classement final, puis le montre et le retient', async () => {

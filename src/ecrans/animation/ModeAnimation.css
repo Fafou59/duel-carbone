@@ -612,15 +612,22 @@ li:hover > .an-retirer,
   font-weight: 800;
   font-size: 0.85em;
 }
-.an-frise--avenir {
-  opacity: 0.35;
-}
 .an-frise__num {
   text-align: center;
   font-weight: 800;
   border-radius: 6px;
   color: #fff;
   background: var(--c);
+}
+/* Les Duels à venir : leur colonne s'estompe, mais pas leur numéro, qui doit rester lisible (contraste de 4,5:1,
+   vérifié par axe-core dans e2e/seance.spec.ts) : il passe en contour, de la couleur de sa Difficulté. */
+.an-frise--avenir .an-frise__pile {
+  opacity: 0.35;
+}
+.an-frise--avenir .an-frise__num {
+  color: var(--encre);
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--c);
 }
 
 /* Duel 10 révélé : le tambour avant le classement final. */

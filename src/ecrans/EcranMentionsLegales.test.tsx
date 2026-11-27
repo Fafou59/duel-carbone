@@ -8,11 +8,36 @@ describe('Page Mentions légales et vie privée', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Mentions légales et vie privée' })).toHaveFocus()
     expect(screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual([
       'Ta vie privée',
+      'Pendant une Séance du Mode animation',
       'Qui est responsable, et sur quelle base',
       'Tes droits, et la CNIL',
       'Éditeur et hébergeur',
       "Les données de l'ADEME",
     ])
+  })
+
+  it('dit ce qu’une Séance du Mode animation garde, combien de temps, et pourquoi sans bandeau (ADR 0007)', () => {
+    render(<EcranMentionsLegales />)
+    const partie = screen.getByRole('region', { name: 'Pendant une Séance du Mode animation' })
+    expect(partie).toHaveTextContent(/ton téléphone tire au hasard un jeton/)
+    expect(partie).toHaveTextContent(/Il ne vaut que pour cette Séance/)
+    expect(partie).toHaveTextContent(/ton pseudo \(20 caractères au plus\), que l'Animateur peut retirer d'un clic/)
+    expect(partie).toHaveTextContent(/Jamais ton adresse IP/)
+    // Les durées sont lues dans les règles (REGLES.seance), jamais écrites à la main.
+    expect(partie).toHaveTextContent(/La Séance se ferme 3 heures après sa création, et tout est effacé au bout de 24 heures/)
+    expect(partie).toHaveTextContent(/dans l'Union européenne/)
+    expect(partie).toHaveTextContent(/Le responsable de ces données est l'éditeur du jeu, pas l'Animateur/)
+    expect(partie).toHaveTextContent(/strictement nécessaires/)
+    expect(partie).toHaveTextContent(/il n'y a donc pas de bandeau à accepter/)
+  })
+
+  it('compte les Séances dans la mesure d’audience, et les nomme dans la base légale', () => {
+    render(<EcranMentionsLegales />)
+    expect(screen.getByText(/Pour savoir si le jeu plaît/)).toHaveTextContent(
+      /les Séances du Mode animation créées, rejointes et terminées, avec leur nombre de Participants/,
+    )
+    const base = screen.getByRole('region', { name: 'Qui est responsable, et sur quelle base' })
+    expect(base).toHaveTextContent(/Pendant une Séance du Mode animation, le serveur garde aussi ton pseudo, tes réponses et ton jeton, 24 heures au plus/)
   })
 
   it('nomme le responsable du traitement, et la base légale : l’intérêt légitime, sans accord à demander', () => {
