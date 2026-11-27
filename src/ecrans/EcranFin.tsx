@@ -2,11 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { CompteARebours } from '../composants/CompteARebours.tsx'
 import { Conseil } from '../composants/Conseil.tsx'
 import { InvitationInstallation } from '../composants/InvitationInstallation.tsx'
-import { PanneauDuel } from '../composants/PanneauDuel.tsx'
+import { Recapitulatif } from '../composants/Recapitulatif.tsx'
 import { RangDuJour } from '../composants/RangDuJour.tsx'
-import { Icone } from '../composants/Icone.tsx'
 import type { ConseilAffiche } from '../domaine/conseils.ts'
-import { formaterMultiple, queDevant } from '../domaine/format.ts'
 import { texteDePartage, texteDePartageDuJour } from '../domaine/partage.ts'
 import { messageDeScore, type LigneRecapitulatif } from '../domaine/recapitulatif.ts'
 import type { DonneesImage } from '../domaine/image-de-partage.ts'
@@ -145,20 +143,6 @@ export function EcranFin({
     if (conseilAffiche) onConseilVu.current?.(conseilAffiche.id)
   }, [conseilAffiche])
 
-  // Position (0 à 9) du Duel dont le détail est ouvert, ou null si le panneau est fermé.
-  const [ouvert, setOuvert] = useState<number | null>(null)
-  // Les 10 cases, pour rendre le focus à celle qu'on vient de consulter.
-  const cases = useRef<(HTMLButtonElement | null)[]>([])
-
-  const fermer = () => {
-    if (ouvert === null) return
-    setOuvert(null)
-    cases.current[ouvert]?.focus()
-  }
-
-  // Le Taux d'erreur de chaque Duel du Récapitulatif (null : rien à afficher).
-  const taux = (ligne: LigneRecapitulatif) => tauxDe(ligne.duel)
-
   // Le Duel du jour reste à jouer (ou à finir) : il passe devant « Rejouer ».
   const inviterAuDuJour = !partieDuJour && duJour && duJour.situation !== 'joue' ? duJour : null
 
@@ -254,47 +238,13 @@ export function EcranFin({
         </div>
       )}
 
-      <h3 id="recap-titre" className="fin__recap-titre">
-        Récapitulatif
-      </h3>
-      <p className="fin__aide">Touche un Duel pour revoir son explication.</p>
-      <ul className="recap" aria-labelledby="recap-titre">
-        {lignes.map((ligne, i) => (
-          <li key={ligne.numero}>
-            <button
-              ref={(element) => {
-                cases.current[i] = element
-              }}
-              type="button"
-              className={`recap__case recap__case--${ligne.bonne ? 'bon' : 'mauvais'}`}
-              aria-haspopup="dialog"
-              onClick={() => setOuvert(i)}
-            >
-              {/* Le nom lu par les lecteurs d'écran vient du texte de la case : « Duel 1 (réussi) : … émet … fois
-                  plus que … ». Les symboles et les icônes sont remplacés par des mots (texte caché), mais le nom
-                  commence par ce qu'on voit (« Duel 1 ») : on peut désigner la case à la voix. */}
-              <span className="recap__numero">
-                <span aria-hidden="true">{ligne.bonne ? '✓' : '✗'} </span>Duel {ligne.numero}
-                <span className="visuellement-cache">
-                  {' '}
-                  ({ligne.bonne ? 'réussi' : 'raté'}) : {ligne.plus.titre} émet {formaterMultiple(ligne.rapport)} fois
-                  plus {queDevant(ligne.moins.titre)}
-                </span>
-              </span>
-              <span className="recap__equivalence" aria-hidden="true">
-                1 <Icone id={ligne.plus.id} /> = {formaterMultiple(ligne.rapport)} <Icone id={ligne.moins.id} />
-              </span>
-              {taux(ligne) !== null && (
-                <span className="recap__taux">
-                  <CommeToi bon={ligne.bonne} taux={taux(ligne) ?? 0} petite />
-                </span>
-              )}
-            </button>
-          </li>
-        ))}
-      </ul>
-
-      {ouvert !== null && <PanneauDuel key={ouvert} ligne={lignes[ouvert]} onFermer={fermer} />}
+      <Recapitulatif
+        lignes={lignes}
+        complement={(ligne) => {
+          const taux = tauxDe(ligne.duel)
+          return taux === null ? null : <CommeToi bon={ligne.bonne} taux={taux} petite />
+        }}
+      />
     </section>
   )
 }

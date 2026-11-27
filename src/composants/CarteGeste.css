@@ -61,6 +61,25 @@
   color: #fff;
 }
 
+.carte__etiquette--envoyee {
+  background: var(--marque);
+  color: var(--sur-marque);
+}
+
+/* Séance : la réponse est partie et attend la révélation. La carte choisie reste marquée, l'autre s'estompe ;
+   ni l'une ni l'autre n'a l'air grisée d'une carte hors d'usage (prototype du 26/11). */
+.carte--envoyee:disabled {
+  border-color: var(--marque);
+  box-shadow: 0 0 0 3px var(--marque);
+  opacity: 1;
+  cursor: default;
+}
+
+.carte--ecartee:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
 .carte__icone {
   font-size: 46px;
   line-height: 1;

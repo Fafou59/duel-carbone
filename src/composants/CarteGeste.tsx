@@ -19,25 +19,31 @@ type Props = {
   choisie: boolean
   /** Touche du clavier qui choisit cette carte (1 ou 2), s'il y en a une. */
   raccourci?: string
+  /**
+   * Séance du Mode animation : la réponse est envoyée et attend la révélation de l'Animateur. La carte ne se choisit
+   * plus, et la carte choisie le dit (« Ton choix »), sans rien révéler.
+   */
+  envoyee?: boolean
   onChoisir: () => void
 }
 
-export function CarteGeste({ geste, etat, choisie, raccourci, onChoisir }: Props) {
+export function CarteGeste({ geste, etat, choisie, raccourci, envoyee = false, onChoisir }: Props) {
   const revelee = etat !== 'question'
   // Le bon choix du joueur : la carte fait un petit bond (voir CarteGeste.css).
   const bonChoix = etat === 'plus-emetteur' && choisie
   return (
     <button
       type="button"
-      className={`carte carte--${etat}${bonChoix ? ' carte--bon-choix' : ''}`}
+      className={`carte carte--${etat}${bonChoix ? ' carte--bon-choix' : ''}${envoyee ? (choisie ? ' carte--envoyee' : ' carte--ecartee') : ''}`}
       onClick={onChoisir}
-      disabled={revelee}
+      disabled={revelee || envoyee}
       aria-keyshortcuts={raccourci}
     >
       {etat === 'plus-emetteur' && (
         <span className="carte__etiquette carte__etiquette--bon">✓ {choisie ? 'Ton choix · ' : ''}émet le plus</span>
       )}
       {etat === 'mauvais-choix' && <span className="carte__etiquette carte__etiquette--mauvais">✗ Ton choix</span>}
+      {!revelee && envoyee && choisie && <span className="carte__etiquette carte__etiquette--envoyee">Ton choix</span>}
       <span className="carte__icone" aria-hidden="true">
         <Icone id={geste.id} />
       </span>

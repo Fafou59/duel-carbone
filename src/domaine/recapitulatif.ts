@@ -3,7 +3,7 @@
  * afficher la case « ✓ Duel 3 · 1 🥩 = 10,8 🥑 » et rouvrir son explication.
  */
 import { difficulteAttendue, type Difficulte } from './difficulte.ts'
-import { moinsEmetteur, plusEmetteur, rapport } from './duel.ts'
+import { estBonChoix, moinsEmetteur, plusEmetteur, rapport } from './duel.ts'
 import type { GesteCalcule } from './geste.ts'
 import type { DuelDePartie, EtatPartie } from './partie.ts'
 
@@ -13,24 +13,37 @@ export type LigneRecapitulatif = {
   /** Avec les textes d'un Duel thématique : le détail les remontre. */
   duel: DuelDePartie
   difficulte: Difficulte
-  idChoisi: string
+  /** Le Geste choisi ; null si le Participant d'une Séance n'a pas répondu à ce Duel (une Partie répond à tout). */
+  idChoisi: string | null
   bonne: boolean
   plus: GesteCalcule
   moins: GesteCalcule
   rapport: number
 }
 
+/** Les lignes du Récapitulatif, d'après les Duels et le choix du joueur à chacun (null : pas de réponse). */
+export function lignesDuRecapitulatif(duels: DuelDePartie[], choix: readonly (string | null)[]): LigneRecapitulatif[] {
+  return duels.map((duel, i) => {
+    const idChoisi = choix[i] ?? null
+    return {
+      numero: i + 1,
+      duel,
+      difficulte: difficulteAttendue(i),
+      idChoisi,
+      bonne: idChoisi !== null && estBonChoix(duel, idChoisi),
+      plus: plusEmetteur(duel),
+      moins: moinsEmetteur(duel),
+      rapport: rapport(duel),
+    }
+  })
+}
+
 export function recapitulatif(etat: EtatPartie): LigneRecapitulatif[] {
   if (etat.phase !== 'fin') throw new Error('Le Récapitulatif n’existe qu’à la fin de la Partie.')
-  return etat.duels.map((duel, i) => ({
-    numero: i + 1,
-    duel,
-    difficulte: difficulteAttendue(i),
-    ...etat.reponses[i],
-    plus: plusEmetteur(duel),
-    moins: moinsEmetteur(duel),
-    rapport: rapport(duel),
-  }))
+  return lignesDuRecapitulatif(
+    etat.duels,
+    etat.reponses.map((r) => r.idChoisi),
+  )
 }
 
 /**

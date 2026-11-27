@@ -6,13 +6,14 @@ import { usePage } from './navigateur/adresse.ts'
 // télécharge jamais son code (ni celui du QR code).
 const ModeAnimation = lazy(() => import('./ecrans/animation/ModeAnimation.tsx').then((m) => ({ default: m.ModeAnimation })))
 
-/** Le jeu, ou l'écran de l'Animateur : un écran projeté, sans l'en-tête ni le pied de page du jeu. */
+// Le téléphone du Participant (#rejoindre/<code>, l'adresse du QR code), chargé à part de la même façon.
+const TelephoneParticipant = lazy(() =>
+  import('./ecrans/participant/TelephoneParticipant.tsx').then((m) => ({ default: m.TelephoneParticipant })),
+)
+
+/** Le jeu, l'écran de l'Animateur (un écran projeté, sans l'en-tête ni le pied de page du jeu) ou le téléphone d'un Participant. */
 export function Racine() {
   const page = usePage()
-  if (page !== 'animer') return <App />
-  return (
-    <Suspense fallback={null}>
-      <ModeAnimation />
-    </Suspense>
-  )
+  if (page !== 'animer' && page !== 'rejoindre') return <App />
+  return <Suspense fallback={null}>{page === 'animer' ? <ModeAnimation /> : <TelephoneParticipant />}</Suspense>
 }
