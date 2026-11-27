@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { hasardReproductible } from './hasard.ts'
-import { categorieDePlace, PHRASES_DE_PLACE, tirerUnePhrase, type CategorieDePlace } from './seance-phrases.ts'
+import { categorieDePlace, CLASSEMENTS_INTERMEDIAIRES, PHRASES_DE_PLACE, phraseDePlace, type CategorieDePlace } from './seance-phrases.ts'
 
 describe('la catégorie de place', () => {
   it('distingue la tête, seul ou à égalité', () => {
@@ -27,30 +26,31 @@ describe('la catégorie de place', () => {
 })
 
 describe('les phrases', () => {
-  it('compte 10 phrases différentes par catégorie', () => {
+  it('compte une phrase par classement intermédiaire (9) dans chaque catégorie, toutes différentes', () => {
     const toutes = Object.values(PHRASES_DE_PLACE).flat()
-    for (const phrases of Object.values(PHRASES_DE_PLACE)) expect(phrases).toHaveLength(10)
+    expect(CLASSEMENTS_INTERMEDIAIRES).toBe(9)
+    for (const phrases of Object.values(PHRASES_DE_PLACE)) expect(phrases).toHaveLength(CLASSEMENTS_INTERMEDIAIRES)
     expect(new Set(toutes).size).toBe(toutes.length)
   })
 
+  // « Un seul Duel » parle du Duel, pas du Participant : il est permis.
   it('n’accorde rien au masculin ni au féminin (on ne sait rien du Participant)', () => {
     for (const phrase of Object.values(PHRASES_DE_PLACE).flat()) {
-      expect(phrase).not.toMatch(/\b(seule?|placée?|prête?|arrivée?|concentrée?|premiers? ex aequo|dernière? place)\b/i)
+      expect(phrase).not.toMatch(/\b(seule?(?! Duel)|placée?|prête?|arrivée?|concentrée?|premiers? ex aequo|dernière? place)\b/i)
     }
   })
 
-  it('ne répète jamais une phrase au fil de 9 classements, même dans une seule catégorie', () => {
-    const hasard = hasardReproductible(7)
+  it('suit le moment de la Séance : chaque classement a la sienne, jamais deux fois la même', () => {
     for (const categorie of Object.keys(PHRASES_DE_PLACE) as CategorieDePlace[]) {
-      const lues: string[] = []
-      for (let i = 0; i < 9; i++) lues.push(tirerUnePhrase(categorie, lues, hasard))
-      expect(new Set(lues).size).toBe(9)
-      for (const phrase of lues) expect(PHRASES_DE_PLACE[categorie]).toContain(phrase)
+      const lues = Array.from({ length: CLASSEMENTS_INTERMEDIAIRES }, (_, index) => phraseDePlace(categorie, index))
+      expect(new Set(lues).size).toBe(CLASSEMENTS_INTERMEDIAIRES)
     }
+    expect(phraseDePlace('seul-en-tete', 0)).toBe('Premier Duel, première place : joli départ !')
+    expect(phraseDePlace('podium', 8)).toBe('Sur le podium avant le Duel ultime : tiens bon !')
   })
 
-  it('reprend parmi toutes quand toutes ont été lues', () => {
-    const toutes = [...PHRASES_DE_PLACE.milieu]
-    expect(toutes).toContain(tirerUnePhrase('milieu', toutes, () => 0.999))
+  it('se rabat sur la plus proche hors des bornes', () => {
+    expect(phraseDePlace('milieu', 12)).toBe(PHRASES_DE_PLACE.milieu[8])
+    expect(phraseDePlace('milieu', -1)).toBe(PHRASES_DE_PLACE.milieu[0])
   })
 })

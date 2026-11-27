@@ -103,16 +103,15 @@ function stockageDeTest(): Stockage {
 function afficher({
   faux: fauxServeur = serveurDeTest(),
   memoire = creerMemoireDeSeance(stockageDeTest()),
-  hasard = hasardReproductible(1),
-}: { faux?: ReturnType<typeof serveurDeTest>; memoire?: MemoireDeSeance; hasard?: () => number } = {}) {
-  render(<TelephoneParticipant serveur={fauxServeur.serveur} memoireSeance={memoire} hasard={hasard} tirerJeton={() => JETON} />)
+}: { faux?: ReturnType<typeof serveurDeTest>; memoire?: MemoireDeSeance } = {}) {
+  render(<TelephoneParticipant serveur={fauxServeur.serveur} memoireSeance={memoire} tirerJeton={() => JETON} />)
   return { ...fauxServeur, memoire }
 }
 
 /** Le téléphone de Camille, déjà dans la Séance (jeton retenu) : il se connecte sans passer par le formulaire. */
-function dejaDansLaSeance(options: { faux?: ReturnType<typeof serveurDeTest>; hasard?: () => number } = {}) {
+function dejaDansLaSeance(options: { faux?: ReturnType<typeof serveurDeTest> } = {}) {
   const memoire = creerMemoireDeSeance(stockageDeTest())
-  memoire.retenirRejointe({ code: CODE, jeton: JETON, pseudo: 'Camille', phrases: {} })
+  memoire.retenirRejointe({ code: CODE, jeton: JETON, pseudo: 'Camille' })
   return afficher({ ...options, memoire })
 }
 
@@ -276,20 +275,18 @@ describe('la révélation', () => {
 })
 
 describe('le classement intermédiaire', () => {
-  it('montre le score, la place par palier avec ▲▼ et une phrase, jamais la même dans la Séance', () => {
+  it('montre le score, la place par palier avec ▲▼ et la phrase de ce classement, selon la place', () => {
     const memoire = creerMemoireDeSeance(stockageDeTest())
-    memoire.retenirRejointe({ code: CODE, jeton: JETON, pseudo: 'Léo', phrases: {} })
+    memoire.retenirRejointe({ code: CODE, jeton: JETON, pseudo: 'Léo' })
     const srv = afficher({ memoire })
-    // Duel 1 : Camille et Inès trouvent, Léo (2) se trompe.
+    // Duel 1 : Camille et Inès trouvent, Léo (2) se trompe : 2e palier, sur le podium.
     let etat = avancer(repondre(repondre(repondre(avancer(enAttente()), 1, 0, bon(0)), 2, 0, faux(0)), 3, 0, bon(0)))
     etat = avancer(etat)
     srv.pousser(vueDe(etat, 2))
     expect(screen.getByRole('heading', { name: 'Classement après le Duel 1' })).toBeInTheDocument()
     expect(screen.getByText('2e sur 3')).toBeInTheDocument()
     expect(screen.getByText(/le Duel 2 arrive/)).toBeInTheDocument()
-    const premiere = memoire.rejointe()?.phrases['0']
-    expect(PHRASES_DE_PLACE.podium).toContain(premiere)
-    expect(screen.getByText(premiere!)).toBeInTheDocument()
+    expect(screen.getByText('Premier Duel, et déjà sur le podium !')).toBeInTheDocument()
 
     // Duel 2 : Léo seul trouve ; tous à 1 bonne réponse, en tête ex aequo, Léo remonte d'une place.
     etat = avancer(repondre(avancer(etat), 2, 1, bon(1)))
@@ -297,17 +294,19 @@ describe('le classement intermédiaire', () => {
     srv.pousser(vueDe(etat, 2))
     expect(screen.getByText(/1er ex aequo sur 3/)).toBeInTheDocument()
     expect(screen.getByText('1 place gagnée')).toBeInTheDocument()
-    const seconde = memoire.rejointe()?.phrases['1']
-    expect(PHRASES_DE_PLACE['en-tete-a-egalite']).toContain(seconde)
-    expect(seconde).not.toBe(premiere)
+    expect(screen.getByText(PHRASES_DE_PLACE['en-tete-a-egalite'][1])).toBeInTheDocument()
   })
 
-  it('remontre la même phrase après un rechargement de la page', () => {
-    const memoire = creerMemoireDeSeance(stockageDeTest())
-    memoire.retenirRejointe({ code: CODE, jeton: JETON, pseudo: 'Camille', phrases: { '0': 'Le podium te va bien.' } })
-    const srv = afficher({ memoire })
-    srv.pousser(vueDe(avancer(avancer(repondre(avancer(enAttente()), 1, 0, bon(0))))))
-    expect(screen.getByText('Le podium te va bien.')).toBeInTheDocument()
+  it('a une phrase pour son moment : avant le Duel ultime, la dernière de la catégorie', () => {
+    const srv = dejaDansLaSeance()
+    let etat = avancer(enAttente())
+    for (let duel = 0; duel < 9; duel++) {
+      etat = avancer(repondre(etat, 1, duel, bon(duel))) // Camille trouve tout, seule en tête
+      if (duel < 8) etat = avancer(avancer(etat))
+    }
+    srv.pousser(vueDe(avancer(etat)))
+    expect(screen.getByRole('heading', { name: 'Classement après le Duel 9' })).toBeInTheDocument()
+    expect(screen.getByText('Un seul Duel te sépare de la victoire : le Duel ultime !')).toBeInTheDocument()
   })
 })
 

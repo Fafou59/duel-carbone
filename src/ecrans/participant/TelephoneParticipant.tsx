@@ -4,18 +4,18 @@
  *
  * Le téléphone ne décide de rien : il affiche la vue que lui envoie le serveur de la Séance (VueParticipant,
  * src/domaine/seance-messages.ts), étape par étape, au rythme de l'Animateur, et lui transmet ses réponses. Ses
- * seuls choix à lui : le jeton tiré en rejoignant la Séance, et la petite phrase du classement intermédiaire.
+ * seuls choix à lui : le jeton tiré en rejoignant la Séance, et la petite phrase du classement intermédiaire
+ * (domaine/seance-phrases.ts).
  *
- * Le code, le jeton, le pseudo et les phrases déjà lues sont gardés dans la mémoire du navigateur
- * (memoire-seance.ts) : si le téléphone se met en veille ou recharge la page, il retrouve la Séance où elle en est.
+ * Le code, le jeton et le pseudo sont gardés dans la mémoire du navigateur (memoire-seance.ts) : si le téléphone se
+ * met en veille ou recharge la page, il retrouve la Séance où elle en est.
  */
 import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react'
 import { Frise } from '../../composants/Vitrine.tsx'
 import { duelsDepuisCodes } from '../../domaine/calendrier.ts'
-import type { SourceDeHasard } from '../../domaine/hasard.ts'
 import { normaliserCode } from '../../domaine/seance.ts'
 import type { MessageDuServeur, VueParticipant } from '../../domaine/seance-messages.ts'
-import { categorieDePlace, tirerUnePhrase } from '../../domaine/seance-phrases.ts'
+import { categorieDePlace, phraseDePlace } from '../../domaine/seance-phrases.ts'
 import { DUELS_THEMATIQUES } from '../../donnees/duels-thematiques.ts'
 import { GESTES_CALCULES } from '../../donnees/index.ts'
 import { codeDeLAdresse } from '../../navigateur/adresse.ts'
@@ -31,10 +31,9 @@ import '../../composants/CommeToi.css'
 import './TelephoneParticipant.css'
 
 type Props = {
-  /** Remplaçables dans les tests : la mémoire de la Séance, le serveur, le hasard des phrases et le jeton. */
+  /** Remplaçables dans les tests : la mémoire de la Séance, le serveur et le jeton. */
   memoireSeance?: MemoireDeSeance
   serveur?: ServeurDesSeances
-  hasard?: SourceDeHasard
   tirerJeton?: () => string
 }
 
@@ -62,7 +61,6 @@ function messageDuRefus(raison: string, dejaDansLaSeance: boolean): string | nul
 export function TelephoneParticipant({
   memoireSeance: memoireFournie,
   serveur: serveurFourni,
-  hasard = Math.random,
   tirerJeton = tirerUnJeton,
 }: Props) {
   const [memoireSeance] = useState(() => memoireFournie ?? creerMemoireDeSeance())
@@ -73,13 +71,6 @@ export function TelephoneParticipant({
     const code = normaliserCode(codeDeLAdresse())
     return retenue && (!code || code === retenue.code) ? retenue : null
   })
-  // La même, tenue à jour sans attendre le prochain affichage : deux messages du serveur qui se suivent de près ne
-  // tirent pas chacun leur phrase.
-  const seanceCourante = useRef(seance)
-  const changerDeSeance = (nouvelle: SeanceRejointe | null) => {
-    seanceCourante.current = nouvelle
-    setSeance(nouvelle)
-  }
   const [retour, setRetour] = useState<Retour>(() => ({ message: null, code: codeDeLAdresse(), pseudo: '' }))
   const [vue, setVue] = useState<VueParticipant | null>(null)
   const [connexion, setConnexion] = useState<EtatDeConnexion>('connexion')
@@ -98,33 +89,16 @@ export function TelephoneParticipant({
   const quitter = (message: string | null) => {
     memoireSeance.oublierRejointe()
     setRetour({ message, code: seance?.code ?? '', pseudo: seance?.pseudo ?? '' })
-    changerDeSeance(null)
+    setSeance(null)
     setVue(null)
     setEnvoi(null)
     setErreurEnvoi(null)
-  }
-
-  /**
-   * Arrivé à un classement intermédiaire : sa petite phrase, tirée une fois, jamais une déjà lue dans cette Séance,
-   * et retenue (un rechargement de la page remontre la même).
-   */
-  const tirerLaPhrase = (recue: VueParticipant) => {
-    const courante = seanceCourante.current
-    const { place } = recue.moi
-    if (!courante || !place || recue.etape.phase !== 'classement') return
-    const cle = String(recue.etape.index)
-    if (courante.phrases[cle]) return
-    const phrase = tirerUnePhrase(categorieDePlace(place), Object.values(courante.phrases), hasard)
-    const avecPhrase = { ...courante, phrases: { ...courante.phrases, [cle]: phrase } }
-    memoireSeance.retenirRejointe(avecPhrase)
-    changerDeSeance(avecPhrase)
   }
 
   // Les messages du serveur (useEffectEvent : la connexion, ouverte une fois, lit toujours l'état le plus récent).
   const surMessage = useEffectEvent((message: MessageDuServeur) => {
     if (message.type === 'etat' && message.vue.role === 'participant') {
       setVue(message.vue)
-      tirerLaPhrase(message.vue)
       return
     }
     if (message.type === 'retire') {
@@ -213,10 +187,10 @@ export function TelephoneParticipant({
   }, [cleDEtape])
 
   const rejoindre = ({ code: choisi, pseudo: donne }: { code: string; pseudo: string | null }) => {
-    const nouvelle: SeanceRejointe = { code: choisi, jeton: tirerJeton(), pseudo: donne, phrases: {} }
+    const nouvelle: SeanceRejointe = { code: choisi, jeton: tirerJeton(), pseudo: donne }
     memoireSeance.retenirRejointe(nouvelle)
     setConnexion('connexion')
-    changerDeSeance(nouvelle)
+    setSeance(nouvelle)
   }
 
   let contenu
@@ -298,7 +272,9 @@ export function TelephoneParticipant({
     )
   } else if (vue.etape.phase === 'classement') {
     const index = vue.etape.index
-    contenu = <ClassementIntermediaire vue={vue} index={index} phrase={seance.phrases[String(index)] ?? null} refTitre={retenirTitre} />
+    // La phrase de ce classement-là, selon la place : une par classement, jamais deux fois la même.
+    const phrase = vue.moi.place ? phraseDePlace(categorieDePlace(vue.moi.place), index) : null
+    contenu = <ClassementIntermediaire vue={vue} index={index} phrase={phrase} refTitre={retenirTitre} />
   } else {
     contenu = <FinDeSeance vue={vue} duels={duels} refTitre={retenirTitre} />
   }

@@ -15,11 +15,10 @@ export const CLE_MEMOIRE_SEANCE = 'duel-carbone/seance'
 export type SeanceRetenue = { code: string; jeton: string }
 
 /**
- * La Séance que ce téléphone a rejointe : son code, le jeton tiré en la rejoignant, le pseudo donné (renvoyé tant
- * que le serveur ne l'a pas reçu) et les phrases du classement déjà lues, par Duel (« 3 » : après le Duel 4), pour
- * ne jamais en relire une, même après un rechargement de la page.
+ * La Séance que ce téléphone a rejointe : son code, le jeton tiré en la rejoignant, et le pseudo donné (renvoyé tant
+ * que le serveur ne l'a pas reçu).
  */
-export type SeanceRejointe = SeanceRetenue & { pseudo: string | null; phrases: Record<string, string> }
+export type SeanceRejointe = SeanceRetenue & { pseudo: string | null }
 
 export type MemoireDeSeance = {
   /** La Séance que cet appareil anime, ou null. */
@@ -37,18 +36,9 @@ type Contenu = { animee?: SeanceRetenue; rejointe?: SeanceRejointe }
 const estUneSeanceRetenue = (brut: unknown): brut is SeanceRetenue =>
   typeof brut === 'object' && brut !== null && estUnCodeDeSeance((brut as SeanceRetenue).code) && estUnJeton((brut as SeanceRetenue).jeton)
 
-const sontDesPhrases = (brut: unknown): brut is Record<string, string> =>
-  typeof brut === 'object' && brut !== null && !Array.isArray(brut) && Object.values(brut).every((p) => typeof p === 'string')
-
 function lireRejointe(brut: unknown): SeanceRejointe | undefined {
   if (!estUneSeanceRetenue(brut)) return undefined
-  const { pseudo, phrases } = brut as Partial<SeanceRejointe>
-  return {
-    code: brut.code,
-    jeton: brut.jeton,
-    pseudo: normaliserPseudo(pseudo),
-    phrases: sontDesPhrases(phrases) ? { ...phrases } : {},
-  }
+  return { code: brut.code, jeton: brut.jeton, pseudo: normaliserPseudo((brut as Partial<SeanceRejointe>).pseudo) }
 }
 
 /**

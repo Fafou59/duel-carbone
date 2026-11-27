@@ -40,9 +40,9 @@ describe('la mémoire de la Séance animée', () => {
 })
 
 describe('la mémoire de la Séance rejointe (téléphone du Participant)', () => {
-  const REJOINTE = { ...SEANCE, pseudo: 'Camille', phrases: { '0': 'Le podium te va bien.' } }
+  const REJOINTE = { ...SEANCE, pseudo: 'Camille' }
 
-  it('retient le code, le jeton, le pseudo et les phrases lues, à côté de la Séance animée', () => {
+  it('retient le code, le jeton et le pseudo, à côté de la Séance animée', () => {
     const stockage = stockageDeTest()
     const memoire = creerMemoireDeSeance(stockage)
     memoire.retenirAnimee(SEANCE)
@@ -54,12 +54,11 @@ describe('la mémoire de la Séance rejointe (téléphone du Participant)', () =
     expect(memoire.animee()).toEqual(SEANCE)
   })
 
-  it('remet au propre un pseudo ou des phrases abîmés, et ignore un jeton invalide', () => {
-    const abime = { ...SEANCE, pseudo: 42, phrases: ['pas', 'un', 'objet'] }
+  it('remet au propre un pseudo abîmé, et ignore un jeton invalide', () => {
+    const abime = { ...SEANCE, pseudo: 42 }
     expect(creerMemoireDeSeance(stockageDeTest({ [CLE_MEMOIRE_SEANCE]: JSON.stringify({ rejointe: abime }) })).rejointe()).toEqual({
       ...SEANCE,
       pseudo: null,
-      phrases: {},
     })
     const sansJeton = { ...REJOINTE, jeton: 'court' }
     expect(creerMemoireDeSeance(stockageDeTest({ [CLE_MEMOIRE_SEANCE]: JSON.stringify({ rejointe: sansJeton }) })).rejointe()).toBeNull()

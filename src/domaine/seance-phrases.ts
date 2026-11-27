@@ -1,16 +1,18 @@
 /**
  * La petite phrase du téléphone au classement intermédiaire d'une Séance (PRD docs/prd-mode-animation.md, règle
- * « Phrases du téléphone ») : 10 phrases par catégorie de place, tirées sans répétition au cours d'une Séance.
+ * « Phrases du téléphone ») : 9 phrases par catégorie de place, une pour chaque classement intermédiaire (après les
+ * Duels 1 à 9).
  *
- * Une Séance compte au plus 9 classements intermédiaires (après les Duels 1 à 9) : avec 10 phrases par catégorie,
- * un Participant qui resterait toute la Séance dans la même catégorie ne lit jamais deux fois la même phrase.
+ * Pas de hasard : la phrase dépend de la catégorie de place et du moment de la Séance. Chaque classement a ainsi sa
+ * phrase à lui, écrite pour son moment (le tout début, l'arrivée des Duels moyens puis difficiles, le Duel ultime
+ * qui reste), et un Participant ne lit jamais deux fois la même, même s'il reste toute la Séance dans la même
+ * catégorie.
  *
  * Les phrases tutoient, ne disent rien qu'on ne sache (ni écart de points, ni nombre de joueurs) et s'écrivent sans
- * accord de genre (« en tête », pas « seul » ni « bien placée ») : on ne sait rien du Participant.
- *
- * Fonctions pures : le hasard est injecté, comme pour le tirage des Duels.
+ * accord de genre (« en tête », pas « seul » ni « bien placée ») : on ne sait rien du Participant. Elles suivent les
+ * Difficultés d'une Partie (domaine/difficulte.ts) : Duels 1 à 3 faciles, 4 à 6 moyens, 7 à 9 difficiles, 10 ultime.
  */
-import type { SourceDeHasard } from './hasard.ts'
+import { NOMBRE_DE_DUELS } from './partie.ts'
 
 export type CategorieDePlace = 'seul-en-tete' | 'en-tete-a-egalite' | 'podium' | 'top-10' | 'milieu' | 'dernier'
 
@@ -33,89 +35,85 @@ export function categorieDePlace({ rang, exAequo, devant, derriere }: PlaceAuCla
   return 'milieu'
 }
 
+/** Combien de classements intermédiaires dans une Séance : après chaque Duel, sauf le dernier. */
+export const CLASSEMENTS_INTERMEDIAIRES = NOMBRE_DE_DUELS - 1
+
+/** Les phrases de chaque catégorie, dans l'ordre des classements : la première après le Duel 1, la dernière après le Duel 9. */
 export const PHRASES_DE_PLACE: Record<CategorieDePlace, readonly string[]> = {
   'seul-en-tete': [
-    'Tu mènes la Séance ! Garde la tête froide.',
-    'Personne ne fait mieux que toi pour l’instant.',
-    'En tête, et toute la salle te court après.',
-    'La première place est à toi… jusqu’au prochain Duel ?',
-    'Tu donnes le rythme : continue comme ça !',
-    'Tu as une longueur d’avance. Ne la lâche pas !',
-    'Le haut du Classement porte ton nom.',
-    'Tu tiens la tête : chaque Duel compte pour la garder.',
-    'Belle maîtrise des ordres de grandeur : tu mènes !',
-    'Toute la salle regarde vers toi. Pas de pression !',
+    'Premier Duel, première place : joli départ !',
+    'Tu mènes toujours. Garde le rythme !',
+    'Les Duels faciles sont derrière toi, et tu mènes : place aux Duels moyens.',
+    'Toujours en tête. Toute la salle te court après !',
+    'En tête à mi-parcours : belle maîtrise des ordres de grandeur.',
+    'Tu mènes, mais les Duels difficiles arrivent : garde la tête froide.',
+    'Toujours devant : les Duels difficiles ne te font pas peur !',
+    'Plus que deux Duels à tenir en tête. Ne lâche rien !',
+    'Un seul Duel te sépare de la victoire : le Duel ultime !',
   ],
   'en-tete-a-egalite': [
+    'Premier Duel, et vous êtes plusieurs en tête : tout commence !',
     'En tête, mais en bonne compagnie.',
-    'Tu partages la première place : le prochain Duel peut tout changer.',
+    'Les Duels faciles sont passés : à toi de te détacher sur les moyens.',
     'Égalité au sommet ! Qui fera la différence ?',
-    'Première place ex aequo : à toi de te détacher.',
-    'Le sommet est partagé. Plus pour longtemps ?',
-    'Vous êtes plusieurs en tête : chaque réponse compte.',
-    'Coude à coude pour la première place !',
-    'En tête à égalité : garde ton sang-froid.',
-    'La première marche est encombrée : fais-toi de la place !',
-    'Tu es dans le groupe de tête. Tiens bon !',
+    'À mi-parcours, la première place se partage encore.',
+    'Coude à coude en tête : les Duels difficiles vont trancher.',
+    'Toujours à égalité en tête : chaque réponse compte.',
+    'Plus que deux Duels pour te détacher. C’est le moment !',
+    'Égalité en tête avant le Duel ultime : tout se joue maintenant !',
   ],
   podium: [
+    'Premier Duel, et déjà sur le podium !',
     'Sur le podium. Ne lâche rien !',
-    'Une médaille se profile : continue !',
-    'Le podium te va bien.',
-    'Tu es sur le podium : la tête n’est pas loin.',
-    'Encore un effort et la première place est à portée.',
-    'Belle place sur le podium !',
-    'Le podium, c’est bien ; le sommet, c’est mieux ?',
+    'Les Duels faciles sont passés, et tu es sur le podium.',
+    'Le podium te va bien. La tête n’est pas loin !',
+    'Sur le podium à mi-parcours : la première place est à portée.',
+    'Les Duels difficiles arrivent : c’est là que le podium se joue.',
     'Tu tiens ta place sur le podium. Garde le rythme !',
-    'Les premiers peuvent encore trembler !',
-    'Sur le podium : les Duels les plus durs arrivent, tiens bon !',
+    'Plus que deux Duels : ta médaille est en jeu !',
+    'Sur le podium avant le Duel ultime : tiens bon !',
   ],
   'top-10': [
-    'Dans le top 10 : le podium n’est pas loin.',
+    'Premier Duel, et déjà dans le top 10 !',
     'Top 10 ! Le podium te tend les bras.',
-    'Le podium est à portée de quelques bonnes réponses.',
-    'Tu joues dans la cour des grands : top 10 !',
-    'Top 10 : encore un petit effort pour une médaille.',
-    'Tu es dans le haut du Classement. Continue !',
-    'Dans le top 10, et les Duels les plus durs arrivent.',
-    'Top 10 ! Chaque bonne réponse peut te faire grimper.',
-    'Le podium te regarde. Va le chercher !',
-    'Bonne place ! Les ordres de grandeur commencent à rentrer.',
+    'Top 10 après les Duels faciles : les moyens peuvent te faire grimper.',
+    'Dans le top 10 : le podium est à portée de quelques bonnes réponses.',
+    'Top 10 à mi-parcours. Continue comme ça !',
+    'Les Duels difficiles arrivent : de quoi grimper vers le podium.',
+    'Toujours dans le top 10. Le podium te regarde !',
+    'Plus que deux Duels : une médaille est encore possible !',
+    'Top 10 avant le Duel ultime : il peut encore tout changer !',
   ],
   milieu: [
-    'Encore quelques Duels pour grimper au Classement.',
-    'Tout reste possible : les Duels les plus difficiles arrivent.',
-    'Le milieu du peloton, c’est le meilleur endroit pour attaquer !',
-    'Chaque bonne réponse te fait gagner des places.',
+    'Ce n’est que le premier Duel : tout reste à jouer !',
     'Les chiffres surprennent tout le monde : accroche-toi !',
-    'Rien n’est joué : une bonne série et tu remontes.',
-    'Tu es dans la course. Le prochain Duel est pour toi ?',
-    'Une bonne réponse peut tout changer.',
-    'Fie-toi aux ordres de grandeur… et à ton instinct !',
-    'Un Duel à la fois : la remontée commence maintenant.',
+    'Les Duels faciles sont passés : la remontée commence maintenant.',
+    'Chaque bonne réponse te fait gagner des places.',
+    'Mi-parcours : une bonne série et tu remontes.',
+    'Les Duels difficiles arrivent : de belles places à gagner.',
+    'Rien n’est joué : une bonne réponse peut tout changer.',
+    'Plus que deux Duels pour grimper au Classement !',
+    'Le Duel ultime peut encore te faire gagner des places !',
   ],
   dernier: [
+    'Ce n’est que le premier Duel : la Séance ne fait que commencer !',
     'Pas de panique : tout peut encore changer.',
-    'Les chiffres surprennent souvent : le prochain Duel est le bon !',
-    'La remontée commence maintenant !',
+    'Les ordres de grandeur, ça s’apprivoise : place aux Duels moyens.',
     'C’est en se trompant qu’on retient le mieux les ordres de grandeur.',
-    'Les ordres de grandeur, ça s’apprivoise : continue !',
-    'Rien n’est perdu : une bonne réponse et tu remontes.',
-    'Prépare ton grand retour !',
-    'Courage ! Chaque Duel est une nouvelle chance.',
+    'Mi-parcours : prépare ton grand retour !',
+    'Courage : les Duels difficiles rebattent souvent les cartes.',
     'Tu ne pouvais pas deviner… mais maintenant, tu sais !',
-    'Ici, on joue surtout pour apprendre : et tu apprends beaucoup !',
+    'Plus que deux Duels : chaque bonne réponse compte !',
+    'Dernier Duel à venir : finis en beauté !',
   ],
 }
 
 /**
- * Une phrase de la catégorie, tirée au hasard parmi celles que le Participant n'a pas encore lues dans cette Séance
- * (`dejaLues`). Si elles y sont toutes passées (impossible avec 9 classements, mais on ne plante pas), on reprend
- * parmi toutes.
+ * La phrase du classement intermédiaire qui suit le Duel `index` (0 pour le Duel 1, 8 pour le Duel 9), pour cette
+ * catégorie de place. Hors de ces bornes (il n'y a pas de classement intermédiaire après le Duel 10), la plus
+ * proche.
  */
-export function tirerUnePhrase(categorie: CategorieDePlace, dejaLues: readonly string[], hasard: SourceDeHasard): string {
-  const toutes = PHRASES_DE_PLACE[categorie]
-  const nouvelles = toutes.filter((phrase) => !dejaLues.includes(phrase))
-  const possibles = nouvelles.length > 0 ? nouvelles : toutes
-  return possibles[Math.min(possibles.length - 1, Math.floor(hasard() * possibles.length))]
+export function phraseDePlace(categorie: CategorieDePlace, index: number): string {
+  const phrases = PHRASES_DE_PLACE[categorie]
+  return phrases[Math.min(phrases.length - 1, Math.max(0, index))]
 }
