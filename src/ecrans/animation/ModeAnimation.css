@@ -1,0 +1,783 @@
+/*
+ * L'écran de l'Animateur (Mode animation), pensé pour un projecteur en 16:9 : tout se mesure en fraction de l'écran
+ * (vw, vh) et la taille du texte suit la largeur, de 1280×720 à 1920×1080. Mise en page validée par le prototype
+ * (branche prototype/mode-animateur, cinq tours avec Fabien, 26/11/2026).
+ */
+.an {
+  --colonne: 24vw;
+  min-height: 100vh;
+  background: var(--fond);
+  color: var(--encre);
+  font-size: clamp(15px, 1.15vw, 22px);
+}
+.an h1 {
+  margin: 0 0 0.6em;
+  font-size: 1.9em;
+  line-height: 1.15;
+}
+.an ul,
+.an ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.an button:focus-visible,
+.an a:focus-visible {
+  outline: 3px solid var(--encre);
+  outline-offset: 3px;
+}
+
+/* --- La page d'explication, avant la création (un écran ordinaire, pas encore projeté) --- */
+.an-explication {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+.an-explication h1 {
+  font-size: 2rem;
+  margin: 1rem 0 0.5rem;
+}
+.an-explication h2 {
+  font-size: 1.2rem;
+  margin: 1.6rem 0 0.4rem;
+}
+.an-explication ol {
+  list-style: decimal;
+  padding-left: 1.4em;
+}
+.an-explication li {
+  margin: 0.3em 0;
+}
+.an-explication__intro {
+  font-size: 1.15rem;
+}
+.an-choix {
+  margin: 1.6rem 0 1rem;
+  padding: 0;
+  border: 0;
+}
+.an-choix legend {
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin-bottom: 0.4rem;
+}
+.an-choix label {
+  display: flex;
+  gap: 0.6em;
+  align-items: flex-start;
+  padding: 0.7em 0.9em;
+  margin: 0.4em 0;
+  border: 2px solid var(--ligne);
+  border-radius: 12px;
+  background: var(--carte);
+  cursor: pointer;
+}
+.an-choix label:has(input:checked) {
+  border-color: var(--marque);
+}
+.an-choix input {
+  margin-top: 0.3em;
+  accent-color: var(--marque);
+}
+.an-choix small {
+  display: block;
+  color: var(--discret);
+}
+.an-erreur {
+  color: var(--mauvais);
+  font-weight: 700;
+}
+
+/* --- Logo, QR code, code --- */
+.an-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin: 0;
+  font-weight: 800;
+  font-size: 1.3em;
+}
+.an-logo a {
+  display: inherit;
+  align-items: inherit;
+  gap: inherit;
+  color: inherit;
+  text-decoration: none;
+}
+.an-qr {
+  display: block;
+  border-radius: 6px;
+}
+.an-rejoindre {
+  display: flex;
+  gap: 1.2em;
+  align-items: center;
+  justify-content: center;
+}
+.an-rejoindre p {
+  margin: 0;
+}
+.an-rejoindre__adresse {
+  font-size: 1.3em;
+}
+.an-rejoindre__code {
+  font: 800 3.2em/1.1 ui-monospace, monospace;
+  letter-spacing: 0.12em;
+  color: var(--marque);
+}
+.an-rejoindre--compact {
+  gap: 0.8em;
+  justify-content: flex-start;
+}
+.an-rejoindre--compact .an-rejoindre__adresse {
+  font-size: 0.8em;
+}
+.an-rejoindre--compact .an-rejoindre__code {
+  font-size: 1.6em;
+}
+
+/* --- Le bouton de l'Animateur (Espace) --- */
+.an-bouton {
+  position: fixed;
+  right: calc(var(--colonne) + 2vw);
+  bottom: 7vh;
+  z-index: 2;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.6em 1.1em;
+  border: 0;
+  border-radius: 999px;
+  background: var(--marque);
+  color: var(--sur-marque);
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 25%);
+}
+.an-bouton:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.an-scene--sans-colonne .an-bouton {
+  right: 2vw;
+}
+/* Sur l'attente, le bouton monte en haut à droite pour laisser défiler la frise. */
+.an-attente .an-bouton {
+  top: 3vh;
+  bottom: auto;
+  right: 2vw;
+}
+.an-bouton kbd {
+  font: inherit;
+  font-size: 0.65em;
+  opacity: 0.8;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  padding: 0 0.4em;
+  margin-left: 0.5em;
+}
+.an-bouton-secondaire {
+  font: inherit;
+  padding: 0.45em 1em;
+  border: 2px solid var(--marque);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--marque);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* L'état de la connexion, en haut au centre, seulement quand elle est coupée. */
+.an-connexion {
+  position: fixed;
+  top: 1vh;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  margin: 0;
+  padding: 0.4em 1em;
+  border-radius: 999px;
+  background: var(--encre);
+  color: var(--fond);
+  font-size: 0.85em;
+}
+.an-message {
+  min-height: 100vh;
+  display: grid;
+  place-content: center;
+  gap: 1em;
+  text-align: center;
+  padding: 2rem;
+}
+.an-message p {
+  margin: 0;
+}
+
+/* --- Attente des Participants --- */
+.an-attente {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 3vh 3vw 0;
+}
+.an-attente__centre {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 2.5vh;
+}
+.an-attente__centre h1 {
+  margin: 0;
+}
+.an-attente__compte {
+  margin: 0;
+  font-size: 1.4em;
+}
+.an-attente__compte strong {
+  font-size: 1.5em;
+  color: var(--marque);
+}
+.an-attente__frise {
+  margin: 3vh -3vw 0;
+  padding-bottom: 9vh;
+}
+.an-attente__abandon {
+  position: fixed;
+  left: 3vw;
+  bottom: 2vh;
+  font-size: 0.75em;
+}
+.an-pseudos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4em;
+  max-width: 70vw;
+}
+.an-pseudos li,
+.an-repondus li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2em;
+  padding: 0.15em 0.7em;
+  border-radius: 999px;
+  background: var(--carte);
+  border: 1px solid var(--ligne);
+  animation: an-arrivee 0.35s ease-out both;
+}
+@keyframes an-arrivee {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+}
+/* Retirer un pseudo : une petite croix, visible au survol ou au clavier, pour ne pas encombrer l'écran projeté. */
+.an-retirer {
+  font: inherit;
+  line-height: 1;
+  margin-right: -0.4em;
+  padding: 0 0.3em;
+  border: 0;
+  background: none;
+  color: var(--discret);
+  cursor: pointer;
+  opacity: 0;
+}
+li:hover > .an-retirer,
+.an-retirer:focus-visible {
+  opacity: 1;
+}
+
+/* --- Le plateau et sa colonne --- */
+.an-scene {
+  display: grid;
+  grid-template-columns: 1fr var(--colonne);
+  min-height: 100vh;
+}
+.an-scene--sans-colonne {
+  grid-template-columns: 1fr;
+}
+.an-plateau {
+  padding: 2.5vh 3vw 14vh;
+  min-width: 0;
+}
+.an-scene--sans-colonne .an-plateau {
+  max-width: 1300px;
+  width: 100%;
+  margin: 0 auto;
+}
+.an-colonne {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--carte);
+  border-left: 1px solid var(--ligne);
+  padding: 2.5vh 1.4vw;
+  display: flex;
+  flex-direction: column;
+  gap: 2vh;
+  font-size: 0.9em;
+}
+.an-colonne h2 {
+  margin: 0;
+  font-size: 1.1em;
+}
+.an-jauge div {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--ligne);
+  margin-top: 0.35em;
+}
+.an-jauge i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--marque);
+  transition: width 0.3s;
+}
+.an-jauge strong {
+  font-size: 1.4em;
+}
+.an-repondus {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 0.35em;
+  overflow: hidden;
+}
+.an-rang {
+  font-weight: 800;
+  color: var(--discret);
+  min-width: 1.6em;
+}
+.an-score {
+  font-weight: 800;
+  margin-left: auto;
+}
+.an-top li {
+  display: flex;
+  gap: 0.5em;
+  padding: 0.35em 0;
+  border-bottom: 1px solid var(--ligne);
+  font-size: 1.1em;
+}
+.an-top__nom {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.an-top__mouvement {
+  flex: none;
+  width: 1em;
+  font-size: 0.8em;
+}
+.an-monte {
+  color: var(--bon);
+}
+.an-descend {
+  color: var(--mauvais);
+}
+
+/* La barre de suivi reprend celle de la Partie (EcranPartie.css). */
+.an-suivi {
+  margin-bottom: 2vh;
+}
+.an-suivi .partie__entete {
+  display: flex;
+  gap: 0.8em;
+  align-items: center;
+}
+.an-suivi .partie__position {
+  margin: 0;
+  font-weight: 800;
+}
+.an-suivi .progression__segment {
+  height: 10px;
+}
+.an-titre {
+  margin: 0 0 1.5vh;
+  font-size: 1.5em;
+}
+.an-annonce {
+  margin: 0 0 2vh;
+  padding: 0.6em 1em;
+  border-radius: 12px;
+  background: var(--thematique);
+  color: #fff;
+}
+
+/* Les deux Gestes, l'un sous l'autre, sur toute la largeur ; « VS » puis « ×N fois plus » au centre, entre les deux. */
+.an-lignes {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1.6vh;
+}
+.an-ligne {
+  background: var(--carte);
+  border: 2px solid var(--ligne);
+  border-radius: 18px;
+  padding: 2.6vh 1.6vw;
+  transition:
+    border-color 0.3s,
+    opacity 0.3s;
+}
+.an-ligne--gagnant {
+  border-color: var(--bon);
+  box-shadow: 0 0 0 2px var(--bon);
+}
+.an-geste {
+  display: flex;
+  align-items: center;
+  gap: 1.2vw;
+}
+.an-geste__icone {
+  flex: none;
+  font-size: 4.2em;
+  line-height: 1;
+}
+.an-geste__textes {
+  flex: 1;
+  min-width: 0;
+}
+.an-geste__titre {
+  display: block;
+  font-weight: 800;
+  font-size: 1.45em;
+  line-height: 1.2;
+}
+/* La description de la Quantité doit rester lisible du fond de la salle. */
+.an-geste__sous-titre {
+  display: block;
+  font-size: 1.25em;
+  color: var(--discret);
+}
+.an-geste__empreinte {
+  flex: none;
+  font-weight: 800;
+  font-size: 1.5em;
+}
+/* Entre les deux Gestes : une ligne de hauteur nulle, au milieu de l'écart ; la pastille y est centrée. */
+.an-entre {
+  position: relative;
+  height: 0;
+  z-index: 1;
+}
+.an-vs,
+.an-rapport {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.an-vs {
+  display: grid;
+  place-items: center;
+  width: 2.8em;
+  height: 2.8em;
+  border-radius: 999px;
+  background: var(--encre);
+  color: var(--fond);
+  font-weight: 900;
+}
+.an-rapport {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.05;
+  padding: 0.45em 1em;
+  border-radius: 18px;
+  background: var(--marque);
+  color: var(--sur-marque);
+  box-shadow: 0 6px 20px rgb(0 0 0 / 25%);
+  font-size: 0.9em;
+}
+.an-rapport b {
+  font-size: 1.6em;
+  font-weight: 900;
+}
+.an-rapport small {
+  font-size: 0.85em;
+}
+
+/* Les réponses de la salle : une petite jauge sous le sous-titre, verte pour le bon Geste, grise pour l'autre. */
+.an-reponses {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  margin-top: 0.6em;
+  font-size: 0.9em;
+  color: var(--discret);
+}
+.an-reponses__barre {
+  flex: none;
+  width: 9em;
+  height: 0.7em;
+  background: var(--fond);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.an-reponses__barre i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--discret);
+  transition: width 0.6s;
+}
+.an-ligne--gagnant .an-reponses__barre i {
+  background: var(--bon);
+}
+.an-reponses__chiffres strong {
+  font-size: 1.15em;
+  color: var(--encre);
+}
+
+.an-explication-duel {
+  margin-top: 3vh;
+  padding: 1em 1.2em;
+  border-left: 5px solid var(--thematique);
+  background: var(--carte);
+  border-radius: 0 12px 12px 0;
+  max-width: 70em;
+}
+.an-explication-duel p {
+  margin: 0.2em 0;
+}
+.an-explication-duel__titre {
+  font-weight: 800;
+  color: var(--thematique-texte);
+}
+.an-plateau > .an-bouton-secondaire {
+  margin-top: 3vh;
+}
+.an-fenetre {
+  width: min(1100px, 90vw);
+  max-height: 85vh;
+  padding: 3vh 3vw;
+  border: 0;
+  border-radius: 18px;
+  background: var(--fond);
+  color: var(--encre);
+  font-size: clamp(15px, 1.15vw, 22px);
+}
+.an-fenetre::backdrop {
+  background: rgb(0 0 0 / 0.6);
+}
+.an-fenetre h2 {
+  margin-top: 0;
+}
+.an-fenetre .an-bouton-secondaire {
+  margin-top: 2vh;
+}
+
+/* --- Classement intermédiaire : les bonnes réponses de la salle, Duel par Duel --- */
+.an-frise {
+  display: flex;
+  gap: 1.2vw;
+  height: 52vh;
+}
+.an-frise li {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6vh;
+}
+.an-frise__pile {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--carte);
+}
+.an-frise__bonnes {
+  display: grid;
+  place-items: center;
+  min-height: 1.6em;
+  border-radius: 10px 10px 0 0;
+  background: var(--bon);
+  color: #fff;
+  font-style: normal;
+  font-weight: 800;
+  font-size: 0.85em;
+}
+.an-frise--avenir {
+  opacity: 0.35;
+}
+.an-frise__num {
+  text-align: center;
+  font-weight: 800;
+  border-radius: 6px;
+  color: #fff;
+  background: var(--c);
+}
+
+/* Duel 10 révélé : le tambour avant le classement final. */
+.an-colonne--teaser {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.an-colonne--teaser p {
+  margin: 0;
+}
+.an-teaser__tambour {
+  font-size: 5em;
+  animation: an-tambour 0.5s ease-in-out infinite alternate;
+}
+@keyframes an-tambour {
+  to {
+    transform: rotate(-8deg) scale(1.06);
+  }
+}
+.an-teaser__texte {
+  font-size: 1.5em;
+  font-weight: 800;
+}
+.an-teaser__sous-texte {
+  color: var(--discret);
+}
+
+/* --- Classement final : tient sur un écran, sans défiler --- */
+.an-final {
+  height: 100vh;
+  padding: 2.5vh 3vw 9vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2vh;
+}
+.an-final__tete {
+  position: relative;
+  width: 100%;
+  text-align: center;
+}
+.an-final__tete .an-logo {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.an-final__tete h1 {
+  margin: 0;
+}
+.an-final__classement {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(5, auto);
+  gap: 0.4vh 5vw;
+  font-size: 1.2em;
+}
+.an-final__classement li {
+  display: flex;
+  gap: 0.6em;
+  min-width: 15em;
+  padding: 0.25em 0.6em;
+  border-bottom: 1px solid var(--ligne);
+}
+.an-final__nom {
+  font-weight: 700;
+}
+.an-medaille {
+  margin-left: 0.2em;
+}
+.an-final__salle {
+  margin: 0;
+  font-size: 1.6em;
+  text-align: center;
+}
+.an-final__salle strong {
+  font-size: 1.6em;
+  color: var(--marque);
+}
+.an-final__bas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4vw;
+  align-items: start;
+  max-width: 1300px;
+  width: 100%;
+}
+.an-final__rates h2 {
+  margin: 0 0 0.5em;
+  font-size: 1.1em;
+}
+.an-rates {
+  width: 100%;
+  border-collapse: collapse;
+}
+.an-rates th {
+  text-align: left;
+  font-size: 0.8em;
+  font-weight: 600;
+  color: var(--discret);
+  padding: 0 0.6em 0.3em;
+  border-bottom: 1px solid var(--ligne);
+}
+.an-rates th:last-child {
+  text-align: right;
+}
+.an-rates td {
+  padding: 0.35em 0.6em;
+  border-bottom: 1px solid var(--ligne);
+  white-space: nowrap;
+}
+.an-rates__numero {
+  font-weight: 800;
+  color: var(--discret);
+}
+.an-rates__equivalence {
+  font-weight: 800;
+  font-size: 1.45em;
+}
+.an-rates__part {
+  font-weight: 800;
+  font-size: 1.2em;
+  color: var(--mauvais);
+  text-align: right;
+}
+/* Le Conseil : titre plus grand, lien plus discret. */
+.an-final .conseil {
+  margin-top: 0;
+}
+.an-final .conseil h3 {
+  font-size: 1.4em;
+}
+.an-final .conseil__lien {
+  font-size: 0.8em;
+}
+/* L'invitation au Duel du jour, en bas à gauche, face au bouton Rejouer. */
+.an-final__pied {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2vw;
+  width: 100%;
+  max-width: 1300px;
+}
+.an-final__invitation {
+  margin: 0;
+  padding: 0.7em 1.2em;
+  border-radius: 999px;
+  background: var(--carte);
+  border: 1px solid var(--ligne);
+}
+.an-final__pied .an-bouton {
+  position: static;
+  flex: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .an-teaser__tambour,
+  .an-pseudos li,
+  .an-repondus li {
+    animation: none;
+  }
+}

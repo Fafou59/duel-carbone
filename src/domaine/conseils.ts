@@ -129,3 +129,29 @@ export function choisirConseil({
   if (!choisi) throw new Error('Aucun Conseil à proposer : le catalogue des Conseils est vide.')
   return choisi
 }
+
+/**
+ * Le Conseil de fin d'une Séance (Mode animation, PRD section 5), choisi par l'ordinateur de l'Animateur : le premier
+ * Conseil lié au Duel le plus raté par la salle, sinon au suivant, et ainsi de suite ; sinon, comme en fin de
+ * Partie. `gestesDesDuels` : les deux Gestes de chaque Duel, du plus raté au moins raté. Jamais l'un des Conseils
+ * récents de cet ordinateur, sauf s'il n'en reste aucun autre (un groupe qui enchaîne les Séances voit autre chose).
+ */
+export function choisirConseilDeSeance({
+  conseils,
+  gestesDesDuels,
+  recents,
+  hasard,
+}: {
+  conseils: Conseil[]
+  gestesDesDuels: [string, string][]
+  recents: string[]
+  hasard: SourceDeHasard
+}): Conseil {
+  const nouveaux = conseils.filter((c) => !recents.includes(c.id))
+  const possibles = nouveaux.length > 0 ? nouveaux : conseils
+  for (const gestes of gestesDesDuels) {
+    const lie = possibles.find((c) => c.declencheurs.some((id) => gestes.includes(id)))
+    if (lie) return lie
+  }
+  return choisirConseil({ conseils: possibles, gestesDeLaPartie: [], gestesRates: [], recents: [], hasard })
+}

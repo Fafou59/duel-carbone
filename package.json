@@ -27,6 +27,7 @@
     "deployer:apercu": "wrangler d1 migrations apply duel-carbone --remote --preview && wrangler preview"
   },
   "dependencies": {
+    "qrcode": "^1.5.4",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },
@@ -45,7 +46,6 @@
     "@vitejs/plugin-react": "^6.1.2",
     "jsdom": "^31.0.0",
     "oxlint": "^1.90.0",
-    "qrcode": "^1.5.4",
     "sharp": "^0.35.5",
     "typescript": "~7.0.2",
     "vite": "^8.3.6",

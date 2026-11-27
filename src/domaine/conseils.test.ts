@@ -3,6 +3,7 @@ import type { Instantane } from '../donnees/referentiel.ts'
 import {
   chiffresDuConseil,
   choisirConseil,
+  choisirConseilDeSeance,
   CONSEILS_RECENTS,
   redigerConseil,
   siteDuLien,
@@ -163,5 +164,35 @@ describe('Le lien « En savoir plus » d’un Conseil', () => {
   it('nomme le site de l’ADEME où il mène', () => {
     expect(siteDuLien('https://nosgestesclimat.fr/actions/transport/covoiturage-quotidien')).toBe('Nos Gestes Climat')
     expect(siteDuLien('https://impactco2.fr/doc/questions-frequentes')).toBe('Impact CO2')
+  })
+})
+
+describe('Le choix du Conseil de fin de Séance', () => {
+  const steak = conseil('steak', ['steak-boeuf', 'repas-boeuf'])
+  const avion = conseil('avion', ['paris-new-york'])
+  const jean = conseil('jean', ['jean'])
+  const tous = [steak, avion, jean]
+  const hasard = hasardReproductible(1)
+
+  it('prend le Conseil lié au Duel le plus raté par la salle, sinon au suivant', () => {
+    const duels: [string, string][] = [
+      ['television', 'lave-linge'],
+      ['jean', 'pull'],
+      ['paris-new-york', 'tgv'],
+    ]
+    expect(choisirConseilDeSeance({ conseils: tous, gestesDesDuels: duels, recents: [], hasard }).id).toBe('jean')
+  })
+
+  it('écarte les Conseils récents de l’Animateur', () => {
+    const duels: [string, string][] = [
+      ['jean', 'pull'],
+      ['paris-new-york', 'tgv'],
+    ]
+    expect(choisirConseilDeSeance({ conseils: tous, gestesDesDuels: duels, recents: ['jean'], hasard }).id).toBe('avion')
+  })
+
+  it('sans Conseil lié aux Duels, en prend un autre qui n’est pas récent', () => {
+    const choisi = choisirConseilDeSeance({ conseils: tous, gestesDesDuels: [['television', 'pull']], recents: ['steak', 'avion'], hasard })
+    expect(choisi.id).toBe('jean')
   })
 })
