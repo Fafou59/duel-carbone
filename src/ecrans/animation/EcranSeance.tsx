@@ -162,7 +162,14 @@ export function EcranSeance({ code, jeton, serveur, memoire, onNouvelle, onAband
               </p>
             </>
           ) : vue && !duels ? (
-            <p>Cette Séance a été créée avec une ancienne version du jeu et ne peut plus s’afficher.</p>
+            <>
+              <p>Cette Séance a été créée avec une ancienne version du jeu et ne peut plus s’afficher.</p>
+              <p>
+                <button type="button" className="an-bouton-secondaire" onClick={onNouvelle}>
+                  Nouvelle Séance
+                </button>
+              </p>
+            </>
           ) : (
             <p role="status">Connexion à la Séance {code}…</p>
           )}
@@ -181,6 +188,23 @@ export function EcranSeance({ code, jeton, serveur, memoire, onNouvelle, onAband
       {libelleDuBouton(vue)} <kbd>Espace</kbd>
     </button>
   )
+  // Une Séance fermée avant la fin (3 heures écoulées) : plus personne ne peut la rejoindre ni la faire avancer.
+  if (vue.fermee && vue.etape.phase !== 'fin') {
+    return (
+      <div className="an">
+        <main className="an-message">
+          <Logo lien />
+          <p>La Séance {code} est fermée : elle a été créée il y a plus de 3 heures.</p>
+          <p>
+            <button type="button" className="an-bouton-secondaire" onClick={onNouvelle}>
+              Nouvelle Séance
+            </button>
+          </p>
+        </main>
+      </div>
+    )
+  }
+
   const pseudoDe = (numero: number) => vue.participants.find((p) => p.numero === numero)?.pseudo ?? null
   const commun = { vue, duels, code, bouton, retirer, pseudoDe }
 

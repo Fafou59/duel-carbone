@@ -602,7 +602,8 @@ li:hover > .an-retirer,
   min-height: 1.6em;
   border-radius: 10px 10px 0 0;
   background: var(--bon);
-  color: #fff;
+  /* Blanc sur le vert foncé du thème clair, sombre sur le vert clair du thème sombre. */
+  color: var(--sur-marque);
   font-style: normal;
   font-weight: 800;
   font-size: 0.85em;
