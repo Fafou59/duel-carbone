@@ -86,6 +86,10 @@ _À éviter_ : mode classique, entraînement (à l'écran seulement)
 Le nombre de jours consécutifs où le joueur a terminé la Partie du jour. Elle retombe à zéro après un jour manqué ; la meilleure série est gardée.
 _À éviter_ : streak, combo
 
+**Rappel** :
+Le message que le téléphone (ou l'ordinateur) du joueur reçoit chaque matin à 7 h, heure de Paris, pour annoncer que la Partie du jour est prête. Le même pour tous, il ne dévoile rien des Duels. Le joueur le demande lui-même et peut l'arrêter à tout moment. Appelé « Rappel du matin » à l'écran.
+_À éviter_ : notification, alerte, push (ce sont les moyens techniques)
+
 **Rang du jour** :
 La part des autres joueurs du jour dont le score à la Partie du jour est inférieur ou égal au tien, affichée « Tu as fait mieux ou autant que x % des joueurs ». Il est anonyme : le serveur ne connaît que le nombre de joueurs par score. La Partie libre n'en a pas.
 _À éviter_ : percentile, classement
