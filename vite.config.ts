@@ -44,6 +44,9 @@ export default defineConfig({
         navigateFallbackDenylist: [/\/[^/]+\.[^/]+$/, /^\/api\//],
         // Les copies d'une ancienne version sont effacées dès que la nouvelle prend la main.
         cleanupOutdatedCaches: true,
+        // Le Rappel du matin (ADR 0008) : ce que fait le service worker quand un push arrive, et au toucher de la
+        // notification (public/rappel-sw.js, ajouté tel quel au service worker de Workbox).
+        importScripts: ['/rappel-sw.js'],
       },
     }),
   ],
