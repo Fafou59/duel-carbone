@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { CompteARebours } from '../composants/CompteARebours.tsx'
 import { Conseil } from '../composants/Conseil.tsx'
+import { InvitationInstallation } from '../composants/InvitationInstallation.tsx'
 import { InvitationRappel } from '../composants/InvitationRappel.tsx'
 import { Recapitulatif } from '../composants/Recapitulatif.tsx'
 import { RangDuJour } from '../composants/RangDuJour.tsx'
@@ -228,8 +229,10 @@ export function EcranFin({
           Prochain Duel du jour dans <CompteARebours />
         </p>
       )}
-      {/* « Ne rate pas le Duel de demain » : le Rappel du matin (ADR 0008), ou l'invitation à installer sans lui. */}
-      {partieDuJour && <InvitationRappel />}
+      {/* À la fin du Duel du jour, « Ne rate pas le Duel de demain » : le Rappel du matin (ADR 0008), ou l'invitation
+          à installer sans lui. À la fin d'une Partie libre, seulement la ligne de l'ordinateur et son QR code (#103) :
+          un joueur qui ne fait que des Parties libres sur PC le découvre aussi ; sur téléphone, rien. */}
+      {partieDuJour ? <InvitationRappel /> : <InvitationInstallation surOrdinateurSeulement />}
       {partieDuJour && (
         <div className="fin__entrainement">
           <p>Envie de t’entraîner pour le Duel de demain ?</p>

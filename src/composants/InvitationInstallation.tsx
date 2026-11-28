@@ -19,20 +19,28 @@ type PropsVue = {
   installer?: () => Promise<boolean>
   onEcarter: () => void
   mesurer: (evenement: Evenement) => void
+  /**
+   * Seulement la ligne de l'ordinateur, jamais la carte du téléphone : pour la fin d'une Partie libre (#103).
+   * Sur ordinateur, la ligne est discrète et n'a rien à refuser, elle peut revenir à chaque Partie ; sur téléphone,
+   * la carte « Installer » / « Non merci » reste réservée à la fin du Duel du jour, pour ne pas insister.
+   */
+  surOrdinateurSeulement?: boolean
 }
 
 /**
  * L'invitation à installer le jeu (#68), à la fin du Duel du jour : un bouton quand le navigateur le permet,
  * les étapes à suivre sur les autres mobiles (repliées sous « Comment l'installer ? »), et sur ordinateur une
- * simple ligne pour les favoris. « Non merci » ferme la carte pour de bon.
+ * simple ligne pour les favoris. « Non merci » ferme la carte pour de bon. La ligne de l'ordinateur revient aussi
+ * à la fin d'une Partie libre (#103).
  */
-export function InvitationInstallationVue({ situation, installer, onEcarter, mesurer }: PropsVue) {
+export function InvitationInstallationVue({ situation, installer, onEcarter, mesurer, surOrdinateurSeulement = false }: PropsVue) {
   const [fermee, setFermee] = useState(false)
   const [deplie, setDeplie] = useState(false)
   const [qrOuvert, setQrOuvert] = useState(false)
   const idEtapes = useId()
   const ordinateur = situation === 'ordinateur' || situation === 'mac'
-  const visible = situation !== 'installe' && !ordinateur && !fermee
+  // « visible » ne concerne que la carte du téléphone : elle n'est ni affichée ni comptée en fin de Partie libre.
+  const visible = situation !== 'installe' && !ordinateur && !fermee && !surOrdinateurSeulement
   const comptee = useRef(false)
   const guideCompte = useRef(false)
 
@@ -176,7 +184,7 @@ function FenetreQrCode({ onFermer }: { onFermer: () => void }) {
 }
 
 /** L'invitation branchée sur le vrai navigateur : rien si le joueur l'a déjà écartée. */
-export function InvitationInstallation() {
+export function InvitationInstallation({ surOrdinateurSeulement = false }: { surOrdinateurSeulement?: boolean }) {
   const { situation, installer } = useInstallation()
   const [stockage] = useState(stockageDuNavigateur)
   const [ecartee] = useState(() => invitationEcartee(stockage))
@@ -187,6 +195,7 @@ export function InvitationInstallation() {
       installer={installer}
       onEcarter={() => ecarterInvitation(stockage)}
       mesurer={mesurerPourDeVrai}
+      surOrdinateurSeulement={surOrdinateurSeulement}
     />
   )
 }

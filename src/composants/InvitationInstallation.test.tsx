@@ -123,6 +123,24 @@ describe('L’invitation à installer le jeu, à la fin du Duel du jour', () => 
     expect(screen.queryByRole('region', { name: 'Reviens demain en un geste' })).not.toBeInTheDocument()
   })
 
+  it('en fin de Partie libre (#103), sur ordinateur : la même ligne, avec son QR code', () => {
+    const p = afficher({ situation: 'ordinateur', installer: undefined, surOrdinateurSeulement: true })
+    expect(screen.getByText(/^Pour revenir demain : ajoute Duel Carbone à tes favoris \(Ctrl \+ D\)/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Joue sur ton téléphone : afficher un QR code' }))
+    expect(screen.getByRole('dialog', { name: 'Joue sur ton téléphone' })).toBeInTheDocument()
+    expect(p.mesurer).toHaveBeenCalledWith('installation/qr')
+  })
+
+  it.each(['bouton', 'safari-ios', 'firefox-android', 'mobile-autre'] as const)(
+    'en fin de Partie libre (#103), sur téléphone (%s) : rien, ni affiché ni compté',
+    (situation) => {
+      const p = afficher({ situation, surOrdinateurSeulement: true })
+      expect(screen.queryByRole('region')).not.toBeInTheDocument()
+      expect(screen.queryByText(/Pour revenir demain/)).not.toBeInTheDocument()
+      expect(p.mesurer).not.toHaveBeenCalled()
+    },
+  )
+
   it('ne s’affiche pas si le jeu est déjà installé', () => {
     const p = afficher({ situation: 'installe', installer: undefined })
     expect(screen.queryByRole('region')).not.toBeInTheDocument()
