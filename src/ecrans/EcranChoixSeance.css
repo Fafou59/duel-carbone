@@ -1,6 +1,9 @@
 /* « Animer ou rejoindre une Séance » : deux cartes, une par chemin. */
+/* « minmax(0, 1fr) » : la colonne peut rétrécir sous la largeur naturelle de son contenu (le champ du code), pour
+   tenir à 320 px de large (zoom à 200 %, e2e/accessibilite.spec.ts). */
 .choix-seance {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
   max-width: 68ch;
   padding: 8px 0;
@@ -26,6 +29,7 @@
 
 .choix-seance__carte {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
   justify-items: start;
   padding: 16px;
@@ -57,7 +61,9 @@
 }
 
 .choix-seance__ligne input {
+  /* Sans largeur propre (un champ vaut sinon 20 caractères), il prend la place que lui laisse le bouton. */
   flex: 1 1 10ch;
+  width: 0;
   min-width: 0;
   padding: 10px 12px;
   border: 2px solid var(--ligne);
