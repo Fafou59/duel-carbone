@@ -226,7 +226,9 @@ describe('Page En savoir plus', () => {
   it('présente le Mode animation, avec ses limites lues dans les règles, et mène à l’écran de l’Animateur', () => {
     render(<EcranEnSavoirPlus />)
     const partie = screen.getByRole('region', { name: 'Jouer à plusieurs : le Mode animation' })
-    expect(partie).toHaveTextContent(/de 2 à 100 Participants la rejoignent avec leur téléphone/)
+    expect(partie).toHaveTextContent(/jusqu'à 100 Participants la rejoignent avec leur téléphone/)
+    expect(partie).toHaveTextContent(/Sans aucun téléphone, la Séance sert aussi de discussion collective/)
+    expect(partie).toHaveTextContent(/à partir de 2 Participants le classement s'affiche entre les Duels/)
     expect(partie).toHaveTextContent(/avec toujours un Duel ★/)
     expect(partie).toHaveTextContent(/ne compte ni pour ta série, ni pour ton record/)
     expect(within(partie).getByRole('link', { name: 'Animer une Séance' })).toHaveAttribute('href', '#animer')

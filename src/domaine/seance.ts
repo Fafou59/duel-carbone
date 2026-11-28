@@ -1,7 +1,8 @@
 /**
  * Les règles d'une Séance du Mode animation (PRD docs/prd-mode-animation.md, section 5 ; ADR 0007).
  *
- * Une Séance avance d'étape en étape, au rythme de l'Animateur, sans chrono :
+ * Une Séance avance d'étape en étape, au rythme de l'Animateur, sans chrono (seule la révélation part d'elle-même,
+ * quand tout le monde a répondu : c'est l'écran de l'Animateur qui la demande) :
  *
  *   attente ──▶ duel 1 ──▶ révélation 1 ──▶ classement 1 ──▶ duel 2 ── … ──▶ révélation 10 ──▶ fin
  *
@@ -102,7 +103,7 @@ export function etapeSuivante(etat: EtatSeance): Etape | null {
       return { phase: 'revelation', index: etape.index }
     case 'revelation':
       if (etape.index === etat.duels.length - 1) return { phase: 'fin' }
-      return etat.classement ? { phase: 'classement', index: etape.index } : { phase: 'duel', index: etape.index + 1 }
+      return classementEnJeu(etat) ? { phase: 'classement', index: etape.index } : { phase: 'duel', index: etape.index + 1 }
     case 'classement':
       return { phase: 'duel', index: etape.index + 1 }
     case 'fin':
@@ -110,19 +111,21 @@ export function etapeSuivante(etat: EtatSeance): Etape | null {
   }
 }
 
-/** Combien de Participants manquent encore pour lancer le premier Duel (0 : la Séance peut commencer). */
-export const participantsManquants = (nombreDeParticipants: number): number =>
-  Math.max(0, REGLES.seance.participantsMin - nombreDeParticipants)
+/**
+ * Le Classement est-il en jeu ? Il faut que l'Animateur l'ait choisi, et au moins 2 Participants : à 0 ou 1, ni
+ * classement intermédiaire, ni classement final, ni médaille (une discussion collective, ou un Participant seul).
+ * Recalculé à chaque étape : il apparaît si un deuxième Participant arrive en cours de Séance.
+ */
+export const classementEnJeu = (etat: EtatSeance): boolean =>
+  etat.classement && etat.participants.length >= REGLES.seance.participantsPourUnClassement
 
 /**
  * L'Animateur passe à l'étape suivante. `depuis` est l'étape qu'il voyait en appuyant : si la Séance a déjà avancé
  * (double appui, message renvoyé après une coupure), rien ne bouge. `conseil` n'est retenu qu'au passage à la fin.
- * Le premier Duel ne se lance qu'avec assez de Participants (REGLES.seance.participantsMin).
  */
 export function avancerSeance(etat: EtatSeance, depuis: Etape, conseil: string | null = null): EtatSeance {
   const suivante = etapeSuivante(etat)
   if (!suivante || !memeEtape(etat.etape, depuis)) return etat
-  if (etat.etape.phase === 'attente' && participantsManquants(etat.participants.length) > 0) return etat
   return { ...etat, etape: suivante, ...(suivante.phase === 'fin' ? { conseil } : {}) }
 }
 

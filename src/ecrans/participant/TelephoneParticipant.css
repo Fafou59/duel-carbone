@@ -197,6 +197,31 @@ html:has(.telephone__bandeau) {
   margin: 0 0 4px;
 }
 
+/* Le classement intermédiaire occupe toute la hauteur de l'écran, en grand : on le lit d'un coup d'œil, téléphone
+   posé sur la table (retour de Fabien le 28/11 : tout était tassé en haut). La hauteur ôte l'en-tête du jeu. */
+.telephone__resultats--classement {
+  min-height: calc(100dvh - 140px);
+  align-content: space-evenly;
+  gap: 16px;
+}
+
+.telephone__resultats--classement .fin__score {
+  font-size: 96px;
+}
+
+.telephone__resultats--classement .fin__score span {
+  font-size: 40px;
+}
+
+.telephone__resultats--classement .telephone__place {
+  font-size: 32px;
+}
+
+.telephone__resultats--classement .fin__message {
+  margin: 0;
+  font-size: 22px;
+}
+
 .telephone__place {
   margin: 0;
   font-size: 24px;

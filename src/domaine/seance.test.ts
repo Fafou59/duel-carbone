@@ -19,7 +19,7 @@ import {
   normaliserCode,
   normaliserPseudo,
   partDeLaSalle,
-  participantsManquants,
+  classementEnJeu,
   reponsesPourLeTauxDErreur,
   repondre,
   retirerParticipant,
@@ -137,17 +137,21 @@ describe('les étapes d’une Séance', () => {
     expect(avancer(avancer(derniere, 'velo'), 'autre')).toEqual(avancer(derniere, 'velo'))
   })
 
-  it('ne lancent le premier Duel qu’à partir de 2 Participants', () => {
-    expect(REGLES.seance.participantsMin).toBe(2)
+  it('se lancent sans aucun Participant : une discussion collective (décidé le 28/11)', () => {
     const vide = creerSeance({ classement: true, duels: DUELS })
-    expect(participantsManquants(vide.participants.length)).toBe(2)
-    expect(avancer(vide)).toBe(vide)
+    expect(avancer(vide).etape).toEqual({ phase: 'duel', index: 0 })
+  })
+
+  it('ne mettent le Classement en jeu qu’à partir de 2 Participants : à 0 ou 1, pas d’étape « classement »', () => {
+    expect(REGLES.seance.participantsPourUnClassement).toBe(2)
+    const vide = creerSeance({ classement: true, duels: DUELS })
     const seul = avecParticipants(vide, 'Camille')
-    expect(participantsManquants(seul.participants.length)).toBe(1)
-    expect(avancer(seul)).toBe(seul)
     const deux = avecParticipants(seul, 'Léo')
-    expect(participantsManquants(deux.participants.length)).toBe(0)
-    expect(avancer(deux).etape).toEqual({ phase: 'duel', index: 0 })
+    expect([vide, seul, deux].map(classementEnJeu)).toEqual([false, false, true])
+    expect(etapeSuivante(jusqua(seul, 'revelation', 0))).toEqual({ phase: 'duel', index: 1 })
+    expect(etapeSuivante(jusqua(deux, 'revelation', 0))).toEqual({ phase: 'classement', index: 0 })
+    // Sans Classement choisi, jamais, quel que soit le nombre de Participants.
+    expect(classementEnJeu(avecParticipants(creerSeance({ classement: false, duels: DUELS }), 'A', 'B', 'C'))).toBe(false)
   })
 
   it('continuent même s’il ne reste qu’un Participant (ou aucun) une fois lancées', () => {
@@ -341,8 +345,8 @@ describe('le Classement', () => {
 
 describe('la salle', () => {
   function revelee(choix: string[]): EtatSeance {
-    // Au moins 2 Participants pour lancer la Séance ; les autres ne répondent pas.
-    const pseudos = Array.from({ length: Math.max(choix.length, REGLES.seance.participantsMin) }, (_, i) => `P${i}`)
+    // Un Participant par réponse (au moins un) ; les autres ne répondent pas.
+    const pseudos = Array.from({ length: Math.max(choix.length, 1) }, (_, i) => `P${i}`)
     let etat = jusqua(avecParticipants(creerSeance({ classement: false, duels: DUELS }), ...pseudos), 'duel', 0)
     choix.forEach((id, i) => {
       etat = repondre(etat, i + 1, 0, id)

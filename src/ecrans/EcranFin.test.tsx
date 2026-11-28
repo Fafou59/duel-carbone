@@ -182,7 +182,7 @@ describe('Partage du score', () => {
 
   it('confirme la copie', async () => {
     partagerAvec('copie')
-    expect(await screen.findByRole('status')).toHaveTextContent('Score copié')
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Score copié'))
   })
 
   it('n’affiche rien si le joueur annule', async () => {
@@ -246,7 +246,7 @@ describe('Partage du score en image, pour les Stories', () => {
   it('rappelle d’ajouter l’autocollant « Lien » après un partage ou un enregistrement', async () => {
     fin({ resultat: 'enregistre' })
     fireEvent.click(boutonImage())
-    expect(await screen.findByRole('status')).toHaveTextContent('Image enregistrée')
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Image enregistrée'))
     expect(screen.getByRole('status')).toHaveTextContent('autocollant « Lien »')
   })
 
@@ -260,7 +260,7 @@ describe('Partage du score en image, pour les Stories', () => {
   it('renvoie vers le texte si l’image n’a pas pu être créée', async () => {
     fin({ resultat: 'echec' })
     fireEvent.click(boutonImage())
-    expect(await screen.findByRole('status')).toHaveTextContent('L’image n’a pas pu être créée')
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('L’image n’a pas pu être créée'))
   })
 })
 

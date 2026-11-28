@@ -42,6 +42,11 @@ for (const theme of ['light', 'dark'] as const) {
       await page.getByRole('contentinfo').getByRole('link', { name: 'Mentions légales' }).press('Enter')
       await expect(page.getByRole('heading', { level: 2, name: 'Mentions légales et vie privée' })).toBeVisible()
       await verifierAccessibilite(page, 'Mentions légales et vie privée')
+
+      // Le chemin vers le Mode animation, depuis le pied de page : animer ou rejoindre une Séance.
+      await page.getByRole('contentinfo').getByRole('link', { name: 'Animer ou rejoindre une Séance' }).press('Enter')
+      await expect(page.getByRole('heading', { level: 2, name: 'Animer ou rejoindre une Séance' })).toBeVisible()
+      await verifierAccessibilite(page, 'Animer ou rejoindre une Séance')
     })
 
     test('Duel : la question, puis la réponse et son explication', async ({ page }) => {
@@ -122,6 +127,8 @@ test.describe('zoom à 200 %', () => {
     await sansDefilementHorizontal(page, 'En savoir plus')
     await page.goto('/#mentions-legales')
     await sansDefilementHorizontal(page, 'Mentions légales et vie privée')
+    await page.goto('/#seance')
+    await sansDefilementHorizontal(page, 'Animer ou rejoindre une Séance')
   })
 
   /*

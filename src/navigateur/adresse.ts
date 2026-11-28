@@ -2,7 +2,7 @@
  * La navigation entre les pages, sans bibliothèque : l'ancre de l'adresse (la partie après « # »).
  *
  * - « …/#en-savoir-plus » affiche la page En savoir plus ; « …/#mentions-legales », la page Mentions légales et vie
- *   privée ; « …/#animer », l'écran de l'Animateur d'une Séance (Mode
+ *   privée ; « …/#seance », le choix entre animer et rejoindre une Séance ; « …/#animer », l'écran de l'Animateur d'une Séance (Mode
  *   animation) ; « …/#rejoindre/K7RM4P », le téléphone du Participant, avec le code de la Séance (celle qu'ouvre le
  *   QR code ; « …/#rejoindre » seul demande le code) ; toute autre adresse affiche le jeu.
  * - Un lien <a href="#en-savoir-plus"> change l'ancre sans recharger la page : le navigateur prévient
@@ -12,13 +12,14 @@
  */
 import { useSyncExternalStore } from 'react'
 
-export type Page = 'jeu' | 'enSavoirPlus' | 'mentionsLegales' | 'animer' | 'rejoindre'
+export type Page = 'jeu' | 'enSavoirPlus' | 'mentionsLegales' | 'seance' | 'animer' | 'rejoindre'
 
 /** L'adresse (relative) de chaque page, pour les liens. */
 export const ADRESSES: Record<Page, string> = {
   jeu: '#',
   enSavoirPlus: '#en-savoir-plus',
   mentionsLegales: '#mentions-legales',
+  seance: '#seance',
   animer: '#animer',
   rejoindre: '#rejoindre',
 }
@@ -30,6 +31,7 @@ const pageActuelle = (): Page => {
   const ancre = window.location.hash
   if (ancre === ADRESSES.enSavoirPlus || ancre === ANCIENNE_ADRESSE) return 'enSavoirPlus'
   if (ancre === ADRESSES.mentionsLegales) return 'mentionsLegales'
+  if (ancre === ADRESSES.seance) return 'seance'
   if (ancre === ADRESSES.rejoindre || ancre.startsWith(`${ADRESSES.rejoindre}/`)) return 'rejoindre'
   return ancre === ADRESSES.animer ? 'animer' : 'jeu'
 }

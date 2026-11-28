@@ -79,7 +79,7 @@ export function ClassementIntermediaire({
 }) {
   const { place } = vue.moi
   return (
-    <section className="telephone__resultats" aria-labelledby="telephone-classement-titre">
+    <section className="telephone__resultats telephone__resultats--classement" aria-labelledby="telephone-classement-titre">
       <h2 id="telephone-classement-titre" ref={refTitre} tabIndex={-1}>
         Classement après le Duel {index + 1}
       </h2>
@@ -140,8 +140,17 @@ export function FinDeSeance({
         <Recapitulatif
           lignes={lignes}
           complement={(ligne) => {
+            // Sans réponse, la case le dit en toutes lettres, à la place de la part de la salle (retour du 28/11).
+            // Caché aux lecteurs d'écran : le nom de la case dit déjà « sans réponse ».
+            if (ligne.idChoisi === null) {
+              return (
+                <span className="telephone__salle-recap" aria-hidden="true">
+                  Pas de réponse
+                </span>
+              )
+            }
             const salle = vue.salle[ligne.numero - 1]
-            if (!salle || ligne.idChoisi === null) return null
+            if (!salle) return null
             const part = salle.parGeste[ligne.idChoisi]?.pourcentage ?? 0
             return (
               <span className="telephone__salle-recap">

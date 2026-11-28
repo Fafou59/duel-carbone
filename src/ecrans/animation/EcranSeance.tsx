@@ -19,12 +19,12 @@ import { formaterEmpreinte, formaterMultiple, formaterRapport, queDevant } from 
 import type { GesteCalcule } from '../../domaine/geste.ts'
 import type { DuelDePartie } from '../../domaine/partie.ts'
 import { enPourcent, pourcent } from '../../domaine/rang-du-jour.ts'
-import { REGLES } from '../../domaine/regles.ts'
-import { duelsRatesDeLaSalle, participantsManquants, type Etape, type LigneDeClassement, type PartDeLaSalle } from '../../domaine/seance.ts'
+import { duelsRatesDeLaSalle, type Etape, type LigneDeClassement, type PartDeLaSalle } from '../../domaine/seance.ts'
 import type { MessageDuServeur, VueAnimateur } from '../../domaine/seance-messages.ts'
 import { CONSEILS } from '../../donnees/conseils.ts'
 import { DUELS_THEMATIQUES } from '../../donnees/duels-thematiques.ts'
 import { GESTES_CALCULES, INSTANTANE } from '../../donnees/index.ts'
+import { CHEMIN_REJOINDRE } from '../../domaine/adresse-courte.ts'
 import { ADRESSES, adresseDeRejoindre } from '../../navigateur/adresse.ts'
 import type { Memoire } from '../../navigateur/memoire.ts'
 import type { Evenement } from '../../navigateur/mesure.ts'
@@ -33,6 +33,18 @@ import { QrCode } from './QrCode.tsx'
 import '../EcranPartie.css'
 
 const VALEURS = valeursDe(INSTANTANE)
+
+/**
+ * Un appui arrivé moins de 0,8 s après un changement d'étape est ignoré. Un double-clic, un rebond de touche ou un
+ * appui au moment où la révélation part toute seule enverraient sinon un second ordre, que le serveur prendrait pour
+ * « passer à l'étape suivante » : un classement ou un Duel sautés (constaté par Fabien le 28/11).
+ */
+export const DELAI_ENTRE_DEUX_APPUIS_MS = 800
+/** Quand tout le monde a répondu, la révélation part toute seule après ce délai : le temps de voir « 24/24 ». */
+export const DELAI_DE_REVELATION_MS = 1500
+
+/** Une étape en texte (« duel-3 »), pour savoir quand elle change. */
+const cleDEtape = (etape: Etape) => `${etape.phase}-${'index' in etape ? etape.index : ''}`
 const MEDAILLES = { or: '🥇', argent: '🥈', bronze: '🥉' } as const
 
 type Props = {
@@ -61,8 +73,8 @@ function libelleDuBouton(vue: VueAnimateur): string {
     case 'duel':
       return 'Révéler la réponse'
     case 'revelation':
-      if (etape.index === vue.duels.length - 1) return vue.avecClassement ? 'Voir le classement final' : 'Voir les résultats'
-      return vue.avecClassement ? 'Voir le classement' : `Duel ${etape.index + 2}`
+      if (etape.index === vue.duels.length - 1) return vue.classementEnJeu ? 'Voir le classement final' : 'Voir les résultats'
+      return vue.classementEnJeu ? 'Voir le classement' : `Duel ${etape.index + 2}`
     case 'classement':
       return `Duel ${etape.index + 2}`
     case 'fin':
@@ -121,21 +133,50 @@ export function EcranSeance({ code, jeton, serveur, memoire, mesurer, onNouvelle
     if (conseilMontre) memoire.noterConseil(conseilMontre)
   }, [conseilMontre, memoire])
 
+  // Le moment où l'étape affichée a changé, et l'étape depuis laquelle un ordre d'avancer est déjà parti.
+  const etapeAffichee = vue ? cleDEtape(vue.etape) : ''
+  const changeeLe = useRef(0)
+  const dejaDemandee = useRef<string | null>(null)
+  useEffect(() => {
+    changeeLe.current = Date.now()
+  }, [etapeAffichee])
+
+  /** Demande au serveur de passer à l'étape suivante, une seule fois par étape. */
+  const avancer = (etat: VueAnimateur, listeDeDuels: DuelDePartie[]) => {
+    if (dejaDemandee.current === cleDEtape(etat.etape)) return
+    const versLaFin = etat.etape.phase === 'revelation' && etat.etape.index === listeDeDuels.length - 1
+    const conseil = versLaFin ? choisirLeConseil(listeDeDuels, etat.salle, memoire.conseilsRecents()) : null
+    const envoye = envoyer.current({ type: 'avancer', depuis: etat.etape, conseil })
+    if (!envoye) return
+    dejaDemandee.current = cleDEtape(etat.etape)
+    // La fin de la Séance est comptée une fois, au clic qui la termine (pas à chaque réaffichage de l'écran de fin),
+    // avec le nombre exact de Participants : 100 au plus, assez peu de valeurs pour les garder toutes.
+    if (versLaFin) mesurer(`seance/terminee/${etat.participants.length}`)
+  }
+
   const pret = vue !== null && duels !== null && connexion === 'connecte'
-  // Le premier Duel ne se lance qu'à partir de 2 Participants (le serveur refuserait de toute façon).
-  const manquants = vue?.etape.phase === 'attente' ? participantsManquants(vue.participants.length) : 0
 
   const actionPrincipale = () => {
     if (!vue || !duels) return
+    if (Date.now() - changeeLe.current < DELAI_ENTRE_DEUX_APPUIS_MS) return
     if (vue.fermee || vue.etape.phase === 'fin') return onNouvelle()
-    if (connexion !== 'connecte' || manquants > 0) return
-    const versLaFin = vue.etape.phase === 'revelation' && vue.etape.index === duels.length - 1
-    const conseil = versLaFin ? choisirLeConseil(duels, vue.salle, memoire.conseilsRecents()) : null
-    const envoye = envoyer.current({ type: 'avancer', depuis: vue.etape, conseil })
-    // La fin de la Séance est comptée une fois, au clic qui la termine (pas à chaque réaffichage de l'écran de fin),
-    // avec le nombre exact de Participants : 100 au plus, assez peu de valeurs pour les garder toutes.
-    if (versLaFin && envoye) mesurer(`seance/terminee/${vue.participants.length}`)
+    if (connexion !== 'connecte') return
+    avancer(vue, duels)
   }
+
+  // Tout le monde a répondu au Duel : la révélation part toute seule (décidé par Fabien le 28/11), après le temps
+  // de voir la jauge pleine. L'Animateur peut toujours révéler plus tôt.
+  const indexDuDuel = vue?.etape.phase === 'duel' ? vue.etape.index : null
+  const toutLeMondeARepondu =
+    indexDuDuel !== null && !vue?.fermee && (vue?.participants.length ?? 0) > 0 && (vue?.repondus.length ?? 0) >= (vue?.participants.length ?? 0)
+  const revelerSeul = useEffectEvent(() => {
+    if (vue?.etape.phase === 'duel' && duels) avancer(vue, duels)
+  })
+  useEffect(() => {
+    if (!toutLeMondeARepondu || connexion !== 'connecte') return
+    const minuteur = window.setTimeout(() => revelerSeul(), DELAI_DE_REVELATION_MS)
+    return () => window.clearTimeout(minuteur)
+  }, [toutLeMondeARepondu, connexion, indexDuDuel])
   const retirer = (numero: number) => envoyer.current({ type: 'retirer', numero })
 
   // Espace : le bouton principal, sauf dans la fenêtre du détail des émissions ou sur un autre bouton.
@@ -192,8 +233,7 @@ export function EcranSeance({ code, jeton, serveur, memoire, mesurer, onNouvelle
       type="button"
       className="an-bouton"
       onClick={actionPrincipale}
-      disabled={(!pret || manquants > 0) && !vue.fermee && vue.etape.phase !== 'fin'}
-      aria-describedby={manquants > 0 ? 'an-minimum' : undefined}
+      disabled={!pret && !vue.fermee && vue.etape.phase !== 'fin'}
     >
       {libelleDuBouton(vue)} <kbd>Espace</kbd>
     </button>
@@ -260,15 +300,30 @@ function Logo({ lien = false }: { lien?: boolean }) {
 
 /** Le QR code, l'adresse et le code : de quoi rejoindre la Séance. */
 function Rejoindre({ code, compact = false }: { code: string; compact?: boolean }) {
+  // L'adresse courte, à taper à la main (duelcarbone.fr/rejoindre) : elle mène au champ du code (adresse-courte.ts).
+  const adresseCourte = `${window.location.host}${CHEMIN_REJOINDRE}`
+  const codeLu = <p className="an-rejoindre__code" aria-label={`Code ${code.split('').join(' ')}`}>{code}</p>
   return (
     <div className={`an-rejoindre${compact ? ' an-rejoindre--compact' : ''}`}>
       <QrCode texte={adresseDeRejoindre(window.location.origin, code)} taille={compact ? 96 : 220} />
-      <div>
-        <p className="an-rejoindre__adresse">{window.location.host}</p>
-        <p className="an-rejoindre__code" aria-label={`Code ${code.split('').join(' ')}`}>
-          {code}
-        </p>
-      </div>
+      {compact ? (
+        <div>
+          <p className="an-rejoindre__adresse">{adresseCourte}</p>
+          {codeLu}
+        </div>
+      ) : (
+        // Pendant l'attente, les deux façons de rejoindre, dites pas à pas (retour de Fabien le 28/11).
+        <div>
+          <p className="an-rejoindre__etape">
+            <span aria-hidden="true">📱 </span>Scanne le QR code
+          </p>
+          <p className="an-rejoindre__etape">
+            ou va sur <strong className="an-rejoindre__adresse">{adresseCourte}</strong>
+          </p>
+          <p className="an-rejoindre__etape">et tape le code :</p>
+          {codeLu}
+        </div>
+      )}
     </div>
   )
 }
@@ -328,9 +383,10 @@ function Attente({ vue, code, bouton, retirer, onAbandon }: PropsCommunes & { on
         <p className="an-attente__compte" aria-live="polite">
           <strong>{nombre}</strong> Participant{nombre > 1 ? 's' : ''}
         </p>
-        {participantsManquants(nombre) > 0 && (
-          <p id="an-minimum" className="an-attente__minimum">
-            Il faut au moins {REGLES.seance.participantsMin} Participants pour lancer le premier Duel.
+        {/* Personne n'est obligé de rejoindre : sans téléphone, la Séance devient une discussion collective (28/11). */}
+        {nombre === 0 && (
+          <p className="an-attente__astuce">
+            Pas de téléphone dans la salle ? Lance quand même les Duels : la salle en débat à voix haute.
           </p>
         )}
         {vue.avecClassement && (
@@ -429,8 +485,10 @@ function Plateau({ vue, duels, code, bouton, retirer, pseudoDe, etape }: PropsCo
         <p className="an-teaser__tambour" aria-hidden="true">
           🥁
         </p>
-        <p className="an-teaser__texte">{vue.avecClassement ? 'Qui monte sur le podium ?' : 'Les 10 Duels sont joués !'}</p>
-        <p className="an-teaser__sous-texte">Place aux résultats de la salle.</p>
+        <p className="an-teaser__texte">{vue.classementEnJeu ? 'Qui monte sur le podium ?' : 'Les 10 Duels sont joués !'}</p>
+        <p className="an-teaser__sous-texte">
+          {vue.salle.some((s) => s.reponses > 0) ? 'Place aux résultats de la salle.' : 'Place au conseil pour agir.'}
+        </p>
       </aside>
     )
   } else {
@@ -438,14 +496,17 @@ function Plateau({ vue, duels, code, bouton, retirer, pseudoDe, etape }: PropsCo
     colonne = (
       <aside className="an-colonne">
         <Rejoindre code={code} compact />
-        <div className="an-jauge" aria-live="polite">
-          <span>
-            <strong>{vue.repondus.length}</strong> / {total} ont répondu
-          </span>
-          <div>
-            <i style={{ width: `${total ? (vue.repondus.length / total) * 100 : 0}%` }} />
+        {/* Sans Participant (discussion collective), pas de jauge « 0 / 0 ont répondu ». */}
+        {total > 0 && (
+          <div className="an-jauge" aria-live="polite">
+            <span>
+              <strong>{vue.repondus.length}</strong> / {total} ont répondu
+            </span>
+            <div>
+              <i style={{ width: `${(vue.repondus.length / total) * 100}%` }} />
+            </div>
           </div>
-        </div>
+        )}
         {vue.avecClassement && (
           <ul className="an-repondus" aria-label="Ont répondu">
             {vue.repondus.map((numero) => {
@@ -493,7 +554,8 @@ function Plateau({ vue, duels, code, bouton, retirer, pseudoDe, etape }: PropsCo
       return (
         <div className={`an-ligne${revele && g === plus ? ' an-ligne--gagnant' : ''}`}>
           <LigneGeste geste={g} revele={revele}>
-            {revele && salle && (
+            {/* La part de la salle, seulement si quelqu'un a répondu (pas en discussion collective). */}
+            {revele && salle && salle.reponses > 0 && (
               <span className="an-reponses">
                 <span className="an-reponses__barre" aria-hidden="true">
                   <i style={{ width: `${Math.max(reponses.pourcentage, 2)}%` }} />
@@ -578,7 +640,7 @@ function Final({ vue, duels, bouton }: PropsCommunes) {
     <main className="an-final">
       <div className="an-final__tete">
         <Logo lien />
-        <h1>{vue.classement ? 'Classement final' : 'Les résultats de la salle'}</h1>
+        <h1>{vue.classement ? 'Classement final' : reponses > 0 ? 'Les résultats de la salle' : 'Les 10 Duels sont joués !'}</h1>
       </div>
       {vue.classement ? (
         <ol className="an-final__classement">
@@ -602,7 +664,8 @@ function Final({ vue, duels, bouton }: PropsCommunes) {
         )
       )}
       <div className="an-final__bas">
-        {rates.length > 0 ? (
+        {/* En discussion collective (aucune réponse), ni tableau des Duels ratés, ni « bravo ». */}
+        {reponses === 0 ? null : rates.length > 0 ? (
           <section className="an-final__rates">
             <h2>Les Duels qui ont le plus trompé la salle</h2>
             <table className="an-rates">

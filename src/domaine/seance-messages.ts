@@ -13,6 +13,7 @@
 import type { DuelDePartie } from './partie.ts'
 import {
   classementDeLaSeance,
+  classementEnJeu,
   duelsReveles,
   estUnJeton,
   partDeLaSalle,
@@ -91,8 +92,10 @@ export function lireMessageDuClient(texte: unknown): MessageDuClient | null {
 /** Ce que voient tous les écrans. */
 type VueCommune = {
   code: string
-  /** L'Animateur a-t-il choisi un Classement ? */
+  /** L'Animateur a-t-il choisi un Classement ? (Les Participants donnent alors un pseudo.) */
   avecClassement: boolean
+  /** Le Classement est-il en jeu : choisi, et au moins 2 Participants (classementEnJeu, src/domaine/seance.ts) ? */
+  classementEnJeu: boolean
   /** La Séance est fermée (3 h après sa création) : plus personne ne rejoint, plus rien n'avance. */
   fermee: boolean
   /** Les 10 Duels, en codes « idA>idB » (les Gestes sont dans le jeu : duelsDepuisCodes). */
@@ -163,7 +166,7 @@ function duelCourant(etape: Etape): number | null {
 const enCode = (duel: DuelDePartie) => `${duel.a.id}>${duel.b.id}`
 
 /** Les étapes où le Classement se montre : jamais pendant un Duel ni à sa révélation (surprise du Duel 10). */
-const classementVisible = (etat: EtatSeance) => etat.classement && (etat.etape.phase === 'classement' || etat.etape.phase === 'fin')
+const classementVisible = (etat: EtatSeance) => classementEnJeu(etat) && (etat.etape.phase === 'classement' || etat.etape.phase === 'fin')
 
 /** La ligne d'un Participant dans le Classement, avec combien sont derrière lui ; null s'il n'y figure pas. */
 function placeDans(classement: LigneDeClassement[] | null, numero: number): PlaceDuParticipant | null {
@@ -183,6 +186,7 @@ export function preparerLesVues(
   const commune: VueCommune = {
     code,
     avecClassement: etat.classement,
+    classementEnJeu: classementEnJeu(etat),
     fermee,
     duels: etat.duels.map(enCode),
     etape: etat.etape,
