@@ -3,8 +3,10 @@ import { tabulerJusqua, verifierAccessibilite } from './outils.ts'
 
 /**
  * Une Séance du Mode animation entière, de bout en bout (PRD du Mode animation, section 8) : un Animateur sur un
- * ordinateur, deux Participants sur leur téléphone, dont un qui se reconnecte en plein Duel (téléphone en veille,
- * onglet fermé puis rouvert). Tout se joue au clavier : Espace pour l'Animateur, 1 et 2 pour les téléphones.
+ * ordinateur, deux Participants sur leur téléphone, l'un arrivé par le QR code, l'autre par l'adresse courte
+ * (duelcarbone.fr/rejoindre) ; le second se reconnecte en plein Duel (téléphone en veille, onglet fermé puis
+ * rouvert). Tout se joue au clavier : Espace pour l'Animateur, 1 et 2 pour les téléphones. La réponse se révèle
+ * d'elle-même quand les deux ont répondu, et un double-clic ne fait jamais sauter d'étape.
  * Chaque écran passe l'analyse d'accessibilité (axe-core), en mode clair et en mode sombre.
  *
  * Ici, pas de faux serveur : la Séance vit dans son vrai Durable Object, servi en local par `wrangler dev`
@@ -23,17 +25,29 @@ async function analyser(page: Page, ecran: string, deja: Ecrans) {
 /** Le bouton principal de l'écran projeté, dont le texte dit l'étape suivante. */
 const boutonPrincipal = (animateur: Page) => animateur.locator('button.an-bouton')
 
-/** L'Animateur appuie sur Espace (le focus est sur la page, pas sur un autre bouton), puis l'écran passe à `suite`. */
+/**
+ * L'Animateur appuie sur Espace (le focus est sur la page, pas sur un autre bouton), puis l'écran passe à `suite`.
+ * Comme un vrai Animateur, il laisse passer un instant après le changement d'étape : un appui trop rapproché est
+ * ignoré (EcranSeance.tsx, DELAI_ENTRE_DEUX_APPUIS_MS).
+ */
 async function espace(animateur: Page, suite: RegExp) {
   await expect(boutonPrincipal(animateur)).toBeEnabled()
+  await animateur.waitForTimeout(1000)
   await animateur.keyboard.press('Space')
   await expect(boutonPrincipal(animateur)).toHaveText(suite)
 }
 
-/** Un Participant scanne le QR code (il arrive sur #rejoindre/<code>), tape son pseudo et rejoint la Séance. */
-async function rejoindre(page: Page, code: string, pseudo: string, deja: Ecrans) {
-  await page.goto(`/#rejoindre/${code}`)
+/**
+ * Un Participant rejoint la Séance : par le QR code (il arrive sur #rejoindre/<code>, code rempli), ou par l'adresse
+ * courte affichée dessous (/rejoindre, que le serveur renvoie vers #rejoindre), où il tape le code lui-même.
+ */
+async function rejoindre(page: Page, code: string, pseudo: string, deja: Ecrans, par: 'qr' | 'adresse courte' = 'qr') {
+  await page.goto(par === 'qr' ? `/#rejoindre/${code}` : '/rejoindre')
   await expect(page.getByRole('heading', { name: 'Rejoindre la Séance' })).toBeVisible()
+  if (par === 'adresse courte') {
+    expect(new URL(page.url()).hash).toBe('#rejoindre')
+    await page.getByLabel('Code de la Séance').pressSequentially(code.toLowerCase())
+  }
   const champ = page.getByLabel('Ton pseudo (affiché au Classement)')
   await expect(champ).toBeVisible()
   await expect(page.getByLabel('Code de la Séance')).toHaveValue(code)
@@ -90,7 +104,7 @@ for (const theme of ['light', 'dark'] as const) {
     const camille = await telephoneDeCamille.newPage()
     let leo = await telephoneDeLeo.newPage()
     await rejoindre(camille, code, 'Camille', deja)
-    await rejoindre(leo, code, 'Léo', deja)
+    await rejoindre(leo, code, 'Léo', deja, 'adresse courte')
     await expect(animateur.getByRole('listitem').filter({ hasText: 'Camille' })).toBeVisible()
     await expect(animateur.getByRole('listitem').filter({ hasText: 'Léo' })).toBeVisible()
     await expect(boutonPrincipal(animateur)).toHaveText(/Lancer le premier Duel/)
@@ -117,8 +131,8 @@ for (const theme of ['light', 'dark'] as const) {
       await repondre(leo, n, '2')
       await expect(animateur.getByText(/2\s*\/\s*2 ont répondu/)).toBeVisible()
 
-      // La révélation, partout à la fois.
-      await espace(animateur, n < 10 ? /^Voir le classement\b(?! final)/ : /Voir le classement final/)
+      // Tout le monde a répondu : la révélation part toute seule, partout à la fois.
+      await expect(boutonPrincipal(animateur)).toHaveText(n < 10 ? /^Voir le classement\b(?! final)/ : /Voir le classement final/)
       for (const telephone of [camille, leo]) {
         await expect(telephone.getByRole('region', { name: 'Explication' })).toBeVisible()
         await expect(telephone.getByText(/de la salle comme toi/)).toBeVisible()
@@ -129,8 +143,17 @@ for (const theme of ['light', 'dark'] as const) {
       }
       if (n === 10) break
 
-      // Le classement intermédiaire : la place de chacun sur son téléphone.
-      await espace(animateur, new RegExp(`Duel ${n + 1}`))
+      // Le classement intermédiaire : la place de chacun sur son téléphone. Au Duel 2, l'Animateur double-clique :
+      // une seule étape passe (constaté le 28/11 : un double-clic sautait le classement).
+      if (n === 2) {
+        await animateur.waitForTimeout(1000)
+        await boutonPrincipal(animateur).dblclick()
+        await expect(boutonPrincipal(animateur)).toHaveText(/Duel 3/)
+        await animateur.waitForTimeout(1500)
+        await expect(boutonPrincipal(animateur)).toHaveText(/Duel 3/)
+      } else {
+        await espace(animateur, new RegExp(`Duel ${n + 1}`))
+      }
       for (const telephone of [camille, leo]) {
         await expect(telephone.locator('#telephone-classement-titre')).toBeVisible()
       }
