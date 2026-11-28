@@ -33,6 +33,7 @@ export function Rejoindre({ codeInitial, pseudoInitial = '', message = null, ser
   const [essai, setEssai] = useState(0)
   const id = useId()
   const code = normaliserCode(saisie)
+  const maximum = REGLES.seance.longueurMaxDuPseudo
 
   // Le code est complet : on demande au serveur ce qu'il en est (une fois par code).
   useEffect(() => {
@@ -110,10 +111,12 @@ export function Rejoindre({ codeInitial, pseudoInitial = '', message = null, ser
               id={`${id}-pseudo`}
               value={pseudo}
               onChange={(e) => {
-                setPseudo(e.target.value)
+                // Coupé ici au 20e caractère : sur Android, le clavier ignore « maxLength » pendant la saisie d'un
+                // mot, puis le navigateur raccourcit le pseudo d'un coup à la fin (constaté par Fabien le 28/11).
+                setPseudo([...e.target.value].slice(0, maximum).join(''))
                 setErreurPseudo(false)
               }}
-              maxLength={REGLES.seance.longueurMaxDuPseudo}
+              maxLength={maximum}
               autoComplete="nickname"
               enterKeyHint="go"
               aria-invalid={erreurPseudo}
@@ -121,8 +124,8 @@ export function Rejoindre({ codeInitial, pseudoInitial = '', message = null, ser
             />
             <p id={`${id}-aide-pseudo`} className={erreurPseudo ? 'telephone__aide telephone__aide--erreur' : 'telephone__aide'}>
               {erreurPseudo
-                ? `Choisis un pseudo, de ${REGLES.seance.longueurMaxDuPseudo} caractères au plus.`
-                : 'Il est effacé à la fin de la Séance.'}
+                ? `Choisis un pseudo, de ${maximum} caractères au plus.`
+                : `${maximum} caractères au plus (${[...pseudo].length}/${maximum}). Il est effacé à la fin de la Séance.`}
             </p>
           </>
         )}

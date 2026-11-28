@@ -134,7 +134,7 @@ describe('rejoindre la Séance', () => {
     expect(screen.getByRole('heading', { name: 'Rejoindre la Séance' })).toBeInTheDocument()
     expect(screen.getByLabelText('Code de la Séance')).toHaveValue(CODE)
     const pseudo = await screen.findByLabelText('Ton pseudo (affiché au Classement)')
-    expect(screen.getByText('Il est effacé à la fin de la Séance.')).toBeInTheDocument()
+    expect(screen.getByText('20 caractères au plus (0/20). Il est effacé à la fin de la Séance.')).toBeInTheDocument()
     expect(frise()).toBeInTheDocument()
 
     fireEvent.change(pseudo, { target: { value: '  Camille ' } })
@@ -167,6 +167,14 @@ describe('rejoindre la Séance', () => {
     srv.recevoir({ type: 'refus', raison: 'pleine' })
     expect(await screen.findByText(/La Séance est complète/)).toBeInTheDocument()
     expect(srv.mesurer).not.toHaveBeenCalled()
+  })
+
+  it('arrête le pseudo au 20e caractère, et dit combien il en reste', async () => {
+    afficher()
+    const pseudo = await screen.findByLabelText('Ton pseudo (affiché au Classement)')
+    fireEvent.change(pseudo, { target: { value: 'Camille-la-grande-gagnante' } })
+    expect(pseudo).toHaveValue('Camille-la-grande-ga')
+    expect(screen.getByText(/\(20\/20\)/)).toBeInTheDocument()
   })
 
   it('refuse un pseudo vide, en le disant', async () => {
@@ -372,11 +380,29 @@ describe('la fin de la Séance', () => {
     expect(screen.getByRole('dialog', { name: 'Détail du Duel 1' })).toBeInTheDocument()
   })
 
+  it('seul dans la Séance, ne montre ni place ni médaille, même avec un Classement choisi', () => {
+    const srv = dejaDansLaSeance()
+    let etat = arrivee(creerSeance({ classement: true, duels: DUELS }), 'Camille')
+    while (etat.etape.phase !== 'fin') {
+      if (etat.etape.phase === 'duel') etat = repondre(etat, 1, etat.etape.index, bon(etat.etape.index))
+      // Jamais de classement intermédiaire à un seul Participant.
+      expect(etat.etape.phase).not.toBe('classement')
+      etat = avancer(etat, CONSEILS[0].id)
+    }
+    srv.pousser(vueDe(etat))
+    expect(screen.getByRole('heading', { name: 'Séance terminée !' })).toBeInTheDocument()
+    expect(screen.queryByText(/sur 1\b/)).not.toBeInTheDocument()
+    expect(screen.queryByRole('img', { name: /médaille/ })).not.toBeInTheDocument()
+  })
+
   it('dit « sans réponse » pour les Duels auxquels le Participant n’a pas répondu', () => {
     const srv = dejaDansLaSeance()
     srv.pousser(vueDe(seanceJouee(), 3))
     const cases = within(screen.getByRole('list', { name: 'Récapitulatif' })).getAllByRole('button')
     expect(cases[1]).toHaveAccessibleName(/^Duel 2\s?\(sans réponse\)/)
+    // À l'écran, « Pas de réponse » à la place de la part de la salle.
+    expect(cases[1]).toHaveTextContent('Pas de réponse')
+    expect(cases[1]).not.toHaveTextContent(/de la salle comme toi/)
     fireEvent.click(cases[1])
     expect(screen.getByText('✗ Pas de réponse à ce Duel.')).toBeInTheDocument()
   })

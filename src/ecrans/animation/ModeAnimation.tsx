@@ -37,7 +37,7 @@ type Etat =
   | { ecran: 'explication'; enCreation: boolean; erreur: string | null }
   | { ecran: 'seance'; code: string; jeton: string; avecClassement: boolean }
 
-const { participantsMin, participantsMax, dureeMaxEnHeures, effacementEnHeures } = REGLES.seance
+const { participantsPourUnClassement, participantsMax, dureeMaxEnHeures, effacementEnHeures } = REGLES.seance
 
 export function ModeAnimation({
   memoire: memoireFournie,
@@ -157,8 +157,14 @@ export function ModeAnimation({
         <h2>Comment ça se passe</h2>
         <ol>
           <li>Tu crées la Séance et tu projettes cette page.</li>
-          <li>Les Participants scannent le QR code (ou tapent le code) avec leur téléphone : de {participantsMin} à {participantsMax} personnes.</li>
-          <li>Tu lances chaque Duel et tu révèles la réponse quand tu veux : pas de chrono. La salle découvre ce qu’elle a répondu.</li>
+          <li>
+            Les Participants scannent le QR code (ou tapent le code) avec leur téléphone : jusqu’à {participantsMax} personnes.
+            Sans téléphone, lance quand même les Duels : la salle en débat à voix haute.
+          </li>
+          <li>
+            Tu lances chaque Duel, sans chrono. La réponse se révèle dès que tout le monde a répondu, ou plus tôt si tu
+            le décides : la salle découvre alors ce qu’elle a répondu.
+          </li>
           <li>Après 10 Duels : les résultats, les Duels qui ont le plus trompé la salle et un conseil pour agir.</li>
         </ol>
         <p>
@@ -185,7 +191,10 @@ export function ModeAnimation({
               <input type="radio" name="classement" checked={avecClassement} onChange={() => setAvecClassement(true)} />
               <span>
                 Avec un classement
-                <small>Chacun choisit un pseudo ; le classement s’affiche entre les Duels, avec des médailles à la fin.</small>
+                <small>
+                  Chacun choisit un pseudo ; à partir de {participantsPourUnClassement} Participants, le classement s’affiche
+                  entre les Duels, avec des médailles à la fin.
+                </small>
               </span>
             </label>
             <label>

@@ -18,13 +18,14 @@ import { Accueil, type Situation } from './ecrans/Accueil.tsx'
 import { EcranPartie } from './ecrans/EcranPartie.tsx'
 import { EcranEnSavoirPlus } from './ecrans/EcranEnSavoirPlus.tsx'
 import { EcranMentionsLegales } from './ecrans/EcranMentionsLegales.tsx'
+import { EcranChoixSeance } from './ecrans/EcranChoixSeance.tsx'
 import { ADRESSES, usePage } from './navigateur/adresse.ts'
 import { creerMemoire, type Memoire } from './navigateur/memoire.ts'
 import { appliquerNouvelleVersion, useNouvelleVersion } from './navigateur/mise-a-jour.ts'
 import { serveurDuRang, type ServeurDuRang } from './navigateur/rang-du-jour.ts'
 
 import { IMPACT_CO2_DOC } from './liens.ts'
-import { TITRE_ACCUEIL, TITRE_EN_SAVOIR_PLUS, TITRE_MENTIONS_LEGALES } from './referencement.ts'
+import { TITRE_ACCUEIL, TITRE_CHOIX_SEANCE, TITRE_EN_SAVOIR_PLUS, TITRE_MENTIONS_LEGALES } from './referencement.ts'
 
 type Props = {
   /** La mémoire locale (remplaçable dans les tests) : par défaut, le localStorage du navigateur. */
@@ -70,6 +71,8 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
   const page = usePage()
   // Une page à lire, par-dessus le jeu (qui reste en place, caché).
   const enLecture = page === 'enSavoirPlus' || page === 'mentionsLegales'
+  // Une page hors du jeu (à lire, ou le choix entre animer et rejoindre une Séance) : le jeu reste en place, caché.
+  const horsDuJeu = enLecture || page === 'seance'
   // « Comment ça marche ? » : le tutoriel, ouvert par-dessus l'écran en cours.
   const [tutoriel, setTutoriel] = useState(false)
 
@@ -159,8 +162,12 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
   // À chaque changement de page : le titre de l'onglet, et retour en haut de l'écran.
   // Sur l'accueil, celui de index.html, que Google lit aussi une fois le jeu affiché (src/referencement.ts).
   useEffect(() => {
-    document.title =
-      page === 'enSavoirPlus' ? TITRE_EN_SAVOIR_PLUS : page === 'mentionsLegales' ? TITRE_MENTIONS_LEGALES : TITRE_ACCUEIL
+    const titres: Partial<Record<typeof page, string>> = {
+      enSavoirPlus: TITRE_EN_SAVOIR_PLUS,
+      mentionsLegales: TITRE_MENTIONS_LEGALES,
+      seance: TITRE_CHOIX_SEANCE,
+    }
+    document.title = titres[page] ?? TITRE_ACCUEIL
     window.scrollTo(0, 0)
   }, [page])
 
@@ -274,8 +281,9 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
       <main>
         {page === 'enSavoirPlus' && <EcranEnSavoirPlus />}
         {page === 'mentionsLegales' && <EcranMentionsLegales />}
+        {page === 'seance' && <EcranChoixSeance />}
         {/* Le jeu reste en place (simplement caché) pendant la lecture : la Partie en cours n'est pas perdue. */}
-        <div hidden={enLecture}>
+        <div hidden={horsDuJeu}>
           {!partie && (
             <Accueil
               jour={aujourdhui}
@@ -370,7 +378,7 @@ export default function App({ memoire: memoireFournie, aujourdhui: jourFourni, s
         </p>
         {/* Le Mode animation : faire jouer une salle en direct (atelier, réunion). Discret : peu de joueurs en ont besoin. */}
         <p>
-          <a href={ADRESSES.animer}>Animer une Séance</a> : faire jouer une salle sur ses téléphones
+          <a href={ADRESSES.seance}>Animer ou rejoindre une Séance</a> : faire jouer une salle sur ses téléphones
         </p>
       </footer>
       <Tutoriel ouvert={tutoriel} onFermer={() => setTutoriel(false)} onJouer={lancerPartieDuJour} />

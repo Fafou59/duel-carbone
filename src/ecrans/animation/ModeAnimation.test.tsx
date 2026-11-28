@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CALIBRAGE, GESTES_CALCULES } from '../../donnees/index.ts'
 import { CONSEILS } from '../../donnees/conseils.ts'
 import { DUELS_THEMATIQUES } from '../../donnees/duels-thematiques.ts'
@@ -11,6 +11,7 @@ import { preparerLesVues, type MessageDuClient, type MessageDuServeur } from '..
 import { creerMemoire } from '../../navigateur/memoire.ts'
 import { creerMemoireDeSeance } from '../../navigateur/memoire-seance.ts'
 import type { EtatDeConnexion, ServeurDesSeances } from '../../navigateur/seance.ts'
+import { DELAI_DE_REVELATION_MS } from './EcranSeance.tsx'
 import { ModeAnimation } from './ModeAnimation.tsx'
 
 const CODE = 'K7RM4P'
@@ -128,9 +129,22 @@ describe('l’écran projeté de la Séance', () => {
     memoireSeance.retenirAnimee({ code: CODE, jeton: JETON })
     render(<ModeAnimation serveur={faux.serveur} memoire={memoire} memoireSeance={memoireSeance} mesurer={mesurer} />)
     await waitFor(() => expect(faux.serveur.connecter).toHaveBeenCalled())
-    return { ...faux, memoire, memoireSeance, mesurer }
+    // `montrer` laisse ensuite passer le temps d'un vrai Animateur ; `montrerAussitot`, non (double-clic).
+    const montrer: typeof faux.montrer = (...args) => {
+      faux.montrer(...args)
+      plusTard()
+    }
+    return { ...faux, montrer, montrerAussitot: faux.montrer, memoire, memoireSeance, mesurer }
   }
   const espace = () => fireEvent.keyDown(document.body, { key: ' ' })
+  // Un appui juste après un changement d'étape est ignoré : les tests laissent passer le temps d'un vrai Animateur.
+  const plusTard = () => vi.setSystemTime(Date.now() + 2000)
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+  })
+  afterEach(() => {
+    vi.useRealTimers()
+  })
 
   it('montre le QR code, le code et les pseudos qui arrivent ; un pseudo se retire d’un clic', async () => {
     const { montrer, commandes } = await lancer()
@@ -142,6 +156,50 @@ describe('l’écran projeté de la Séance', () => {
     expect(commandes.at(-1)).toEqual({ type: 'retirer', numero: 2 })
   })
 
+  it('ignore un second appui juste après un changement d’étape (double-clic, rebond de touche) : une seule étape', async () => {
+    const { montrer, montrerAussitot, commandes } = await lancer()
+    let etat = avancer(salle())
+    montrer(etat)
+    fireEvent.click(screen.getByRole('button', { name: /Révéler la réponse/ }))
+    // Le serveur répond aussitôt : la révélation s'affiche, et le second clic du double-clic arrive dans la foulée.
+    etat = avancer(etat)
+    montrerAussitot(etat)
+    fireEvent.click(screen.getByRole('button', { name: /Voir le classement/ }))
+    espace()
+    expect(commandes.filter((c) => c.type === 'avancer')).toEqual([{ type: 'avancer', depuis: { phase: 'duel', index: 0 }, conseil: null }])
+    // Une seconde plus tard, l'Animateur avance à nouveau normalement.
+    plusTard()
+    espace()
+    expect(commandes.at(-1)).toEqual({ type: 'avancer', depuis: { phase: 'revelation', index: 0 }, conseil: null })
+  })
+
+  it('révèle tout seul quand tout le monde a répondu, après le temps de voir la jauge pleine', async () => {
+    const { montrer, commandes } = await lancer()
+    vi.useFakeTimers()
+    let etat = avancer(salle())
+    etat = repondre(repondre(etat, 1, 0, moinsEmetteur(DUELS[0]).id), 2, 0, plusEmetteur(DUELS[0]).id)
+    montrer(etat)
+    // Inès n'a pas encore répondu : rien ne part.
+    act(() => vi.advanceTimersByTime(DELAI_DE_REVELATION_MS * 2))
+    expect(commandes.filter((c) => c.type === 'avancer')).toHaveLength(0)
+
+    montrer(repondre(etat, 3, 0, moinsEmetteur(DUELS[0]).id))
+    expect(screen.getByText(/ont répondu/)).toHaveTextContent('3 / 3 ont répondu')
+    act(() => vi.advanceTimersByTime(DELAI_DE_REVELATION_MS - 100))
+    expect(commandes.filter((c) => c.type === 'avancer')).toHaveLength(0)
+    act(() => vi.advanceTimersByTime(200))
+    expect(commandes.filter((c) => c.type === 'avancer')).toEqual([{ type: 'avancer', depuis: { phase: 'duel', index: 0 }, conseil: null }])
+  })
+
+  it('n’envoie pas deux fois le même ordre si le serveur tarde à répondre', async () => {
+    const { montrer, commandes } = await lancer()
+    montrer(avancer(salle()))
+    espace()
+    plusTard()
+    espace()
+    expect(commandes.filter((c) => c.type === 'avancer')).toHaveLength(1)
+  })
+
   it('avance avec Espace, en disant au serveur l’étape qu’il voyait', async () => {
     const { montrer, commandes } = await lancer()
     montrer(salle())
@@ -150,21 +208,41 @@ describe('l’écran projeté de la Séance', () => {
     expect(screen.getByRole('button', { name: /Lancer le premier Duel/ })).toBeInTheDocument()
   })
 
-  it('ne lance pas le premier Duel avant 2 Participants, et dit pourquoi', async () => {
+  it('se lance sans aucun Participant, pour une discussion collective, et le suggère', async () => {
     const { montrer, commandes } = await lancer()
+    const vide = creerSeance({ classement: true, duels: DUELS })
+    montrer(vide)
+    expect(screen.getByText(/Pas de téléphone dans la salle \? Lance quand même les Duels/)).toBeInTheDocument()
+    espace()
+    expect(commandes.at(-1)).toEqual({ type: 'avancer', depuis: { phase: 'attente' }, conseil: null })
+
+    // Pendant le Duel : ni jauge « 0 / 0 », ni part de la salle à la révélation.
+    montrer(avancer(vide))
+    expect(screen.queryByText(/ont répondu/)).not.toBeInTheDocument()
+    montrer(avancer(avancer(vide)))
+    expect(screen.queryByText(/de la salle/)).not.toBeInTheDocument()
+    // Pas de classement à 0 Participant : de la révélation, on passe au Duel suivant.
+    expect(screen.getByRole('button', { name: /Duel 2/ })).toBeInTheDocument()
+  })
+
+  it('termine une discussion collective sans classement ni tableau des Duels ratés', async () => {
+    const { montrer } = await lancer()
+    let etat = creerSeance({ classement: true, duels: DUELS })
+    while (etat.etape.phase !== 'fin') etat = avancer(etat, CONSEILS[0].id)
+    montrer(etat)
+    expect(screen.getByRole('heading', { level: 1, name: 'Les 10 Duels sont joués !' })).toBeInTheDocument()
+    expect(screen.queryByRole('table')).not.toBeInTheDocument()
+    expect(screen.queryByText(/bravo/)).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Un conseil/ })).toBeInTheDocument()
+  })
+
+  it('ne montre pas de classement avec un seul Participant, même choisi', async () => {
+    const { montrer } = await lancer()
     const seul = ajouterParticipant(creerSeance({ classement: true, duels: DUELS }), 'Camille')
     if (!('etat' in seul)) throw new Error('Camille refusée')
-    montrer(seul.etat)
-    const bouton = screen.getByRole('button', { name: /Lancer le premier Duel/ })
-    expect(bouton).toBeDisabled()
-    expect(bouton).toHaveAccessibleDescription('Il faut au moins 2 Participants pour lancer le premier Duel.')
-    const avant = commandes.length
-    espace()
-    expect(commandes).toHaveLength(avant)
-
-    montrer(salle())
-    expect(screen.getByRole('button', { name: /Lancer le premier Duel/ })).toBeEnabled()
-    expect(screen.queryByText(/Il faut au moins 2 Participants/)).not.toBeInTheDocument()
+    montrer(avancer(avancer(seul.etat)))
+    expect(screen.getByRole('button', { name: /Duel 2/ })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Voir le classement/ })).not.toBeInTheDocument()
   })
 
   it('pendant un Duel, montre qui a répondu sans dire ce qu’ils ont choisi ; à la révélation, la part de la salle', async () => {

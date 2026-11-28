@@ -21,6 +21,9 @@ export const TITRE_EN_SAVOIR_PLUS = 'En savoir plus · Duel Carbone'
 /** Le titre de l'onglet sur la page Mentions légales et vie privée. */
 export const TITRE_MENTIONS_LEGALES = 'Mentions légales et vie privée · Duel Carbone'
 
+/** Le titre de l'onglet de la page qui mène au Mode animation (animer ou rejoindre une Séance). */
+export const TITRE_CHOIX_SEANCE = 'Animer ou rejoindre une Séance · Duel Carbone'
+
 /** Le titre de l'onglet du Mode animation (l'écran de l'Animateur). */
 export const TITRE_MODE_ANIMATION = 'Animer une Séance · Duel Carbone'
 
