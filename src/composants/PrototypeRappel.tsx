@@ -32,11 +32,45 @@ export function PrototypeRappel() {
   const [permission, setPermission] = useState(() => ('Notification' in window ? Notification.permission : 'absente'))
   const noter = (ligne: string) =>
     setJournal((j) => [`${new Date().toLocaleTimeString('fr-FR')} · ${ligne}`, ...j].slice(0, 30))
+  const essayerSansGeste = (action: () => Promise<void>) => () => {
+    action().catch((e: unknown) => noter(`ERREUR ${e instanceof Error ? `${e.name} : ${e.message}` : String(e)}`))
+  }
+
+  const [cle, setCle] = useState<string | null>(null)
 
   useEffect(() => {
     if (!pushPossible()) return
     void navigator.serviceWorker.ready.then((sw) => sw.pushManager.getSubscription()).then(setAbonnement)
+    // La clé est lue d'avance : rien n'attend le réseau entre le toucher et la demande d'autorisation.
+    void fetch('/api/rappel/cle')
+      .then((r) => r.json())
+      .then((j: { cle: string }) => setCle(j.cle))
+      .catch(() => {})
   }, [])
+
+  // Diagnostic (Firefox Android répond « denied » sans rien montrer) : ce que le navigateur dit de lui-même.
+  const diagnostiquer = essayerSansGeste(async () => {
+    noter(navigator.userAgent)
+    noter(`Notification.permission : ${'Notification' in window ? Notification.permission : 'absente'}`)
+    const etat = await navigator.permissions?.query({ name: 'notifications' as PermissionName }).catch((e: unknown) => String(e))
+    noter(`permissions.query(notifications) : ${typeof etat === 'string' ? etat : etat?.state}`)
+    const sw = await navigator.serviceWorker.ready
+    const etatPush = await sw.pushManager
+      .permissionState({ userVisibleOnly: true })
+      .catch((e: unknown) => String(e))
+    noter(`pushManager.permissionState : ${etatPush}`)
+  })
+
+  // Variante : s'abonner directement, sans Notification.requestPermission (Firefox demande alors lui-même).
+  const sAbonnerDirectement = essayerSansGeste(async () => {
+    if (!cle) return noter('clé pas encore reçue, réessaie dans une seconde')
+    const sw = await navigator.serviceWorker.ready
+    const nouvel = await sw.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: enOctets(cle) })
+    setAbonnement(nouvel)
+    setPermission(Notification.permission)
+    noter(`abonné chez ${new URL(nouvel.endpoint).host}`)
+    noter(await appeler('POST', '/api/rappel/abonnement', nouvel.toJSON()))
+  })
 
   const essayer = (action: () => Promise<void>) => () => {
     action().catch((e: unknown) => noter(`ERREUR ${e instanceof Error ? `${e.name} : ${e.message}` : String(e)}`))
@@ -91,6 +125,12 @@ export function PrototypeRappel() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         <button type="button" className="bouton" onClick={sAbonner}>
           Recevoir le Rappel
+        </button>
+        <button type="button" className="bouton bouton--secondaire" onClick={sAbonnerDirectement}>
+          Recevoir le Rappel (variante sans demande préalable)
+        </button>
+        <button type="button" className="bouton bouton--secondaire" onClick={diagnostiquer}>
+          Diagnostic des autorisations
         </button>
         <button type="button" className="bouton bouton--secondaire" onClick={envoyer({})}>
           M’envoyer le Rappel maintenant
