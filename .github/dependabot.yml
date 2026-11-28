@@ -1,0 +1,42 @@
+# Dependabot : un robot de GitHub qui ouvre tout seul des Pull Requests pour mettre les dépendances à jour
+# (ticket #119). Chaque PR passe par la CI et reçoit son aperçu Cloudflare, comme une PR écrite à la main : on
+# fusionne quand tout est vert, rien ne part en production sans relecture.
+#
+# Les choix, et leur raison :
+# - une fois par semaine, le lundi matin : assez souvent pour que l'écart reste petit (wrangler et les types des
+#   Workers sortent presque chaque jour), pas assez pour devenir du bruit ;
+# - les petites mises à jour (correctifs et versions mineures) arrivent ensemble, dans une seule PR, donc un seul
+#   aperçu à vérifier ; une version majeure, qui peut tout changer, garde sa PR à elle ;
+# - chaque version doit être sortie depuis 7 jours avant d'être proposée : le temps qu'un paquet piégé ou raté soit
+#   repéré et retiré par d'autres (attaques par la chaîne d'approvisionnement) ;
+# - les robots de la CI eux-mêmes (GitHub Actions : checkout, setup-node…) se mettent à jour une fois par mois.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/Paris
+    cooldown:
+      default-days: 7
+    groups:
+      petites-mises-a-jour:
+        update-types: [minor, patch]
+    commit-message:
+      prefix: chore(deps)
+    labels: [socle]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ['*']
+    commit-message:
+      prefix: chore(ci)
+    labels: [socle]
