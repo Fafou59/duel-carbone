@@ -177,3 +177,35 @@ for (const theme of ['light', 'dark'] as const) {
     await Promise.all([ordinateur.close(), telephoneDeCamille.close(), telephoneDeLeo.close()])
   })
 }
+
+/**
+ * Une discussion collective : aucun téléphone, l'Animateur projette les 10 Duels et la salle en débat à voix haute
+ * (décidé le 28/11). Ni jauge, ni part de la salle, ni classement : la fin montre « Les 10 Duels sont joués ! » et le
+ * Conseil. axe-core sur l'écran de fin, en mode clair et en mode sombre.
+ */
+test('une discussion collective, sans aucun téléphone, jusqu’à la fin', async ({ browser }) => {
+  test.setTimeout(120_000)
+  for (const theme of ['light', 'dark'] as const) {
+    const ordinateur = await nouveauContexte(browser, theme, 1280, 720)
+    const animateur = await ordinateur.newPage()
+    await animateur.goto('/#animer')
+    await expect(animateur.getByRole('heading', { level: 1, name: 'Animer une Séance' })).toBeVisible()
+    await tabulerJusqua(animateur, /^Créer la Séance$/)
+    await animateur.keyboard.press('Enter')
+    await expect(animateur.getByText(/Pas de téléphone dans la salle \? Lance quand même les Duels/)).toBeVisible()
+
+    await espace(animateur, /Révéler la réponse/)
+    await expect(animateur.getByText(/ont répondu/)).toHaveCount(0)
+    for (let n = 1; n <= 10; n++) {
+      await expect(animateur.getByText(`Duel ${n}/10`, { exact: true })).toBeVisible()
+      await espace(animateur, n < 10 ? new RegExp(`Duel ${n + 1}`) : /Voir les résultats/)
+      await expect(animateur.getByText(/de la salle/)).toHaveCount(0)
+      if (n < 10) await espace(animateur, /Révéler la réponse/)
+    }
+    await espace(animateur, /Rejouer une nouvelle Séance/)
+    await expect(animateur.getByRole('heading', { level: 1, name: 'Les 10 Duels sont joués !' })).toBeVisible()
+    await expect(animateur.getByRole('table')).toHaveCount(0)
+    await verifierAccessibilite(animateur, `discussion collective : fin (${theme === 'light' ? 'clair' : 'sombre'})`)
+    await ordinateur.close()
+  }
+})

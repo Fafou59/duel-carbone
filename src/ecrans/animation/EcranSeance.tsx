@@ -19,8 +19,7 @@ import { formaterEmpreinte, formaterMultiple, formaterRapport, queDevant } from 
 import type { GesteCalcule } from '../../domaine/geste.ts'
 import type { DuelDePartie } from '../../domaine/partie.ts'
 import { enPourcent, pourcent } from '../../domaine/rang-du-jour.ts'
-import { REGLES } from '../../domaine/regles.ts'
-import { duelsRatesDeLaSalle, participantsManquants, type Etape, type LigneDeClassement, type PartDeLaSalle } from '../../domaine/seance.ts'
+import { duelsRatesDeLaSalle, type Etape, type LigneDeClassement, type PartDeLaSalle } from '../../domaine/seance.ts'
 import type { MessageDuServeur, VueAnimateur } from '../../domaine/seance-messages.ts'
 import { CONSEILS } from '../../donnees/conseils.ts'
 import { DUELS_THEMATIQUES } from '../../donnees/duels-thematiques.ts'
@@ -74,8 +73,8 @@ function libelleDuBouton(vue: VueAnimateur): string {
     case 'duel':
       return 'Révéler la réponse'
     case 'revelation':
-      if (etape.index === vue.duels.length - 1) return vue.avecClassement ? 'Voir le classement final' : 'Voir les résultats'
-      return vue.avecClassement ? 'Voir le classement' : `Duel ${etape.index + 2}`
+      if (etape.index === vue.duels.length - 1) return vue.classementEnJeu ? 'Voir le classement final' : 'Voir les résultats'
+      return vue.classementEnJeu ? 'Voir le classement' : `Duel ${etape.index + 2}`
     case 'classement':
       return `Duel ${etape.index + 2}`
     case 'fin':
@@ -156,14 +155,12 @@ export function EcranSeance({ code, jeton, serveur, memoire, mesurer, onNouvelle
   }
 
   const pret = vue !== null && duels !== null && connexion === 'connecte'
-  // Le premier Duel ne se lance qu'à partir de 2 Participants (le serveur refuserait de toute façon).
-  const manquants = vue?.etape.phase === 'attente' ? participantsManquants(vue.participants.length) : 0
 
   const actionPrincipale = () => {
     if (!vue || !duels) return
     if (Date.now() - changeeLe.current < DELAI_ENTRE_DEUX_APPUIS_MS) return
     if (vue.fermee || vue.etape.phase === 'fin') return onNouvelle()
-    if (connexion !== 'connecte' || manquants > 0) return
+    if (connexion !== 'connecte') return
     avancer(vue, duels)
   }
 
@@ -236,8 +233,7 @@ export function EcranSeance({ code, jeton, serveur, memoire, mesurer, onNouvelle
       type="button"
       className="an-bouton"
       onClick={actionPrincipale}
-      disabled={(!pret || manquants > 0) && !vue.fermee && vue.etape.phase !== 'fin'}
-      aria-describedby={manquants > 0 ? 'an-minimum' : undefined}
+      disabled={!pret && !vue.fermee && vue.etape.phase !== 'fin'}
     >
       {libelleDuBouton(vue)} <kbd>Espace</kbd>
     </button>
@@ -387,9 +383,10 @@ function Attente({ vue, code, bouton, retirer, onAbandon }: PropsCommunes & { on
         <p className="an-attente__compte" aria-live="polite">
           <strong>{nombre}</strong> Participant{nombre > 1 ? 's' : ''}
         </p>
-        {participantsManquants(nombre) > 0 && (
-          <p id="an-minimum" className="an-attente__minimum">
-            Il faut au moins {REGLES.seance.participantsMin} Participants pour lancer le premier Duel.
+        {/* Personne n'est obligé de rejoindre : sans téléphone, la Séance devient une discussion collective (28/11). */}
+        {nombre === 0 && (
+          <p className="an-attente__astuce">
+            Pas de téléphone dans la salle ? Lance quand même les Duels : la salle en débat à voix haute.
           </p>
         )}
         {vue.avecClassement && (
@@ -488,8 +485,10 @@ function Plateau({ vue, duels, code, bouton, retirer, pseudoDe, etape }: PropsCo
         <p className="an-teaser__tambour" aria-hidden="true">
           🥁
         </p>
-        <p className="an-teaser__texte">{vue.avecClassement ? 'Qui monte sur le podium ?' : 'Les 10 Duels sont joués !'}</p>
-        <p className="an-teaser__sous-texte">Place aux résultats de la salle.</p>
+        <p className="an-teaser__texte">{vue.classementEnJeu ? 'Qui monte sur le podium ?' : 'Les 10 Duels sont joués !'}</p>
+        <p className="an-teaser__sous-texte">
+          {vue.salle.some((s) => s.reponses > 0) ? 'Place aux résultats de la salle.' : 'Place au conseil pour agir.'}
+        </p>
       </aside>
     )
   } else {
@@ -497,14 +496,17 @@ function Plateau({ vue, duels, code, bouton, retirer, pseudoDe, etape }: PropsCo
     colonne = (
       <aside className="an-colonne">
         <Rejoindre code={code} compact />
-        <div className="an-jauge" aria-live="polite">
-          <span>
-            <strong>{vue.repondus.length}</strong> / {total} ont répondu
-          </span>
-          <div>
-            <i style={{ width: `${total ? (vue.repondus.length / total) * 100 : 0}%` }} />
+        {/* Sans Participant (discussion collective), pas de jauge « 0 / 0 ont répondu ». */}
+        {total > 0 && (
+          <div className="an-jauge" aria-live="polite">
+            <span>
+              <strong>{vue.repondus.length}</strong> / {total} ont répondu
+            </span>
+            <div>
+              <i style={{ width: `${(vue.repondus.length / total) * 100}%` }} />
+            </div>
           </div>
-        </div>
+        )}
         {vue.avecClassement && (
           <ul className="an-repondus" aria-label="Ont répondu">
             {vue.repondus.map((numero) => {
@@ -552,7 +554,8 @@ function Plateau({ vue, duels, code, bouton, retirer, pseudoDe, etape }: PropsCo
       return (
         <div className={`an-ligne${revele && g === plus ? ' an-ligne--gagnant' : ''}`}>
           <LigneGeste geste={g} revele={revele}>
-            {revele && salle && (
+            {/* La part de la salle, seulement si quelqu'un a répondu (pas en discussion collective). */}
+            {revele && salle && salle.reponses > 0 && (
               <span className="an-reponses">
                 <span className="an-reponses__barre" aria-hidden="true">
                   <i style={{ width: `${Math.max(reponses.pourcentage, 2)}%` }} />
@@ -637,7 +640,7 @@ function Final({ vue, duels, bouton }: PropsCommunes) {
     <main className="an-final">
       <div className="an-final__tete">
         <Logo lien />
-        <h1>{vue.classement ? 'Classement final' : 'Les résultats de la salle'}</h1>
+        <h1>{vue.classement ? 'Classement final' : reponses > 0 ? 'Les résultats de la salle' : 'Les 10 Duels sont joués !'}</h1>
       </div>
       {vue.classement ? (
         <ol className="an-final__classement">
@@ -661,7 +664,8 @@ function Final({ vue, duels, bouton }: PropsCommunes) {
         )
       )}
       <div className="an-final__bas">
-        {rates.length > 0 ? (
+        {/* En discussion collective (aucune réponse), ni tableau des Duels ratés, ni « bravo ». */}
+        {reponses === 0 ? null : rates.length > 0 ? (
           <section className="an-final__rates">
             <h2>Les Duels qui ont le plus trompé la salle</h2>
             <table className="an-rates">

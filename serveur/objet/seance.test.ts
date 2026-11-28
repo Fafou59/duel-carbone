@@ -184,7 +184,6 @@ describe('les connexions', () => {
     await ecran.etat()
     const camille = await participant(code, 'Camille')
     await camille.etat()
-    // Il faut 2 Participants pour lancer la Séance.
     await (await participant(code, 'Léo')).etat()
     ecran.envoyer({ type: 'avancer', depuis: { phase: 'attente' } })
     await dernierEtat<VueParticipant>(camille, (v) => v.etape.phase === 'duel')
@@ -242,20 +241,19 @@ describe('le déroulé', () => {
     expect(apres).toEqual({ reponses: ((avant?.reponses as number) ?? 0) + 2, fausses: ((avant?.fausses as number) ?? 0) + 1 })
   })
 
-  it('ne lance pas le premier Duel avant 2 Participants', async () => {
+  it('se joue sans aucun Participant (discussion collective), sans classement, jusqu’à la fin', async () => {
     const { code, jetonAnimateur } = await creerUneSeance()
     const ecran = await animateur(code, jetonAnimateur)
-    await ecran.etat()
-    const camille = await participant(code, 'Camille')
-    await camille.etat()
-    await dernierEtat<VueAnimateur>(ecran, (v) => v.participants.length === 1)
-    ecran.envoyer({ type: 'avancer', depuis: { phase: 'attente' } })
-    // Refusé sans bruit : l'Animateur reçoit la Séance telle quelle, toujours en attente.
-    expect((await ecran.etat<VueAnimateur>()).etape).toEqual({ phase: 'attente' })
-    await (await participant(code, 'Léo')).etat()
-    await dernierEtat<VueAnimateur>(ecran, (v) => v.participants.length === 2)
-    ecran.envoyer({ type: 'avancer', depuis: { phase: 'attente' } })
-    await dernierEtat<VueAnimateur>(ecran, (v) => v.etape.phase === 'duel')
+    let vue = await ecran.etat<VueAnimateur>()
+    expect(vue.classementEnJeu).toBe(false)
+    while (vue.etape.phase !== 'fin') {
+      const depuis = vue.etape
+      ecran.envoyer({ type: 'avancer', depuis })
+      vue = await dernierEtat<VueAnimateur>(ecran, (v) => v.etape.phase !== depuis.phase || ('index' in v.etape && 'index' in depuis && v.etape.index !== depuis.index))
+      // Jamais d'étape « classement » sans au moins 2 Participants.
+      expect(vue.etape.phase).not.toBe('classement')
+    }
+    expect(vue.classement).toBeNull()
   })
 
   it('ne bouge pas quand l’Animateur appuie deux fois depuis la même étape', async () => {

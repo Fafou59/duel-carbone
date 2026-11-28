@@ -380,6 +380,21 @@ describe('la fin de la Séance', () => {
     expect(screen.getByRole('dialog', { name: 'Détail du Duel 1' })).toBeInTheDocument()
   })
 
+  it('seul dans la Séance, ne montre ni place ni médaille, même avec un Classement choisi', () => {
+    const srv = dejaDansLaSeance()
+    let etat = arrivee(creerSeance({ classement: true, duels: DUELS }), 'Camille')
+    while (etat.etape.phase !== 'fin') {
+      if (etat.etape.phase === 'duel') etat = repondre(etat, 1, etat.etape.index, bon(etat.etape.index))
+      // Jamais de classement intermédiaire à un seul Participant.
+      expect(etat.etape.phase).not.toBe('classement')
+      etat = avancer(etat, CONSEILS[0].id)
+    }
+    srv.pousser(vueDe(etat))
+    expect(screen.getByRole('heading', { name: 'Séance terminée !' })).toBeInTheDocument()
+    expect(screen.queryByText(/sur 1\b/)).not.toBeInTheDocument()
+    expect(screen.queryByRole('img', { name: /médaille/ })).not.toBeInTheDocument()
+  })
+
   it('dit « sans réponse » pour les Duels auxquels le Participant n’a pas répondu', () => {
     const srv = dejaDansLaSeance()
     srv.pousser(vueDe(seanceJouee(), 3))

@@ -184,17 +184,17 @@ const PARTIES: PartieDeLecture[] = [
       <>
         <p>
           Pour un atelier, une Fresque du Climat ou une réunion d'équipe, le Mode animation fait jouer toute une salle
-          en direct. L'Animateur crée une Séance depuis son ordinateur, sans compte, et la projette : de{' '}
-          {REGLES.seance.participantsMin} à {REGLES.seance.participantsMax} Participants la rejoignent avec leur
-          téléphone, en scannant un QR code ou en tapant un code. Il lance chaque Duel, sans chrono ; la réponse se
-          révèle dès que tout le monde a répondu, ou plus tôt s'il le décide : chacun voit alors s'il a trouvé, et la
-          part de la salle qui a répondu comme lui.
+          en direct. L'Animateur crée une Séance depuis son ordinateur, sans compte, et la projette : jusqu'à{' '}
+          {REGLES.seance.participantsMax} Participants la rejoignent avec leur téléphone, en scannant un QR code ou en
+          tapant un code. Il lance chaque Duel, sans chrono ; la réponse se révèle dès que tout le monde a répondu, ou
+          plus tôt s'il le décide : chacun voit alors s'il a trouvé, et la part de la salle qui a répondu comme lui. Sans
+          aucun téléphone, la Séance sert aussi de discussion collective : la salle débat de chaque Duel à voix haute.
         </p>
         <p>
           Une Séance compte {REGLES.nombreDeDuels} Duels, tirés comme une Partie libre, du plus facile au plus serré,
-          avec toujours un Duel ★. L'Animateur peut choisir un classement : chacun prend alors un pseudo, le classement
-          s'affiche entre les Duels, et des médailles récompensent les trois premières places à la fin (les ex aequo
-          partagent la leur). Une Séance ne compte ni pour ta série, ni pour ton record ; ses réponses s'ajoutent à la
+          avec toujours un Duel ★. L'Animateur peut choisir un classement : chacun prend alors un pseudo, et à partir de{' '}
+          {REGLES.seance.participantsPourUnClassement} Participants le classement s'affiche entre les Duels, avec des
+          médailles pour les trois premières places à la fin (les ex aequo partagent la leur). Une Séance ne compte ni pour ta série, ni pour ton record ; ses réponses s'ajoutent à la
           part des réponses de chaque paire de gestes, comme celles d'une Partie.
         </p>
         <p>

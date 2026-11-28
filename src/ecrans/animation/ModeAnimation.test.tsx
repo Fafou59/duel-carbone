@@ -208,21 +208,41 @@ describe('l’écran projeté de la Séance', () => {
     expect(screen.getByRole('button', { name: /Lancer le premier Duel/ })).toBeInTheDocument()
   })
 
-  it('ne lance pas le premier Duel avant 2 Participants, et dit pourquoi', async () => {
+  it('se lance sans aucun Participant, pour une discussion collective, et le suggère', async () => {
     const { montrer, commandes } = await lancer()
+    const vide = creerSeance({ classement: true, duels: DUELS })
+    montrer(vide)
+    expect(screen.getByText(/Pas de téléphone dans la salle \? Lance quand même les Duels/)).toBeInTheDocument()
+    espace()
+    expect(commandes.at(-1)).toEqual({ type: 'avancer', depuis: { phase: 'attente' }, conseil: null })
+
+    // Pendant le Duel : ni jauge « 0 / 0 », ni part de la salle à la révélation.
+    montrer(avancer(vide))
+    expect(screen.queryByText(/ont répondu/)).not.toBeInTheDocument()
+    montrer(avancer(avancer(vide)))
+    expect(screen.queryByText(/de la salle/)).not.toBeInTheDocument()
+    // Pas de classement à 0 Participant : de la révélation, on passe au Duel suivant.
+    expect(screen.getByRole('button', { name: /Duel 2/ })).toBeInTheDocument()
+  })
+
+  it('termine une discussion collective sans classement ni tableau des Duels ratés', async () => {
+    const { montrer } = await lancer()
+    let etat = creerSeance({ classement: true, duels: DUELS })
+    while (etat.etape.phase !== 'fin') etat = avancer(etat, CONSEILS[0].id)
+    montrer(etat)
+    expect(screen.getByRole('heading', { level: 1, name: 'Les 10 Duels sont joués !' })).toBeInTheDocument()
+    expect(screen.queryByRole('table')).not.toBeInTheDocument()
+    expect(screen.queryByText(/bravo/)).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Un conseil/ })).toBeInTheDocument()
+  })
+
+  it('ne montre pas de classement avec un seul Participant, même choisi', async () => {
+    const { montrer } = await lancer()
     const seul = ajouterParticipant(creerSeance({ classement: true, duels: DUELS }), 'Camille')
     if (!('etat' in seul)) throw new Error('Camille refusée')
-    montrer(seul.etat)
-    const bouton = screen.getByRole('button', { name: /Lancer le premier Duel/ })
-    expect(bouton).toBeDisabled()
-    expect(bouton).toHaveAccessibleDescription('Il faut au moins 2 Participants pour lancer le premier Duel.')
-    const avant = commandes.length
-    espace()
-    expect(commandes).toHaveLength(avant)
-
-    montrer(salle())
-    expect(screen.getByRole('button', { name: /Lancer le premier Duel/ })).toBeEnabled()
-    expect(screen.queryByText(/Il faut au moins 2 Participants/)).not.toBeInTheDocument()
+    montrer(avancer(avancer(seul.etat)))
+    expect(screen.getByRole('button', { name: /Duel 2/ })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Voir le classement/ })).not.toBeInTheDocument()
   })
 
   it('pendant un Duel, montre qui a répondu sans dire ce qu’ils ont choisi ; à la révélation, la part de la salle', async () => {
