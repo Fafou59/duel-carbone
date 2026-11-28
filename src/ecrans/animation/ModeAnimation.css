@@ -126,6 +126,11 @@
 .an-rejoindre__etape {
   font-size: 1.1em;
   line-height: 1.4;
+  /* Une adresse longue (celle d'un aperçu de branche) passe à la ligne plutôt que de sortir de l'écran. */
+  overflow-wrap: anywhere;
+}
+.an-rejoindre > div {
+  min-width: 0;
 }
 .an-rejoindre__etape .an-rejoindre__adresse {
   font-size: 1.15em;
