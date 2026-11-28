@@ -1,0 +1,83 @@
+/* « Animer ou rejoindre une Séance » : deux cartes, une par chemin. */
+.choix-seance {
+  display: grid;
+  gap: 12px;
+  max-width: 68ch;
+  padding: 8px 0;
+}
+
+.choix-seance h2 {
+  margin: 8px 0 0;
+  font-size: 26px;
+}
+
+.choix-seance h2:focus {
+  outline: none;
+}
+
+.choix-seance p {
+  margin: 0;
+}
+
+.choix-seance__chapo {
+  color: var(--discret);
+  font-size: 18px;
+}
+
+.choix-seance__carte {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  padding: 16px;
+  border: 1px solid var(--ligne);
+  border-radius: 16px;
+  background: var(--carte);
+}
+
+.choix-seance__carte h3 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.choix-seance__carte form {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+}
+
+.choix-seance__carte label {
+  font-weight: 700;
+}
+
+/* Le champ du code et son bouton, côte à côte (le bouton passe dessous sur un écran très étroit). */
+.choix-seance__ligne {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.choix-seance__ligne input {
+  flex: 1 1 10ch;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 2px solid var(--ligne);
+  border-radius: 12px;
+  background: var(--fond);
+  color: var(--encre);
+  font: 800 20px/1.2 ui-monospace, monospace;
+  letter-spacing: 0.12em;
+}
+
+.choix-seance__ligne input::placeholder {
+  color: var(--discret);
+  font-weight: 400;
+}
+
+.choix-seance__ligne input:focus-visible {
+  outline: 3px solid var(--marque);
+  outline-offset: 2px;
+}
+
+.choix-seance__carte .bouton {
+  text-decoration: none;
+}

@@ -10,7 +10,7 @@ import type { ComptesDesPaires } from './domaine/taux-d-erreur.ts'
 import { creerMemoire, type Stockage } from './navigateur/memoire.ts'
 import type { ReponseDeFin } from './navigateur/rang-du-jour.ts'
 import { signalerNouvelleVersion } from './navigateur/mise-a-jour.ts'
-import { TITRE_ACCUEIL, TITRE_EN_SAVOIR_PLUS, TITRE_MENTIONS_LEGALES } from './referencement.ts'
+import { TITRE_ACCUEIL, TITRE_CHOIX_SEANCE, TITRE_EN_SAVOIR_PLUS, TITRE_MENTIONS_LEGALES } from './referencement.ts'
 
 // Le vrai générateur, observé : on lit ce que l'application lui demande d'écarter.
 vi.mock('./domaine/generateur.ts', async (importOriginal) => {
@@ -200,6 +200,31 @@ describe('Application : page Mentions légales et vie privée', () => {
     expect(suivant).not.toBeVisible()
     fireEvent.click(screen.getByRole('link', { name: /Retour au jeu/ }))
     await waitFor(() => expect(screen.getByRole('button', { name: 'Duel suivant →' })).toBeVisible())
+  })
+})
+
+describe('Application : animer ou rejoindre une Séance', () => {
+  afterEach(() => {
+    window.location.hash = ''
+  })
+
+  it('s’ouvre depuis le pied de page, avec ses deux chemins', async () => {
+    render(<App />)
+    const lien = within(screen.getByRole('contentinfo')).getByRole('link', { name: 'Animer ou rejoindre une Séance' })
+    expect(lien).toHaveAttribute('href', '#seance')
+    fireEvent.click(lien)
+    expect(await screen.findByRole('heading', { level: 2, name: 'Animer ou rejoindre une Séance' })).toHaveFocus()
+    expect(document.title).toBe(TITRE_CHOIX_SEANCE)
+    expect(screen.getByRole('link', { name: 'Créer une Séance' })).toHaveAttribute('href', '#animer')
+    expect(screen.queryByRole('button', { name: 'Partie libre' })).not.toBeInTheDocument()
+  })
+
+  it('mène le Participant à la page du téléphone, avec le code tapé', () => {
+    window.location.hash = '#seance'
+    render(<App />)
+    fireEvent.change(screen.getByLabelText('Le code affiché sur l’écran de la Séance'), { target: { value: 'k7rm 4p' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Rejoindre' }))
+    expect(window.location.hash).toBe('#rejoindre/K7RM4P')
   })
 })
 
