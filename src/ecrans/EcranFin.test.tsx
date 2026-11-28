@@ -146,6 +146,14 @@ describe('Fin du Duel du jour : cap sur le partage', () => {
   })
 })
 
+describe('Invitation à jouer sur son téléphone, en fin de Partie libre (#103)', () => {
+  it('sur ordinateur, comme ici (jsdom) : la ligne des favoris et son QR code', () => {
+    afficher()
+    expect(screen.getByText(/^Pour revenir demain : ajoute Duel Carbone à tes favoris/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Joue sur ton téléphone : afficher un QR code' })).toBeInTheDocument()
+  })
+})
+
 describe('Record', () => {
   const avecRecord = (ancienRecord: number | null) =>
     render(<EcranFin lignes={LIGNES} score={7} total={10} ancienRecord={ancienRecord} onRejouer={() => {}} />)

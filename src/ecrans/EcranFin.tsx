@@ -228,7 +228,9 @@ export function EcranFin({
           Prochain Duel du jour dans <CompteARebours />
         </p>
       )}
-      {partieDuJour && <InvitationInstallation />}
+      {/* À la fin du Duel du jour, l'invitation entière ; à la fin d'une Partie libre, seulement la ligne de
+          l'ordinateur et son QR code (#103) : un joueur qui ne fait que des Parties libres sur PC le découvre aussi. */}
+      <InvitationInstallation surOrdinateurSeulement={!partieDuJour} />
       {partieDuJour && (
         <div className="fin__entrainement">
           <p>Envie de t’entraîner pour le Duel de demain ?</p>
