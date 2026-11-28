@@ -186,8 +186,9 @@ const PARTIES: PartieDeLecture[] = [
           Pour un atelier, une Fresque du Climat ou une réunion d'équipe, le Mode animation fait jouer toute une salle
           en direct. L'Animateur crée une Séance depuis son ordinateur, sans compte, et la projette : de{' '}
           {REGLES.seance.participantsMin} à {REGLES.seance.participantsMax} Participants la rejoignent avec leur
-          téléphone, en scannant un QR code ou en tapant un code. Il lance chaque Duel et révèle la réponse quand il
-          veut, sans chrono : chacun voit alors s'il a trouvé, et la part de la salle qui a répondu comme lui.
+          téléphone, en scannant un QR code ou en tapant un code. Il lance chaque Duel, sans chrono ; la réponse se
+          révèle dès que tout le monde a répondu, ou plus tôt s'il le décide : chacun voit alors s'il a trouvé, et la
+          part de la salle qui a répondu comme lui.
         </p>
         <p>
           Une Séance compte {REGLES.nombreDeDuels} Duels, tirés comme une Partie libre, du plus facile au plus serré,

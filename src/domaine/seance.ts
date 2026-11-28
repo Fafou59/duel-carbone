@@ -1,7 +1,8 @@
 /**
  * Les règles d'une Séance du Mode animation (PRD docs/prd-mode-animation.md, section 5 ; ADR 0007).
  *
- * Une Séance avance d'étape en étape, au rythme de l'Animateur, sans chrono :
+ * Une Séance avance d'étape en étape, au rythme de l'Animateur, sans chrono (seule la révélation part d'elle-même,
+ * quand tout le monde a répondu : c'est l'écran de l'Animateur qui la demande) :
  *
  *   attente ──▶ duel 1 ──▶ révélation 1 ──▶ classement 1 ──▶ duel 2 ── … ──▶ révélation 10 ──▶ fin
  *

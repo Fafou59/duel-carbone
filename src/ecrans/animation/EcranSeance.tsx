@@ -33,6 +33,18 @@ import { QrCode } from './QrCode.tsx'
 import '../EcranPartie.css'
 
 const VALEURS = valeursDe(INSTANTANE)
+
+/**
+ * Un appui arrivé moins de 0,8 s après un changement d'étape est ignoré. Un double-clic, un rebond de touche ou un
+ * appui au moment où la révélation part toute seule enverraient sinon un second ordre, que le serveur prendrait pour
+ * « passer à l'étape suivante » : un classement ou un Duel sautés (constaté par Fabien le 28/11).
+ */
+export const DELAI_ENTRE_DEUX_APPUIS_MS = 800
+/** Quand tout le monde a répondu, la révélation part toute seule après ce délai : le temps de voir « 24/24 ». */
+export const DELAI_DE_REVELATION_MS = 1500
+
+/** Une étape en texte (« duel-3 »), pour savoir quand elle change. */
+const cleDEtape = (etape: Etape) => `${etape.phase}-${'index' in etape ? etape.index : ''}`
 const MEDAILLES = { or: '🥇', argent: '🥈', bronze: '🥉' } as const
 
 type Props = {
@@ -121,21 +133,52 @@ export function EcranSeance({ code, jeton, serveur, memoire, mesurer, onNouvelle
     if (conseilMontre) memoire.noterConseil(conseilMontre)
   }, [conseilMontre, memoire])
 
+  // Le moment où l'étape affichée a changé, et l'étape depuis laquelle un ordre d'avancer est déjà parti.
+  const etapeAffichee = vue ? cleDEtape(vue.etape) : ''
+  const changeeLe = useRef(0)
+  const dejaDemandee = useRef<string | null>(null)
+  useEffect(() => {
+    changeeLe.current = Date.now()
+  }, [etapeAffichee])
+
+  /** Demande au serveur de passer à l'étape suivante, une seule fois par étape. */
+  const avancer = (etat: VueAnimateur, listeDeDuels: DuelDePartie[]) => {
+    if (dejaDemandee.current === cleDEtape(etat.etape)) return
+    const versLaFin = etat.etape.phase === 'revelation' && etat.etape.index === listeDeDuels.length - 1
+    const conseil = versLaFin ? choisirLeConseil(listeDeDuels, etat.salle, memoire.conseilsRecents()) : null
+    const envoye = envoyer.current({ type: 'avancer', depuis: etat.etape, conseil })
+    if (!envoye) return
+    dejaDemandee.current = cleDEtape(etat.etape)
+    // La fin de la Séance est comptée une fois, au clic qui la termine (pas à chaque réaffichage de l'écran de fin),
+    // avec le nombre exact de Participants : 100 au plus, assez peu de valeurs pour les garder toutes.
+    if (versLaFin) mesurer(`seance/terminee/${etat.participants.length}`)
+  }
+
   const pret = vue !== null && duels !== null && connexion === 'connecte'
   // Le premier Duel ne se lance qu'à partir de 2 Participants (le serveur refuserait de toute façon).
   const manquants = vue?.etape.phase === 'attente' ? participantsManquants(vue.participants.length) : 0
 
   const actionPrincipale = () => {
     if (!vue || !duels) return
+    if (Date.now() - changeeLe.current < DELAI_ENTRE_DEUX_APPUIS_MS) return
     if (vue.fermee || vue.etape.phase === 'fin') return onNouvelle()
     if (connexion !== 'connecte' || manquants > 0) return
-    const versLaFin = vue.etape.phase === 'revelation' && vue.etape.index === duels.length - 1
-    const conseil = versLaFin ? choisirLeConseil(duels, vue.salle, memoire.conseilsRecents()) : null
-    const envoye = envoyer.current({ type: 'avancer', depuis: vue.etape, conseil })
-    // La fin de la Séance est comptée une fois, au clic qui la termine (pas à chaque réaffichage de l'écran de fin),
-    // avec le nombre exact de Participants : 100 au plus, assez peu de valeurs pour les garder toutes.
-    if (versLaFin && envoye) mesurer(`seance/terminee/${vue.participants.length}`)
+    avancer(vue, duels)
   }
+
+  // Tout le monde a répondu au Duel : la révélation part toute seule (décidé par Fabien le 28/11), après le temps
+  // de voir la jauge pleine. L'Animateur peut toujours révéler plus tôt.
+  const indexDuDuel = vue?.etape.phase === 'duel' ? vue.etape.index : null
+  const toutLeMondeARepondu =
+    indexDuDuel !== null && !vue?.fermee && (vue?.participants.length ?? 0) > 0 && (vue?.repondus.length ?? 0) >= (vue?.participants.length ?? 0)
+  const revelerSeul = useEffectEvent(() => {
+    if (vue?.etape.phase === 'duel' && duels) avancer(vue, duels)
+  })
+  useEffect(() => {
+    if (!toutLeMondeARepondu || connexion !== 'connecte') return
+    const minuteur = window.setTimeout(() => revelerSeul(), DELAI_DE_REVELATION_MS)
+    return () => window.clearTimeout(minuteur)
+  }, [toutLeMondeARepondu, connexion, indexDuDuel])
   const retirer = (numero: number) => envoyer.current({ type: 'retirer', numero })
 
   // Espace : le bouton principal, sauf dans la fenêtre du détail des émissions ou sur un autre bouton.
