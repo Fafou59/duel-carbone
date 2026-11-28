@@ -140,9 +140,10 @@ describe('Fin du Duel du jour : cap sur le partage', () => {
     expect(screen.queryByRole('button', { name: 'Rejouer' })).not.toBeInTheDocument()
   })
 
-  it('invite à revenir demain (#68) : sur ordinateur, comme ici (jsdom), une ligne pour les favoris', () => {
+  it('invite à revenir demain (#68) : sans serveur du Rappel et sur ordinateur, comme ici (jsdom), une ligne pour les favoris', async () => {
     finDuJour()
-    expect(screen.getByText(/^Pour revenir demain : ajoute Duel Carbone à tes favoris/)).toBeInTheDocument()
+    // Le jeu demande d'abord la clé du Rappel du matin (ADR 0008) ; sans réponse, l'ancienne invitation revient.
+    expect(await screen.findByText(/^Pour revenir demain : ajoute Duel Carbone à tes favoris/)).toBeInTheDocument()
   })
 })
 

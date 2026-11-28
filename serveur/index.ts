@@ -24,8 +24,10 @@ export default {
   fetch: async (requete: Request, env: Tout, ctx: ExecutionContext): Promise<Response> =>
     (await traiterLeRappel(requete, env, ctx)) ?? (await traiterUneSeance(requete, env)) ?? traiterRequete(requete, env),
 
-  scheduled: async (_tache: ScheduledController, env: Tout): Promise<void> => {
-    await planifierLeRappel(env)
+  // L'heure prévue de la tâche (et non l'heure exacte du lancement) : un Cron parti avec un peu de retard reste
+  // celui de 7 h.
+  scheduled: async (tache: ScheduledController, env: Tout): Promise<void> => {
+    await planifierLeRappel(env, new Date(tache.scheduledTime))
   },
 
   queue: async (lot: MessageBatch<Lot>, env: Tout): Promise<void> => {

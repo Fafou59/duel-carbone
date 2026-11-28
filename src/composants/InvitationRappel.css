@@ -1,0 +1,19 @@
+/* La carte du Rappel du matin reprend celle de l'invitation à installer (InvitationInstallation.css). */
+
+/* Le message qui suit la demande. La zone reste toujours là, même vide : un lecteur d'écran n'annonce de façon sûre
+   que les changements d'une zone déjà présente. */
+.rappel__message {
+  display: grid;
+  gap: 8px;
+}
+
+.rappel__message p {
+  margin: 0;
+}
+
+/* Dans la page En savoir plus : le message, puis les boutons. */
+.rappel-reglage {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 1em;
+}

@@ -19,15 +19,12 @@
  *    Un envoi coûte au plus 0,33 ms de calcul (prototype du ticket 144) : 25 envois font environ 8 ms.
  */
 import { decalerJour, heureAParis, jourDeParis, numeroDuJour, secondesAvantMinuitAParis } from '../src/domaine/jour.ts'
+import { HEURE_DU_RAPPEL, JOURS_DE_CONSERVATION } from '../src/domaine/rappel.ts'
 import type { BaseD1 } from './base.ts'
 import { depuisBase64Url, importerClePrivee, preparerEnvoi, type ClesVapid } from './web-push.ts'
 
-/** L'heure du Rappel, à Paris. */
-export const HEURE_DU_RAPPEL = 7
 /** Le nombre d'abonnements d'un lot : 25 envois tiennent dans les 10 ms de calcul d'une exécution. */
 export const ENVOIS_PAR_LOT = 25
-/** Sans ouverture du jeu pendant ce nombre de jours, l'abonnement est effacé (ADR 0008, durée attendue par la CNIL). */
-export const JOURS_DE_CONSERVATION = 90
 
 /** Un lot à envoyer : les abonnements dont le numéro de ligne va de `de` à `a`, pour le Rappel du jour `jour`. */
 export type Lot = { jour: string; de: number; a: number }

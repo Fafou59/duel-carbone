@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { CompteARebours } from '../composants/CompteARebours.tsx'
 import { Conseil } from '../composants/Conseil.tsx'
-import { InvitationInstallation } from '../composants/InvitationInstallation.tsx'
+import { InvitationRappel } from '../composants/InvitationRappel.tsx'
 import { Recapitulatif } from '../composants/Recapitulatif.tsx'
 import { RangDuJour } from '../composants/RangDuJour.tsx'
 import type { ConseilAffiche } from '../domaine/conseils.ts'
@@ -228,7 +228,8 @@ export function EcranFin({
           Prochain Duel du jour dans <CompteARebours />
         </p>
       )}
-      {partieDuJour && <InvitationInstallation />}
+      {/* « Ne rate pas le Duel de demain » : le Rappel du matin (ADR 0008), ou l'invitation à installer sans lui. */}
+      {partieDuJour && <InvitationRappel />}
       {partieDuJour && (
         <div className="fin__entrainement">
           <p>Envie de t’entraîner pour le Duel de demain ?</p>
