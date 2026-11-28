@@ -217,6 +217,7 @@ describe('Page En savoir plus', () => {
       'Le calcul : Geste = Équivalent × Quantité',
       "Les objets : la durée d'utilisation retenue par l'ADEME",
       "Les réglages : ceux de l'ADEME, par défaut",
+      'Le Rappel du matin',
       'Jouer hors ligne : installer le jeu',
       'L’empreinte de ce jeu',
       'Suivre le projet',

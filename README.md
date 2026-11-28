@@ -40,7 +40,7 @@ Les données restent la propriété de l'ADEME et sont réutilisées dans le cad
 
 ## Pile technique
 
-React · TypeScript · Vite · application web installable (PWA) · hébergement Cloudflare (Workers) · un petit serveur pour le Rang du jour, avec une base D1 dans l'Union européenne et sans aucune donnée personnelle (ADR 0005) · mesure d'audience sans cookie (GoatCounter).
+React · TypeScript · Vite · application web installable (PWA) · hébergement Cloudflare (Workers) · un petit serveur pour le Rang du jour, avec une base D1 dans l'Union européenne et sans aucune donnée personnelle (ADR 0005), et pour le Rappel du matin, un push à 7 h pour qui le demande (ADR 0008) · mesure d'audience sans cookie (GoatCounter).
 
 ## Lancer le projet en local
 
@@ -65,6 +65,8 @@ Pour essayer le jeu avec son serveur (le Rang du jour), sur une base D1 locale, 
 npx wrangler d1 migrations apply BASE --local  # crée la table de la base locale (une fois)
 npm run build && npx wrangler dev             # le jeu construit et son serveur, sur http://localhost:8787
 ```
+
+Le Rappel du matin demande en plus des clés VAPID, jamais dans le dépôt : les écrire dans `.dev.vars` (`VAPID_CLE_PUBLIQUE=…` et `VAPID_CLE_PRIVEE=…`, en base64url). La tâche de 7 h ne part pas d'elle-même en local : `curl "http://localhost:8787/cdn-cgi/local/scheduled?time=<secondes depuis 1970, un 7 h de Paris>"` la lance, et la file locale envoie les lots aussitôt.
 
 La clé d'API Impact CO2 est facultative : pour l'utiliser, copier `.env.example` en `.env` et la renseigner.
 

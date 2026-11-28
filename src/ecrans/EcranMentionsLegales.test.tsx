@@ -9,6 +9,7 @@ describe('Page Mentions légales et vie privée', () => {
     expect(screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual([
       'Ta vie privée',
       'Pendant une Séance du Mode animation',
+      'Si tu demandes le Rappel du matin',
       'Qui est responsable, et sur quelle base',
       'Tes droits, et la CNIL',
       'Éditeur et hébergeur',
@@ -29,6 +30,21 @@ describe('Page Mentions légales et vie privée', () => {
     expect(partie).toHaveTextContent(/Le responsable de ces données est l'éditeur du jeu, pas l'Animateur/)
     expect(partie).toHaveTextContent(/strictement nécessaires/)
     expect(partie).toHaveTextContent(/il n'y a donc pas de bandeau à accepter/)
+  })
+
+  it('dit ce que le Rappel du matin garde, chez qui il passe, combien de temps, et sur quelle base (ADR 0008)', () => {
+    render(<EcranMentionsLegales />)
+    const partie = screen.getByRole('region', { name: 'Si tu demandes le Rappel du matin' })
+    expect(partie).toHaveTextContent(/C'est la seule donnée personnelle que le jeu confie à son serveur dans la durée, et seulement si tu la demandes/)
+    expect(partie).toHaveTextContent(/le jour où tu as ouvert le jeu pour la dernière fois \(le jour seulement, pas l'heure\)/)
+    expect(partie).toHaveTextContent(/ni ton score, ni ta série, ni si tu as joué ce jour-là, ni ton adresse IP/)
+    expect(partie).toHaveTextContent(/Apple \(Safari, sur iPhone, iPad et Mac\), Google .*, Mozilla \(Firefox\) ou Microsoft/)
+    expect(partie).toHaveTextContent(/Le message est chiffré/)
+    // La durée est lue dans src/domaine/rappel.ts, comme le serveur.
+    expect(partie).toHaveTextContent(/au plus tard 90 jours après ta dernière ouverture du jeu/)
+    expect(partie).toHaveTextContent(/ton accord \(article 6\.1\.a du RGPD\)/)
+    expect(screen.getByText(/Pour savoir si le jeu plaît/)).toHaveTextContent(/la proposition du Rappel du matin et sa réponse/)
+    expect(screen.getByText(/Sans cookie, sans compte/)).toHaveTextContent(/« Non merci » à l’invitation à installer le jeu ou au Rappel du matin/)
   })
 
   it('compte les Séances dans la mesure d’audience, et les nomme dans la base légale', () => {
