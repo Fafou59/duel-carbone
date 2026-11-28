@@ -54,12 +54,32 @@
   // SEANCE_SANS_JURIDICTION=oui dans un fichier .dev.vars (jamais ici).
   "durable_objects": { "bindings": [{ "name": "SEANCE", "class_name": "Seance" }] },
   "exports": { "Seance": { "type": "durable-object", "storage": "sqlite" } },
+  // Le Rappel du matin (ADR 0008, serveur/rappel.ts). La tâche planifiée tourne en heure UTC : lancée à 5 h et à
+  // 6 h UTC, elle n'agit qu'à celle des deux où il est 7 h à Paris (6 h UTC l'hiver, 5 h UTC l'été). Le plan
+  // gratuit en permet 5 par compte ; celle-ci n'en utilise qu'une.
+  "triggers": { "crons": ["0 5,6 * * *"] },
+  // La file du Rappel : la tâche y range des lots de 25 abonnements, et Cloudflare confie chaque lot à une exécution
+  // à part (10 ms de calcul chacune sur le plan gratuit ; 25 envois en font environ 8). Un lot par exécution
+  // (max_batch_size 1). Si la base ne répond pas, le lot est réessayé deux fois au plus. Sur le plan gratuit, la
+  // file permet 10 000 opérations par jour, environ 3 par lot : de quoi envoyer plus de 80 000 Rappels.
+  // La file se crée une fois pour toutes, avant le premier déploiement qui la déclare :
+  //   npx wrangler queues create duel-carbone-rappel
+  "queues": {
+    "producers": [{ "queue": "duel-carbone-rappel", "binding": "FILE_DU_RAPPEL" }],
+    "consumers": [{ "queue": "duel-carbone-rappel", "max_batch_size": 1, "max_retries": 2 }]
+  },
+  // Les clés VAPID du Rappel sont des secrets, jamais écrits ici : VAPID_CLE_PUBLIQUE et VAPID_CLE_PRIVEE
+  // (npx wrangler secret put …, ou npx wrangler preview secret bulk … --name <aperçu> pour un aperçu).
   // Les aperçus des branches (commande « npx wrangler preview », lancée par Cloudflare pour chaque branche autre
   // que main). Ils n'héritent pas des bases de la production : on leur en donne une à part, elle aussi dans l'UE,
   // partagée par tous les aperçus. Ainsi, essayer un aperçu ne fausse jamais le Rang du jour des vrais joueurs.
   // Les Durable Objects, eux, sont propres à chaque aperçu : Cloudflare lui donne ses propres Séances, effacées avec
   // lui. Il faut seulement répéter la liaison env.SEANCE ici (sinon, l'aperçu répond par une erreur 1101).
+  //
+  // Les aperçus ne lancent ni la tâche planifiée ni la file du Rappel (Cloudflare ne le permet pas) : RAPPEL_ESSAI
+  // y ouvre une adresse d'essai, qui envoie le Rappel tout de suite à l'appareil qui le demande (serveur/rappel.ts).
   "previews": {
+    "vars": { "RAPPEL_ESSAI": "oui" },
     "durable_objects": { "bindings": [{ "name": "SEANCE", "class_name": "Seance" }] },
     "d1_databases": [
       {

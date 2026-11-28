@@ -3,6 +3,7 @@ import { CONSEILS_RECENTS } from '../domaine/conseils.ts'
 import { GESTES_CALCULES, gesteCalcule, INSTANTANE } from '../donnees/index.ts'
 import { enMinuscule, formaterDate, formaterEmpreinte } from '../domaine/format.ts'
 import { REGLES } from '../domaine/regles.ts'
+import { HEURE_DU_RAPPEL } from '../domaine/rappel.ts'
 import { MEMOIRE_DU_CALENDRIER } from '../domaine/calendrier.ts'
 import { PARTIES_MEMORISEES } from '../navigateur/taille-memoire.ts'
 import { APPELS, DATE_DU_DECOMPTE, DEBUT_DU_PROJET, HYPOTHESES, JETONS } from '../donnees/empreinte-ia.ts'
@@ -20,6 +21,7 @@ import {
 import { ADRESSES } from '../navigateur/adresse.ts'
 import { DefinitionCo2e } from '../composants/Co2e.tsx'
 import { GuideInstallation } from '../composants/InvitationInstallation.tsx'
+import { ReglageRappel } from '../composants/InvitationRappel.tsx'
 import { PageDeLecture, Renvoi, type PartieDeLecture } from '../composants/PageDeLecture.tsx'
 
 /** Un nombre à la française, jusqu'à deux décimales : « 0,12 », « 1,25 », « 500 ». */
@@ -301,6 +303,27 @@ const PARTIES: PartieDeLecture[] = [
           l'électricité vient davantage du charbon ou du gaz, les mêmes Gestes émettent plus, parfois plusieurs fois
           plus : les chiffres du jeu valent pour la France.
         </p>
+      </>
+    ),
+  },
+  {
+    id: 'rappel',
+    titre: 'Le Rappel du matin',
+    contenu: (
+      <>
+        <p>
+          Chaque jour à {HEURE_DU_RAPPEL} h, heure de Paris, le Rappel du matin t’annonce par une notification que le nouveau Duel du
+          jour est prêt : « Duel Carbone n° … – C’est l’heure du Duel Carbone ! ⚔️ ». Le même pour tous, il ne
+          dévoile rien des Duels, et un toucher ouvre le jeu. S’il n’a pas pu t’arriver avant minuit (téléphone
+          éteint), il disparaît : tu ne recevras jamais l’annonce du Duel de la veille.
+        </p>
+        <p>
+          Tu le demandes toi-même, à la fin du Duel du jour ou ici, et tu l’arrêtes quand tu veux. Sur iPhone et
+          iPad, il faut d’abord installer le jeu sur l’écran d’accueil. Pour l’envoyer, le serveur garde l’adresse de
+          notification de ton appareil, sans rien savoir de tes Parties : le détail est dans les{' '}
+          <a href={ADRESSES.mentionsLegales}>Mentions légales et vie privée</a>.
+        </p>
+        <ReglageRappel />
       </>
     ),
   },

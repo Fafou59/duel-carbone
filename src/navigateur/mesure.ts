@@ -7,7 +7,8 @@
  * - GoatCounter compte des événements mais ne calcule pas de moyenne : la durée d'une Partie
  *   est envoyée sous forme de tranche (voir docs/prd-v1-duel.md, « Événements de mesure d'audience »).
  * - L'arrivée par le QR code (?ref=qr-code-pc, #98) est comptée avec la visite, puis effacée de l'adresse ; de même
- *   l'arrivée depuis la fin d'une Séance du Mode animation (?ref=seance, sur « Jouer le Duel du jour »).
+ *   l'arrivée depuis la fin d'une Séance du Mode animation (?ref=seance, sur « Jouer le Duel du jour »), et
+ *   l'ouverture depuis le Rappel du matin (?ref=notification, l'adresse que la notification ouvre, ADR 0008).
  */
 import { useEffect, useRef } from 'react'
 import { ADRESSE_DU_JEU } from '../domaine/partage.ts'
@@ -41,6 +42,7 @@ export type Evenement =
   | 'partage/image'
   | `erreur/${Plantage}`
   | `installation/${'proposee' | 'guide' | 'acceptee' | 'refusee' | 'qr'}`
+  | `notifications/${'proposees' | 'acceptees' | 'refusees' | 'bloquees'}`
   | 'conseil/lien'
   | `seance/${'creee' | 'rejointe'}`
   | `seance/terminee/${number}`

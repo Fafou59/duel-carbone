@@ -1,7 +1,5 @@
 // @vitest-environment node
 // (Le serveur ne tourne pas dans un navigateur : pas besoin de jsdom, et node:sqlite n'existe que dans Node.)
-import { readdirSync, readFileSync } from 'node:fs'
-import { DatabaseSync } from 'node:sqlite'
 import { beforeEach, describe, expect, it } from 'vitest'
 import calendrierJson from '../src/donnees/calendrier.json'
 import { GESTES_CALCULES } from '../src/donnees/index.ts'
@@ -13,41 +11,8 @@ import { cleDuDuel } from '../src/domaine/taux-d-erreur.ts'
 import { DUELS_THEMATIQUES } from '../src/donnees/duels-thematiques.ts'
 import { numeroDuJour } from '../src/domaine/jour.ts'
 import { traiterRequete } from './api.ts'
-import { compterUneSalle, lireComptes, type BaseD1, type RequeteD1 } from './base.ts'
-
-/**
- * Une base D1 de test : une vraie base SQLite en mémoire (node:sqlite), avec la même table que la vraie
- * (le fichier de migration est appliqué tel quel), derrière les quelques fonctions de D1 qu'utilise le serveur.
- */
-function baseDeTest(): BaseD1 & { sqlite: DatabaseSync } {
-  const sqlite = new DatabaseSync(':memory:')
-  // Toutes les migrations, dans l'ordre de leur numéro, comme Wrangler les applique à la vraie base.
-  const dossier = new URL('../migrations/', import.meta.url)
-  for (const fichier of readdirSync(dossier).filter((f) => f.endsWith('.sql')).sort()) {
-    sqlite.exec(readFileSync(new URL(fichier, dossier), 'utf8'))
-  }
-  const requete = (sql: string, valeurs: (string | number)[] = []): RequeteD1 => ({
-    bind: (...v) => requete(sql, v),
-    all: async <T,>() => ({ results: sqlite.prepare(sql).all(...valeurs) as T[] }),
-  })
-  return {
-    sqlite,
-    prepare: (sql) => requete(sql),
-    // D1 enchaîne les requêtes d'un lot dans une transaction : toutes passent, ou aucune.
-    batch: async (requetes) => {
-      sqlite.exec('BEGIN')
-      try {
-        const resultats = []
-        for (const r of requetes) resultats.push(await r.all())
-        sqlite.exec('COMMIT')
-        return resultats as never
-      } catch (erreur) {
-        sqlite.exec('ROLLBACK')
-        throw erreur
-      }
-    },
-  }
-}
+import { compterUneSalle, lireComptes, type BaseD1 } from './base.ts'
+import { baseDeTest } from './base-de-test.ts'
 
 // Le 22 novembre 2026 à 15 h, heure de Paris : le Duel du jour n° 9.
 const JOUR = '2026-11-22'

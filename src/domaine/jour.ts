@@ -49,6 +49,9 @@ export function secondesAvantMinuitAParis(instant: Date): number {
   return 86_400 - (h * 3600 + m * 60 + s)
 }
 
+/** L'heure qu'il est à Paris à cet instant (de 0 à 23), été comme hiver : 7 pour le Rappel du matin. */
+export const heureAParis = (instant: Date): number => Number(heureDeParis.format(instant).slice(0, 2))
+
 /** Une durée en secondes, lisible : « 3 h 05 min 09 s ». */
 export function formaterDuree(secondes: number): string {
   const deux = (n: number) => String(n).padStart(2, '0')

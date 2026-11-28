@@ -22,5 +22,5 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": ["serveur"],
-  "exclude": ["serveur/**/*.test.ts", "serveur/objet"]
+  "exclude": ["serveur/**/*.test.ts", "serveur/base-de-test.ts", "serveur/objet"]
 }

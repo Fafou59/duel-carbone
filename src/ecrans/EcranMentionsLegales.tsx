@@ -1,4 +1,5 @@
 import { REGLES } from '../domaine/regles.ts'
+import { HEURE_DU_RAPPEL, JOURS_DE_CONSERVATION } from '../domaine/rappel.ts'
 import { CNIL_PLAINTE, CONTACT, GOATCOUNTER, MENTIONS_LEGALES_ADEME } from '../liens.ts'
 import { ADRESSES } from '../navigateur/adresse.ts'
 import { PageDeLecture, Renvoi, type PartieDeLecture } from '../composants/PageDeLecture.tsx'
@@ -13,6 +14,8 @@ const { dureeMaxEnHeures, effacementEnHeures, longueurMaxDuPseudo } = REGLES.sea
  * pourquoi il en a le droit, ce que tu peux demander, qui l'édite, et à quelles conditions il reprend les données de
  * l'ADEME (décision de l'issue 111, variante A). Juste après « Ta vie privée », la Séance du Mode animation, seul
  * moment où le serveur garde des données personnelles, et pour 24 heures au plus (ADR 0007, lot 4 : issue 137).
+ * Puis le Rappel du matin (ADR 0008) : la seule donnée personnelle que le serveur garde dans la durée, et seulement
+ * si le joueur la demande (90 jours au plus après sa dernière visite).
  *
  * Les faits sur les prestataires ont été vérifiés le 27/11/2026 dans leurs pages officielles : GoatCounter
  * (goatcounter.com/help/privacy, /help/sessions : données chez Hetzner en Finlande et en Allemagne, adresse IP jamais
@@ -28,7 +31,7 @@ const PARTIES: PartieDeLecture[] = [
         <p>
           Sans cookie, sans compte. Ton record, ta Partie du jour (pour la reprendre ou revoir ton résultat), ta
           série, les derniers Duels joués et les derniers Conseils lus (pour ne pas te reposer les mêmes) et ton éventuel « Non merci » à
-          l’invitation à installer le jeu sont gardés dans ton navigateur, sur cet appareil. Ils ne sont envoyés nulle part.
+          l’invitation à installer le jeu ou au Rappel du matin sont gardés dans ton navigateur, sur cet appareil. Ils ne sont envoyés nulle part.
         </p>
         <p>
           Pour le Rang du jour et la part des réponses identiques à la tienne, le jeu échange deux fois avec son serveur
@@ -61,7 +64,7 @@ const PARTIES: PartieDeLecture[] = [
         </p>
         <p>
           Pour savoir si le jeu plaît, nous comptons les visites et quelques moments de jeu (une Partie lancée, terminée
-          et sa durée approximative, la longueur de ta série quand tu lances le Duel du jour, « Rejouer », un partage en texte ou en image, le lien « En savoir plus » d'un Conseil, l'invitation à installer le jeu et sa réponse, l'ouverture du QR code sur ordinateur, les Séances du Mode animation créées, rejointes et terminées, avec leur nombre de Participants, et les plantages du jeu, sans leur détail) avec{' '}
+          et sa durée approximative, la longueur de ta série quand tu lances le Duel du jour, « Rejouer », un partage en texte ou en image, le lien « En savoir plus » d'un Conseil, l'invitation à installer le jeu et sa réponse, l'ouverture du QR code sur ordinateur, la proposition du Rappel du matin et sa réponse (acceptée, refusée ou bloquée par le navigateur), l'ouverture du jeu depuis un Rappel, les Séances du Mode animation créées, rejointes et terminées, avec leur nombre de Participants, et les plantages du jeu, sans leur détail) avec{' '}
           <a href={GOATCOUNTER}>GoatCounter</a>, une mesure
           d'audience sans cookie ni identifiant. Elle ne donne que des chiffres agrégés : elle ne peut pas te suivre
           d'un site à l'autre, n'enregistre pas ton adresse IP, et ni ton score ni tes réponses ne lui sont envoyés. Si
@@ -106,6 +109,39 @@ const PARTIES: PartieDeLecture[] = [
     ),
   },
   {
+    id: 'rappel',
+    titre: 'Si tu demandes le Rappel du matin',
+    contenu: (
+      <>
+        <p>
+          Le Rappel du matin est une notification envoyée chaque jour à {HEURE_DU_RAPPEL} h à ceux qui l'ont demandé. C'est la seule
+          donnée personnelle que le jeu confie à son serveur dans la durée, et seulement si tu la demandes, en touchant
+          « Activer le Rappel » puis en autorisant les notifications.
+        </p>
+        <p>
+          Ton navigateur reçoit alors de son service de notification une adresse d'envoi, propre à ce navigateur sur
+          cet appareil, et deux clés de chiffrement. Le serveur garde cet « abonnement », et le jour où tu as ouvert le
+          jeu pour la dernière fois (le jour seulement, pas l'heure) : à chaque ouverture, le jeu le lui renvoie.
+          Rien d'autre : ni ton score, ni ta série, ni si tu as joué ce jour-là, ni ton adresse IP. Ces données sont
+          gardées chez Cloudflare, dans l'Union européenne.
+        </p>
+        <p>
+          Chaque matin, le serveur confie le Rappel au service de notification de ton navigateur, qui le porte jusqu'à
+          ton appareil : Apple (Safari, sur iPhone, iPad et Mac), Google (Chrome, et la plupart des navigateurs
+          Android), Mozilla (Firefox) ou Microsoft (Edge sur ordinateur), des sociétés américaines. C'est ton
+          navigateur qui le choisit, pas nous. Le message est chiffré : ce service voit l'adresse d'envoi et
+          l'heure, mais ne peut pas le lire.
+        </p>
+        <p>
+          L'abonnement est effacé dès que tu arrêtes le Rappel (à la fin du Duel du jour, ou dans la page En savoir
+          plus), dès que le service de notification le dit invalide (notifications coupées dans les réglages, jeu
+          désinstallé), et au plus tard {JOURS_DE_CONSERVATION} jours après ta dernière ouverture du jeu. Il repose sur
+          ton accord (article 6.1.a du RGPD), que tu retires en arrêtant le Rappel ou en coupant les notifications.
+        </p>
+      </>
+    ),
+  },
+  {
     id: 'base-legale',
     titre: 'Qui est responsable, et sur quelle base',
     contenu: (
@@ -118,7 +154,8 @@ const PARTIES: PartieDeLecture[] = [
         </p>
         <p>
           Pendant une Séance du Mode animation, le serveur garde aussi ton pseudo, tes réponses et ton jeton,{' '}
-          {effacementEnHeures} heures au plus (voir plus haut). Il reste enfin ton adresse IP, que deux prestataires
+          {effacementEnHeures} heures au plus, et l'abonnement au Rappel du matin si tu l'as demandé, sur ton accord
+          (voir plus haut). Il reste enfin ton adresse IP, que deux prestataires
           voient passer. Cloudflare, l'hébergeur, la reçoit pour t'envoyer les pages du jeu et protéger le site des
           attaques : il agit pour notre compte, et le jeu lui-même ne la garde pas. GoatCounter, la mesure d'audience, s'en sert quelques heures au plus, en mémoire, pour ne pas
           compter deux fois la même visite et en déduire ton pays, sans jamais l'enregistrer.
@@ -146,8 +183,9 @@ const PARTIES: PartieDeLecture[] = [
         <p>
           Tu peux demander à accéder aux données qui te concernent, à les faire corriger ou effacer, à en limiter
           l'usage ou t'y opposer, en écrivant à <Contact />. En dehors d'une Séance du Mode animation, effacée au
-          bout de {effacementEnHeures} heures, le jeu ne garde rien qui permette de te reconnaître : il n'y aura le plus
-          souvent rien à retrouver. Pour effacer ce que garde ton navigateur, il suffit de vider les
+          bout de {effacementEnHeures} heures, et de l'abonnement au Rappel du matin, que tu effaces toi-même en
+          arrêtant le Rappel, le jeu ne garde rien qui permette de te reconnaître : il n'y aura le plus souvent rien
+          à retrouver. Pour effacer ce que garde ton navigateur, il suffit de vider les
           données du site dans ses réglages.
         </p>
         <p>
