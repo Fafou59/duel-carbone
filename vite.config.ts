@@ -53,6 +53,14 @@ export default defineConfig({
   test: {
     // jsdom simule un navigateur dans Node.js, pour tester les composants React sans ouvrir de vraie page.
     environment: 'jsdom',
+    // Chaque fichier de test reste dans son propre bac à sable (un contexte « vm » de Node), mais jsdom n'est créé
+    // qu'une fois par fil d'exécution au lieu d'une fois par fichier : 832 tests en 23 s au lieu de 93 s
+    // (ticket #119). L'isolation entre fichiers est gardée, contrairement à isolate: false.
+    pool: 'vmThreads',
+    // Revers de ce réglage : tous les fils jouent leurs tests en même temps (la création de jsdom ne les étale plus),
+    // et sur une machine chargée un test peut dépasser les 5 s prévues par défaut sans être faux. On laisse 10 s ;
+    // l'attente des éléments à l'écran est élargie de même dans src/test/setup.ts.
+    testTimeout: 10_000,
     setupFiles: './src/test/setup.ts',
     // Vitest ne lance pas les tests de bout en bout (Playwright, dossier e2e), ni ceux du Durable Object de la
     // Séance (serveur/objet, qui ont leur propre configuration : vitest.objet.config.ts), ni les copies du projet

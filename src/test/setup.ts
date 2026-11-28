@@ -1,7 +1,12 @@
 // Ajoute à Vitest des vérifications adaptées au HTML, comme toBeInTheDocument() ou toHaveAttribute().
 import '@testing-library/jest-dom/vitest'
-import { cleanup } from '@testing-library/react'
+import { cleanup, configure } from '@testing-library/react'
 import { afterEach, vi } from 'vitest'
+
+// findBy… et waitFor attendent qu'un élément apparaisse : 1 s par défaut, 3 s ici. Les tests tournent en parallèle
+// dans un seul processus (pool vmThreads, vite.config.ts) : sur une machine chargée, un écran met parfois plus d'une
+// seconde à s'afficher sans que rien ne soit cassé. Un élément qui ne vient jamais fait toujours échouer le test.
+configure({ asyncUtilTimeout: 3000 })
 
 // jsdom simule un navigateur mais ne sait pas faire défiler une page : on fournit une doublure.
 if (typeof Element !== 'undefined' && !Element.prototype.scrollIntoView) {
