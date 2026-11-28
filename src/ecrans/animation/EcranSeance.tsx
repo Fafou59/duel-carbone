@@ -25,6 +25,7 @@ import type { MessageDuServeur, VueAnimateur } from '../../domaine/seance-messag
 import { CONSEILS } from '../../donnees/conseils.ts'
 import { DUELS_THEMATIQUES } from '../../donnees/duels-thematiques.ts'
 import { GESTES_CALCULES, INSTANTANE } from '../../donnees/index.ts'
+import { CHEMIN_REJOINDRE } from '../../domaine/adresse-courte.ts'
 import { ADRESSES, adresseDeRejoindre } from '../../navigateur/adresse.ts'
 import type { Memoire } from '../../navigateur/memoire.ts'
 import type { Evenement } from '../../navigateur/mesure.ts'
@@ -303,15 +304,30 @@ function Logo({ lien = false }: { lien?: boolean }) {
 
 /** Le QR code, l'adresse et le code : de quoi rejoindre la Séance. */
 function Rejoindre({ code, compact = false }: { code: string; compact?: boolean }) {
+  // L'adresse courte, à taper à la main (duelcarbone.fr/rejoindre) : elle mène au champ du code (adresse-courte.ts).
+  const adresseCourte = `${window.location.host}${CHEMIN_REJOINDRE}`
+  const codeLu = <p className="an-rejoindre__code" aria-label={`Code ${code.split('').join(' ')}`}>{code}</p>
   return (
     <div className={`an-rejoindre${compact ? ' an-rejoindre--compact' : ''}`}>
       <QrCode texte={adresseDeRejoindre(window.location.origin, code)} taille={compact ? 96 : 220} />
-      <div>
-        <p className="an-rejoindre__adresse">{window.location.host}</p>
-        <p className="an-rejoindre__code" aria-label={`Code ${code.split('').join(' ')}`}>
-          {code}
-        </p>
-      </div>
+      {compact ? (
+        <div>
+          <p className="an-rejoindre__adresse">{adresseCourte}</p>
+          {codeLu}
+        </div>
+      ) : (
+        // Pendant l'attente, les deux façons de rejoindre, dites pas à pas (retour de Fabien le 28/11).
+        <div>
+          <p className="an-rejoindre__etape">
+            <span aria-hidden="true">📱 </span>Scanne le QR code
+          </p>
+          <p className="an-rejoindre__etape">
+            ou va sur <strong className="an-rejoindre__adresse">{adresseCourte}</strong>
+          </p>
+          <p className="an-rejoindre__etape">et tape le code :</p>
+          {codeLu}
+        </div>
+      )}
     </div>
   )
 }

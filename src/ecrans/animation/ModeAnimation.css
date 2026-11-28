@@ -122,6 +122,16 @@
 .an-rejoindre__adresse {
   font-size: 1.3em;
 }
+/* Les étapes pour rejoindre (attente) : « Scanne le QR code / ou va sur … / et tape le code : ». */
+.an-rejoindre__etape {
+  font-size: 1.1em;
+  line-height: 1.4;
+}
+.an-rejoindre__etape .an-rejoindre__adresse {
+  font-size: 1.15em;
+  font-weight: 800;
+  color: var(--marque);
+}
 .an-rejoindre__code {
   font: 800 3.2em/1.1 ui-monospace, monospace;
   letter-spacing: 0.12em;
